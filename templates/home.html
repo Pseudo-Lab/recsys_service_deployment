@@ -9,8 +9,8 @@
 	<link rel="icon" href="../favicon.ico" type="image/x-icon">
 	<link rel="stylesheet" href="{% static 'css/style.css' %}">
 	<script src="https://kit.fontawesome.com/c47106c6a7.js"></script>​
-	<script src="../js/isotope.pkgd.min.js"></script>
-    <script defer src="../js/main.js"></script>
+	<script src="static/js/isotope.pkgd.min.js"></script>
+    <script defer src="static/js/main.js"></script>
 </head>
 <body>
 
@@ -21,157 +21,175 @@
 			<li><a href="#"><i class="fab fa-facebook"></i> <span>Facebook</span></a></li>
 			<li><a href="#"><i class="fas fa-envelope"></i> <span>E-mail</span></a></li>
 		</ul>
+		<form method="POST">
+			{% csrf_token %}
+			<div>
+				<label>본 영화</label>
+				<input name="watched_movie" type="text">
+			</div>
+			<button>입력</button>
+		</form>
 	</header>
+
+
 
 	<main>
 		<ul>
-			<li><a href=".even.bert4rec">BERT4Rec</a></li>
-			<li><a href=".odd.kprn">KPRN</a></li>
-			<li><a href=".even.srgnn">SR-GNN</a></li>
-			<li><a href=".odd.gru4rec">GRU4Rec</a></li>
-			<li><a href=".even.pinsage">PinSage</a></li>
-			<li><a href=".odd.fpmc">FPMC</a></li>
-			<li><a href=".even.ngcf">NGCF</a></li>
-			<li><a href=".odd.sasrec">SASRec</a></li>
+			<li><a href=".bert4rec">BERT4Rec</a></li>
+			<li><a href=".kprn">KPRN</a></li>
+			<li><a href=".srgnn">SR-GNN</a></li>
+			<li><a href=".gru4rec">GRU4Rec</a></li>
+			<li><a href=".pinsage">PinSage</a></li>
+			<li><a href=".fpmc">FPMC</a></li>
+			<li><a href=".ngcf">NGCF</a></li>
+			<li><a href=".sasrec">SASRec</a></li>
 			<li class='on'><a href="*">ALL</a></li>
-
 		</ul>
 
 		<section>
-			<article class='odd sasrec'>
+			{% for r in result %}
+			<article class='sasrec'>
 				<div>
-					<img src="img/p1.jpg" alt="">
-					<h2>SASRec 추천결과 1</h2>
+					<img src="{% static ''%}" alt="">
+					<h2>{{ r }}</h2>
+					<p>{{ r }}</p>
+				</div>
+			</article>
+			{% endfor %}
+			<article class='sasrec'>
+				<div>
+					<img src="{% static 'img/The Avengers.png'%}" alt="">
+					<h2>The Avengers</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='even ngcf'>
+			<article class='ngcf'>
 				<div>
-					<img src="../img/p2.jpg" alt="">
-					<h2>NGCF 추천결과 1</h2>
+					<img src="{% static 'img/Parasite.png' %}" alt="">
+					<h2>Parasite</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='odd fpmc'>
+			<article class='fpmc'>
 				<div>
-					<img src="../../img/p3.jpg" alt="">
-					<h2>FPMC 추천결과 1</h2>
+					<img src="{% static 'img/La La Land.png' %}" alt="">
+					<h2>La La Land</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='even pinsage'>
+			<article class='pinsage'>
 				<div>
-					<img src="../img/p4.jpg" alt="">
-					<h2>PinSage 추천결과 1</h2>
+					<img src="{% static 'img/About Time.png' %}" alt="">
+					<h2>About Time</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='odd gru4rec'>
+			<article class='gru4rec'>
 				<div>
-					<img src="../img/p5.jpg" alt="">
-					<h2>GRU4Rec 추천결과 1</h2>
+					<img src="{% static 'img/Inception.png' %}" alt="">
+					<h2>Inception</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='even srgnn'>
+			<article class='srgnn'>
 				<div>
-					<img src="../img/p6.jpg" alt="">
-					<h2>SR-GNN 추천결과 1</h2>
+					<img src="{% static 'img/World War Z.png' %}" alt="">
+					<h2>World War Z</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='odd kprn'>
+			<article class='kprn'>
 				<div>
 					<img src="../img/p7.jpg" alt="">
-					<h2>KPRN 추천결과 1</h2>
+					<h2>본 영화</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='even bert4rec'>
+			<article class='bert4rec'>
 				<div>
 					<img src="../img/p8.jpg" alt="">
 					<h2>BERT4Rec 추천결과 1</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='odd sasrec'>
+			<article class='sasrec'>
 				<div>
 					<img src="../img/p9.jpg" alt="">
 					<h2>SASRec 추천결과 2</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='even ngcf'>
+			<article class='ngcf'>
 				<div>
 					<img src="../img/p10.jpg" alt="">
 					<h2>NGCF 추천결과 2</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='odd fpmc'>
+			<article class='fpmc'>
 				<div>
 					<img src="../img/p11.jpg" alt="">
 					<h2>FPMC 추천결과 2</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='even pinsage'>
+			<article class='pinsage'>
 				<div>
 					<img src="../img/p12.jpg" alt="">
 					<h2>Pinsage 추천결과 2</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='odd gru4rec'>
+			<article class='gru4rec'>
 				<div>
 					<img src="../img/p13.jpg" alt="">
 					<h2>GRU4Rec 추천결과 2</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='even srgnn'>
+			<article class='srgnn'>
 				<div>
 					<img src="../img/p14.jpg" alt="">
 					<h2>SR-GNN 추천결과 2</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='odd kprn'>
+			<article class='kprn'>
 				<div>
 					<img src="../img/p15.jpg" alt="">
 					<h2>KPRN 추천결과 2</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='even bert4rec'>
+			<article class='bert4rec'>
 				<div>
 					<img src="../img/p16.jpg" alt="">
 					<h2>BERT4Rec 추천결과 2</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='odd'>
+			<article class=''>
 				<div>
 					<img src="../img/p17.jpg" alt="">
 					<h2>17</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='even'>
+			<article class=''>
 				<div>
 					<img src="../img/p18.jpg" alt="">
 					<h2>18</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='odd'>
+			<article class=''>
 				<div>
 					<img src="../img/p19.jpg" alt="">
 					<h2>19</h2>
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='even'>
+			<article class=''>
 				<div>
 					<img src="../img/p20.jpg" alt="">
 					<h2>20</h2>

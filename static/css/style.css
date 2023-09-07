@@ -22,11 +22,11 @@ header h1 {
   letter-spacing:1px;
   position:absolute; 
   left:50px;
-  top:50%;
+  top:30%;
   transform:translateY(-150%);
 }
 header h1::after {
-  content:'';
+  content:'가짜연구소 추천시스템 리서치';
   display:block;
   width:150px;
   height:2px;
@@ -34,7 +34,7 @@ header h1::after {
   margin-top:20px;
 }
 header h1::before {
-  content:'UI/UX DEVELOPMENT';
+  content:'가짜연구소 추천시스템 리서치';
   display:block;
   font:14px/1 'orbitron';
   color:#fff;
@@ -44,6 +44,16 @@ header h1::before {
   top:140px;
   opacity:0.8;
 }
+header h2 {
+  font:bold 50px/1 'orbitron';
+  color:#fff;
+  letter-spacing:1px;
+  position:absolute;
+  left:50px;
+  top:30%;
+  transform:translateY(-150%);
+}
+
 header ul {
   position:absolute; 
   left:40px;

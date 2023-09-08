@@ -3,3 +3,6 @@
 ```python
 python manage.py runserver
 ```
+
+![img.png](readme_file/img.png)
+~ 9/8 진행상황 

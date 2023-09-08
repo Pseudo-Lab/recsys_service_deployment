@@ -17,7 +17,7 @@ movie_dict = movies.to_dict('index')
 
 
 def home(request):
-    # print(f"request.POST : {request.POST['watched_movie']}")
+    print(f"request.POST : {request.POST}")
     result = sasrec.predict(log_seqs=np.array([[1, 2, 3]]), item_indices=np.array([[1, 2, 3, 4]]))
     result = result.detach().numpy()[0]
     print(f'result : {result}')

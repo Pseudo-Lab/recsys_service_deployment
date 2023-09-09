@@ -51,8 +51,8 @@
 			<article class='sasrec'>
 				<div>
 					<img src="{% static ''%}" alt="">
-					<h2>{{ r }}</h2>
-					<p>{{ r }}</p>
+					<h2>{{ r.title }}</h2>
+					<p>{{ r.genres }}</p>
 				</div>
 			</article>
 			{% endfor %}
@@ -98,104 +98,104 @@
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-			<article class='kprn'>
-				<div>
-					<img src="../img/p7.jpg" alt="">
-					<h2>본 영화</h2>
-					<p>Here comes content description in detail.</p>
-				</div>
-			</article>
-			<article class='bert4rec'>
-				<div>
-					<img src="../img/p8.jpg" alt="">
-					<h2>BERT4Rec 추천결과 1</h2>
-					<p>Here comes content description in detail.</p>
-				</div>
-			</article>
-			<article class='sasrec'>
-				<div>
-					<img src="../img/p9.jpg" alt="">
-					<h2>SASRec 추천결과 2</h2>
-					<p>Here comes content description in detail.</p>
-				</div>
-			</article>
-			<article class='ngcf'>
-				<div>
-					<img src="../img/p10.jpg" alt="">
-					<h2>NGCF 추천결과 2</h2>
-					<p>Here comes content description in detail.</p>
-				</div>
-			</article>
-			<article class='fpmc'>
-				<div>
-					<img src="../img/p11.jpg" alt="">
-					<h2>FPMC 추천결과 2</h2>
-					<p>Here comes content description in detail.</p>
-				</div>
-			</article>
-			<article class='pinsage'>
-				<div>
-					<img src="../img/p12.jpg" alt="">
-					<h2>Pinsage 추천결과 2</h2>
-					<p>Here comes content description in detail.</p>
-				</div>
-			</article>
-			<article class='gru4rec'>
-				<div>
-					<img src="../img/p13.jpg" alt="">
-					<h2>GRU4Rec 추천결과 2</h2>
-					<p>Here comes content description in detail.</p>
-				</div>
-			</article>
-			<article class='srgnn'>
-				<div>
-					<img src="../img/p14.jpg" alt="">
-					<h2>SR-GNN 추천결과 2</h2>
-					<p>Here comes content description in detail.</p>
-				</div>
-			</article>
-			<article class='kprn'>
-				<div>
-					<img src="../img/p15.jpg" alt="">
-					<h2>KPRN 추천결과 2</h2>
-					<p>Here comes content description in detail.</p>
-				</div>
-			</article>
-			<article class='bert4rec'>
-				<div>
-					<img src="../img/p16.jpg" alt="">
-					<h2>BERT4Rec 추천결과 2</h2>
-					<p>Here comes content description in detail.</p>
-				</div>
-			</article>
-			<article class=''>
-				<div>
-					<img src="../img/p17.jpg" alt="">
-					<h2>17</h2>
-					<p>Here comes content description in detail.</p>
-				</div>
-			</article>
-			<article class=''>
-				<div>
-					<img src="../img/p18.jpg" alt="">
-					<h2>18</h2>
-					<p>Here comes content description in detail.</p>
-				</div>
-			</article>
-			<article class=''>
-				<div>
-					<img src="../img/p19.jpg" alt="">
-					<h2>19</h2>
-					<p>Here comes content description in detail.</p>
-				</div>
-			</article>
-			<article class=''>
-				<div>
-					<img src="../img/p20.jpg" alt="">
-					<h2>20</h2>
-					<p>Here comes content description in detail.</p>
-				</div>
-			</article>
+<!--			<article class='kprn'>-->
+<!--				<div>-->
+<!--					<img src="../img/p7.jpg" alt="">-->
+<!--					<h2>본 영화</h2>-->
+<!--					<p>Here comes content description in detail.</p>-->
+<!--				</div>-->
+<!--			</article>-->
+<!--			<article class='bert4rec'>-->
+<!--				<div>-->
+<!--					<img src="../img/p8.jpg" alt="">-->
+<!--					<h2>BERT4Rec 추천결과 1</h2>-->
+<!--					<p>Here comes content description in detail.</p>-->
+<!--				</div>-->
+<!--			</article>-->
+<!--			<article class='sasrec'>-->
+<!--				<div>-->
+<!--					<img src="../img/p9.jpg" alt="">-->
+<!--					<h2>SASRec 추천결과 2</h2>-->
+<!--					<p>Here comes content description in detail.</p>-->
+<!--				</div>-->
+<!--			</article>-->
+<!--			<article class='ngcf'>-->
+<!--				<div>-->
+<!--					<img src="../img/p10.jpg" alt="">-->
+<!--					<h2>NGCF 추천결과 2</h2>-->
+<!--					<p>Here comes content description in detail.</p>-->
+<!--				</div>-->
+<!--			</article>-->
+<!--			<article class='fpmc'>-->
+<!--				<div>-->
+<!--					<img src="../img/p11.jpg" alt="">-->
+<!--					<h2>FPMC 추천결과 2</h2>-->
+<!--					<p>Here comes content description in detail.</p>-->
+<!--				</div>-->
+<!--			</article>-->
+<!--			<article class='pinsage'>-->
+<!--				<div>-->
+<!--					<img src="../img/p12.jpg" alt="">-->
+<!--					<h2>Pinsage 추천결과 2</h2>-->
+<!--					<p>Here comes content description in detail.</p>-->
+<!--				</div>-->
+<!--			</article>-->
+<!--			<article class='gru4rec'>-->
+<!--				<div>-->
+<!--					<img src="../img/p13.jpg" alt="">-->
+<!--					<h2>GRU4Rec 추천결과 2</h2>-->
+<!--					<p>Here comes content description in detail.</p>-->
+<!--				</div>-->
+<!--			</article>-->
+<!--			<article class='srgnn'>-->
+<!--				<div>-->
+<!--					<img src="../img/p14.jpg" alt="">-->
+<!--					<h2>SR-GNN 추천결과 2</h2>-->
+<!--					<p>Here comes content description in detail.</p>-->
+<!--				</div>-->
+<!--			</article>-->
+<!--			<article class='kprn'>-->
+<!--				<div>-->
+<!--					<img src="../img/p15.jpg" alt="">-->
+<!--					<h2>KPRN 추천결과 2</h2>-->
+<!--					<p>Here comes content description in detail.</p>-->
+<!--				</div>-->
+<!--			</article>-->
+<!--			<article class='bert4rec'>-->
+<!--				<div>-->
+<!--					<img src="../img/p16.jpg" alt="">-->
+<!--					<h2>BERT4Rec 추천결과 2</h2>-->
+<!--					<p>Here comes content description in detail.</p>-->
+<!--				</div>-->
+<!--			</article>-->
+<!--			<article class=''>-->
+<!--				<div>-->
+<!--					<img src="../img/p17.jpg" alt="">-->
+<!--					<h2>17</h2>-->
+<!--					<p>Here comes content description in detail.</p>-->
+<!--				</div>-->
+<!--			</article>-->
+<!--			<article class=''>-->
+<!--				<div>-->
+<!--					<img src="../img/p18.jpg" alt="">-->
+<!--					<h2>18</h2>-->
+<!--					<p>Here comes content description in detail.</p>-->
+<!--				</div>-->
+<!--			</article>-->
+<!--			<article class=''>-->
+<!--				<div>-->
+<!--					<img src="../img/p19.jpg" alt="">-->
+<!--					<h2>19</h2>-->
+<!--					<p>Here comes content description in detail.</p>-->
+<!--				</div>-->
+<!--			</article>-->
+<!--			<article class=''>-->
+<!--				<div>-->
+<!--					<img src="../img/p20.jpg" alt="">-->
+<!--					<h2>20</h2>-->
+<!--					<p>Here comes content description in detail.</p>-->
+<!--				</div>-->
+<!--			</article>-->
 		</section>
 	</main>
 </body>

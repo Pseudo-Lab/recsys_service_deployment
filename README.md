@@ -4,8 +4,8 @@
 python manage.py runserver
 ```
 
-![img.png](readme_file/img.png)
-~ 9/8 진행상황 
+![img.png](readme_file/img_1.png)
+~ 9/21 진행상황 
 
 ## Reference
 - 인터랙티브 웹 페이지 만들기

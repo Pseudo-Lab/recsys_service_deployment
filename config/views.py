@@ -29,7 +29,7 @@ def home(request):
         # watched_id = title_dict[watched_movie]
         WatchedMovie.objects.create(name=watched_movie)
         print(f"WatchedMovie.objects.all() : {WatchedMovie.objects.all()}")
-        split = [1, 2, 3, 4]
+        # split = [1, 2, 3, 4]
         movie_names = [movie_dict[movie_id]['title'] for movie_id in split]
         print(f"movie_names : {movie_names}")
 

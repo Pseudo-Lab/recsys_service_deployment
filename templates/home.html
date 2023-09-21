@@ -16,19 +16,25 @@
 
 	<header>
 		<h1>PSEUDO LAB</h1>
-		<ul>
-			<li><a href="https://www.notion.so/chanrankim/86625e8a719244c68fe61d17472aa50a?pvs=4" target="blank"><i class="fab fa-twitter-square"></i> <span>Notion</span></a></li>
-			<li><a href="#"><i class="fab fa-facebook"></i> <span>Facebook</span></a></li>
-			<li><a href="#"><i class="fas fa-envelope"></i> <span>E-mail</span></a></li>
-		</ul>
+		<div class="input">
 		<form method="POST">
 			{% csrf_token %}
-			<div>
 				<label>본 영화</label>
 				<input name="watched_movie" type="text">
-			</div>
 			<button>입력</button>
 		</form>
+		</div>
+
+		<div class="watched_list">
+			{% for wm in watched_movie %}
+			<div>{{ wm }}</div>
+			{% endfor %}
+		</div>
+
+		<ul>
+			<li><a href="https://www.notion.so/chanrankim/86625e8a719244c68fe61d17472aa50a?pvs=4" target="blank"><i class="fab fa-twitter-square"></i> <span>Notion</span></a></li>
+			<li><a href="https://github.com/Pseudo-Lab/recsys_service_deployment"><i class="github"></i> <span>Github</span></a></li>
+		</ul>
 	</header>
 
 
@@ -47,7 +53,7 @@
 		</ul>
 
 		<section>
-			{% for r in result %}
+			{% for r in recomm_result %}
 			<article class='sasrec'>
 				<div draggable="true">
 					<img src="{% static ''%}" alt="">

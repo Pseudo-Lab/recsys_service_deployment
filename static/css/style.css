@@ -8,18 +8,18 @@ a {text-decoration:none;}
 body {background:#efefef; }
 
 header {
-  width:400px; 
+  width:400px;
   height:100%;
   background:linear-gradient(45deg,aqua,royalblue);
   position:fixed;
-  top:0px; 
+  top:0px;
   left:0px;
   transition: 0.5s;
 }
 header h1 {
   font:bold 50px/1 'orbitron'; 
   color:#fff;
-  letter-spacing:1px;
+  letter-spacing:6px;
   position:absolute; 
   left:50px;
   top:30%;
@@ -34,7 +34,7 @@ header h1::after {
   margin-top:20px;
 }
 header h1::before {
-  content:'';
+  content:'추천시스템 논문에서 서비스까지';
   display:block;
   font:14px/1 'orbitron';
   color:#fff;
@@ -53,6 +53,36 @@ header h2 {
   top:30%;
   transform:translateY(-150%);
 }
+
+header div.input {
+  font: 20px/1 'obitron';
+  color:#fff;
+  /* display:inline-block; */
+  position:absolute; 
+  left:50px;
+  top:30%;
+  /* transform:translateY(300%); */
+}
+
+header div.watched_list {
+  font: 20px/1 'obitron';
+  color:#fff;
+  /* display:inline-block; */
+  position:absolute; 
+  left:50px;
+  top:35%;
+  /* transform:translateY(300%); */
+}
+
+/* header div{
+  font: 30px/1 'obitron';
+  color:#fff;
+  display:inline-block;
+  opacity:0.7;
+  position:absolute;
+  left:300px;
+  top:50%;
+} */
 
 header ul {
   position:absolute; 

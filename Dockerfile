@@ -1,4 +1,4 @@
-FROM python:3.10-buster
+FROM python:3.10-slim
 RUN pip install -U pip
 COPY . .
 RUN pip install --no-cache-dir -r requirements.txt

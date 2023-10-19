@@ -10,6 +10,11 @@ docker build -f Dockerfile . -t pseudorec
 docker run -p 80:8000 pseudorec
 ```
 
+# django 설치
+```
+pip install 'django<5'
+```
+
 ![img.png](readme_file/img_1.png)
 ~ 9/21 진행상황 
 

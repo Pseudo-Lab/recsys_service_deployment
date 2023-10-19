@@ -1,0 +1,62 @@
+import pandas as pd
+import torch
+from django.shortcuts import render
+import numpy as np
+
+from movie.models import WatchedMovie
+from pytorch_models.ngcf.model import args
+from pytorch_models.ngcf.model import NGCF
+
+
+
+
+
+model = NGCF(args)
+model.load_state_dict(torch.load('pytorch_models/ngcf/NGCF_parameters.pt'))
+model.eval()
+
+# movie_dictionary
+movies = pd.read_table('data/ml-1m/movies.dat', sep='::', header=None, names=['movie_id', 'title', 'genres'],
+                       engine='python', encoding_errors='ignore')
+movies.set_index('movie_id', inplace=True)
+movie_dict = movies.to_dict('index')
+title_dict = {v['title']:k for k, v in movie_dict.items()}
+# model_dict{'sasrec' : sasrec}
+# model = model_dict['sasrec']
+
+def home(request):
+    if request.method == "POST":
+        print("method POST")
+        watched_movie = request.POST['watched_movie']
+        print(f"watched_movie : {watched_movie}")
+        split = [int(wm) for wm in watched_movie.split()]
+        # watched_id = title_dict[watched_movie]
+        WatchedMovie.objects.create(name=watched_movie)
+        print(f"WatchedMovie.objects.all() : {WatchedMovie.objects.all()}")
+        # split = [1, 2, 3, 4]
+        movie_names = [movie_dict[movie_id]['title'] for movie_id in split]
+        print(f"movie_names : {movie_names}")
+
+
+        user_id = 6040  # Assuming the user ID is 0 for simplicity, you may need to adjust this
+        input_data = torch.LongTensor([user_id] * len(split), split).to(args.device)
+
+        with torch.no_grad():
+            recommendations = model(*input_data).cpu().numpy()
+
+        # Sort and get the top recommended movies
+        num_recommendations = 20  # You can adjust this number as needed
+        recomm_result = recommendations.argsort()[-num_recommendations:][::-1]
+        
+        # Convert movie indices back to movie IDs
+
+
+        context = {
+            'recomm_result': [movie_dict[_] for _ in recomm_result],
+             'watched_movie' : movie_names
+         }
+    else:
+        recomm_result = ['회원의', '이전 접속', '장바구니', '영화 기반', '추천결과']
+        print(f'recomm_result : {recomm_result}')
+        context = {'recomm_result': recomm_result}
+    return render(request, "home.html", context=context)

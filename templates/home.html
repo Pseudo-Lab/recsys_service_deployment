@@ -41,6 +41,7 @@
 
 	<main>
 		<ul>
+			<li><a href=".sasrec">CF</a></li>
 			<li><a href=".bert4rec">BERT4Rec</a></li>
 			<li><a href=".kprn">KPRN</a></li>
 			<li><a href=".srgnn">SR-GNN</a></li>
@@ -104,6 +105,15 @@
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
+			{% for r in recomm_result %}
+			<article class='cf'>
+				<div draggable="true">
+					<img src="{% static ''%}" alt="">
+					<h2>{{ r.title }}</h2>
+					<p>{{ r.genres }}</p>
+				</div>
+			</article>
+			{% endfor %}
 <!--			<article class='kprn'>-->
 <!--				<div>-->
 <!--					<img src="../img/p7.jpg" alt="">-->

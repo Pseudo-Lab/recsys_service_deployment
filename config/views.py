@@ -7,6 +7,12 @@ from movie.models import WatchedMovie
 from pytorch_models.sasrec.args import args
 from pytorch_models.sasrec.sasrec import SASRec
 
+import pickle
+from pytorch_models.cf.cf import FunkSVDCF
+
+with open('pytorch_models/cf/funkSVD_model.pkl', 'rb') as file:
+    loaded_model = pickle.load(file)
+
 sasrec = SASRec(6040, 3416, args)
 sasrec.load_state_dict(torch.load('pytorch_models/sasrec/sasrec.pth'))
 sasrec.eval()
@@ -33,13 +39,17 @@ def home(request):
         movie_names = [movie_dict[movie_id]['title'] for movie_id in split]
         print(f"movie_names : {movie_names}")
 
+        new_user_id = 5000
 
+        loaded_model.add_new_user(new_user_id, split)
+        recomm_result = loaded_model.recommend_items(new_user_id, split)
+        print(recomm_result)
+        # logits = sasrec.predict(log_seqs=np.array([split]),
+        #                         item_indices=[list(range(sasrec.item_emb.weight.size()[0]))])
 
-        logits = sasrec.predict(log_seqs=np.array([split]),
-                                item_indices=[list(range(sasrec.item_emb.weight.size()[0]))])
-
-        topk = 20
-        recomm_result = logits.detach().cpu().numpy()[0].argsort()[::-1][:topk]
+        # topk = 20
+        # recomm_result = logits.detach().cpu().numpy()[0].argsort()[::-1][:topk]
+        # recomm_result = [2, 5]
         context = {
             'recomm_result': [movie_dict[_] for _ in recomm_result],
              'watched_movie' : movie_names

@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="ko">
+<body>
+    <h1>Sign up</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">회원가입</button>
+    </form>
+</body>
+</html>

@@ -1,15 +1,20 @@
-<!DOCTYPE html>
+{% load static %}
+<!doctype html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
 </head>
 <body>
-    <h1>Login</h1>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">로그인</button>
-    </form>
+    <div id="login">
+        <form method="POST">
+            <h1>Welcome to Pseudo-rec!</h1>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-login">로그인</button>
+        </form>
+    </div>
+<h1>Login</h1>
+
 </body>
 </html>
+

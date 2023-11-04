@@ -39,16 +39,14 @@ def signup(request):
     if request.method == "POST":
         form = SignupForm(data=request.POST, files=request.FILES)
         if form.is_valid():
-            username = form.cleaned_data["username"]
-            password1 = form.cleaned_data["password1"]
-            password2 = form.cleaned_data["password2"]
-            profile_image = form.cleaned_data["profile_image"]
-            short_description = form.cleaned_data["short_description"]
-            print(username)
-            print(password1, password2)
-            print(profile_image)
-            print(short_description)
+            user = form.save()
+            login(request, user)
+            return redirect("/movie/movierec/")
+    else:  # GET 요청에서는 빈 Form을 보여준다.
+        form = SignupForm()
 
-    form = SignupForm()
+    # context로 전달되는 form은 두 가지 경우가 존재
+    # 1. POST 요청이며 form이 유효하지 않을 때 -> 에러를 포함한 form이 사용자에게 보여짐
+    # 2. GET 요청일 때 : 빈 form이 사용자에게 보여짐
     context = {"form": form}
     return render(request, "users/signup.html", context)

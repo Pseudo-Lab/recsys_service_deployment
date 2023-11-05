@@ -19,9 +19,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from config.views import home
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home)
+    path('', home),
+    path('log_click/', views.log_click, name='log_click')
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

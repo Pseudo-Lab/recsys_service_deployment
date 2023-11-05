@@ -11,6 +11,8 @@
 	<script src="https://kit.fontawesome.com/c47106c6a7.js"></script>​
 	<script src="static/js/isotope.pkgd.min.js"></script>
     <script defer src="static/js/main.js"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="{% static 'js/click_logger.js' %}"></script>
 </head>
 <body>
 
@@ -41,6 +43,7 @@
 
 	<main>
 		<ul>
+			<li><a href=".sasrec">CF</a></li>
 			<li><a href=".bert4rec">BERT4Rec</a></li>
 			<li><a href=".kprn">KPRN</a></li>
 			<li><a href=".srgnn">SR-GNN</a></li>
@@ -58,8 +61,8 @@
 				<div draggable="true">
 					<img src="{% static ''%}" alt="">
 					<h2>{{ r.title }}</h2>
-					<p>{{ r.genres }}</p>
-				</div>
+					<p>{{ r.genres }}</p>	
+			</div>
 			</article>
 			{% endfor %}
 			<article class='sasrec'>
@@ -104,104 +107,15 @@
 					<p>Here comes content description in detail.</p>
 				</div>
 			</article>
-<!--			<article class='kprn'>-->
-<!--				<div>-->
-<!--					<img src="../img/p7.jpg" alt="">-->
-<!--					<h2>본 영화</h2>-->
-<!--					<p>Here comes content description in detail.</p>-->
-<!--				</div>-->
-<!--			</article>-->
-<!--			<article class='bert4rec'>-->
-<!--				<div>-->
-<!--					<img src="../img/p8.jpg" alt="">-->
-<!--					<h2>BERT4Rec 추천결과 1</h2>-->
-<!--					<p>Here comes content description in detail.</p>-->
-<!--				</div>-->
-<!--			</article>-->
-<!--			<article class='sasrec'>-->
-<!--				<div>-->
-<!--					<img src="../img/p9.jpg" alt="">-->
-<!--					<h2>SASRec 추천결과 2</h2>-->
-<!--					<p>Here comes content description in detail.</p>-->
-<!--				</div>-->
-<!--			</article>-->
-<!--			<article class='ngcf'>-->
-<!--				<div>-->
-<!--					<img src="../img/p10.jpg" alt="">-->
-<!--					<h2>NGCF 추천결과 2</h2>-->
-<!--					<p>Here comes content description in detail.</p>-->
-<!--				</div>-->
-<!--			</article>-->
-<!--			<article class='fpmc'>-->
-<!--				<div>-->
-<!--					<img src="../img/p11.jpg" alt="">-->
-<!--					<h2>FPMC 추천결과 2</h2>-->
-<!--					<p>Here comes content description in detail.</p>-->
-<!--				</div>-->
-<!--			</article>-->
-<!--			<article class='pinsage'>-->
-<!--				<div>-->
-<!--					<img src="../img/p12.jpg" alt="">-->
-<!--					<h2>Pinsage 추천결과 2</h2>-->
-<!--					<p>Here comes content description in detail.</p>-->
-<!--				</div>-->
-<!--			</article>-->
-<!--			<article class='gru4rec'>-->
-<!--				<div>-->
-<!--					<img src="../img/p13.jpg" alt="">-->
-<!--					<h2>GRU4Rec 추천결과 2</h2>-->
-<!--					<p>Here comes content description in detail.</p>-->
-<!--				</div>-->
-<!--			</article>-->
-<!--			<article class='srgnn'>-->
-<!--				<div>-->
-<!--					<img src="../img/p14.jpg" alt="">-->
-<!--					<h2>SR-GNN 추천결과 2</h2>-->
-<!--					<p>Here comes content description in detail.</p>-->
-<!--				</div>-->
-<!--			</article>-->
-<!--			<article class='kprn'>-->
-<!--				<div>-->
-<!--					<img src="../img/p15.jpg" alt="">-->
-<!--					<h2>KPRN 추천결과 2</h2>-->
-<!--					<p>Here comes content description in detail.</p>-->
-<!--				</div>-->
-<!--			</article>-->
-<!--			<article class='bert4rec'>-->
-<!--				<div>-->
-<!--					<img src="../img/p16.jpg" alt="">-->
-<!--					<h2>BERT4Rec 추천결과 2</h2>-->
-<!--					<p>Here comes content description in detail.</p>-->
-<!--				</div>-->
-<!--			</article>-->
-<!--			<article class=''>-->
-<!--				<div>-->
-<!--					<img src="../img/p17.jpg" alt="">-->
-<!--					<h2>17</h2>-->
-<!--					<p>Here comes content description in detail.</p>-->
-<!--				</div>-->
-<!--			</article>-->
-<!--			<article class=''>-->
-<!--				<div>-->
-<!--					<img src="../img/p18.jpg" alt="">-->
-<!--					<h2>18</h2>-->
-<!--					<p>Here comes content description in detail.</p>-->
-<!--				</div>-->
-<!--			</article>-->
-<!--			<article class=''>-->
-<!--				<div>-->
-<!--					<img src="../img/p19.jpg" alt="">-->
-<!--					<h2>19</h2>-->
-<!--					<p>Here comes content description in detail.</p>-->
-<!--				</div>-->
-<!--			</article>-->
-<!--			<article class=''>-->
-<!--				<div>-->
-<!--					<img src="../img/p20.jpg" alt="">-->
-<!--					<h2>20</h2>-->
-<!--					<p>Here comes content description in detail.</p>-->
-<!--				</div>-->
-<!--			</article>-->
+			{% for r in recomm_result %}
+			<article class='cf'>
+				<div draggable="true">
+					<img src="{% static ''%}" alt="">
+					<h2>{{ r.title }}</h2>
+					<p>{{ r.genres }}</p>
+				</div>
+			</article>
+			{% endfor %}
 		</section>
 	</main>
 </body>

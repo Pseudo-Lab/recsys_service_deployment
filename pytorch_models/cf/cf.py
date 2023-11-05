@@ -98,3 +98,5 @@ class FunkSVDCF:
         rec_movie_indices = [movie_index for movie_index in scores.argsort()[::-1] if movie_index not in movie_indices][:num_recommendations]
 
         return rec_movie_indices
+    
+

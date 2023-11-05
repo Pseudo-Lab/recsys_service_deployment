@@ -2,7 +2,7 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-
+from pytorch_models.cf.cf import FunkSVDCF
 
 def main():
     """Run administrative tasks."""

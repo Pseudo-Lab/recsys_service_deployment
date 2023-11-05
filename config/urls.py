@@ -17,27 +17,19 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-<<<<<<< HEAD
-from django.urls import path
-from config.views import home
-from . import views
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', home),
-    path('log_click/', views.log_click, name='log_click')
-=======
 from django.urls import path, include
 
-from config.views import index
+from movie.views import home
+from movie import views
+
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", index),
+    # path("", index),
     path("users/", include("users.urls")),
-    path("movie/", include("movie.urls"))
->>>>>>> origin/포스터-클릭-왼쪽에-리스팅하기
+    path("movie/", include("movie.urls")),
+    path('', home),
+    path('log_click/', views.log_click, name='log_click')
 ]
-urlpatterns += static(
-    prefix=settings.STATIC_URL,
-    document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

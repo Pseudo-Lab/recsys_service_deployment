@@ -93,7 +93,4 @@ def home(request):
              'watched_movie' : movie_names
          }
     else:
-        recomm_result = ['회원의', '이전 접속', '장바구니', '영화 기반', '추천결과']
-        print(f'recomm_result : {recomm_result}')
-        context = {'recomm_result': recomm_result}
-    return render(request, "home.html", context=context)
+        return redirect("/users/login/")

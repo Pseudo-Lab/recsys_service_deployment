@@ -1,7 +1,11 @@
 # 추천시스템 서비스 배포
 
+# 접속
+http://13.209.69.81/
+
 # runserver
-```python
+```shell
+export RDS_MYSQL_PW=${PASSWORD}
 python manage.py runserver
 ```
 # docker

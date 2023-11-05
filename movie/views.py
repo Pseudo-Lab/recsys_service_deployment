@@ -6,6 +6,10 @@ from clients import MysqlClient
 from movie.models import WatchedMovie
 from pytorch_models.sasrec.args import args
 from pytorch_models.sasrec.sasrec import SASRec
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from kafka import KafkaProducer
+import json
 
 sasrec = SASRec(6040, 3416, args)
 sasrec.load_state_dict(torch.load('pytorch_models/sasrec/sasrec.pth'))
@@ -56,3 +60,42 @@ def home(request):
         print(f'recomm_result : {recomm_result}')
         context = {'recomm_result': recomm_result}
     return render(request, "home.html", context=context)
+
+from kafka import KafkaConsumer
+import json
+consumer = KafkaConsumer('movie_title_ver2',
+                         bootstrap_servers=['localhost:9092'],
+                         value_deserializer=lambda x: json.loads(x.decode('utf-8')))
+
+@csrf_exempt
+def log_click(request):
+    if request.method == "POST":
+        data = json.loads(request.body.decode('utf-8'))
+        movie_title = data.get('movie_title')
+
+        if not request.session.session_key:
+            request.session['init'] = True
+            request.session.save()
+
+        session_id = request.session.session_key
+
+        # 터미널에 로그 출력
+        print(f"Session ID: {session_id}, Movie clicked: {movie_title}")
+
+        # Kafka Producer 생성
+        producer = KafkaProducer(bootstrap_servers='localhost:9092',
+                                 value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+
+        # 클릭 로그를 Kafka topic에 전송
+        message = {'movie_title': movie_title, 'session_id': session_id}
+        producer.send('movie_title_ver2', message)
+        producer.flush()
+        producer.close()
+        
+        # s3에 저장 ######################
+
+        ##################################
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "failed"}, status=400)

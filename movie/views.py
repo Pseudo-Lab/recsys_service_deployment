@@ -1,15 +1,17 @@
+import json
+
 import numpy as np
 import torch
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
+from kafka import KafkaConsumer
+from kafka import KafkaProducer
 
 from clients import MysqlClient
 from movie.models import WatchedMovie
 from pytorch_models.sasrec.args import args
 from pytorch_models.sasrec.sasrec import SASRec
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from kafka import KafkaProducer
-import json
 
 sasrec = SASRec(6040, 3416, args)
 sasrec.load_state_dict(torch.load('pytorch_models/sasrec/sasrec.pth'))
@@ -25,7 +27,6 @@ movies = mysql.get_movies()
 
 movie_dict = movies.to_dict('index')
 title_dict = {v['title']: k for k, v in movie_dict.items()}
-
 
 # model_dict{'sasrec' : sasrec}
 # model = model_dict['sasrec']
@@ -61,11 +62,11 @@ def home(request):
         context = {'recomm_result': recomm_result}
     return render(request, "home.html", context=context)
 
-from kafka import KafkaConsumer
-import json
+
 consumer = KafkaConsumer('movie_title_ver2',
                          bootstrap_servers=['localhost:9092'],
                          value_deserializer=lambda x: json.loads(x.decode('utf-8')))
+
 
 @csrf_exempt
 def log_click(request):
@@ -91,7 +92,7 @@ def log_click(request):
         producer.send('movie_title_ver2', message)
         producer.flush()
         producer.close()
-        
+
         # s3에 저장 ######################
 
         ##################################

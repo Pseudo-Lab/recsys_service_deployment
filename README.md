@@ -5,6 +5,7 @@ http://13.209.69.81/
 
 # runserver
 ```shell
+docker-compose up -d
 export RDS_MYSQL_PW=${PASSWORD}
 python manage.py runserver
 ```

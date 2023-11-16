@@ -29,3 +29,22 @@ class MysqlClient:
         with self.get_connection() as connection:
             df = pd.read_sql(sql='select * from movies', con=connection)
             return df
+
+
+    def get_url(self, title):
+        with self.get_connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(f"""
+            select url from movies where title = '{title}'
+            """)
+            url = cursor.fetchall()[0][0]
+            return url
+        
+    def get_table_names(self):
+        print("Tables : ")
+        with self.get_connection().cursor() as cursor:
+            sql = "SHOW TABLES"
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            for row in result:
+                print(row[0])

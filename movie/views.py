@@ -18,15 +18,16 @@ sasrec.load_state_dict(torch.load('pytorch_models/sasrec/sasrec.pth'))
 sasrec.eval()
 
 # movie_dictionary
-
 # movies = pd.read_table('data/ml-1m/movies.dat', sep='::', header=None, names=['movie_id', 'title', 'genres'],
 #                        engine='python', encoding_errors='ignore')
 # movies.set_index('movie_id', inplace=True)
+
 mysql = MysqlClient()
 movies = mysql.get_movies()
 
 movie_dict = movies.to_dict('index')
 title_dict = {v['title']: k for k, v in movie_dict.items()}
+
 
 # model_dict{'sasrec' : sasrec}
 # model = model_dict['sasrec']
@@ -36,16 +37,18 @@ def home(request):
         return redirect("/users/login/")
 
     if request.method == "POST":
-        print("method POST")
+        print(f"Request")
+        print(f"\tL user : {request.user}")
+        print(f"\tL method POST")
         watched_movie = request.POST['watched_movie']
         print(f"watched_movie : {watched_movie}")
         split = [int(wm) for wm in watched_movie.split()]
         # watched_id = title_dict[watched_movie]
         WatchedMovie.objects.create(name=watched_movie)
-        print(f"WatchedMovie.objects.all() : {WatchedMovie.objects.all()}")
+        # print(f"WatchedMovie.objects.all() : {WatchedMovie.objects.all()}")
         # split = [1, 2, 3, 4]
         movie_names = [movie_dict[movie_id]['title'] for movie_id in split]
-        print(f"movie_names : {movie_names}")
+        # print(f"movie_names : {movie_names}")
 
         logits = sasrec.predict(log_seqs=np.array([split]),
                                 item_indices=[list(range(sasrec.item_emb.weight.size()[0]))])
@@ -71,6 +74,8 @@ consumer = KafkaConsumer('movie_title_ver2',
 @csrf_exempt
 def log_click(request):
     if request.method == "POST":
+        print(f"Click".ljust(60, '-'))
+        print(f"\tL user : {request.user}")
         data = json.loads(request.body.decode('utf-8'))
         movie_title = data.get('movie_title')
 
@@ -81,9 +86,9 @@ def log_click(request):
         session_id = request.session.session_key
 
         # 터미널에 로그 출력
-        print(f"Session ID: {session_id}, Movie clicked: {movie_title}")
+        print(f"\tL Movie clicked: {movie_title}")
 
-        # Kafka Producer 생성
+        # Kafka Producer 생성 프로듀서는 데이터 저장
         producer = KafkaProducer(bootstrap_servers='localhost:9092',
                                  value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
@@ -97,6 +102,8 @@ def log_click(request):
 
         ##################################
 
-        return JsonResponse({"status": "success"}, status=200)
+        # return JsonResponse({"status": "success"}, status=200)
+        return redirect("/movie/movierec/")
     else:
+
         return JsonResponse({"status": "failed"}, status=400)

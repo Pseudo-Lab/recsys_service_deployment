@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html >
 <html>
+
 <head>
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
@@ -11,13 +12,15 @@
     <script src="https://kit.fontawesome.com/c47106c6a7.js"></script>
     <script src="static/js/isotope.pkgd.min.js"></script>
     <script defer src="static/js/main.js"></script>
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<script src="{% static 'js/click_logger.js' %}"></script>
+    <script defer src="static/js/star.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/click_logger.js' %}"></script>
+
 </head>
 <body>
 
 <header>
-    <h1>PSEUDO LAB</h1>
+    <h1>PSEUDO REC</h1>
     <div class="input">
         <form method="POST">
             {% csrf_token %}
@@ -40,6 +43,7 @@
         </li>
         <li><a href="/users/logout/">logout</a></li>
     </ul>
+
 </header>
 
 
@@ -60,7 +64,7 @@
         {% for r in recomm_result %}
         <article class='sasrec'>
             <div draggable="true">
-                <img src="{% static ''%}" alt="">
+                <img src={{ r.url }} alt="">
                 <h2>{{ r.title }}</h2>
                 <p>{{ r.genres }}</p>
             </div>
@@ -68,9 +72,17 @@
         {% endfor %}
         <article class='sasrec'>
             <div>
-                <img src="{% static 'img/The Avengers.png'%}" alt="">
+                <img src="{% static 'img/The Avengers.png' %}" alt="">
                 <h2>The Avengers</h2>
                 <p>Here comes content description in detail.</p>
+                    <div class="rating">
+                        ★★★★★
+                        <span class="rating_star">★★★★★</span>
+                        <input type="range" value="1" step="1" min="0" max="10">
+                    </div>
+
+
+
             </div>
         </article>
         <article class='ngcf'>
@@ -108,6 +120,7 @@
                 <p>Here comes content description in detail.</p>
             </div>
         </article>
+
         <!--			<article class='kprn'>-->
         <!--				<div>-->
         <!--					<img src="../img/p7.jpg" alt="">-->
@@ -208,5 +221,7 @@
         <!--			</article>-->
     </section>
 </main>
+
 </body>
+
 </html>

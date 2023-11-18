@@ -22,7 +22,7 @@
 #                        engine='python', encoding_errors='ignore')
 # movies.set_index('movie_id', inplace=True)
 # movie_dict = movies.to_dict('index')
-# title_dict = {v['title']:k for k, v in movie_dict.items()}
+# title2id = {v['title']:k for k, v in movie_dict.items()}
 # # model_dict{'sasrec' : sasrec}
 # # model = model_dict['sasrec']
 
@@ -70,7 +70,7 @@
 #         watched_movie = request.POST['watched_movie']
 #         print(f"watched_movie : {watched_movie}")
 #         split = [int(wm) for wm in watched_movie.split()]
-#         # watched_id = title_dict[watched_movie]
+#         # watched_id = title2id[watched_movie]
 #         WatchedMovie.objects.create(name=watched_movie)
 #         print(f"WatchedMovie.objects.all() : {WatchedMovie.objects.all()}")
 #         # split = [1, 2, 3, 4]

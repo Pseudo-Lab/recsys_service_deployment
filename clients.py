@@ -1,7 +1,9 @@
 import os
 
+import boto3
 import pandas as pd
 import pymysql
+from boto3.dynamodb.conditions import Key
 
 
 class MysqlClient:
@@ -30,7 +32,6 @@ class MysqlClient:
             df = pd.read_sql(sql='select * from movies', con=connection)
             return df
 
-
     def get_url(self, title):
         with self.get_connection() as connection:
             cursor = connection.cursor()
@@ -39,7 +40,7 @@ class MysqlClient:
             """)
             url = cursor.fetchall()[0][0]
             return url
-        
+
     def get_table_names(self):
         print("Tables : ")
         with self.get_connection().cursor() as cursor:
@@ -48,3 +49,29 @@ class MysqlClient:
             result = cursor.fetchall()
             for row in result:
                 print(row[0])
+
+
+class DynamoDB:
+    def __init__(self, table_name: str):
+        self.resource = boto3.resource(
+            'dynamodb',
+            aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+            region_name=os.environ['AWS_REGION_NAME'],
+        )
+
+        self.client = boto3.client(
+            'dynamodb',
+            aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+            region_name=os.environ['AWS_REGION_NAME'],
+        )
+        self.table = self.resource.Table(table_name)
+
+    def put_item(self, click_log):
+        resp = self.table.put_item(Item=click_log)
+
+    def get_a_user_logs(self, user_name: str):
+        query = {"KeyConditionExpression": Key("userId").eq(user_name)}
+        resp = self.table.query(**query)
+        return pd.DataFrame(resp['Items'])

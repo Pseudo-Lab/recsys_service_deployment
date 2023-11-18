@@ -49,18 +49,29 @@
 
 <main>
     <ul>
-        <li><a href=".bert4rec">BERT4Rec</a></li>
+        <!--        <li><a href=".bert4rec">BERT4Rec</a></li>-->
         <li><a href=".kprn">KPRN</a></li>
-        <li><a href=".srgnn">SR-GNN</a></li>
+        <!--        <li><a href=".srgnn">SR-GNN</a></li>-->
         <li><a href=".gru4rec">GRU4Rec</a></li>
-        <li><a href=".pinsage">PinSage</a></li>
-        <li><a href=".fpmc">FPMC</a></li>
+        <!--        <li><a href=".pinsage">PinSage</a></li>-->
+        <!--        <li><a href=".fpmc">FPMC</a></li>-->
         <li><a href=".ngcf">NGCF</a></li>
         <li><a href=".sasrec">SASRec</a></li>
+        <!--        <li class="on"><a href=".pop">인기아이템</a></li>-->
         <li class='on'><a href="*">당신을 위한 추천</a></li>
     </ul>
 
     <section>
+        {% for r in pop_movies %}
+        <article class='pop'>
+            <div draggable="true">
+                <img src={{ r.url }} alt="">
+                <h2>{{ r.title }}</h2>
+                <p>{{ r.genres }}</p>
+            </div>
+        </article>
+        {% endfor %}
+
         {% for r in recomm_result %}
         <article class='sasrec'>
             <div draggable="true">
@@ -70,155 +81,155 @@
             </div>
         </article>
         {% endfor %}
+
         <article class='sasrec'>
             <div>
                 <img src="{% static 'img/The Avengers.png' %}" alt="">
                 <h2>The Avengers</h2>
                 <p>Here comes content description in detail.</p>
-                    <div class="rating">
-                        ★★★★★
-                        <span class="rating_star">★★★★★</span>
-                        <input type="range" value="1" step="1" min="0" max="10">
-                    </div>
-
-
+                <div class="rating">
+                    ★★★★★
+                    <span class="rating_star">★★★★★</span>
+                    <input type="range" value="1" step="1" min="0" max="10">
+                </div>
 
             </div>
-        </article>
-        <article class='ngcf'>
-            <div>
-                <img src="{% static 'img/Parasite.png' %}" alt="">
-                <h2>Parasite</h2>
-                <p>Here comes content description in detail.</p>
-            </div>
-        </article>
-        <article class='fpmc'>
-            <div>
-                <img src="{% static 'img/La La Land.png' %}" alt="">
-                <h2>La La Land</h2>
-                <p>Here comes content description in detail.</p>
-            </div>
-        </article>
-        <article class='pinsage'>
-            <div>
-                <img src="{% static 'img/About Time.png' %}" alt="">
-                <h2>About Time</h2>
-                <p>Here comes content description in detail.</p>
-            </div>
-        </article>
-        <article class='gru4rec'>
-            <div>
-                <img src="{% static 'img/Inception.png' %}" alt="">
-                <h2>Inception</h2>
-                <p>Here comes content description in detail.</p>
-            </div>
-        </article>
-        <article class='srgnn'>
-            <div>
-                <img src="{% static 'img/World War Z.png' %}" alt="">
-                <h2>World War Z</h2>
-                <p>Here comes content description in detail.</p>
-            </div>
-        </article>
 
-        <!--			<article class='kprn'>-->
-        <!--				<div>-->
-        <!--					<img src="../img/p7.jpg" alt="">-->
-        <!--					<h2>본 영화</h2>-->
-        <!--					<p>Here comes content description in detail.</p>-->
-        <!--				</div>-->
-        <!--			</article>-->
-        <!--			<article class='bert4rec'>-->
-        <!--				<div>-->
-        <!--					<img src="../img/p8.jpg" alt="">-->
-        <!--					<h2>BERT4Rec 추천결과 1</h2>-->
-        <!--					<p>Here comes content description in detail.</p>-->
-        <!--				</div>-->
-        <!--			</article>-->
-        <!--			<article class='sasrec'>-->
-        <!--				<div>-->
-        <!--					<img src="../img/p9.jpg" alt="">-->
-        <!--					<h2>SASRec 추천결과 2</h2>-->
-        <!--					<p>Here comes content description in detail.</p>-->
-        <!--				</div>-->
-        <!--			</article>-->
-        <!--			<article class='ngcf'>-->
-        <!--				<div>-->
-        <!--					<img src="../img/p10.jpg" alt="">-->
-        <!--					<h2>NGCF 추천결과 2</h2>-->
-        <!--					<p>Here comes content description in detail.</p>-->
-        <!--				</div>-->
-        <!--			</article>-->
-        <!--			<article class='fpmc'>-->
-        <!--				<div>-->
-        <!--					<img src="../img/p11.jpg" alt="">-->
-        <!--					<h2>FPMC 추천결과 2</h2>-->
-        <!--					<p>Here comes content description in detail.</p>-->
-        <!--				</div>-->
-        <!--			</article>-->
-        <!--			<article class='pinsage'>-->
-        <!--				<div>-->
-        <!--					<img src="../img/p12.jpg" alt="">-->
-        <!--					<h2>Pinsage 추천결과 2</h2>-->
-        <!--					<p>Here comes content description in detail.</p>-->
-        <!--				</div>-->
-        <!--			</article>-->
-        <!--			<article class='gru4rec'>-->
-        <!--				<div>-->
-        <!--					<img src="../img/p13.jpg" alt="">-->
-        <!--					<h2>GRU4Rec 추천결과 2</h2>-->
-        <!--					<p>Here comes content description in detail.</p>-->
-        <!--				</div>-->
-        <!--			</article>-->
-        <!--			<article class='srgnn'>-->
-        <!--				<div>-->
-        <!--					<img src="../img/p14.jpg" alt="">-->
-        <!--					<h2>SR-GNN 추천결과 2</h2>-->
-        <!--					<p>Here comes content description in detail.</p>-->
-        <!--				</div>-->
-        <!--			</article>-->
-        <!--			<article class='kprn'>-->
-        <!--				<div>-->
-        <!--					<img src="../img/p15.jpg" alt="">-->
-        <!--					<h2>KPRN 추천결과 2</h2>-->
-        <!--					<p>Here comes content description in detail.</p>-->
-        <!--				</div>-->
-        <!--			</article>-->
-        <!--			<article class='bert4rec'>-->
-        <!--				<div>-->
-        <!--					<img src="../img/p16.jpg" alt="">-->
-        <!--					<h2>BERT4Rec 추천결과 2</h2>-->
-        <!--					<p>Here comes content description in detail.</p>-->
-        <!--				</div>-->
-        <!--			</article>-->
-        <!--			<article class=''>-->
-        <!--				<div>-->
-        <!--					<img src="../img/p17.jpg" alt="">-->
-        <!--					<h2>17</h2>-->
-        <!--					<p>Here comes content description in detail.</p>-->
-        <!--				</div>-->
-        <!--			</article>-->
-        <!--			<article class=''>-->
-        <!--				<div>-->
-        <!--					<img src="../img/p18.jpg" alt="">-->
-        <!--					<h2>18</h2>-->
-        <!--					<p>Here comes content description in detail.</p>-->
-        <!--				</div>-->
-        <!--			</article>-->
-        <!--			<article class=''>-->
-        <!--				<div>-->
-        <!--					<img src="../img/p19.jpg" alt="">-->
-        <!--					<h2>19</h2>-->
-        <!--					<p>Here comes content description in detail.</p>-->
-        <!--				</div>-->
-        <!--			</article>-->
-        <!--			<article class=''>-->
-        <!--				<div>-->
-        <!--					<img src="../img/p20.jpg" alt="">-->
-        <!--					<h2>20</h2>-->
-        <!--					<p>Here comes content description in detail.</p>-->
-        <!--				</div>-->
-        <!--			</article>-->
+
+            <!--        <article class='ngcf'>-->
+            <!--            <div>-->
+            <!--                <img src="{% static 'img/Parasite.png' %}" alt="">-->
+            <!--                <h2>Parasite</h2>-->
+            <!--                <p>Here comes content description in detail.</p>-->
+            <!--            </div>-->
+            <!--        </article>-->
+            <!--        <article class='fpmc'>-->
+            <!--            <div>-->
+            <!--                <img src="{% static 'img/La La Land.png' %}" alt="">-->
+            <!--                <h2>La La Land</h2>-->
+            <!--                <p>Here comes content description in detail.</p>-->
+            <!--            </div>-->
+            <!--        </article>-->
+            <!--        <article class='pinsage'>-->
+            <!--            <div>-->
+            <!--                <img src="{% static 'img/About Time.png' %}" alt="">-->
+            <!--                <h2>About Time</h2>-->
+            <!--                <p>Here comes content description in detail.</p>-->
+            <!--            </div>-->
+            <!--        </article>-->
+            <!--        <article class='gru4rec'>-->
+            <!--            <div>-->
+            <!--                <img src="{% static 'img/Inception.png' %}" alt="">-->
+            <!--                <h2>Inception</h2>-->
+            <!--                <p>Here comes content description in detail.</p>-->
+            <!--            </div>-->
+            <!--        </article>-->
+            <!--        <article class='srgnn'>-->
+            <!--            <div>-->
+            <!--                <img src="{% static 'img/World War Z.png' %}" alt="">-->
+            <!--                <h2>World War Z</h2>-->
+            <!--                <p>Here comes content description in detail.</p>-->
+            <!--            </div>-->
+            <!--        </article>-->
+
+            <!--			<article class='kprn'>-->
+            <!--				<div>-->
+            <!--					<img src="../img/p7.jpg" alt="">-->
+            <!--					<h2>본 영화</h2>-->
+            <!--					<p>Here comes content description in detail.</p>-->
+            <!--				</div>-->
+            <!--			</article>-->
+            <!--			<article class='bert4rec'>-->
+            <!--				<div>-->
+            <!--					<img src="../img/p8.jpg" alt="">-->
+            <!--					<h2>BERT4Rec 추천결과 1</h2>-->
+            <!--					<p>Here comes content description in detail.</p>-->
+            <!--				</div>-->
+            <!--			</article>-->
+            <!--			<article class='sasrec'>-->
+            <!--				<div>-->
+            <!--					<img src="../img/p9.jpg" alt="">-->
+            <!--					<h2>SASRec 추천결과 2</h2>-->
+            <!--					<p>Here comes content description in detail.</p>-->
+            <!--				</div>-->
+            <!--			</article>-->
+            <!--			<article class='ngcf'>-->
+            <!--				<div>-->
+            <!--					<img src="../img/p10.jpg" alt="">-->
+            <!--					<h2>NGCF 추천결과 2</h2>-->
+            <!--					<p>Here comes content description in detail.</p>-->
+            <!--				</div>-->
+            <!--			</article>-->
+            <!--			<article class='fpmc'>-->
+            <!--				<div>-->
+            <!--					<img src="../img/p11.jpg" alt="">-->
+            <!--					<h2>FPMC 추천결과 2</h2>-->
+            <!--					<p>Here comes content description in detail.</p>-->
+            <!--				</div>-->
+            <!--			</article>-->
+            <!--			<article class='pinsage'>-->
+            <!--				<div>-->
+            <!--					<img src="../img/p12.jpg" alt="">-->
+            <!--					<h2>Pinsage 추천결과 2</h2>-->
+            <!--					<p>Here comes content description in detail.</p>-->
+            <!--				</div>-->
+            <!--			</article>-->
+            <!--			<article class='gru4rec'>-->
+            <!--				<div>-->
+            <!--					<img src="../img/p13.jpg" alt="">-->
+            <!--					<h2>GRU4Rec 추천결과 2</h2>-->
+            <!--					<p>Here comes content description in detail.</p>-->
+            <!--				</div>-->
+            <!--			</article>-->
+            <!--			<article class='srgnn'>-->
+            <!--				<div>-->
+            <!--					<img src="../img/p14.jpg" alt="">-->
+            <!--					<h2>SR-GNN 추천결과 2</h2>-->
+            <!--					<p>Here comes content description in detail.</p>-->
+            <!--				</div>-->
+            <!--			</article>-->
+            <!--			<article class='kprn'>-->
+            <!--				<div>-->
+            <!--					<img src="../img/p15.jpg" alt="">-->
+            <!--					<h2>KPRN 추천결과 2</h2>-->
+            <!--					<p>Here comes content description in detail.</p>-->
+            <!--				</div>-->
+            <!--			</article>-->
+            <!--			<article class='bert4rec'>-->
+            <!--				<div>-->
+            <!--					<img src="../img/p16.jpg" alt="">-->
+            <!--					<h2>BERT4Rec 추천결과 2</h2>-->
+            <!--					<p>Here comes content description in detail.</p>-->
+            <!--				</div>-->
+            <!--			</article>-->
+            <!--			<article class=''>-->
+            <!--				<div>-->
+            <!--					<img src="../img/p17.jpg" alt="">-->
+            <!--					<h2>17</h2>-->
+            <!--					<p>Here comes content description in detail.</p>-->
+            <!--				</div>-->
+            <!--			</article>-->
+            <!--			<article class=''>-->
+            <!--				<div>-->
+            <!--					<img src="../img/p18.jpg" alt="">-->
+            <!--					<h2>18</h2>-->
+            <!--					<p>Here comes content description in detail.</p>-->
+            <!--				</div>-->
+            <!--			</article>-->
+            <!--			<article class=''>-->
+            <!--				<div>-->
+            <!--					<img src="../img/p19.jpg" alt="">-->
+            <!--					<h2>19</h2>-->
+            <!--					<p>Here comes content description in detail.</p>-->
+            <!--				</div>-->
+            <!--			</article>-->
+            <!--			<article class=''>-->
+            <!--				<div>-->
+            <!--					<img src="../img/p20.jpg" alt="">-->
+            <!--					<h2>20</h2>-->
+            <!--					<p>Here comes content description in detail.</p>-->
+            <!--				</div>-->
+            <!--			</article>-->
     </section>
 </main>
 

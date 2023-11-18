@@ -1,4 +1,5 @@
 import json
+import time
 
 import numpy as np
 import torch
@@ -8,8 +9,9 @@ from django.views.decorators.csrf import csrf_exempt
 from kafka import KafkaConsumer
 from kafka import KafkaProducer
 
-from clients import MysqlClient
+from clients import MysqlClient, DynamoDB
 from movie.models import WatchedMovie
+from predict import Predictor
 from pytorch_models.sasrec.args import args
 from pytorch_models.sasrec.sasrec import SASRec
 
@@ -24,10 +26,23 @@ sasrec.eval()
 
 mysql = MysqlClient()
 movies = mysql.get_movies()
-
 movie_dict = movies.to_dict('index')
-title_dict = {v['title']: k for k, v in movie_dict.items()}
+""" movie_dict
+{
+62419: {'movieId': 209159, 
+        'title': 'Window of the Soul (2001)', 
+        'genres': 'Documentary', 
+        'url': None}, 
+62420: ...
+}
+"""
+title2id = {v['title']: k for k, v in movie_dict.items()}  # title to item id
+pop_movies_ids = list(range(30))
+pop_movies = [movie_dict[movie_id] for movie_id in pop_movies_ids]
 
+table_clicklog = DynamoDB(table_name='clicklog')
+
+predictor = Predictor()
 
 # model_dict{'sasrec' : sasrec}
 # model = model_dict['sasrec']
@@ -43,11 +58,10 @@ def home(request):
         watched_movie = request.POST['watched_movie']
         print(f"watched_movie : {watched_movie}")
         split = [int(wm) for wm in watched_movie.split()]
-        # watched_id = title_dict[watched_movie]
-        WatchedMovie.objects.create(name=watched_movie)
+        # watched_id = title2id[watched_movie]
+        # WatchedMovie.objects.create(name=watched_movie)
         # print(f"WatchedMovie.objects.all() : {WatchedMovie.objects.all()}")
         # split = [1, 2, 3, 4]
-        movie_names = [movie_dict[movie_id]['title'] for movie_id in split]
         # print(f"movie_names : {movie_names}")
 
         logits = sasrec.predict(log_seqs=np.array([split]),
@@ -57,12 +71,32 @@ def home(request):
         recomm_result = logits.detach().cpu().numpy()[0].argsort()[::-1][:topk]
         context = {
             'recomm_result': [movie_dict[_] for _ in recomm_result],
-            'watched_movie': movie_names
+            'watched_movie': [movie_dict[movie_id]['title'] for movie_id in split]
         }
     else:
-        recomm_result = ['회원의', '이전 접속', '장바구니', '영화 기반', '추천결과']
-        print(f'recomm_result : {recomm_result}')
-        context = {'recomm_result': recomm_result}
+        user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
+        # watched_movies = user_df['title'].tolist()
+        if not user_df.empty:
+            print(f"클릭로그 : 있음")
+            print(f"user_df : \n{user_df}")
+            clicked_movie_ids = [title2id[_] for _ in user_df['title'].tolist()]
+            recomm_result = predictor.predict(model_name='sasrec', input_item_ids=clicked_movie_ids)
+            print(f"recomm_result : {recomm_result}")
+            watched_movie_titles = [movie_dict[movie_id]['title'] for movie_id in clicked_movie_ids]
+            context = {
+                'pop_movies': pop_movies,
+                'recomm_result': [movie_dict[_] for _ in recomm_result],
+                'watched_movie': watched_movie_titles
+            }
+        else:  # 인기영화
+            print(f"클릭로그 : 없음")
+            print(f"No POST request!")
+            # print(f"watched_movie_titles : {watched_movie_titles}")
+            context = {
+                'pop_movies' : pop_movies,
+                # 'recomm_result': [movie_dict[_] for _ in pop_movies],
+                # 'watched_movie': watched_movie_titles
+            }
     return render(request, "home.html", context=context)
 
 
@@ -98,9 +132,15 @@ def log_click(request):
         producer.flush()
         producer.close()
 
-        # s3에 저장 ######################
-
-        ##################################
+        # dynamoDB clicklog 테이블에 저장 ######################
+        click_log = {
+            'userId': request.user.username,
+            'title': movie_title,
+            'timestamp': int(time.time())
+        }
+        print(request.user.username)
+        table_clicklog.put_item(click_log=click_log)
+        ####################################################
 
         # return JsonResponse({"status": "success"}, status=200)
         return redirect("/movie/movierec/")

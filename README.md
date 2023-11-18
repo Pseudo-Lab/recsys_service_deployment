@@ -6,7 +6,12 @@ http://13.209.69.81/
 # runserver
 ```shell
 docker-compose up -d
+
 export RDS_MYSQL_PW=${PASSWORD}
+export AWS_ACCESS_KEY_ID = ${AWS_ACCESS_KEY_ID} 
+export AWS_SECRET_ACCESS_KEY = ${AWS_SECRET_ACCESS_KEY} 
+export AWS_REGION_NAME = ${AWS_REGION_NAME} 
+
 python manage.py runserver
 ```
 # docker

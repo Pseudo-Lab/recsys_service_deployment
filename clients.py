@@ -66,7 +66,7 @@ class DynamoDB:
             aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
             region_name=os.environ['AWS_REGION_NAME'],
         )
-        self.table = self.resource.Table(table_name)
+        self.table = self.resource.Table(table_name)  # clicklog 테이블 등으로 연결
 
     def put_item(self, click_log):
         resp = self.table.put_item(Item=click_log)

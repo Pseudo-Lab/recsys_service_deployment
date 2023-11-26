@@ -197,10 +197,36 @@ main section article > div {
     box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
     padding: 14px;
+
+    /*transition-property: transform opacity;*/
+    transition-duration: .2s;
+    transition-delay: 0s;
+    transition-timing-function: cubic-bezier(.8, -0.1, .58, 1.39);
+}
+
+main section article > div:hover {
+    transform: scale(1.01);
+    background-color: #8192a1;
+}
+
+
+
+main section article > div:hover p {
+    color: white;
+    font-size: 13px;
 }
 
 main section article div img {
     width: 100%;
+}
+
+main section article div img:hover {
+    cursor: pointer;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 1);
+}
+
+main section article div img:active {
+    box-shadow: none;
 }
 
 main section article div h2 {
@@ -209,16 +235,28 @@ main section article div h2 {
     letter-spacing: 1px;
     color: #444;
     margin-bottom: 5px;
+
 }
 
 main section article div p {
     font: 10px/1.2 'arial';
     color: #777;
     margin-bottom: 15px;
+    overflow: hidden;
+
+}
+main section article > div:hover h2, p {
+    color: white;
+    font-size: 15px;
 }
 
 .rating_box {
     text-align: center;
+}
+
+.rating_box:hover {
+    transform: scale(1.3);
+    transition-duration: .2s;
 }
 
 .rating {

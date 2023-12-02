@@ -18,3 +18,15 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1  # replication factor를 1로 설정
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer  # consumer.py를 위한 새로운 Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - kafka
+    # environment:
+    #   AWS_ACCESS_KEY_ID: AKIAWVKXOEHZOZZASCMP
+    #   AWS_SECRET_ACCESS_KEY: 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
+    #   AWS_REGION: ap-northeast-2

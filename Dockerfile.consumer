@@ -1,0 +1,6 @@
+FROM python:3.10-slim
+RUN pip install -U pip
+COPY requirements_consumer.txt .
+RUN pip install --no-cache-dir -r requirements_consumer.txt
+COPY . .
+CMD ["python", "consumer.py"]

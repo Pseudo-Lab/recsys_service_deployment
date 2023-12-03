@@ -210,7 +210,6 @@ main section article > div:hover {
 }
 
 
-
 main section article > div:hover p {
     color: white;
     font-size: 13px;
@@ -218,13 +217,16 @@ main section article > div:hover p {
 
 main section article div img {
     width: 100%;
+
 }
 
+/*호버링*/
 main section article div img:hover {
     cursor: pointer;
     box-shadow: 5px 5px 10px rgba(0, 0, 0, 1);
 }
 
+/*클릭*/
 main section article div img:active {
     box-shadow: none;
 }
@@ -245,6 +247,7 @@ main section article div p {
     overflow: hidden;
 
 }
+
 main section article > div:hover h2, p {
     color: white;
     font-size: 15px;

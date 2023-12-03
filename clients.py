@@ -32,6 +32,16 @@ class MysqlClient:
             df = pd.read_sql(sql='select * from movies', con=connection)
             return df
 
+    def get_daum_movies(self):
+        with self.get_connection() as connection:
+            df = pd.read_sql(sql='select * from daum_movies', con=connection)
+            return df
+
+    def get_daum_ratings(self):
+        with self.get_connection() as connection:
+            df = pd.read_sql(sql='select * from daum_ratings', con=connection)
+            return df
+
     def get_url(self, title):
         with self.get_connection() as connection:
             cursor = connection.cursor()
@@ -49,6 +59,15 @@ class MysqlClient:
             result = cursor.fetchall()
             for row in result:
                 print(row[0])
+
+    def get_data_type(self, table_name):
+        with self.get_connection().cursor() as cursor:
+            cursor.execute(f"SHOW COLUMNS FROM {table_name}")
+            columns = cursor.fetchall()
+        for column in columns:
+            column_name = column[0]
+            data_type = column[1]
+            print(f"Column: {column_name}, Data Type: {data_type}")
 
 
 class DynamoDB:

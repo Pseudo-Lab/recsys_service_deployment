@@ -28,6 +28,7 @@ from pytorch_models.ngcf.main import main
 from pytorch_models.ngcf.utility.parser import parse_args
 from pytorch_models.ngcf.new_user_pred import *
 
+import pytorch_models.Data.ML1M.train_test_split as ts
 
 import warnings
 warnings.filterwarnings(action = 'ignore')
@@ -83,7 +84,7 @@ def home(request):
         #%% NGCF 모델 재학습 후 추천
         recommended_items = new_user_rec(split, num_recommendations=10, num_epochs=10)
         for i in recommended_items :
-            recomm_result.append(item_decoder[i.item()])
+            recomm_result.append(ts.item_decoder[i.item()])
         
         print(f'recomm_result : {recomm_result}')
       

@@ -14,6 +14,21 @@ from pytorch_models.MF.bpr_opt import MF
 from pytorch_models.MF.bpr_opt import retrain_model
 from pytorch_models.MF.bpr_opt import predict_recommendations
 
+
+import dgl
+import dgl.function as fn
+import torch.nn.functional as F
+import torch.optim as optim
+
+from pytorch_models.ngcf import model
+from pytorch_models.ngcf.model import NGCF
+from pytorch_models.ngcf.utility.load_data import *
+from pytorch_models.ngcf.utility.batch_test import *
+from pytorch_models.ngcf.main import main
+from pytorch_models.ngcf.utility.parser import parse_args
+from pytorch_models.ngcf.new_user_pred import *
+
+
 import warnings
 warnings.filterwarnings(action = 'ignore')
 
@@ -55,7 +70,7 @@ def home(request):
         movie_names = [movie_dict[movie_id]['title'] for movie_id in split]
         print(f"movie_names : {movie_names}")
         
-        # 모델 재학습 후 추천
+        #%% MF 모델 재학습 후 추천
 
         recommended_items = retrain_model(split, num_recommendations=10)
         
@@ -64,7 +79,14 @@ def home(request):
             recomm_result.append(item_decoder[i.item()])
         
         print(f'recomm_result : {recomm_result}')
-
+        
+        #%% NGCF 모델 재학습 후 추천
+        recommended_items = new_user_rec(split, num_recommendations=10, num_epochs=10)
+        for i in recommended_items :
+            recomm_result.append(item_decoder[i.item()])
+        
+        print(f'recomm_result : {recomm_result}')
+      
         context = {
             'recomm_result': [movie_dict[_] for _ in recomm_result],
              'watched_movie' : movie_names
@@ -74,3 +96,6 @@ def home(request):
         print(f'recomm_result : {recomm_result}')
         context = {'recomm_result': recomm_result}
     return render(request, "home.html", context=context)
+
+
+

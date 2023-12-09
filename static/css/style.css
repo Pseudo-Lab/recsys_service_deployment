@@ -22,7 +22,7 @@ body {
 header {
     width: 400px;
     height: 100%;
-    background: linear-gradient(45deg, aqua, royalblue);
+    background: linear-gradient(45deg, #000000, royalblue);
     position: fixed;
     top: 0px;
     left: 0px;
@@ -35,8 +35,8 @@ header h1 {
     letter-spacing: 6px;
     position: absolute;
     left: 50px;
-    top: 30%;
-    transform: translateY(-150%);
+    top: 5%;
+    /*transform: translateY(-150%);*/
 }
 
 header h1::after {
@@ -49,7 +49,7 @@ header h1::after {
 }
 
 header h1::before {
-    content: '추천시스템 논문에서 서비스까지';
+    content: none;
     display: block;
     font: 14px/1 'orbitron';
     color: #fff;
@@ -70,30 +70,51 @@ header h2 {
     transform: translateY(-150%);
 }
 
-header div.input {
+header div.clicked_movies {
     font: 20px/1 'obitron';
     color: #fff;
     /* display:inline-block; */
+
     position: absolute;
-    left: 50px;
-    top: 30%;
+    /*left: 50px;*/
+    top: 20%;
+    width: 100%;
     /* transform:translateY(300%); */
+    padding: 20px;
+    text-align: center;
+    box-sizing: border-box;
+
 }
 
 header div.watched_list {
     font: bold 18px/1 'orbitron';
     color: #fff;
     /* display:inline-block; */
-    position: absolute;
-    left: 50px;
-    top: 35%;
+    position: relative;
+    /*left: 50px;*/
+    top: 25%;
     /* transform:translateY(300%); */
+    /*overflow:scroll;*/
+    margin: 20px auto;
+    overflow-y: scroll;
+    height: 550px;
+
 }
 
 header div.watched_list p {
     line-height: 25px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.53);
+    margin: 20px;
+    padding: 10px;
+    background: rgba(250, 250, 250, 0);
+    border-radius: 4px;
+    color: #ffffff;
+     border: 1px solid #ffffff;
 }
 
+.listing-star {
+    color: #ffc107;
+}
 /* header div{
   font: 30px/1 'obitron';
   color:#fff;
@@ -104,10 +125,11 @@ header div.watched_list p {
   top:50%;
 } */
 
+
 header ul {
     position: absolute;
     left: 40px;
-    bottom: 100px;
+    bottom: 50px;
 }
 
 header ul li {
@@ -170,6 +192,43 @@ main ul li.on a {
     background: linear-gradient(45deg, #67faf3, #58abf8);
     box-shadow: 0px 5px 20px rgba(0, 255, 255, 0.527);
     color: #fff;
+}
+
+.searchGroup {
+    display: flex;
+    position: relative;
+    right: 10px;
+}
+
+.search {
+    font-size: 1.5em;
+    cursor: pointer;
+    background: #efefef;
+}
+
+.searchBox {
+    /*position: absolute;*/
+    right: 30px;
+    height: 100%;
+    background: #efefef;
+    align-items: center;
+    padding: 0 30px;
+}
+
+.searchBox input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background-color: #efefef;
+    color: #000000;
+    font-size: 1.25em;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    height: 50px;
+}
+
+.searchBtn {
+    position: relative;
+    top: 15px;
 }
 
 main section {
@@ -258,7 +317,7 @@ main section article > div:hover h2, p {
 }
 
 .rating_box:hover {
-    transform: scale(1.3);
+    transform: scale(1.2);
     transition-duration: .2s;
 }
 

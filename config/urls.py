@@ -22,14 +22,13 @@ from django.urls import path, include
 from movie.views import home
 from movie import views
 
-
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     # path("", index),
     path("users/", include("users.urls")),
     path("movie/", include("movie.urls")),
     path('', home),
-    path('log_click/', views.log_click, name='log_click')
+    path('log_click/', views.log_click, name='log_click'),
+    path('log_star/', views.log_star, name='log_star')
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

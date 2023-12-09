@@ -13,24 +13,21 @@
     <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
     <script src="static/js/isotope.pkgd.min.js"></script>
     <script defer src="static/js/main.js"></script>
-    <script defer src="static/js/star.js"></script>
+    <script defer src="static/js/star_logger.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{% static 'js/click_logger.js' %}"></script>
+    <!--    iconicons-->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
 
 </head>
 <body>
 
 <header>
     <h1>PSEUDO REC</h1>
-    <div class="input">
-        <form method="POST">
-            {% csrf_token %}
-            <label>본 영화</label>
-            <input name="watched_movie" type="text">
-            <button>입력</button>
-        </form>
-    </div>
 
+    <div class="clicked_movies"></div>
     <div class="watched_list">
         {% for wm in watched_movie %}
         <p>{{ wm }}</p>
@@ -62,57 +59,63 @@
 
 
 <main>
+
     <ul>
-        <!--        <li><a href=".bert4rec">BERT4Rec</a></li>-->
+
         <li><a href=".kprn">KPRN</a></li>
-        <!--        <li><a href=".srgnn">SR-GNN</a></li>-->
         <li><a href=".gru4rec">GRU4Rec</a></li>
-        <!--        <li><a href=".pinsage">PinSage</a></li>-->
-        <!--        <li><a href=".fpmc">FPMC</a></li>-->
         <li><a href=".ngcf">NGCF</a></li>
         <li><a href=".sasrec">SASRec</a></li>
         <li class="on"><a href=".pop">인기 영화</a></li>
-        <!--        <li class='on'><a href="*">당신을 위한 추천</a></li>-->
     </ul>
-
-    <section>
-        {% for r in pop_movies %}
-        <article class='pop'>
-            <div class="movie">
-                <img src={{ r.url }} alt="">
-                <h2>{{ r.title }}</h2>
-                <p>{{ r.genres }}</p>
-                <div class="rating_box">
-                    <div class="rating">
-                        ★★★★★
-                        <span class="rating_star">★★★★★</span>
-                        <input type="range" value="0" step="1" min="0" max="10">
+    <div class="searchGroup">
+        <div class="searchBox">
+            <input type="text" placeholder="Search here . . .">
+        </div>
+        <div class="search">
+            <span class="icon">
+                <ion-icon name="search-outline" class="searchBtn"></ion-icon>
+            </span>
+        </div>
+    </div>
+    <div>
+        <section>
+            {% for r in pop_movies %}
+            <article class='pop'>
+                <div class="movie">
+                    <img src={{ r.url }} alt="">
+                    <h2>{{ r.title }}</h2>
+                    <p>{{ r.genres }}</p>
+                    <div class="rating_box">
+                        <div class="rating">
+                            ★★★★★
+                            <span class="rating_star">★★★★★</span>
+                            <input type="range" value="0" step="1" min="0" max="10">
+                        </div>
                     </div>
                 </div>
-            </div>
+            </article>
+            {% endfor %}
 
-
-        </article>
-        {% endfor %}
-
-        {% for r in recomm_result %}
-        <article class='sasrec'>
-            <div class="movie">
-                <img src={{ r.url }} alt="">
-                <h2>{{ r.title }}</h2>
-                <p>{{ r.genres }}</p>
-                <div class="rating_box">
-                    <div class="rating">
-                        ★★★★★
-                        <span class="rating_star">★★★★★</span>
-                        <input type="range" value="0" step="1" min="0" max="10">
+            {% for r in recomm_result %}
+            <article class='sasrec'>
+                <div class="movie">
+                    <img src={{ r.url }} alt="">
+                    <h2>{{ r.title }}</h2>
+                    <p>{{ r.genres }}</p>
+                    <div class="rating_box">
+                        <div class="rating">
+                            ★★★★★
+                            <span class="rating_star">★★★★★</span>
+                            <input type="range" value="0" step="1" min="0" max="10">
+                        </div>
                     </div>
                 </div>
-            </div>
-        </article>
-        {% endfor %}
+            </article>
+            {% endfor %}
 
-    </section>
+        </section>
+    </div>
 </main>
 
 </body>

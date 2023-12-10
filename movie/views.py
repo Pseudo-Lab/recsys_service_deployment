@@ -214,6 +214,5 @@ def log_star(request):
         'recomm_result': [movie_dict[_] for _ in star_movie_ids],
         'watched_movie': watched_movie_titles,
         'ratings': [float(star/2) for star in star_df['star'].tolist()]
-
     }
     return HttpResponse(json.dumps(context), content_type='application/json')

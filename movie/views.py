@@ -192,7 +192,6 @@ def log_click(request):
 @csrf_exempt
 def log_star(request):
     data = json.loads(request.body.decode('utf-8'))
-    print(data)
     percentage = data.get('percentage')
     movie_title = data.get('movie_title')
     page_url = data.get('page_url')

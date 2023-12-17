@@ -2,3 +2,5 @@ data/
 .ipynb_checkpoints/
 *.pyc
 .env
+db.sqlite3
+migrations/  # 최초 makemigrations 명령 실행 시 생기는 파일. 버전 관리 대상이 아님. model.py를 수정할 일이 많아 서버 db와 충돌할 가능성.

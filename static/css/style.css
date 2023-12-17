@@ -109,12 +109,13 @@ header div.watched_list p {
     background: rgba(250, 250, 250, 0);
     border-radius: 4px;
     color: #ffffff;
-     border: 1px solid #ffffff;
+    border: 1px solid #ffffff;
 }
 
 .listing-star {
     color: #ffc107;
 }
+
 /* header div{
   font: 30px/1 'obitron';
   color:#fff;
@@ -373,10 +374,18 @@ main section article > div:hover h2, p {
 
     header h1 {
         font: bold 24px/1 'orbitron';
-        transform: translateY(-50%);
+        transform: translateY(80%);
     }
 
     header h1::before, header h1::after {
+        display: none;
+    }
+
+    header div.clicked_movies {
+        display: none;
+    }
+
+    header div.watched_list {
         display: none;
     }
 

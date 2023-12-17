@@ -33,7 +33,8 @@ ALLOWED_HOSTS = ['13.209.69.81', '127.0.0.1']
 
 INSTALLED_APPS = [
     'users',  # 로그인 인증 시스템 앱
-    'movie',  # movielens 영화 추천 앱
+    'movie',  # daum movie 영화 추천 앱
+    'paper_review',  # 논문 리뷰 포스팅 페이지
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

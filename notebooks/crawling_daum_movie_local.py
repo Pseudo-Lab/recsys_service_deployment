@@ -1,14 +1,10 @@
 # brew install mysql-client
 import sys
-sys.path.append('../')
-from clients import MysqlClient
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException
-from webdriver_manager.chrome import ChromeDriverManager
 
-import time
+sys.path.append('../')
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
+
 import pandas as pd
 import datetime as dt
 import os
@@ -16,11 +12,13 @@ import re
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
-from tqdm import tqdm 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 os.environ['RDS_MYSQL_PW'] = 'Precsys1!'
-os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAWVKXOEHZOZZASCMP'
-os.environ['AWS_SECRET_ACCESS_KEY'] = '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'
+os.environ['AWS_ACCESS_KEY_ID'] = os.getenv('AWS_ACCESS_KEY_ID')
+os.environ['AWS_SECRET_ACCESS_KEY'] = os.getenv('AWS_SECRET_ACCESS_KEY')
 os.environ['AWS_REGION_NAME'] = "ap-northeast-2"
 
 # driver = webdriver.Chrome(executable_path="../../Downloads/chromedriver-mac-arm64/chromedriver")
@@ -49,7 +47,6 @@ while sunday_dt < dt.datetime.now() + dt.timedelta(days=7):
 df = pd.DataFrame(dfs, columns=["mainPageUrl", "titleKo", "movieId", "posterUrl"])
 df = df.drop_duplicates()
 df.to_csv("daum_movie.csv", index=False)
-
 
 # driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
 #

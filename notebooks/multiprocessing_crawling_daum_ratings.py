@@ -18,11 +18,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from tqdm import tqdm
 import multiprocessing
 
-os.environ['RDS_MYSQL_PW'] = 'Precsys1!'
-os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAWVKXOEHZOZZASCMP'
-os.environ['AWS_SECRET_ACCESS_KEY'] = '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'
-os.environ['AWS_REGION_NAME'] = "ap-northeast-2"
-
 movieid_regex = re.compile('movieId=([\d]+)')
 
 
@@ -234,7 +229,7 @@ if __name__ == '__main__':
     try:
         processes = []
         for i, row in tqdm(result_df.iterrows()):
-            if len(processes) >= 3:
+            if len(processes) >= 2:
                 # 가장 먼저 시작된 프로세스가 종료될 때까지 대기
                 processes[0].join()
                 processes.pop(0)

@@ -208,7 +208,7 @@ if __name__ == '__main__':
     # daum_movies = pd.read_csv("daum_movie.csv")
 
     mysql = MysqlClient()
-    # 나중에 수집대상 영화 : 리뷰 5개 이하인 영화들
+    # 나중에 수집대상 영화 : 리뷰 5개 이하인 영화들 -> daum_movies의 numOfSiteRatings보다 적은 영화들
     with mysql.get_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("""
@@ -220,16 +220,17 @@ if __name__ == '__main__':
             GROUP BY movieId
             HAVING COUNT(*) <= 5
         ) dr ON dm.movieId = dr.movieId
-        WHERE dm.titleKo IS NOT NULL
+        
         """)
         columns = [desc[0] for desc in cursor.description]
         result_df = pd.DataFrame(cursor.fetchall(), columns=columns)
+        result_df = result_df.sort_index(ascending=False)
 
     print(f"수집할영화 수 : {len(result_df):,}")
     try:
         processes = []
         for i, row in tqdm(result_df.iterrows()):
-            if len(processes) >= 2:
+            if len(processes) >= 1:
                 # 가장 먼저 시작된 프로세스가 종료될 때까지 대기
                 processes[0].join()
                 processes.pop(0)

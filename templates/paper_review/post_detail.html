@@ -1,0 +1,28 @@
+{% load paper_review_filter %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ post.title }} - Paper Review</title>
+    <script>
+MathJax = {
+  tex: {
+	inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
+    <script async src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</head>
+<body>
+<nav>
+    <a href="/paper_review/">Paper Review</a>
+</nav>
+<h1>{{ post.title }}</h1>
+<h4>{{ post.created_at }}</h4>
+<p>{{ post.content|mark }}</p>
+<hr/>
+<h3>여기 댓글이 들어올 수 있겠죠?</h3>
+</body>
+</html>

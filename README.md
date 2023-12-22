@@ -4,12 +4,12 @@
 http://13.209.69.81/
 
 # runserver
-레포지토리 기본 경로에 ```.env``` 파일이 존재해야합니다. 
+레포지토리 최상단 경로에 ```.env``` 파일이 존재해야합니다. 
 ```
 RDS_MYSQL_PW=${PASSWORD}
-AWS_ACCESS_KEY_ID = ${AWS_ACCESS_KEY_ID} 
-AWS_SECRET_ACCESS_KEY = ${AWS_SECRET_ACCESS_KEY} 
-AWS_REGION_NAME = ${AWS_REGION_NAME} 
+AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} 
+AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} 
+AWS_REGION_NAME=${AWS_REGION_NAME} 
 ```
 다음 명령어를 실행하면 로컬 서버를 실행시킵니다.
 ```shell

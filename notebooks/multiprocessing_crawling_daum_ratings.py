@@ -113,12 +113,15 @@ def insert_data_ratings(mysql, data_to_insert, title_ko):
         with mysql.get_connection() as connection:
             cursor = connection.cursor()
             # executemany를 사용하여 중복되지 않은 데이터 삽입
+            i = 0
             for row in data_to_insert:
                 try:
                     cursor.execute(insert_query, row)
+                    i += 1
                 except IntegrityError as e:
                     if "Duplicate entry" in str(e):
-                        print(f"[{title_ko}]의 box 수집 중 중복된 행이 이미 존재합니다. ({row[0]}-{row[1]}) 데이터를 무시하고 넘어갑니다.")
+                        pass
+                        # print(f"[{title_ko}]의 box 수집 중 중복된 행이 이미 존재합니다. ({row[0]}-{row[1]}) 데이터를 무시하고 넘어갑니다.")
                     else:
                         print(f"MySQL IntegrityError: {e}")
             connection.commit()
@@ -128,6 +131,7 @@ def insert_data_ratings(mysql, data_to_insert, title_ko):
             print("중복된 행이 이미 존재합니다. 데이터를 무시하고 넘어갑니다.")
         else:
             print(f"MySQL IntegrityError: {e}")
+    return i
 
 
 def insert_movie_if_not_exists(mysql, movie_id):
@@ -157,7 +161,7 @@ def process_movie_reviews(title_ko, movie_id, shared_df, shared_nicknames):
     driver.get(f"https://movie.daum.net/moviedb/grade?movieId={movie_id}")
     time.sleep(1)
 
-    click_more(driver, 1)
+    click_more(driver, 5)
     time.sleep(1)
 
     rating_boxes = driver.find_elements(By.CSS_SELECTOR, 'div.wrap_alex ul.list_comment > li')
@@ -171,12 +175,12 @@ def process_movie_reviews(title_ko, movie_id, shared_df, shared_nicknames):
         else:
             continue
         wait_till_popup(driver)
-        click_popup_more(driver, 1)
+        click_popup_more(driver, 5)
         popup_boxes = driver.find_elements(By.CSS_SELECTOR, 'div[data-reactid=".0.0.1"] ul.list_comment > li')
         print(f"{title_ko}({movie_id}), {nname}, {pop_i}/{len(rating_boxes)}")
         pop_movie_id = 'not yet'
         nickname = 'not yet'
-        print(f"\tL {title_ko}, {nname}, popup boxes : {len(popup_boxes)}")
+        # print(f"\tL {title_ko}, {nname}, popup boxes : {len(popup_boxes)}")
         popups_of_box = []
         if len(popup_boxes):
             collect_cnt = 0
@@ -189,8 +193,8 @@ def process_movie_reviews(title_ko, movie_id, shared_df, shared_nicknames):
                     popups_of_box.append([nickname, pop_movie_id, rating, rating_timestamp, None, review])
                     collect_cnt += 1
                 shared_nicknames.append(nickname)
-            print(f"\tL {title_ko}, {nname}, collect_cnt : {collect_cnt}")
-            insert_data_ratings(mysql, popups_of_box, title_ko)
+            insert_cnt = insert_data_ratings(mysql, popups_of_box, title_ko)
+            print(f"\tL ({title_ko})-({nname}), insert/collect : {insert_cnt}/{collect_cnt}")
         click_popup_x(driver, title_ko, nname, pop_movie_id, nickname, len(popup_boxes))
         wait_till_close_popup(driver)
 
@@ -208,29 +212,23 @@ if __name__ == '__main__':
     # daum_movies = pd.read_csv("daum_movie.csv")
 
     mysql = MysqlClient()
+
     # 나중에 수집대상 영화 : 리뷰 5개 이하인 영화들 -> daum_movies의 numOfSiteRatings보다 적은 영화들
     with mysql.get_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-        SELECT dm.*
-        FROM daum_movies dm
-        JOIN (
-            SELECT movieId
-            FROM daum_ratings
-            GROUP BY movieId
-            HAVING COUNT(*) <= 5
-        ) dr ON dm.movieId = dr.movieId
-        
-        """)
-        columns = [desc[0] for desc in cursor.description]
-        result_df = pd.DataFrame(cursor.fetchall(), columns=columns)
-        result_df = result_df.sort_index(ascending=False)
+        # SQL 쿼리 실행
+        query = "SELECT movieId, COUNT(*) AS count FROM daum_ratings GROUP BY movieId;"
+        dr_cnt = pd.read_sql_query(query, conn)
+    daum_movies = mysql.get_daum_movies()
+    join_df = pd.merge(dr_cnt, daum_movies, on='movieId', how='left')
+    result_df = join_df[(join_df['count'] < join_df['numOfSiteRatings']) & (join_df['count'] < 10)]
 
+    result_df = result_df.sort_index(ascending=False)
     print(f"수집할영화 수 : {len(result_df):,}")
+
     try:
         processes = []
         for i, row in tqdm(result_df.iterrows()):
-            if len(processes) >= 1:
+            if len(processes) >= 8:
                 # 가장 먼저 시작된 프로세스가 종료될 때까지 대기
                 processes[0].join()
                 processes.pop(0)

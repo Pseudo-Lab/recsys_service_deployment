@@ -29,5 +29,6 @@ urlpatterns = [
     path('log_click/', log_click, name='log_click'),
     path('log_star/', log_star, name='log_star'),
     path('paper_review/', include('paper_review.urls')),
+    path('markdownx/', include('paper_review.urls')),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

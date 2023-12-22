@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['13.209.69.81', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    'markdownx',
     'users',  # 로그인 인증 시스템 앱
     'movie',  # daum movie 영화 추천 앱
     'paper_review',  # 논문 리뷰 포스팅 페이지
@@ -126,3 +127,21 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# markdown
+
+
+MARKDOWNX_MARKDOWN_EXTENSIONS = [
+    'markdown.extensions.codehilite',
+    'markdown.extensions.fenced_code',
+    'markdown.extensions.extra',
+    'markdown.extensions.toc'
+]
+
+MARKDOWNX_MARKDOWN_EXTENSION_CONFIGS = {
+    'markdown.extensions.codehilite': {
+        'linenums': True,
+        'use_pygments': True,
+        'noclasses': True
+    }
+}

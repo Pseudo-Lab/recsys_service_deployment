@@ -4,7 +4,9 @@ import boto3
 import pandas as pd
 import pymysql
 from boto3.dynamodb.conditions import Key
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class MysqlClient:
     def __init__(self):
@@ -13,7 +15,7 @@ class MysqlClient:
         self.user = "admin"
         self.region = "ap-northeast-2c"
         self.dbname = "movielens25m"
-        self.passwd = os.environ['RDS_MYSQL_PW']
+        self.passwd = os.getenv('RDS_MYSQL_PW')
         os.environ['LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN'] = '1'
         # self.connection = pymysql.connect(host=endpoint, user=user, passwd=passwd, port=port, database=dbname)
 

@@ -16,6 +16,7 @@
     <script defer src="static/js/star.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{% static 'js/click_logger.js' %}"></script>
+    <script src="{% static 'js/delete_movie.js' %}"></script>
 
 </head>
 <body>
@@ -31,11 +32,15 @@
         </form>
     </div>
 
-    <div class="watched_list">
+
+    <div class="watched_list" id="watched_list">
         {% for wm in watched_movie %}
-        <p>{{ wm }}</p>
+            <div class="movie_item">
+                <p>{{ wm }} <span class="delete_button" data-movie-index="{{ forloop.counter0 }}">X</span></p>
+            </div>
         {% endfor %}
     </div>
+
 
     <ul>
         <li>

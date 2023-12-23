@@ -56,6 +56,8 @@ def home(request):
             'recomm_result': [movie_dict[_] for _ in recomm_result],
             'watched_movie': [movie_dict[movie_id]['title'] for movie_id in split]
         }
+        
+
     else:
         user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
         # watched_movies = user_df['title'].tolist()
@@ -76,7 +78,7 @@ def home(request):
             # print(f"watched_movie_titles : {watched_movie_titles}")
             context = {
                 'pop_movies': pop_movies,
-                # 'recomm_result': [movie_dict[_] for _ in pop_movies],
+                # 'recomm_result': [movie_dict[_] for    _ in pop_movies],
                 # 'watched_movie': watched_movie_titles
             }
     return render(request, "home.html", context=context)
@@ -85,7 +87,35 @@ def home(request):
 consumer = KafkaConsumer('movie_title_ver2',
                          bootstrap_servers=['localhost:9092'],
                          value_deserializer=lambda x: json.loads(x.decode('utf-8')))
+# @csrf_exempt
+# def delete_movie(request):
+#     if request.method == 'POST' and request.is_ajax():
+#         user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
+#         response = user_df.delete_item(
+#             Key = {
+#                 "date": user_df["userId"]
+#             }
+#         )
+@csrf_exempt
+def delete_movie(request):
+    if request.method == 'POST':
+        index = int(request.POST.get('movie_index'))  # 클라이언트에서 전송한 인덱스 받기
 
+        user_df = table_clicklog.get_a_user_df(user_name=request.user.username)
+        movie_titles = user_df['title']
+            
+        # 삭제할 item data row 확인
+        item_to_delete = movie_titles[index]
+
+        # DynamoDB에서 해당 영화 제목을 가진 아이템 삭제
+        response = table_clicklog.delete_item(Key={
+             'userId': item_to_delete['userId'],            # pk
+             'timestamp': item_to_delete['timestamp']       # sk
+})
+        return redirect("/movie/movierec/")  # 삭제 성공 시 응답
+    else:
+        return JsonResponse({'status': False}, status=400)
+    
 
 @csrf_exempt
 def log_click(request):

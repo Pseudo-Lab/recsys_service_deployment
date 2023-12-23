@@ -288,6 +288,31 @@ main section article > div:hover h2, p {
 }
 
 
+/* Style for the movie list container */
+.watched_list {
+    /* Add your desired styles for the container */
+}
+
+/* Style for each movie item */
+.movie_item {
+    /* Add your desired styles for each movie item */
+    position: relative;
+}
+
+/* Style for the delete button */
+.delete_button {
+    cursor: pointer;
+    display: none; /* Initially hide the delete button */
+    /* Add your desired styles for the delete button */
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+/* Show delete button on hover */
+.movie_item:hover .delete_button {
+    display: inline; /* Show delete button when hovering over movie item */
+}
 @media screen and (max-width: 1599px) {
     header {
         width: 350px;

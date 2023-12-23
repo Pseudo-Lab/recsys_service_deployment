@@ -4,7 +4,9 @@ import boto3
 import pandas as pd
 import pymysql
 from boto3.dynamodb.conditions import Key
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class MysqlClient:
     def __init__(self):
@@ -56,15 +58,15 @@ class DynamoDB:
         self.resource = boto3.resource(
             'dynamodb',
             aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-            aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
-            region_name=os.environ['AWS_REGION_NAME'],
+            aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'], 
+            region_name=os.environ['AWS_REGION_NAME']
         )
 
         self.client = boto3.client(
             'dynamodb',
             aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-            aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
-            region_name=os.environ['AWS_REGION_NAME'],
+            aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'], 
+            region_name=os.environ['AWS_REGION_NAME']
         )
         self.table = self.resource.Table(table_name)  # clicklog 테이블 등으로 연결
 

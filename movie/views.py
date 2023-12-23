@@ -87,15 +87,6 @@ def home(request):
 consumer = KafkaConsumer('movie_title_ver2',
                          bootstrap_servers=['localhost:9092'],
                          value_deserializer=lambda x: json.loads(x.decode('utf-8')))
-# @csrf_exempt
-# def delete_movie(request):
-#     if request.method == 'POST' and request.is_ajax():
-#         user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
-#         response = user_df.delete_item(
-#             Key = {
-#                 "date": user_df["userId"]
-#             }
-#         )
 @csrf_exempt
 def delete_movie(request):
     if request.method == 'POST':
@@ -115,6 +106,10 @@ def delete_movie(request):
         return redirect("/movie/movierec/")  # 삭제 성공 시 응답
     else:
         return JsonResponse({'status': False}, status=400)
+
+
+
+
     
 
 @csrf_exempt

@@ -14,7 +14,8 @@ $(document).ready(function() {
                 console.log("성공")}
         });
     });
-});
+}); 
+
 
 
 // document.ready(function() {

@@ -270,7 +270,7 @@ main .left-float-field p.pseudorec {
 
 main .right-content-field {
     float: left;
-    border: 2px solid #ff797b;
+    /*border: 2px solid #ff797b;*/
 }
 
 main .right-content-field .paper-review-main {

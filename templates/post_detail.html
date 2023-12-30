@@ -25,13 +25,15 @@
     {% include 'navbar.html' %}
 </header>
 <main>
-    {% include 'left_col.html' %}
-    <div class="right-content-field">
-        <h1>{{ post.title }}</h1>
-        <h4>{{ post.created_at }}</h4>
-        <p>{{ post.content|mark }}</p>
-        <hr/>
-        <h3>여기 댓글이 들어올 수 있겠죠?</h3>
+    <div class="paper-review-detail">
+        {% include 'left_col.html' %}
+        <div class="right-content-field">
+            <h1>{{ post.title }}</h1>
+            <h4>{{ post.created_at }}</h4>
+            <p>{{ post.content|mark }}</p>
+            <hr/>
+            <h3>여기 댓글이 들어올 수 있겠죠?</h3>
+        </div>
     </div>
 </main>
 </body>

@@ -103,10 +103,10 @@ def main(daum_movies):
 if __name__ == '__main__':
     mysql = MysqlClient()
     daum_movies = mysql.get_daum_movies()
-    df = daum_movies[daum_movies['titleKo'].isnull()]
+    df = daum_movies[daum_movies.isnull().any(axis=1)]
     print(f"수집할 영화 수 : {len(df)}")
     # 사용할 프로세스 수
-    num_processes = 1
+    num_processes = 5
 
     # 데이터프레임을 청크로 분할
     chunks = np.array_split(df, num_processes)

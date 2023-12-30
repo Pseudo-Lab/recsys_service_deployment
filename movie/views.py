@@ -84,6 +84,7 @@ def home(request):
             print(f"user_df : \n{user_df}")
 
             # ------------------------------
+            print(user_df['title'].tolist())
             clicked_movie_ids = [title2id[_] for _ in user_df['title'].tolist()]
             # recomm_result = predictor.predict(model_name='sasrec', input_item_ids=clicked_movie_ids)
             watched_movie_titles = [movie_dict[movie_id]['title'] for movie_id in clicked_movie_ids]

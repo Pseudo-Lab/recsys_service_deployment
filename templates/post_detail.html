@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+{% load paper_review_filter %}
+{% load static %}
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ post.title }} - Paper Review</title>
+    <link rel="icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script async src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+</head>
+
+<body>
+<header>
+    {% include 'navbar.html' %}
+</header>
+<main>
+    {% include 'left_col.html' %}
+    <div class="right-content-field">
+        <h1>{{ post.title }}</h1>
+        <h4>{{ post.created_at }}</h4>
+        <p>{{ post.content|mark }}</p>
+        <hr/>
+        <h3>여기 댓글이 들어올 수 있겠죠?</h3>
+    </div>
+</main>
+</body>
+</html>

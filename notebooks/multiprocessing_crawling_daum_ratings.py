@@ -161,12 +161,12 @@ def process_movie_reviews(title_ko, movie_id, shared_df, shared_nicknames):
     driver.get(f"https://movie.daum.net/moviedb/grade?movieId={movie_id}")
     time.sleep(1)
 
-    click_more(driver, 5)
+    click_more(driver, 50)
     time.sleep(1)
 
     rating_boxes = driver.find_elements(By.CSS_SELECTOR, 'div.wrap_alex ul.list_comment > li')
     # for pop_i, box in tqdm(enumerate(rating_boxes), desc=f"(box : {len(rating_boxes):3})" + f'[{movie_id:6}] ' + title_ko):
-    for pop_i, box in enumerate(rating_boxes, start=1):
+    for pop_i, box in enumerate(rating_boxes[::-1], start=1):
         # box에서 닉네임 클릭(클릭후 팝업 뜰때까지 대기) ####################
         box_to_click = box.find_element(By.CSS_SELECTOR, 'div.cmt_info > strong > span > a')
         nname = box_to_click.text
@@ -175,7 +175,7 @@ def process_movie_reviews(title_ko, movie_id, shared_df, shared_nicknames):
         else:
             continue
         wait_till_popup(driver)
-        click_popup_more(driver, 5)
+        click_popup_more(driver, 3)
         popup_boxes = driver.find_elements(By.CSS_SELECTOR, 'div[data-reactid=".0.0.1"] ul.list_comment > li')
         print(f"{title_ko}({movie_id}), {nname}, {pop_i}/{len(rating_boxes)}")
         pop_movie_id = 'not yet'
@@ -220,9 +220,13 @@ if __name__ == '__main__':
         dr_cnt = pd.read_sql_query(query, conn)
     daum_movies = mysql.get_daum_movies()
     join_df = pd.merge(dr_cnt, daum_movies, on='movieId', how='left')
-    result_df = join_df[(join_df['count'] < join_df['numOfSiteRatings']) & (join_df['count'] < 10)]
+    # result_df = join_df[(join_df['count'] < join_df['numOfSiteRatings']) & (join_df['count'] < 10)]
+    result_df = join_df[join_df['count'] < join_df['numOfSiteRatings']]
 
-    result_df = result_df.sort_index(ascending=False)
+    # result_df = result_df.sort_index(ascending=False)
+    # result_df = result_df.sample(frac=1, random_state=42)  # frac=1은 전체를 의미하며, random_state는 재현성을 위한 시드 값입니다.
+    result_df = result_df.sort_values(by='numOfSiteRatings', ascending=False)
+    print(f"수집할 df : {result_df.head(30)}")
     print(f"수집할영화 수 : {len(result_df):,}")
 
     try:

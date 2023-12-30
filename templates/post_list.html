@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+{% load paper_review_filter %}
+{% load static %}
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Paper Review</title>
+    <link rel="icon" href="{% static 'img/favicon.ico' %}">
+    <script async src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+</head>
+
+<body>
+<header>
+    {% include 'navbar.html' %}
+</header>
+<main>
+    {% include 'left_col.html' %}
+    <div class="right-content-field">
+        <div class="paper-review-main">
+            <h1>Paper Review</h1>
+            <hr/>
+            {% for p in posts %}
+            <h2><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></h2>
+            <h4>{{ p.created_at }}</h4>
+            <p>{{ p.content | truncatewords:45}}</p>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -1,14 +1,13 @@
-{% load static %}
 <!DOCTYPE html >
+{% load static %}
 <html>
 
 <head>
+    <title> PseudoRec </title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title> PseudoRec </title>
     <link rel="icon" href="{% static 'img/favicon.ico' %}">
-
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
     <script src="static/js/isotope.pkgd.min.js"></script>
@@ -19,112 +18,69 @@
     <!--    iconicons-->
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
 </head>
 <body>
 
 <header>
-    <h1>PSEUDO REC</h1>
-
-    <div class="clicked_movies"></div>
-    <div class="watched_list">
-        {% for wm in watched_movie %}
-        <p>{{ wm }}</p>
-        {% endfor %}
-    </div>
-
-    <ul>
-        <li>
-            <a href="https://www.notion.so/chanrankim/86625e8a719244c68fe61d17472aa50a?pvs=4" target="blank">
-                <i class="fa-solid fa-n"></i>
-                <span>Notion</span>
-            </a>
-        </li>
-        <li>
-            <a href="https://github.com/Pseudo-Lab/recsys_service_deployment" target="blank">
-                <i class="fa-brands fa-github"></i>
-                <span>Github</span>
-            </a>
-        </li>
-        <li>
-            <a href="/users/logout/">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span class="logout">Logout</span>
-            </a>
-        </li>
-    </ul>
-
+    {% include 'navbar.html' %}
 </header>
-
-
-
-
 <main>
-    <div class="searchGroup">
-        <div class="searchBox">
-            <input type="text" placeholder="Search here . . .">
-        </div>
-        <div class="search">
-            <span class="icon">
-                <ion-icon name="search-outline" class="searchBtn"></ion-icon>
-            </span>
-        </div>
-    </div>
-    <div>
-        <a href="/paper_review/">Paper Reviews</a>
-    </div>
-
-
-    <ul>
-
-        <li><a href=".kprn">KPRN</a></li>
-        <li><a href=".gru4rec">GRU4Rec</a></li>
-        <li><a href=".ngcf">NGCF</a></li>
-        <li><a href=".sasrec">SASRec</a></li>
-        <li class="on"><a href=".pop">인기 영화</a></li>
-    </ul>
-    <div>
-        <section>
-            {% for r in pop_movies %}
-            <article class='pop'>
-                <div class="movie">
-                    <img src={{ r.url }} alt="">
-                    <h2>{{ r.title }}</h2>
-                    <p>{{ r.genres }}</p>
-                    <div class="rating_box">
-                        <div class="rating">
-                            ★★★★★
-                            <span class="rating_star">★★★★★</span>
-                            <input type="range" value="0" step="1" min="0" max="10">
+    {% include 'left_col.html' %}
+    <div class="right-content-field">
+        <div class="model-rec">
+        <ul>
+            <li><a href=".kprn">KPRN</a></li>
+            <li><a href=".gru4rec">GRU4Rec</a></li>
+            <li><a href=".ngcf">NGCF</a></li>
+            <li><a href=".sasrec">SASRec</a></li>
+            <li class="on"><a href=".pop">인기 영화</a></li>
+            <li>모델선택</li>
+        </ul>
+        <div>
+            <section>
+                {% for r in pop_movies %}
+                <article class='pop'>
+                    <div class="movie">
+                        <img src={{ r.url }} alt="">
+                        <h2>{{ r.title }}</h2>
+                        <p>{{ r.genres }}</p>
+                        <div class="rating_box">
+                            <div class="rating">
+                                ★★★★★
+                                <span class="rating_star">★★★★★</span>
+                                <input type="range" value="0" step="1" min="0" max="10">
+                            </div>
                         </div>
                     </div>
-                </div>
-            </article>
-            {% endfor %}
+                </article>
+                {% endfor %}
 
-            {% for r in recomm_result %}
-            <article class='sasrec'>
-                <div class="movie">
-                    <img src={{ r.url }} alt="">
-                    <h2>{{ r.title }}</h2>
-                    <p>{{ r.genres }}</p>
-                    <div class="rating_box">
-                        <div class="rating">
-                            ★★★★★
-                            <span class="rating_star">★★★★★</span>
-                            <input type="range" value="0" step="1" min="0" max="10">
+                {% for r in recomm_result %}
+                <article class='sasrec'>
+                    <div class="movie">
+                        <img src={{ r.url }} alt="">
+                        <h2>{{ r.title }}</h2>
+                        <p>{{ r.genres }}</p>
+                        <div class="rating_box">
+                            <div class="rating">
+                                ★★★★★
+                                <span class="rating_star">★★★★★</span>
+                                <input type="range" value="0" step="1" min="0" max="10">
+                            </div>
                         </div>
                     </div>
-                </div>
-            </article>
-            {% endfor %}
-
-        </section>
+                </article>
+                {% endfor %}
+            </section>
+        </div>
+            </div>
     </div>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>

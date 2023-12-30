@@ -18,7 +18,7 @@ def login_view(request):
 
             if user:
                 login(request, user)
-                return redirect("/movie/movierec")
+                return redirect("/")
             else:
                 form.add_error(None, "입력한 자격증명에 해당하는 사용자가 없습니다")
 

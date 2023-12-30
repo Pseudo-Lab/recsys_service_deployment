@@ -8,7 +8,7 @@ $(document).ready(function () {
     // 수정: 'tab_name' 초기 값 설정
     var tabName = "클릭한 영화들";
 
-    $("img").click(function () {
+    $(".right-content-field img").click(function () {
         var movie_title = $(this).next("h2").text();
         var page_url = window.location.href;
 

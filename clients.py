@@ -71,6 +71,14 @@ class MysqlClient:
             data_type = column[1]
             print(f"Column: {column_name}, Data Type: {data_type}")
 
+    def get_nickname_ratings(self, nickname):
+        with self.get_connection().cursor() as cursor:
+            cursor.execute(f"""SELECT *
+            FROM daum_ratings
+            WHERE nickName = '{nickname}'
+            """)
+            result = cursor.fetchall()
+        return pd.DataFrame(result)
 
 class DynamoDB:
     def __init__(self, table_name: str):

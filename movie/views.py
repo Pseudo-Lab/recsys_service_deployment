@@ -1,6 +1,8 @@
 import json
 import time
+from collections import Counter
 
+import pandas as pd
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
@@ -14,10 +16,14 @@ from clients import MysqlClient, DynamoDB
 # movies = pd.read_table('data/ml-1m/movies.dat', sep='::', header=None, names=['movie_id', 'title', 'genres'],
 #                        engine='python', encoding_errors='ignore')
 # movies.set_index('movie_id', inplace=True)
+from movie.utils import get_pop
 
 mysql = MysqlClient()
-movies = mysql.get_movies()
-movie_dict = movies.to_dict('index')
+movies = mysql.get_daum_movies()
+# movies = mysql.get_daum_movies()
+# print(movies)
+# movie_dict = movies.to_dict('index')
+movie_dict = movies[['movieId', 'titleKo', 'posterUrl']].set_index('movieId').to_dict('index')
 """ movie_dict
 {
 62419: {'movieId': 209159, 
@@ -27,13 +33,16 @@ movie_dict = movies.to_dict('index')
 62420: ...
 }
 """
-title2id = {v['title']: k for k, v in movie_dict.items()}  # title to item id
-pop_movies_ids = list(range(30))
+title2id = {v['titleKo']: k for k, v in movie_dict.items()}  # title to item id
+# pop_movies_ids = list(range(30))
+pop_movies_ids = get_pop(mysql)
 pop_movies = [movie_dict[movie_id] for movie_id in pop_movies_ids]
 
 table_clicklog = DynamoDB(table_name='clicklog')
 
+
 # predictor = Predictor()
+
 
 # ------------------------------
 import pickle
@@ -80,14 +89,11 @@ def home(request):
         # watched_movies = user_df['title'].tolist()
         if not user_df.empty:
             print(f"클릭로그 : 있음")
-            print(request.user)
-            print(f"user_df : \n{user_df}")
-
+            print(f"user : {request.user}")
             # ------------------------------
-            print(user_df['title'].tolist())
             clicked_movie_ids = [title2id[_] for _ in user_df['title'].tolist()]
             # recomm_result = predictor.predict(model_name='sasrec', input_item_ids=clicked_movie_ids)
-            watched_movie_titles = [movie_dict[movie_id]['title'] for movie_id in clicked_movie_ids]
+            watched_movie_titles = [movie_dict[movie_id]['titleKo'] for movie_id in clicked_movie_ids]
 
             if request.user == 'smseo':
                 new_user_id = 5001
@@ -98,7 +104,7 @@ def home(request):
             recomm_result = loaded_model.recommend_items(new_user_id, clicked_movie_ids)
 
             context = {
-                # 'pop_movies': pop_movies,
+                'pop_movies': pop_movies,
                 'recomm_result': [movie_dict[_] for _ in recomm_result],
                 'watched_movie': watched_movie_titles
             }
@@ -107,7 +113,6 @@ def home(request):
         else:  # 인기영화
             print(f"클릭로그 : 없음")
             print(f"No POST request!")
-            # print(f"watched_movie_titles : {watched_movie_titles}")
             context = {
                 'pop_movies': pop_movies,
                 # 'recomm_result': [movie_dict[_] for _ in pop_movies],
@@ -170,8 +175,8 @@ def log_click(request):
 
         user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
         if not user_df.empty:
-            clicked_movie_ids = [title2id[_] for _ in user_df['title'].tolist()]
-            watched_movie_titles = [movie_dict[movie_id]['title'] for movie_id in clicked_movie_ids]
+            clicked_movie_ids = [title2id[_] for _ in user_df['titleKo'].tolist()]
+            watched_movie_titles = [movie_dict[movie_id]['titleKo'] for movie_id in clicked_movie_ids]
             if request.user == 'smseo':
                 new_user_id = 5001
             else:
@@ -193,7 +198,6 @@ def log_click(request):
 @csrf_exempt
 def log_star(request):
     data = json.loads(request.body.decode('utf-8'))
-    print(data)
     percentage = data.get('percentage')
     movie_title = data.get('movie_title')
     page_url = data.get('page_url')
@@ -208,13 +212,12 @@ def log_star(request):
 
     user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
     star_df = user_df[user_df['star'].notnull()].drop_duplicates(subset=['title'], keep='last')
-    print(star_df)
     star_movie_ids = [title2id[title] for title in star_df['title'].tolist()]
-    watched_movie_titles = [movie_dict[movie_id]['title'] for movie_id in star_movie_ids]
+    watched_movie_titles = [movie_dict[movie_id]['titleKo'] for movie_id in star_movie_ids]
     context = {
         'recomm_result': [movie_dict[_] for _ in star_movie_ids],
         'watched_movie': watched_movie_titles,
-        'ratings': [float(star/2) for star in star_df['star'].tolist()]
+        'ratings': [float(star / 2) for star in star_df['star'].tolist()]
 
     }
     return HttpResponse(json.dumps(context), content_type='application/json')

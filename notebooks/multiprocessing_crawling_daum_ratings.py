@@ -154,28 +154,30 @@ def insert_movie_if_not_exists(mysql, movie_id):
             # 변경사항을 커밋
             connection.commit()
 
-
+# TODO : 휴면 사용자 건너뛰기
+# TODO : skip username in database
 def process_movie_reviews(title_ko, movie_id, shared_df, shared_nicknames):
     mysql = MysqlClient()
     driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))  # 각 프로세스에서 새 웹드라이버 인스턴스를 생성합니다.
     driver.get(f"https://movie.daum.net/moviedb/grade?movieId={movie_id}")
     time.sleep(1)
 
-    click_more(driver, 50)
+    click_more(driver, 3)
     time.sleep(1)
 
     rating_boxes = driver.find_elements(By.CSS_SELECTOR, 'div.wrap_alex ul.list_comment > li')
     # for pop_i, box in tqdm(enumerate(rating_boxes), desc=f"(box : {len(rating_boxes):3})" + f'[{movie_id:6}] ' + title_ko):
-    for pop_i, box in enumerate(rating_boxes[::-1], start=1):
+    for pop_i, box in enumerate(rating_boxes, start=1):
         # box에서 닉네임 클릭(클릭후 팝업 뜰때까지 대기) ####################
         box_to_click = box.find_element(By.CSS_SELECTOR, 'div.cmt_info > strong > span > a')
         nname = box_to_click.text
-        if 'unclickable' not in box_to_click.get_attribute("class").split():
+        if ('unclickable' not in box_to_click.get_attribute("class").split()) and (nname not in ['휴면 사용자', '닉네임을 등록해 주세요', '탈퇴한 사용자']) and (len(mysql.get_nickname_ratings(nname)) < 20):
             driver.execute_script("arguments[0].click();", box_to_click)
         else:
+            print(f"\tL ({title_ko})-({nname}), passssssssssssssssssss")
             continue
         wait_till_popup(driver)
-        click_popup_more(driver, 3)
+        click_popup_more(driver, 7)
         popup_boxes = driver.find_elements(By.CSS_SELECTOR, 'div[data-reactid=".0.0.1"] ul.list_comment > li')
         print(f"{title_ko}({movie_id}), {nname}, {pop_i}/{len(rating_boxes)}")
         pop_movie_id = 'not yet'
@@ -189,10 +191,10 @@ def process_movie_reviews(title_ko, movie_id, shared_df, shared_nicknames):
                 if result is not None:
                     review, rating, rating_timestamp, nickname, pop_movie_id = result
                     insert_movie_if_not_exists(mysql, pop_movie_id)
-                    shared_df.append([nickname, pop_movie_id, rating, rating_timestamp, None, review])
+                    # shared_df.append([nickname, pop_movie_id, rating, rating_timestamp, None, review])
                     popups_of_box.append([nickname, pop_movie_id, rating, rating_timestamp, None, review])
                     collect_cnt += 1
-                shared_nicknames.append(nickname)
+                # shared_nicknames.append(nickname)
             insert_cnt = insert_data_ratings(mysql, popups_of_box, title_ko)
             print(f"\tL ({title_ko})-({nname}), insert/collect : {insert_cnt}/{collect_cnt}")
         click_popup_x(driver, title_ko, nname, pop_movie_id, nickname, len(popup_boxes))
@@ -221,12 +223,14 @@ if __name__ == '__main__':
     daum_movies = mysql.get_daum_movies()
     join_df = pd.merge(dr_cnt, daum_movies, on='movieId', how='left')
     # result_df = join_df[(join_df['count'] < join_df['numOfSiteRatings']) & (join_df['count'] < 10)]
-    result_df = join_df[join_df['count'] < join_df['numOfSiteRatings']]
+    join_df['diff'] = join_df['numOfSiteRatings'] - join_df['count']
+    # result_df = join_df[join_df['count'] < join_df['numOfSiteRatings']]
 
-    # result_df = result_df.sort_index(ascending=False)
-    # result_df = result_df.sample(frac=1, random_state=42)  # frac=1은 전체를 의미하며, random_state는 재현성을 위한 시드 값입니다.
-    result_df = result_df.sort_values(by='numOfSiteRatings', ascending=False)
-    print(f"수집할 df : {result_df.head(30)}")
+    # result_df = join_df.sort_index(ascending=False)
+    result_df = join_df.sort_values(by='diff', ascending=False)
+    # result_df = result_df.sample(frac=1, random_state=93977)  # frac=1은 전체를 의미하며, random_state는 재현성을 위한 시드 값입니다.
+    # result_df = result_df.sort_values(by='numOfSiteRatings', ascending=False)
+    print(f"수집할 df : {result_df[['titleKo', 'numOfSiteRatings', 'count', 'diff']].head(10)}")
     print(f"수집할영화 수 : {len(result_df):,}")
 
     try:

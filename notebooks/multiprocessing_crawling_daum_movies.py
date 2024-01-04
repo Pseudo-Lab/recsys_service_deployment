@@ -96,7 +96,6 @@ def main(daum_movies):
             'posterUrl': poster_url,
             'numOfSiteRatings': n_site_int
         }
-
         insert_movie_info(mysql, update_values, mid)
 
 
@@ -106,7 +105,7 @@ if __name__ == '__main__':
     df = daum_movies[daum_movies.isnull().any(axis=1)]
     print(f"수집할 영화 수 : {len(df)}")
     # 사용할 프로세스 수
-    num_processes = 5
+    num_processes = 2
 
     # 데이터프레임을 청크로 분할
     chunks = np.array_split(df, num_processes)

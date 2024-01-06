@@ -9,7 +9,9 @@ $(document).ready(function () {
     var tabName = "클릭한 영화들";
 
     $(".right-content-field img").click(function () {
+        console.log('click event')
         var movie_title = $(this).next("h2").text();
+        var movie_id = $(this).closest("div.movie").attr("dbid");
         var page_url = window.location.href;
 
         // 수정: 'tab_name' 데이터 전달
@@ -19,7 +21,8 @@ $(document).ready(function () {
             contentType: "application/json;charset=utf-8",
             data: JSON.stringify({
                 'movie_title': movie_title,
-                'page_url': page_url
+                'page_url': page_url,
+                'movie_id':movie_id,
             }),
             dataType: "json",
             success: function (response) {

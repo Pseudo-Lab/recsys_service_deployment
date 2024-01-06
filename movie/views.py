@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from kafka import KafkaProducer
 
 from clients import MysqlClient, DynamoDB
+from predict import sasrec_predictor
 
 # from predict import Predictor
 
@@ -20,10 +21,7 @@ from movie.utils import get_pop
 
 mysql = MysqlClient()
 movies = mysql.get_daum_movies()
-# movies = mysql.get_daum_movies()
-# print(movies)
-# movie_dict = movies.to_dict('index')
-movie_dict = movies[['movieId', 'titleKo', 'posterUrl']].set_index('movieId').to_dict('index')
+movie_dict = movies[['movieId', 'titleKo', 'posterUrl']].set_index('movieId', drop=False).to_dict('index')
 """ movie_dict
 {
 62419: {'movieId': 209159, 
@@ -35,11 +33,11 @@ movie_dict = movies[['movieId', 'titleKo', 'posterUrl']].set_index('movieId').to
 """
 title2id = {v['titleKo']: k for k, v in movie_dict.items()}  # title to item id
 # pop_movies_ids = list(range(30))
-pop_movies_ids = get_pop(mysql)
+# pop_movies_ids = get_pop(mysql)
+pop_movies_ids = [54081, 73750, 93251, 93252]  # 임시로
 pop_movies = [movie_dict[movie_id] for movie_id in pop_movies_ids]
 
 table_clicklog = DynamoDB(table_name='clicklog')
-
 
 # predictor = Predictor()
 
@@ -69,15 +67,15 @@ def home(request):
         split = [int(wm) for wm in watched_movie.split()]
 
         # ------------------------------
-        # recomm_result = predictor.predict(model_name='sasrec', input_item_ids=split)
+        recomm_result = sasrec_predictor.predict(dbids=split)
 
-        if request.user == 'smseo':
-            new_user_id = 5001
-        else:
-            new_user_id = 5002
-
-        loaded_model.add_new_user(new_user_id, split)
-        recomm_result = loaded_model.recommend_items(new_user_id, split)
+        # if request.user == 'smseo':
+        #     new_user_id = 5001
+        # else:
+        #     new_user_id = 5002
+        #
+        # loaded_model.add_new_user(new_user_id, split)
+        # recomm_result = loaded_model.recommend_items(new_user_id, split)
         # ------------------------------
 
         context = {
@@ -87,36 +85,36 @@ def home(request):
     else:
         user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
         # watched_movies = user_df['title'].tolist()
-        if not user_df.empty:
+        if not user_df.empty:  # 클릭로그 있을 때
             print(f"클릭로그 : 있음")
             print(f"user : {request.user}")
             # ------------------------------
-            clicked_movie_ids = [title2id[_] for _ in user_df['title'].tolist()]
-            # recomm_result = predictor.predict(model_name='sasrec', input_item_ids=clicked_movie_ids)
-            watched_movie_titles = [movie_dict[movie_id]['titleKo'] for movie_id in clicked_movie_ids]
+            print(user_df)
+            clicked_movie_ids = [mid for mid in user_df['movieId'] if mid is not None]
+            watched_movie_titles = [movie_dict[int(movie_id)]['titleKo'] for movie_id in clicked_movie_ids if movie_id is not None]
 
-            if request.user == 'smseo':
-                new_user_id = 5001
-            else:
-                new_user_id = 5002
-
-            loaded_model.add_new_user(new_user_id, clicked_movie_ids)
-            recomm_result = loaded_model.recommend_items(new_user_id, clicked_movie_ids)
-
+            # cf 추천 ################################################
+            # if request.user == 'smseo':
+            #     new_user_id = 5001
+            # else:
+            #     new_user_id = 5002
+            #
+            # loaded_model.add_new_user(new_user_id, clicked_movie_ids)
+            # recomm_result = loaded_model.recommend_items(new_user_id, clicked_movie_ids)
+            ######################################################
+            recomm_result = sasrec_predictor.predict(dbids=clicked_movie_ids)
+            print(f"recomm_result : {recomm_result}")
             context = {
                 'pop_movies': pop_movies,
                 'recomm_result': [movie_dict[_] for _ in recomm_result],
                 'watched_movie': watched_movie_titles
             }
-            # print([movie_dict[_] for _ in recomm_result])
-            # ------------------------------
-        else:  # 인기영화
+
+        else:  # 클릭로그 없을 때 인기영화만
             print(f"클릭로그 : 없음")
             print(f"No POST request!")
             context = {
                 'pop_movies': pop_movies,
-                # 'recomm_result': [movie_dict[_] for _ in pop_movies],
-                # 'watched_movie': watched_movie_titles
             }
     return render(request, "home.html", context=context)
 
@@ -132,8 +130,10 @@ def log_click(request):
         print(f"Click".ljust(60, '-'))
         print(f"\tL user : {request.user}")
         data = json.loads(request.body.decode('utf-8'))
+        print(data)
         movie_title = data.get('movie_title')
         page_url = data.get('page_url')
+        movie_id = data.get('movie_id')
 
         if not request.session.session_key:
             request.session['init'] = True
@@ -153,8 +153,9 @@ def log_click(request):
         message = {
             'userId': request.user.username,
             'timestamp': int(time.time()),
-            'title': movie_title,
-            'url': page_url
+            'titleKo': movie_title,
+            'url': page_url,
+            'movieId': movie_id
         }
         # message = {'movie_title': movie_title, 'session_id': session_id, 'url': page_url}
         producer.send('log_movie_click', message)
@@ -165,8 +166,9 @@ def log_click(request):
         click_log = {
             'userId': request.user.username,
             'timestamp': int(time.time()),
-            'title': movie_title,
-            'url': page_url
+            'titleKo': movie_title,
+            'url': page_url,
+            'movieId': movie_id
         }
         table_clicklog.put_item(click_log=click_log)
         ####################################################
@@ -174,16 +176,20 @@ def log_click(request):
         # return JsonResponse({"status": "success"}, status=200)
 
         user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
+        print(user_df)
         if not user_df.empty:
-            clicked_movie_ids = [title2id[_] for _ in user_df['titleKo'].tolist()]
-            watched_movie_titles = [movie_dict[movie_id]['titleKo'] for movie_id in clicked_movie_ids]
-            if request.user == 'smseo':
-                new_user_id = 5001
-            else:
-                new_user_id = 5002
-            loaded_model.add_new_user(new_user_id, clicked_movie_ids)
-            recomm_result = loaded_model.recommend_items(new_user_id, clicked_movie_ids)
+            clicked_movie_ids = [mid for mid in user_df['movieId'] if mid is not None]
+            watched_movie_titles = [movie_dict[int(movie_id)]['titleKo'] for movie_id in clicked_movie_ids if movie_id is not None]
 
+            # cf 추천 ##########################################
+            # if request.user == 'smseo':
+            #     new_user_id = 5001
+            # else:
+            #     new_user_id = 5002
+            # loaded_model.add_new_user(new_user_id, clicked_movie_ids)
+            # recomm_result = loaded_model.recommend_items(new_user_id, clicked_movie_ids)
+            ###################################################
+            recomm_result = sasrec_predictor.predict(dbids=clicked_movie_ids)
             context = {
                 'recomm_result': [movie_dict[_] for _ in recomm_result],
                 'watched_movie': watched_movie_titles

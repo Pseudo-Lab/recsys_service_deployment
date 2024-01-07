@@ -1,6 +1,5 @@
 import json
 import time
-from collections import Counter
 
 import pandas as pd
 from django.http import JsonResponse, HttpResponse
@@ -10,14 +9,6 @@ from kafka import KafkaProducer
 
 from clients import MysqlClient, DynamoDB
 from predict import sasrec_predictor
-
-# from predict import Predictor
-
-# movie_dictionary
-# movies = pd.read_table('data/ml-1m/movies.dat', sep='::', header=None, names=['movie_id', 'title', 'genres'],
-#                        engine='python', encoding_errors='ignore')
-# movies.set_index('movie_id', inplace=True)
-from movie.utils import get_pop
 
 mysql = MysqlClient()
 movies = mysql.get_daum_movies()
@@ -67,8 +58,6 @@ def home(request):
         split = [int(wm) for wm in watched_movie.split()]
 
         # ------------------------------
-        recomm_result = sasrec_predictor.predict(dbids=split)
-
         # if request.user == 'smseo':
         #     new_user_id = 5001
         # else:
@@ -77,9 +66,14 @@ def home(request):
         # loaded_model.add_new_user(new_user_id, split)
         # recomm_result = loaded_model.recommend_items(new_user_id, split)
         # ------------------------------
-
+        sasrec_recomm_mids = sasrec_predictor.predict(dbids=split)
         context = {
-            'recomm_result': [movie_dict[_] for _ in recomm_result],
+            'recomm_result': {
+                'sasrec': [movie_dict[_] for _ in sasrec_recomm_mids],
+                'cf': [],
+                'ngcf': [],
+                'kprn': []
+            },
             'watched_movie': [movie_dict[movie_id]['title'] for movie_id in split]
         }
     else:
@@ -90,8 +84,8 @@ def home(request):
             print(f"user : {request.user}")
             # ------------------------------
             print(user_df)
-            clicked_movie_ids = [mid for mid in user_df['movieId'] if mid is not None]
-            watched_movie_titles = [movie_dict[int(movie_id)]['titleKo'] for movie_id in clicked_movie_ids if movie_id is not None]
+            clicked_movie_ids = [mid for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
+            watched_movie_titles = [movie_dict[int(movie_id)]['titleKo'] for movie_id in clicked_movie_ids]
 
             # cf 추천 ################################################
             # if request.user == 'smseo':
@@ -102,11 +96,17 @@ def home(request):
             # loaded_model.add_new_user(new_user_id, clicked_movie_ids)
             # recomm_result = loaded_model.recommend_items(new_user_id, clicked_movie_ids)
             ######################################################
-            recomm_result = sasrec_predictor.predict(dbids=clicked_movie_ids)
-            print(f"recomm_result : {recomm_result}")
+            sasrec_recomm_mids = sasrec_predictor.predict(dbids=clicked_movie_ids)
+
             context = {
                 'pop_movies': pop_movies,
-                'recomm_result': [movie_dict[_] for _ in recomm_result],
+                'recomm_result': {
+                    'sasrec': [movie_dict[_] for _ in sasrec_recomm_mids],
+                    # 'sasrec': [movie_dict[_] for _ in [5, 6, 7]],
+                    'cf': [],
+                    'ngcf': [],
+                    'kprn': []
+                },
                 'watched_movie': watched_movie_titles
             }
 
@@ -178,8 +178,8 @@ def log_click(request):
         user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
         print(user_df)
         if not user_df.empty:
-            clicked_movie_ids = [mid for mid in user_df['movieId'] if mid is not None]
-            watched_movie_titles = [movie_dict[int(movie_id)]['titleKo'] for movie_id in clicked_movie_ids if movie_id is not None]
+            clicked_movie_ids = [mid for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
+            watched_movie_titles = [movie_dict[int(movie_id)]['titleKo'] for movie_id in clicked_movie_ids]
 
             # cf 추천 ##########################################
             # if request.user == 'smseo':
@@ -207,12 +207,14 @@ def log_star(request):
     percentage = data.get('percentage')
     movie_title = data.get('movie_title')
     page_url = data.get('page_url')
+    movie_id = data.get('movie_id')
     click_log = {
         'userId': request.user.username,
         'timestamp': int(time.time()),
         'title': movie_title,
         'url': page_url,
-        'star': int(percentage / 10)
+        'star': int(percentage / 10),
+        'movieId':movie_id
     }
     table_clicklog.put_item(click_log=click_log)
 

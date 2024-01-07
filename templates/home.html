@@ -40,6 +40,7 @@
         </ul>
         <div>
             <section>
+
                 {% for r in pop_movies %}
                 <article class='pop'>
                     <div class="movie" dbid={{ r.movieId }}>
@@ -57,7 +58,7 @@
                 </article>
                 {% endfor %}
 
-                {% for r in recomm_result %}
+                {% for r in recomm_result.sasrec %}
                 <article class='sasrec'>
                     <div class="movie" dbid={{ r.movieId }}>
                         <img src={{ r.posterUrl }} alt="">

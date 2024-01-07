@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from kafka import KafkaProducer
 
 from clients import MysqlClient, DynamoDB
+from movie.utils import get_pop
 from predict import sasrec_predictor
 
 mysql = MysqlClient()
@@ -16,34 +17,26 @@ movie_dict = movies[['movieId', 'titleKo', 'posterUrl']].set_index('movieId', dr
 """ movie_dict
 {
 62419: {'movieId': 209159, 
-        'title': 'Window of the Soul (2001)', 
+        'titleKo': 'Window of the Soul (2001)', 
         'genres': 'Documentary', 
-        'url': None}, 
+        'posterUrl': None}, 
 62420: ...
 }
 """
 title2id = {v['titleKo']: k for k, v in movie_dict.items()}  # title to item id
-# pop_movies_ids = list(range(30))
-# pop_movies_ids = get_pop(mysql)
-pop_movies_ids = [54081, 73750, 93251, 93252]  # 임시로
+pop_movies_ids = get_pop(mysql)
+# pop_movies_ids = [54081, 73750, 93251, 93252, 76760, 89869]  # 임시로
 pop_movies = [movie_dict[movie_id] for movie_id in pop_movies_ids]
 
 table_clicklog = DynamoDB(table_name='clicklog')
 
-# predictor = Predictor()
-
-
+# TODO: cf 모델 로드를 predict.py에서 하기!
 # ------------------------------
 import pickle
 
 with open('pytorch_models/cf/funkSVD_model.pkl', 'rb') as file:
     loaded_model = pickle.load(file)
-
-
 # ------------------------------
-
-# model_dict{'sasrec' : sasrec}
-# model = model_dict['sasrec']
 
 def home(request):
     if not request.user.is_authenticated:
@@ -189,6 +182,7 @@ def log_click(request):
             # loaded_model.add_new_user(new_user_id, clicked_movie_ids)
             # recomm_result = loaded_model.recommend_items(new_user_id, clicked_movie_ids)
             ###################################################
+
             recomm_result = sasrec_predictor.predict(dbids=clicked_movie_ids)
             context = {
                 'recomm_result': [movie_dict[_] for _ in recomm_result],
@@ -204,7 +198,6 @@ def log_click(request):
 @csrf_exempt
 def log_star(request):
     data = json.loads(request.body.decode('utf-8'))
-    print(data)
     percentage = data.get('percentage')
     movie_title = data.get('movie_title')
     page_url = data.get('page_url')

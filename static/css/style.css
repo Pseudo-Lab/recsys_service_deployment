@@ -182,14 +182,15 @@ main div.watched_list {
 }
 
 main div.watched_list p {
-    line-height: 25px;
+    line-height: 5px;
     box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.53);
-    margin: 20px;
+    margin: 10px 5px;
     padding: 10px;
     background: rgba(250, 250, 250, 0);
     border-radius: 4px;
     color: #000000;
     border: 1px solid #ffffff;
+    font-size: 13px;
 }
 
 .listing-star {
@@ -246,7 +247,7 @@ main::after {
 
 main .left-float-field {
     /*position: absolute;*/
-    width: 300px;
+    width: 250px;
     height: 800px;
     float: left;
     /*border: 1px solid #000000;*/
@@ -390,7 +391,7 @@ main .model-rec section::after {
 }
 
 main .model-rec section article {
-    width: 20%;
+    width: 25%;
     float: left;
     box-sizing: border-box;
     /*padding: 12px;*/
@@ -403,7 +404,8 @@ main .model-rec section article > div {
     border-radius: 4px;
     /*box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);*/
     box-sizing: border-box;
-    padding: 14px;
+    padding: 3px;
+    padding-bottom: 20px;
 
     /*transition-property: transform opacity;*/
     transition-duration: .2s;
@@ -440,7 +442,7 @@ main .model-rec section article div img:active {
 
 main .model-rec section article div h2 {
     margin-top: 15px;
-    font: bold 11px/1 'orbitron';
+    font: bold 15px/1 'orbitron';
     letter-spacing: 1px;
     color: #444;
     margin-bottom: 5px;
@@ -472,7 +474,7 @@ main .model-rec section article > div:hover h2, p {
 .rating {
     position: relative;
     color: #ddd;
-    font-size: 25px;
+    font-size: 30px;
     text-align: center;
     width: max-content; /* 또는 width: fit-content; */
     margin: 0 auto;
@@ -498,7 +500,7 @@ main .model-rec section article > div:hover h2, p {
 }
 
 
-/*@media screen and (max-width: 1599px) {*/
+/*@media screen and (max-width: 1100px) {*/
 /*    header {*/
 /*        width: 100%;*/
 /*    }*/
@@ -507,7 +509,7 @@ main .model-rec section article > div:hover h2, p {
 /*    !*    margin-left: 350px;*!*/
 /*    !*}*!*/
 /*    main section article {*/
-/*        width: 25%;*/
+/*        width: 33%;*/
 /*    }*/
 /*}*/
 

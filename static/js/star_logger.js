@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var movie_title = input.closest(".movie").querySelector("h2").textContent
             var page_url = window.location.href;
             var tabName = "별점 준 영화들";
-            var movie_id = $(this).closest("div.movie").attr("dbid");
+            var movie_id = input.closest(".movie").getAttribute("dbid");
             // console.log(percentage)
             // console.log(movie_title.textContent)
             // console.log(page_url)

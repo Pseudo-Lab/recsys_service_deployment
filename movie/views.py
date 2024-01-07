@@ -204,6 +204,7 @@ def log_click(request):
 @csrf_exempt
 def log_star(request):
     data = json.loads(request.body.decode('utf-8'))
+    print(data)
     percentage = data.get('percentage')
     movie_title = data.get('movie_title')
     page_url = data.get('page_url')
@@ -211,16 +212,17 @@ def log_star(request):
     click_log = {
         'userId': request.user.username,
         'timestamp': int(time.time()),
-        'title': movie_title,
+        'titleKo': movie_title,
         'url': page_url,
         'star': int(percentage / 10),
-        'movieId':movie_id
+        'movieId': movie_id
     }
     table_clicklog.put_item(click_log=click_log)
 
     user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
-    star_df = user_df[user_df['star'].notnull()].drop_duplicates(subset=['title'], keep='last')
-    star_movie_ids = [title2id[title] for title in star_df['title'].tolist()]
+    print(user_df)
+    star_df = user_df[user_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
+    star_movie_ids = [title2id[title] for title in star_df['titleKo'].tolist()]
     watched_movie_titles = [movie_dict[movie_id]['titleKo'] for movie_id in star_movie_ids]
     context = {
         'recomm_result': [movie_dict[_] for _ in star_movie_ids],

@@ -34,10 +34,10 @@ class SasrecPredictor:
         return movie_id_dict
 
     def predict(self, dbids: List):
-        modelids = [self.dbid2modelid[int(_)] for _ in dbids]
+        modelids = [self.dbid2modelid[int(_)] for _ in dbids][-args.maxlen:]
         logits = self.model.predict(
             user_ids=None,
-            log_seqs=np.array([modelids][:50]),
+            log_seqs=np.array([modelids]),
             item_indices=[list(range(self.model.item_emb.weight.size()[0]))]
         )
         recomm_result = logits.detach().cpu().numpy()[0].argsort()[::-1][:self.topk]

@@ -30,53 +30,52 @@
     {% include 'left_col.html' %}
     <div class="right-content-field">
         <div class="model-rec">
-        <ul>
-            <li><a href=".kprn">KPRN</a></li>
-            <li><a href=".gru4rec">GRU4Rec</a></li>
-            <li><a href=".ngcf">NGCF</a></li>
-            <li><a href=".sasrec">SASRec</a></li>
-            <li class="on"><a href=".pop">인기 영화</a></li>
-            <li>모델선택</li>
-        </ul>
-        <div>
-            <section>
-
-                {% for r in pop_movies %}
-                <article class='pop'>
-                    <div class="movie" dbid={{ r.movieId }}>
-                        <img src={{ r.posterUrl }} alt="">
-                        <h2>{{ r.titleKo }}</h2>
-                        <p>{{ r.genres }}</p>
-                        <div class="rating_box">
-                            <div class="rating">
-                                ★★★★★
-                                <span class="rating_star">★★★★★</span>
-                                <input type="range" value="0" step="1" min="0" max="10">
+            <ul>
+                <li><a href=".kprn">KPRN</a></li>
+                <li><a href=".gru4rec">GRU4Rec</a></li>
+                <li><a href=".ngcf">NGCF</a></li>
+                <li><a href=".sasrec">SASRec</a></li>
+                <li class="on"><a href=".pop">인기 영화</a></li>
+                <li>모델선택</li>
+            </ul>
+            <div>
+                <section>
+                    {% for r in pop_movies %}
+                    <article class='pop'>
+                        <div class="movie" dbid={{ r.movieId }}>
+                            <img src={{ r.posterUrl }} alt="">
+                            <h2>{{ r.titleKo }}</h2>
+                            <p>{{ r.genres }}</p>
+                            <div class="rating_box">
+                                <div class="rating">
+                                    ★★★★★
+                                    <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>
+                                    <input type="range" value="0" step="1" min="0" max="10">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </article>
-                {% endfor %}
+                    </article>
+                    {% endfor %}
 
-                {% for r in recomm_result.sasrec %}
-                <article class='sasrec'>
-                    <div class="movie" dbid={{ r.movieId }}>
-                        <img src={{ r.posterUrl }} alt="">
-                        <h2>{{ r.titleKo }}</h2>
-                        <p>{{ r.genres }}</p>
-                        <div class="rating_box">
-                            <div class="rating">
-                                ★★★★★
-                                <span class="rating_star">★★★★★</span>
-                                <input type="range" value="0" step="1" min="0" max="10">
+                    {% for r in recomm_result.sasrec %}
+                    <article class='sasrec'>
+                        <div class="movie" dbid={{ r.movieId }}>
+                            <img src={{ r.posterUrl }} alt="">
+                            <h2>{{ r.titleKo }}</h2>
+                            <p>{{ r.genres }}</p>
+                            <div class="rating_box">
+                                <div class="rating">
+                                    ★★★★★
+                                    <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>
+                                    <input type="range" value="0" step="1" min="0" max="10">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </article>
-                {% endfor %}
-            </section>
-        </div>
+                    </article>
+                    {% endfor %}
+                </section>
             </div>
+        </div>
     </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"

@@ -2,6 +2,10 @@ from collections import Counter
 
 import pandas as pd
 
+from clients import DynamoDB
+
+table_clicklog = DynamoDB(table_name='clicklog')
+
 
 def get_pop(mysql):
     print(f"get popular movies..")
@@ -21,7 +25,19 @@ def get_pop(mysql):
     daum_movies['num_of_collected_ratings'] = daum_movies['movieId'].map(rating_num_dict)
 
     pop_movies_id = \
-    daum_movies[daum_movies['num_of_collected_ratings'] > 100].sort_values('rating_mean', ascending=False).head(100)[
-        'movieId'].tolist()
+        daum_movies[daum_movies['num_of_collected_ratings'] > 100].sort_values('rating_mean', ascending=False).head(
+            100)[
+            'movieId'].tolist()
     print(f"get popular movies..done")
     return pop_movies_id
+
+
+def add_past_rating(username, recomm_result):
+    user_df = table_clicklog.get_a_user_logs(user_name=username)
+    star_df = user_df[user_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
+    movie2rating = dict(zip(star_df['movieId'].astype(int), star_df['star'].astype(int)))
+    # print(f"movie2rating : {movie2rating}")
+    for one_movie_d in recomm_result:
+        one_movie_d['past_rating'] = int(movie2rating.get(one_movie_d['movieId'], 0)) * 10
+        # print(f"one_movie_d : {one_movie_d}")
+    return recomm_result

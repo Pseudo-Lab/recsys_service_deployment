@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from kafka import KafkaProducer
 
 from clients import MysqlClient, DynamoDB
-from movie.utils import get_pop
+from movie.utils import get_pop, add_past_rating
 from predict import sasrec_predictor
 
 mysql = MysqlClient()
@@ -16,7 +16,7 @@ movies = mysql.get_daum_movies()
 movie_dict = movies[['movieId', 'titleKo', 'posterUrl']].set_index('movieId', drop=False).to_dict('index')
 """ movie_dict
 {
-62419: {'movieId': 209159, 
+62419: {'movieId': 62419, 
         'titleKo': 'Window of the Soul (2001)', 
         'genres': 'Documentary', 
         'posterUrl': None}, 
@@ -24,8 +24,8 @@ movie_dict = movies[['movieId', 'titleKo', 'posterUrl']].set_index('movieId', dr
 }
 """
 title2id = {v['titleKo']: k for k, v in movie_dict.items()}  # title to item id
-pop_movies_ids = get_pop(mysql)
-# pop_movies_ids = [54081, 73750, 93251, 93252, 76760, 89869]  # 임시로
+# pop_movies_ids = get_pop(mysql)
+pop_movies_ids = [54081, 73750, 93251, 93252, 76760, 89869]  # 임시로
 pop_movies = [movie_dict[movie_id] for movie_id in pop_movies_ids]
 
 table_clicklog = DynamoDB(table_name='clicklog')
@@ -71,7 +71,6 @@ def home(request):
         }
     else:
         user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
-        # watched_movies = user_df['title'].tolist()
         if not user_df.empty:  # 클릭로그 있을 때
             print(f"클릭로그 : 있음")
             print(f"user : {request.user}")
@@ -90,11 +89,10 @@ def home(request):
             # recomm_result = loaded_model.recommend_items(new_user_id, clicked_movie_ids)
             ######################################################
             sasrec_recomm_mids = sasrec_predictor.predict(dbids=clicked_movie_ids)
-
             context = {
-                'pop_movies': pop_movies,
+                'pop_movies': add_past_rating(username=request.user.username, recomm_result=pop_movies),
                 'recomm_result': {
-                    'sasrec': [movie_dict[_] for _ in sasrec_recomm_mids],
+                    'sasrec': add_past_rating(username=request.user.username, recomm_result=[movie_dict[_] for _ in sasrec_recomm_mids]),
                     # 'sasrec': [movie_dict[_] for _ in [5, 6, 7]],
                     'cf': [],
                     'ngcf': [],
@@ -183,12 +181,18 @@ def log_click(request):
             # recomm_result = loaded_model.recommend_items(new_user_id, clicked_movie_ids)
             ###################################################
 
-            recomm_result = sasrec_predictor.predict(dbids=clicked_movie_ids)
+            sasrec_recomm_mids = sasrec_predictor.predict(dbids=clicked_movie_ids)
             context = {
-                'recomm_result': [movie_dict[_] for _ in recomm_result],
+                'pop_movies': pop_movies,
+                'recomm_result': {
+                    'sasrec': add_past_rating(username=request.user.username, recomm_result=[movie_dict[_] for _ in sasrec_recomm_mids]),
+                    # 'sasrec': [movie_dict[_] for _ in [5, 6, 7]],
+                    'cf': [],
+                    'ngcf': [],
+                    'kprn': []
+                },
                 'watched_movie': watched_movie_titles
             }
-
         return HttpResponse(json.dumps(context), content_type='application/json')
     else:
 
@@ -197,6 +201,7 @@ def log_click(request):
 
 @csrf_exempt
 def log_star(request):
+    print(f"star")
     data = json.loads(request.body.decode('utf-8'))
     percentage = data.get('percentage')
     movie_title = data.get('movie_title')
@@ -210,17 +215,15 @@ def log_star(request):
         'star': int(percentage / 10),
         'movieId': movie_id
     }
-    table_clicklog.put_item(click_log=click_log)
 
+    table_clicklog.put_item(click_log=click_log)
     user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
-    print(user_df)
     star_df = user_df[user_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
     star_movie_ids = [title2id[title] for title in star_df['titleKo'].tolist()]
-    watched_movie_titles = [movie_dict[movie_id]['titleKo'] for movie_id in star_movie_ids]
+    rated_movie_titles = [movie_dict[movie_id]['titleKo'] for movie_id in star_movie_ids]
     context = {
         'recomm_result': [movie_dict[_] for _ in star_movie_ids],
-        'watched_movie': watched_movie_titles,
+        'watched_movie': rated_movie_titles,
         'ratings': [float(star / 2) for star in star_df['star'].tolist()]
-
     }
     return HttpResponse(json.dumps(context), content_type='application/json')

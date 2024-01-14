@@ -25,7 +25,7 @@ movie_dict = movies[['movieId', 'titleKo', 'posterUrl']].set_index('movieId', dr
 """
 title2id = {v['titleKo']: k for k, v in movie_dict.items()}  # title to item id
 # pop_movies_ids = get_pop(mysql)
-pop_movies_ids = [54081, 73750, 93251, 93252, 76760, 89869]  # 임시로
+pop_movies_ids = [54081, 73750, 93251, 93252, 76760, 89869, 144854, 3972, 95306, 40355, 67165, 1425, 104209]  # 임시로
 pop_movies = [movie_dict[movie_id] for movie_id in pop_movies_ids]
 
 table_clicklog = DynamoDB(table_name='clicklog')

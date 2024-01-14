@@ -34,10 +34,13 @@ def get_pop(mysql):
 
 def add_past_rating(username, recomm_result):
     user_df = table_clicklog.get_a_user_logs(user_name=username)
-    star_df = user_df[user_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
-    movie2rating = dict(zip(star_df['movieId'].astype(int), star_df['star'].astype(int)))
-    # print(f"movie2rating : {movie2rating}")
-    for one_movie_d in recomm_result:
-        one_movie_d['past_rating'] = int(movie2rating.get(one_movie_d['movieId'], 0)) * 10
-        # print(f"one_movie_d : {one_movie_d}")
-    return recomm_result
+    if 'star' in user_df.columns:
+        star_df = user_df[user_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
+        movie2rating = dict(zip(star_df['movieId'].astype(int), star_df['star'].astype(int)))
+        # print(f"movie2rating : {movie2rating}")
+        for one_movie_d in recomm_result:
+            one_movie_d['past_rating'] = int(movie2rating.get(one_movie_d['movieId'], 0)) * 10
+            # print(f"one_movie_d : {one_movie_d}")
+        return recomm_result
+    else:
+        return recomm_result

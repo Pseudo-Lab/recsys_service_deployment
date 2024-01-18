@@ -42,7 +42,7 @@
                 <section>
                     {% for r in pop_movies %}
                     <article class='pop'>
-                        <div class="movie" dbid={{ r.movieId }}>
+                        <div class="movie" dbid={{ r.movieId }} rank="{{ r.rank }}">
                             <img src={{ r.posterUrl }} alt="">
                             <h2>{{ r.titleKo }}</h2>
                             <p>{{ r.genres }}</p>
@@ -59,7 +59,7 @@
 
                     {% for r in recomm_result.sasrec %}
                     <article class='sasrec'>
-                        <div class="movie" dbid={{ r.movieId }}>
+                        <div class="movie" dbid={{ r.movieId }} rank="{{ r.rank }}">
                             <img src={{ r.posterUrl }} alt="">
                             <h2>{{ r.titleKo }}</h2>
                             <p>{{ r.genres }}</p>

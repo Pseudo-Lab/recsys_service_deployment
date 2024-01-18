@@ -8,8 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 from kafka import KafkaProducer
 
 from clients import MysqlClient, DynamoDB
-from movie.utils import get_pop, add_past_rating
-from predict import sasrec_predictor
+from movie.predictors.sasrec_predictor import sasrec_predictor
+from movie.utils import get_pop, add_past_rating, add_rank
 
 mysql = MysqlClient()
 movies = mysql.get_daum_movies()
@@ -90,9 +90,9 @@ def home(request):
             ######################################################
             sasrec_recomm_mids = sasrec_predictor.predict(dbids=clicked_movie_ids)
             context = {
-                'pop_movies': add_past_rating(username=request.user.username, recomm_result=pop_movies),
+                'pop_movies': add_rank(add_past_rating(username=request.user.username, recomm_result=pop_movies)),
                 'recomm_result': {
-                    'sasrec': add_past_rating(username=request.user.username, recomm_result=[movie_dict[_] for _ in sasrec_recomm_mids]),
+                    'sasrec': add_rank(add_past_rating(username=request.user.username, recomm_result=[movie_dict[_] for _ in sasrec_recomm_mids])),
                     # 'sasrec': [movie_dict[_] for _ in [5, 6, 7]],
                     'cf': [],
                     'ngcf': [],

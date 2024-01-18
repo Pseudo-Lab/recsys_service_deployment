@@ -7,9 +7,9 @@
     padding: 0px;
 }
 
-ul, ol, li {
-    list-style: none;
-}
+/*ul, ol, li {*/
+/*    list-style: none;*/
+/*}*/
 
 a {
     text-decoration: none;
@@ -32,6 +32,7 @@ header {
     align-items: center;
     /*box-shadow: 0 15px 15px rgba(0, 0, 0, 0.05);*/
 }
+
 
 .group {
     display: flex;
@@ -274,6 +275,10 @@ main .right-content-field {
     /*border: 2px solid #ff797b;*/
 }
 
+/*.model-rec ul, ol, li {*/
+/*    list-style: none;*/
+/*}*/
+
 main .right-content-field .paper-review-main {
     position: absolute;
     width: 100%;
@@ -303,6 +308,10 @@ main .right-content-field .paper-review-main h2 a {
 
 main .right-content-field .paper-review-main p {
     color: black;
+}
+
+main .right-content-field .paper-review-main img {
+    width:100%;
 }
 
 main .model-rec ul {

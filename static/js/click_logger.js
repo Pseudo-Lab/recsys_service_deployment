@@ -12,6 +12,7 @@ $(document).ready(function () {
         console.log('click event')
         var movie_title = $(this).next("h2").text();
         var movie_id = $(this).closest("div.movie").attr("dbid");
+        // var rank = $(this).closest("div.movie").attr("rank");
         var page_url = window.location.href;
 
         // 수정: 'tab_name' 데이터 전달

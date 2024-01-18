@@ -31,7 +31,7 @@
             <div class="paper-review-main">
                 <h1>{{ post.title }}</h1>
                 <p>{{ post.created_at }}</p>
-                <p>{{ post.content|mark }}</p>
+                <p>{{ post.get_content_markdown | safe }}</p>
                 <hr/>
                 <h3>여기 댓글이 들어올 수 있겠죠?</h3>
             </div>

@@ -1,4 +1,5 @@
 from collections import Counter
+from typing import List, Dict
 
 import pandas as pd
 
@@ -32,7 +33,7 @@ def get_pop(mysql):
     return pop_movies_id
 
 
-def add_past_rating(username, recomm_result):
+def add_past_rating(username, recomm_result: List[Dict]):
     user_df = table_clicklog.get_a_user_logs(user_name=username)
     if 'star' in user_df.columns:
         star_df = user_df[user_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
@@ -44,3 +45,10 @@ def add_past_rating(username, recomm_result):
         return recomm_result
     else:
         return recomm_result
+
+
+def add_rank(recomm_result):
+    for rank, one_movie_d in enumerate(recomm_result, start=1):
+        one_movie_d['rank'] = rank
+    return recomm_result
+

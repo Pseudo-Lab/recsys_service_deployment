@@ -16,5 +16,5 @@ class Post(models.Model):
     def get_absolute_url(self):
         return f"/paper_review/{self.pk}"
 
-    def get_content_martdown(self):
+    def get_content_markdown(self):
         return markdown(self.content)

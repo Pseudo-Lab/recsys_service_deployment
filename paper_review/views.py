@@ -14,7 +14,7 @@ def index(request):
 
 def single_post_page(request, pk):
     post = Post.objects.get(pk=pk)
-
+    print(f"{type(post)}")
     return render(
         request=request,
         template_name='post_detail.html',

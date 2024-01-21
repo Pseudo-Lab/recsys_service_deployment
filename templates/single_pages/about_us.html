@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>About us</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/about_us.css' %}?v=2024011916">
+</head>
+<body>
+<header>
+    {% include 'navbar.html' %}
+</header>
+<main>
+    {% include 'left_col.html' %}
+    <div class="center-main-field">
+        <h2>우리는 가짜연구소 '추천시스템 리서치' 입니다.</h2>
+    </div>
+</main>
+</body>
+</html>

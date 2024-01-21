@@ -9,11 +9,14 @@ from kafka import KafkaProducer
 
 from clients import MysqlClient, DynamoDB
 from movie.predictors.sasrec_predictor import sasrec_predictor
-from movie.utils import get_pop, add_past_rating, add_rank
+from movie.utils import add_past_rating, add_rank
+from utils.pop_movies import get_pop
 
 mysql = MysqlClient()
+print(f"Load mysql daum_movies...")
 movies = mysql.get_daum_movies()
-movie_dict = movies[['movieId', 'titleKo', 'posterUrl']].set_index('movieId', drop=False).to_dict('index')
+movies['synopsis'] = movies['synopsis'].map(lambda x: str(x)[:100] + '...')
+movie_dict = movies[['movieId', 'titleKo', 'posterUrl', 'synopsis']].set_index('movieId', drop=False).to_dict('index')
 """ movie_dict
 {
 62419: {'movieId': 62419, 
@@ -24,8 +27,8 @@ movie_dict = movies[['movieId', 'titleKo', 'posterUrl']].set_index('movieId', dr
 }
 """
 title2id = {v['titleKo']: k for k, v in movie_dict.items()}  # title to item id
-# pop_movies_ids = get_pop(mysql)
-pop_movies_ids = [54081, 73750, 93251, 93252, 76760, 89869, 144854, 3972, 95306, 40355, 67165, 1425, 104209]  # 임시로
+pop_movies_ids = get_pop(mysql)
+# pop_movies_ids = [54081, 73750, 93251, 93252, 76760, 89869, 144854, 3972, 95306, 40355, 67165, 1425, 104209]  # 임시로
 pop_movies = [movie_dict[movie_id] for movie_id in pop_movies_ids]
 
 table_clicklog = DynamoDB(table_name='clicklog')
@@ -67,7 +70,7 @@ def home(request):
                 'ngcf': [],
                 'kprn': []
             },
-            'watched_movie': [movie_dict[movie_id]['title'] for movie_id in split]
+            'watched_movie': [movie_dict[movie_id] for movie_id in split]
         }
     else:
         user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
@@ -77,7 +80,7 @@ def home(request):
             # ------------------------------
             print(user_df)
             clicked_movie_ids = [mid for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
-            watched_movie_titles = [movie_dict[int(movie_id)]['titleKo'] for movie_id in clicked_movie_ids]
+            watched_movie_titles = [movie_dict[int(movie_id)] for movie_id in clicked_movie_ids]
 
             # cf 추천 ################################################
             # if request.user == 'smseo':
@@ -170,7 +173,7 @@ def log_click(request):
         print(user_df)
         if not user_df.empty:
             clicked_movie_ids = [mid for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
-            watched_movie_titles = [movie_dict[int(movie_id)]['titleKo'] for movie_id in clicked_movie_ids]
+            watched_movie_titles = [movie_dict[int(movie_id)] for movie_id in clicked_movie_ids]
 
             # cf 추천 ##########################################
             # if request.user == 'smseo':
@@ -191,7 +194,7 @@ def log_click(request):
                     'ngcf': [],
                     'kprn': []
                 },
-                'watched_movie': watched_movie_titles
+                'watched_movie': watched_movie_titles[::-1]
             }
         return HttpResponse(json.dumps(context), content_type='application/json')
     else:
@@ -223,7 +226,7 @@ def log_star(request):
     rated_movie_titles = [movie_dict[movie_id]['titleKo'] for movie_id in star_movie_ids]
     context = {
         'recomm_result': [movie_dict[_] for _ in star_movie_ids],
-        'watched_movie': rated_movie_titles,
-        'ratings': [float(star / 2) for star in star_df['star'].tolist()]
+        'watched_movie': rated_movie_titles[::-1],
+        'ratings': [float(star / 2) for star in star_df['star'].tolist()][::-1]
     }
     return HttpResponse(json.dumps(context), content_type='application/json')

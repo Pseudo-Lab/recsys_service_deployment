@@ -18,3 +18,12 @@ class Post(models.Model):
 
     def get_content_markdown(self):
         return markdown(self.content)
+
+    def set_content_from_md_file(self, md_file_path):
+        # .md 파일에서 내용 읽어오기
+        import os
+        print(os.getcwd())
+        with open(md_file_path, 'r', encoding='utf-8') as file:
+            md_content = file.read()
+        self.content = md_content
+        self.save()

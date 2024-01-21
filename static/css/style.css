@@ -34,6 +34,7 @@ header {
 }
 
 
+
 .group {
     display: flex;
     align-items: center;
@@ -182,17 +183,6 @@ main div.watched_list {
 
 }
 
-main div.watched_list p {
-    line-height: 5px;
-    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.53);
-    margin: 10px 5px;
-    padding: 10px;
-    background: rgba(250, 250, 250, 0);
-    border-radius: 4px;
-    color: #000000;
-    border: 1px solid #ffffff;
-    font-size: 13px;
-}
 
 .listing-star {
     color: #ffc107;
@@ -238,6 +228,7 @@ main {
     box-sizing: border-box;
     padding: 0 40px;
     /*border: 3px solid #0095f6;*/
+    background: #ffffff;
 }
 
 main::after {
@@ -248,9 +239,9 @@ main::after {
 
 main .left-float-field {
     /*position: absolute;*/
-    width: 250px;
+    /*width: 250px;*/
     height: 800px;
-    float: left;
+    /*float: left;*/
     /*border: 1px solid #000000;*/
     box-sizing: border-box;
 }
@@ -261,7 +252,7 @@ main .left-float-field img {
 }
 
 main .left-float-field p.pseudorec {
-    font-size: 40px;
+    font-size: 25px;
     color: black;
     text-align: center;
     letter-spacing: 0.05em;
@@ -270,47 +261,49 @@ main .left-float-field p.pseudorec {
 }
 
 
-main .right-content-field {
-    float: left;
-    /*border: 2px solid #ff797b;*/
-}
+/*main .right-content-field {*/
+/*    !*float: left;*!*/
+/*    !*border: 2px solid #ff797b;*!*/
+/*    !* display: flex;*!*/
+/*  align-items: center;*/
+/*  justify-content: center;*/
+/*}*/
 
 /*.model-rec ul, ol, li {*/
 /*    list-style: none;*/
 /*}*/
 
-main .right-content-field .paper-review-main {
-    position: absolute;
+
+main .center-main-field .paper-review-main {
+    /*position: absolute;*/
     width: 100%;
     margin-bottom: 10px;
     margin-right: 20px;
 
+
 }
 
-main .right-content-field .paper-review-main::after {
+main .center-main-field .paper-review-main::after {
     content: '';
     display: block;
     clear: both;
 }
 
-main .right-content-field .paper-review-main {
-    width: 700px;
 
-
-}
-
-main .right-content-field .paper-review-main h2 a {
+main .center-main-field .paper-review-main h2 a {
     width: 100%;
     color: black;
     text-decoration: none;
 
 }
 
-main .right-content-field .paper-review-main p {
+main .center-main-field .paper-review-main p {
     color: black;
+    margin-bottom: 0px;
+    /*margin-top: 20px;*/
 }
 
-main .right-content-field .paper-review-main img {
+main .center-main-field .paper-review-main img {
     width:100%;
 }
 

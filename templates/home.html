@@ -8,7 +8,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="icon" href="{% static 'img/favicon.ico' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/home_movie_rec.css' %}?v=2024011916">
     <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
     <script src="static/js/isotope.pkgd.min.js"></script>
     <script defer src="static/js/main.js"></script>
@@ -28,54 +30,58 @@
 </header>
 <main>
     {% include 'left_col.html' %}
-    <div class="right-content-field">
-        <div class="model-rec">
-            <ul>
-                <li><a href=".kprn">KPRN</a></li>
-                <li><a href=".gru4rec">GRU4Rec</a></li>
-                <li><a href=".ngcf">NGCF</a></li>
-                <li><a href=".sasrec">SASRec</a></li>
-                <li class="on"><a href=".pop">인기 영화</a></li>
-                <li>모델선택</li>
-            </ul>
-            <div>
-                <section>
-                    {% for r in pop_movies %}
-                    <article class='pop'>
-                        <div class="movie" dbid={{ r.movieId }} rank="{{ r.rank }}">
-                            <img src={{ r.posterUrl }} alt="">
-                            <h2>{{ r.titleKo }}</h2>
-                            <p>{{ r.genres }}</p>
-                            <div class="rating_box">
-                                <div class="rating">
-                                    ★★★★★
-                                    <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>
-                                    <input type="range" value="0" step="1" min="0" max="10">
+    <div class="side-gutter"></div>
+    <div class="inside">
+        <div class="center-main-field">
+                <div class="model-rec">
+                    <ul>
+                        <li><a href=".kprn">KPRN</a></li>
+                        <li><a href=".gru4rec">GRU4Rec</a></li>
+                        <li><a href=".ngcf">NGCF</a></li>
+                        <li><a href=".sasrec">SASRec</a></li>
+                        <li class="on"><a href=".pop">인기 영화</a></li>
+                        <li>모델선택</li>
+                    </ul>
+                    <div>
+                        <section>
+                            {% for r in pop_movies %}
+                            <article class='pop'>
+                                <div class="movie" dbid={{ r.movieId }} rank="{{ r.rank }}">
+                                    <img src={{ r.posterUrl }} alt="">
+                                    <h2>{{ r.titleKo }}</h2>
+                                    <p>{{ r.synopsis }}</p>
+                                    <div class="rating_box">
+                                        <div class="rating">
+                                            ★★★★★
+                                            <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>
+                                            <input type="range" value="0" step="1" min="0" max="10">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </article>
-                    {% endfor %}
+                            </article>
+                            {% endfor %}
 
-                    {% for r in recomm_result.sasrec %}
-                    <article class='sasrec'>
-                        <div class="movie" dbid={{ r.movieId }} rank="{{ r.rank }}">
-                            <img src={{ r.posterUrl }} alt="">
-                            <h2>{{ r.titleKo }}</h2>
-                            <p>{{ r.genres }}</p>
-                            <div class="rating_box">
-                                <div class="rating">
-                                    ★★★★★
-                                    <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>
-                                    <input type="range" value="0" step="1" min="0" max="10">
+                            {% for r in recomm_result.sasrec %}
+                            <article class='sasrec'>
+                                <div class="movie" dbid={{ r.movieId }} rank="{{ r.rank }}">
+                                    <img src={{ r.posterUrl }} alt="">
+                                    <h2>{{ r.titleKo }}</h2>
+                                    <p>{{ r.synopsis }}</p>
+                                    <div class="rating_box">
+                                        <div class="rating">
+                                            ★★★★★
+                                            <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>
+                                            <input type="range" value="0" step="1" min="0" max="10">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </article>
-                    {% endfor %}
-                </section>
+                            </article>
+                            {% endfor %}
+                        </section>
+                    </div>
+                </div>
             </div>
-        </div>
+        {% include 'right_watched_list.html' %}
     </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"

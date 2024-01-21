@@ -26,6 +26,9 @@ article {
     display: table-cell;
 }
 
+.center-main-field{
+    width: 75%;
+}
 
 .right-field {
     display: table-cell;

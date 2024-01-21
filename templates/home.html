@@ -33,54 +33,58 @@
     <div class="side-gutter"></div>
     <div class="inside">
         <div class="center-main-field">
-                <div class="model-rec">
-                    <ul>
-                        <li><a href=".kprn">KPRN</a></li>
-                        <li><a href=".gru4rec">GRU4Rec</a></li>
-                        <li><a href=".ngcf">NGCF</a></li>
-                        <li><a href=".sasrec">SASRec</a></li>
-                        <li class="on"><a href=".pop">인기 영화</a></li>
-                        <li>모델선택</li>
-                    </ul>
-                    <div>
-                        <section>
-                            {% for r in pop_movies %}
-                            <article class='pop'>
-                                <div class="movie" dbid={{ r.movieId }} rank="{{ r.rank }}">
+            <div class="model-rec">
+                <ul>
+                    <li><a href=".kprn">KPRN</a></li>
+                    <li><a href=".gru4rec">GRU4Rec</a></li>
+                    <li><a href=".ngcf">NGCF</a></li>
+                    <li><a href=".sasrec">SASRec</a></li>
+                    <li class="on"><a href=".pop">인기 영화</a></li>
+                    <li>모델선택</li>
+                </ul>
+                <div>
+                    <section>
+                        {% for r in pop_movies %}
+                        <article class='pop'>
+                            <div class="movie" dbid={{ r.movieId }} rank="{{ r.rank }}">
+                                <a href="/movie/{{ r.movieId }}">
                                     <img src={{ r.posterUrl }} alt="">
-                                    <h2>{{ r.titleKo }}</h2>
-                                    <p>{{ r.synopsis }}</p>
-                                    <div class="rating_box">
-                                        <div class="rating">
-                                            ★★★★★
-                                            <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>
-                                            <input type="range" value="0" step="1" min="0" max="10">
-                                        </div>
+                                </a>
+                                <h2>{{ r.titleKo }}</h2>
+                                <p>{{ r.synopsis_short }}</p>
+                                <div class="rating_box">
+                                    <div class="rating">
+                                        ★★★★★
+                                        <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>
+                                        <input type="range" value="0" step="1" min="0" max="10">
                                     </div>
                                 </div>
-                            </article>
-                            {% endfor %}
+                            </div>
+                        </article>
+                        {% endfor %}
 
-                            {% for r in recomm_result.sasrec %}
-                            <article class='sasrec'>
-                                <div class="movie" dbid={{ r.movieId }} rank="{{ r.rank }}">
+                        {% for r in recomm_result.sasrec %}
+                        <article class='sasrec'>
+                            <div class="movie" dbid={{ r.movieId }} rank="{{ r.rank }}">
+                                <a href="/movie/{{ r.movieId }}">
                                     <img src={{ r.posterUrl }} alt="">
-                                    <h2>{{ r.titleKo }}</h2>
-                                    <p>{{ r.synopsis }}</p>
-                                    <div class="rating_box">
-                                        <div class="rating">
-                                            ★★★★★
-                                            <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>
-                                            <input type="range" value="0" step="1" min="0" max="10">
-                                        </div>
+                                </a>
+                                <h2>{{ r.titleKo }}</h2>
+                                <p>{{ r.synopsis_short }}</p>
+                                <div class="rating_box">
+                                    <div class="rating">
+                                        ★★★★★
+                                        <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>
+                                        <input type="range" value="0" step="1" min="0" max="10">
                                     </div>
                                 </div>
-                            </article>
-                            {% endfor %}
-                        </section>
-                    </div>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </section>
                 </div>
             </div>
+        </div>
         {% include 'right_watched_list.html' %}
     </div>
 </main>

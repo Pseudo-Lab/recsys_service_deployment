@@ -3,3 +3,23 @@ main {
     width: 100%;
 
 }
+
+.side-gutter {
+    width: 50px;
+    display: table-cell;
+}
+
+.center-main-field h1, h2, h3{
+	font-weight: normal;
+	margin: 0;
+	margin-top: 20px;
+}
+
+.center-main-field p{
+	margin-top: 5px;
+}
+
+.side-gutter {
+    width: 50px;
+    display: table-cell;
+}

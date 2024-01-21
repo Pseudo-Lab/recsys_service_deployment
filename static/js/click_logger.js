@@ -38,7 +38,7 @@ $(document).ready(function () {
                 for (var i = 0; i < watchedMovieList.length; i++) {
                     watchedList.append("<p>" + watchedMovieList[i].titleKo + "</p>");
                 }
-                scrollToBottom();
+                // scrollToBottom();
             }
         });
     });

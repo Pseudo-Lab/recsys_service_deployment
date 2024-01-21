@@ -502,111 +502,111 @@ main .model-rec section article > div:hover h2, p {
 }
 
 
-/*@media screen and (max-width: 1100px) {*/
-/*    header {*/
-/*        width: 100%;*/
-/*    }*/
+@media screen and (max-width: 1100px) {
+    /*header {*/
+    /*    width: 100%;*/
+    /*}*/
 
-/*    !*main {*!*/
-/*    !*    margin-left: 350px;*!*/
-/*    !*}*!*/
-/*    main section article {*/
-/*        width: 33%;*/
-/*    }*/
-/*}*/
+    /*main {*/
+    /*    margin-left: 350px;*/
+    /*}*/
+    main .model-rec section article {
+        width: 33%;
+    }
+}
 
 /*@media screen and (max-width: 1199px) {*/
-/*    header {*/
-/*        width: 100%;*/
-/*        height: 80px;*/
-/*        position: relative;*/
-/*    }*/
+    /*header {*/
+    /*    width: 100%;*/
+    /*    height: 80px;*/
+    /*    position: relative;*/
+    /*}*/
 
-/*    header h1 {*/
-/*        font: bold 24px/1 'orbitron';*/
-/*        transform: translateY(80%);*/
-/*    }*/
+    /*header h1 {*/
+    /*    font: bold 24px/1 'orbitron';*/
+    /*    transform: translateY(80%);*/
+    /*}*/
 
-/*    header h1::before, header h1::after {*/
-/*        display: none;*/
-/*    }*/
+    /*header h1::before, header h1::after {*/
+    /*    display: none;*/
+    /*}*/
 
-/*    header div.clicked_movies {*/
-/*        display: none;*/
-/*    }*/
+    /*header div.clicked_movies {*/
+    /*    display: none;*/
+    /*}*/
 
-/*    header div.watched_list {*/
-/*        display: none;*/
-/*    }*/
+    /*header div.watched_list {*/
+    /*    display: none;*/
+    /*}*/
 
-/*    header ul {*/
-/*        left: 83%;*/
-/*        bottom: 25px;*/
-/*    }*/
+    /*header ul {*/
+    /*    left: 83%;*/
+    /*    bottom: 25px;*/
+    /*}*/
 
-/*    header ul li {*/
-/*        margin-right: 20px;*/
-/*    }*/
+    /*header ul li {*/
+    /*    margin-right: 20px;*/
+    /*}*/
 
-/*    header ul li a {*/
-/*        font-size: 20px;*/
-/*    }*/
+    /*header ul li a {*/
+    /*    font-size: 20px;*/
+    /*}*/
 
-/*    header ul li a span {*/
-/*        display: none;*/
-/*    }*/
+    /*header ul li a span {*/
+    /*    display: none;*/
+    /*}*/
 
-/*    main {*/
-/*        width: 100%;*/
-/*        margin-left: 0px;*/
-/*    }*/
+    /*main {*/
+    /*    width: 100%;*/
+    /*    margin-left: 0px;*/
+    /*}*/
 
-/*    main section article {*/
+/*    main .model-rec section article {*/
 /*        width: 25%;*/
 /*    }*/
 /*}*/
 
 /*@media screen and (max-width: 899px) {*/
-/*    header ul {*/
-/*        left: 80%;*/
-/*    }*/
+/*    !*header ul {*!*/
+/*    !*    left: 80%;*!*/
+/*    !*}*!*/
 
-/*    main section article {*/
+/*    main .model-rec section article {*/
 /*        width: 33.333%;*/
 /*    }*/
 /*}*/
 
-/*@media screen and (max-width: 679px) {*/
-/*    header ul {*/
-/*        left: 70%;*/
-/*    }*/
+@media screen and (max-width: 679px) {
+    /*header ul {*/
+    /*    left: 70%;*/
+    /*}*/
 
-/*    main section article {*/
-/*        width: 50%;*/
-/*    }*/
-/*}*/
+    main .model-rec section article {
+        width: 50%;
+    }
+}
 
-/*@media screen and (max-width: 539px) {*/
-/*    header ul {*/
-/*        display: none;*/
-/*    }*/
+@media screen and (max-width: 539px) {
+    /*header ul {*/
+    /*    display: none;*/
+    /*}*/
 
-/*    main ul {*/
-/*        margin-right: 0px;*/
-/*        box-sizing: border-box;*/
-/*        padding: 0px 13px;*/
-/*    }*/
+    /*main ul {*/
+    /*    margin-right: 0px;*/
+    /*    box-sizing: border-box;*/
+    /*    padding: 0px 13px;*/
+    /*}*/
 
-/*    main ul li {*/
-/*        margin-right: 2%;*/
-/*        width: 32%;*/
-/*    }*/
+    /*main ul li {*/
+    /*    margin-right: 2%;*/
+    /*    width: 32%;*/
+    /*}*/
 
-/*    main ul li:nth-of-type(1) {*/
-/*        margin-right: 0%;*/
-/*    }*/
+    /*main ul li:nth-of-type(1) {*/
+    /*    margin-right: 0%;*/
+    /*}*/
 
-/*    main section article {*/
-/*        width: 100%;*/
-/*    }*/
-/*}*/
+    main .model-rec section article {
+        width: 100%;
+    }
+}

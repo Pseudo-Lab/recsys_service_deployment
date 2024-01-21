@@ -1,0 +1,14 @@
+main {
+    display: table;
+    width: 100%;
+
+}
+
+.side-gutter {
+    width: 50px;
+    display: table-cell;
+}
+
+.center-main-field p{
+    color: black;
+}

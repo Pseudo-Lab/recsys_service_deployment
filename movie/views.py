@@ -15,13 +15,13 @@ from utils.pop_movies import get_pop
 mysql = MysqlClient()
 print(f"Load mysql daum_movies...")
 movies = mysql.get_daum_movies()
-movies['synopsis'] = movies['synopsis'].map(lambda x: str(x)[:100] + '...')
-movie_dict = movies[['movieId', 'titleKo', 'posterUrl', 'synopsis']].set_index('movieId', drop=False).to_dict('index')
+movies['synopsis_short'] = movies['synopsis'].map(lambda x: str(x)[:100] + '...')
+movie_dict = movies[['movieId', 'titleKo', 'posterUrl', 'synopsis', 'synopsis_short']].set_index('movieId', drop=False).to_dict('index')
 """ movie_dict
 {
 62419: {'movieId': 62419, 
         'titleKo': 'Window of the Soul (2001)', 
-        'genres': 'Documentary', 
+        'synopsis': '....', 
         'posterUrl': None}, 
 62420: ...
 }
@@ -39,6 +39,8 @@ import pickle
 
 with open('pytorch_models/cf/funkSVD_model.pkl', 'rb') as file:
     loaded_model = pickle.load(file)
+
+
 # ------------------------------
 
 def home(request):
@@ -95,13 +97,14 @@ def home(request):
             context = {
                 'pop_movies': add_rank(add_past_rating(username=request.user.username, recomm_result=pop_movies)),
                 'recomm_result': {
-                    'sasrec': add_rank(add_past_rating(username=request.user.username, recomm_result=[movie_dict[_] for _ in sasrec_recomm_mids])),
+                    'sasrec': add_rank(add_past_rating(username=request.user.username,
+                                                       recomm_result=[movie_dict[_] for _ in sasrec_recomm_mids])),
                     # 'sasrec': [movie_dict[_] for _ in [5, 6, 7]],
                     'cf': [],
                     'ngcf': [],
                     'kprn': []
                 },
-                'watched_movie': watched_movie_titles
+                'watched_movie': watched_movie_titles[::-1]
             }
 
         else:  # 클릭로그 없을 때 인기영화만
@@ -188,7 +191,8 @@ def log_click(request):
             context = {
                 'pop_movies': pop_movies,
                 'recomm_result': {
-                    'sasrec': add_past_rating(username=request.user.username, recomm_result=[movie_dict[_] for _ in sasrec_recomm_mids]),
+                    'sasrec': add_past_rating(username=request.user.username,
+                                              recomm_result=[movie_dict[_] for _ in sasrec_recomm_mids]),
                     # 'sasrec': [movie_dict[_] for _ in [5, 6, 7]],
                     'cf': [],
                     'ngcf': [],
@@ -230,3 +234,10 @@ def log_star(request):
         'ratings': [float(star / 2) for star in star_df['star'].tolist()][::-1]
     }
     return HttpResponse(json.dumps(context), content_type='application/json')
+
+
+def movie_detail(request, movie_id):
+    context = {
+        'movie': movie_dict[movie_id]
+    }
+    return render(request, "movie_detail.html", context=context)

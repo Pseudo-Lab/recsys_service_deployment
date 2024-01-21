@@ -1,0 +1,14 @@
+<div class="right-field">
+    <div class="watched_list">
+        {% for wm in watched_movie %}
+        <div class="watched_movie">
+            <div class="poster">
+                <img src={{ wm.posterUrl }} alt="">
+            </div>
+            <div class="title">
+                <p>{{ wm.titleKo }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

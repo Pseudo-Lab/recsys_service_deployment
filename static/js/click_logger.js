@@ -8,7 +8,7 @@ $(document).ready(function () {
     // 수정: 'tab_name' 초기 값 설정
     var tabName = "클릭한 영화들";
 
-    $(".right-content-field img").click(function () {
+    $(".model-rec img").click(function () {
         console.log('click event')
         var movie_title = $(this).next("h2").text();
         var movie_id = $(this).closest("div.movie").attr("dbid");
@@ -31,11 +31,12 @@ $(document).ready(function () {
                 $(".clicked_movies").html(tabName);
 
                 // 수정: 스크롤 항상 아래로 유지
+                console.log(response)
                 var watchedMovieList = response.watched_movie;
                 var watchedList = $(".watched_list");
                 watchedList.empty();
                 for (var i = 0; i < watchedMovieList.length; i++) {
-                    watchedList.append("<p>" + watchedMovieList[i] + "</p>");
+                    watchedList.append("<p>" + watchedMovieList[i].titleKo + "</p>");
                 }
                 scrollToBottom();
             }

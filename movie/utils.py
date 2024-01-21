@@ -51,4 +51,3 @@ def add_rank(recomm_result):
     for rank, one_movie_d in enumerate(recomm_result, start=1):
         one_movie_d['rank'] = rank
     return recomm_result
-

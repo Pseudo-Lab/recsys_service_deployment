@@ -5,8 +5,10 @@ import pandas as pd
 import pymysql
 from boto3.dynamodb.conditions import Key
 from dotenv import load_dotenv
+from sqlalchemy import create_engine
 
 load_dotenv()
+
 
 class MysqlClient:
     def __init__(self):
@@ -18,6 +20,8 @@ class MysqlClient:
         self.passwd = os.getenv('RDS_MYSQL_PW')
         os.environ['LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN'] = '1'
         # self.connection = pymysql.connect(host=endpoint, user=user, passwd=passwd, port=port, database=dbname)
+        self.db_url = f"mysql+mysqlconnector://admin:{os.getenv('RDS_MYSQL_PW')}@{self.endpoint}:3306/{self.dbname}"
+        self.engine = create_engine(self.db_url)
 
     def get_connection(self):
         connection = pymysql.connect(host=self.endpoint, user=self.user, passwd=self.passwd, port=self.port,
@@ -79,6 +83,7 @@ class MysqlClient:
             """)
             result = cursor.fetchall()
         return pd.DataFrame(result)
+
 
 class DynamoDB:
     def __init__(self, table_name: str):

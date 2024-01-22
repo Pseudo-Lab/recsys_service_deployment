@@ -4,6 +4,10 @@ main {
 
 }
 
+.center-main-field{
+    width: 75%;
+}
+
 .side-gutter {
     width: 50px;
     display: table-cell;
@@ -15,7 +19,9 @@ main {
 	margin-top: 20px;
 }
 
-.center-main-field li{
+
+.center-main-field li, p{
 	margin-top: 10px;
+    font-size: 18px;
 }
 

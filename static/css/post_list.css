@@ -4,6 +4,9 @@ main {
 
 }
 
+.center-main-field{
+    width: 75%;
+}
 
 .center-main-field h1, h2, h3{
 	font-weight: normal;

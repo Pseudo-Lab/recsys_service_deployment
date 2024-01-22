@@ -137,11 +137,12 @@ MARKDOWNX_MARKDOWN_EXTENSIONS = [
     'markdown.extensions.extra',
     'markdown.extensions.toc'
 ]
+# MARKDOWNX_MARKDOWN_EXTENSIONS = ['fenced_code', 'codehilite']
 
 MARKDOWNX_MARKDOWN_EXTENSION_CONFIGS = {
     'markdown.extensions.codehilite': {
-        'linenums': True,
+        'linenums': False,
         'use_pygments': True,
-        'noclasses': True
+        'noclasses': True,
     }
 }

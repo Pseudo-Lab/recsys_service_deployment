@@ -31,5 +31,7 @@ urlpatterns = [
     path('paper_review/', include('paper_review.urls')),
     path('markdownx/', include('markdownx.urls')),
     path('about_us/', include('single_pages.urls')),
+    path('llmrec/', include('llmrec.urls')),
+
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

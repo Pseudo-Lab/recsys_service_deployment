@@ -20,8 +20,13 @@ main {
 }
 
 
-.center-main-field li, p{
+.center-main-field li {
 	margin-top: 10px;
     font-size: 18px;
 }
 
+
+.center-main-field  p{
+	margin-top: 10px;
+    font-size: 18px;
+}

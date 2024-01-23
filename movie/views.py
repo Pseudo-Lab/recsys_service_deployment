@@ -82,7 +82,7 @@ def home(request):
             # ------------------------------
             print(user_df)
             clicked_movie_ids = [mid for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
-            watched_movie_titles = [movie_dict[int(movie_id)] for movie_id in clicked_movie_ids]
+            watched_movie_titles = [movie_dict[int(movie_id)] for i, movie_id in enumerate(clicked_movie_ids) if i == 0 or movie_id != clicked_movie_ids[i-1]]
 
             # cf 추천 ################################################
             # if request.user == 'smseo':

@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="{% static 'css/llmrec.css' %}?v=2024011916">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-    <script defer src="static/js/llmrec.js"></script>
+    <script defer src="{% static 'js/llmrec.js' %}"></script>
+
 </head>
 
 <body>
@@ -26,17 +27,15 @@
         <div class="center-main-field">
             <h1>Hi! Ask anything!</h1>
             <h2>LLM 추천 화면입니다. 베타테스트 중입니다.</h2>
-
             <div class="chat-container">
-                <h2 class="chat-header">John chatting...</h2>
                 <div class="chat-messages">
                     <div class="message blue-bg">
-                        <div class="message-sender">John</div>
+                        <div class="message-sender">You</div>
                         <div class="message-text">Hey Jane, what's up?</div>
                         <div class="message-timestamp">10:30 AM</div>
                     </div>
                     <div class="message gray-bg">
-                        <div class="message-sender">Jane</div>
+                        <div class="message-sender">Pseudorec LLM</div>
                         <div class="message-text">Not much, just living the dream. How about you?</div>
                         <div class="message-timestamp">10:35 AM</div>
                     </div>

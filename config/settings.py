@@ -17,7 +17,6 @@ AUTH_USER_MODEL = 'users.User'
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = BASE_DIR / "templates"
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -144,5 +143,6 @@ MARKDOWNX_MARKDOWN_EXTENSION_CONFIGS = {
         'linenums': False,
         'use_pygments': True,
         'noclasses': True,
+        'pygments_style': 'native',
     }
 }

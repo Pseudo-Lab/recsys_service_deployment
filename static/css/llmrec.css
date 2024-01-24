@@ -51,7 +51,8 @@ transform: translateY(2px);
 
 
 .center-main-field .chat-messages{
-    height: 23em;
+    /*height: 23em;*/
+    height: 80%;
     overflow-y: scroll;
 }
 

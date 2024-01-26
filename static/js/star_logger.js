@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         var rating = ratings[i];
                         $(".watched_list").append("<p>" + wm + "<span class='listing-star'>" + " ★ " + "<\span>" + rating + "</p>");
                     }
-                    scrollToBottom();
+                    // scrollToBottom();
                 }
             });
 

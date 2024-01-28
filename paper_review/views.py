@@ -15,7 +15,7 @@ def index(request):
 
 def single_post_page(request, pk):
     post = Post.objects.get(pk=pk)
-
+    print(pk)
     md_mapper = {
         1: 'post_markdowns/kprn review.md',
         2: 'post_markdowns/ngcf review.md',

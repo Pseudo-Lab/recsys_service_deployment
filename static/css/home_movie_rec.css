@@ -38,8 +38,10 @@ article {
 }
 
 .right-field .watched_movie {
-    padding-top: 20px;
+    padding-top: 10px;
+    padding-top: 10px;
     display: flex;
+
 }
 
 .right-field .poster {

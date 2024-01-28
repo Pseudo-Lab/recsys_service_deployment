@@ -21,9 +21,7 @@ class Post(models.Model):
 
     def set_content_from_md_file(self, md_file_path):
         # .md 파일에서 내용 읽어오기
-        import os
-        print(os.getcwd())
         with open(md_file_path, 'r', encoding='utf-8') as file:
             md_content = file.read()
         self.content = md_content
-        self.save()
+        self.save()   # aws mysql로 바꾸면서 에러났는데 settings에서 'charset': 'utf8mb4' 추가하니 됐음

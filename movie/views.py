@@ -8,28 +8,15 @@ from django.views.decorators.csrf import csrf_exempt
 from kafka import KafkaProducer
 
 from clients import MysqlClient, DynamoDB
+from movie.models import DaumMovies
 from movie.predictors.sasrec_predictor import sasrec_predictor
 from movie.utils import add_past_rating, add_rank
 from utils.pop_movies import get_pop
 
 mysql = MysqlClient()
-print(f"Load mysql daum_movies...")
-movies = mysql.get_daum_movies()
-movies['synopsis_short'] = movies['synopsis'].map(lambda x: str(x)[:100] + '...')
-movie_dict = movies[['movieId', 'titleKo', 'posterUrl', 'synopsis', 'synopsis_short']].set_index('movieId', drop=False).to_dict('index')
-""" movie_dict
-{
-62419: {'movieId': 62419, 
-        'titleKo': 'Window of the Soul (2001)', 
-        'synopsis': '....', 
-        'posterUrl': None}, 
-62420: ...
-}
-"""
-title2id = {v['titleKo']: k for k, v in movie_dict.items()}  # title to item id
 pop_movies_ids = get_pop(mysql)
-# pop_movies_ids = [54081, 73750, 93251, 93252, 76760, 89869, 144854, 3972, 95306, 40355, 67165, 1425, 104209]  # 임시로
-pop_movies = [movie_dict[movie_id] for movie_id in pop_movies_ids]
+pop_movies = DaumMovies.objects.filter(movieid__in=pop_movies_ids)
+pop_movies = sorted(pop_movies, key=lambda x: pop_movies_ids.index(x.movieid))
 
 table_clicklog = DynamoDB(table_name='clicklog')
 
@@ -65,14 +52,21 @@ def home(request):
         # recomm_result = loaded_model.recommend_items(new_user_id, split)
         # ------------------------------
         sasrec_recomm_mids = sasrec_predictor.predict(dbids=split)
+        sasrec_recomm = DaumMovies.objects.filter(movieid__in=sasrec_recomm_mids)
+        watched_movie_obs = DaumMovies.objects.filter(movieid__in=split)
+        watched_movie_obs = sorted(watched_movie_obs, lambda x: split.index(x.movieid))
+
         context = {
             'recomm_result': {
-                'sasrec': [movie_dict[_] for _ in sasrec_recomm_mids],
+                'sasrec': add_rank(add_past_rating(username=request.user.username,
+                                                   recomm_result=sasrec_recomm
+                                                   )
+                                   ),
                 'cf': [],
                 'ngcf': [],
                 'kprn': []
             },
-            'watched_movie': [movie_dict[movie_id] for movie_id in split]
+            'watched_movie': watched_movie_obs
         }
     else:
         user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
@@ -81,9 +75,14 @@ def home(request):
             print(f"user : {request.user}")
             # ------------------------------
             print(user_df)
-            clicked_movie_ids = [mid for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
-            watched_movie_titles = [movie_dict[int(movie_id)] for i, movie_id in enumerate(clicked_movie_ids) if i == 0 or movie_id != clicked_movie_ids[i-1]]
 
+            clicked_movie_ids = [int(mid) for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
+            clicked_movie_ids = [movie_id for i, movie_id in enumerate(clicked_movie_ids) if
+                                 i == 0 or movie_id != clicked_movie_ids[i - 1]]
+            watched_movie_obs = DaumMovies.objects.filter(movieid__in=clicked_movie_ids)
+            watched_movie_obs = sorted(watched_movie_obs, key=lambda x: clicked_movie_ids.index(x.movieid))
+
+            # 추천 결과 생성
             # cf 추천 ################################################
             # if request.user == 'smseo':
             #     new_user_id = 5001
@@ -94,17 +93,20 @@ def home(request):
             # recomm_result = loaded_model.recommend_items(new_user_id, clicked_movie_ids)
             ######################################################
             sasrec_recomm_mids = sasrec_predictor.predict(dbids=clicked_movie_ids)
+            sasrec_recomm = DaumMovies.objects.filter(movieid__in=sasrec_recomm_mids)
+            # context 구성
             context = {
                 'pop_movies': add_rank(add_past_rating(username=request.user.username, recomm_result=pop_movies)),
                 'recomm_result': {
                     'sasrec': add_rank(add_past_rating(username=request.user.username,
-                                                       recomm_result=[movie_dict[_] for _ in sasrec_recomm_mids])),
-                    # 'sasrec': [movie_dict[_] for _ in [5, 6, 7]],
+                                                       recomm_result=sasrec_recomm
+                                                       )
+                                       ),
                     'cf': [],
                     'ngcf': [],
                     'kprn': []
                 },
-                'watched_movie': watched_movie_titles[::-1]
+                'watched_movie': watched_movie_obs[::-1]
             }
 
         else:  # 클릭로그 없을 때 인기영화만
@@ -173,10 +175,12 @@ def log_click(request):
         # return JsonResponse({"status": "success"}, status=200)
 
         user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
-        print(user_df)
         if not user_df.empty:
             clicked_movie_ids = [mid for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
-            watched_movie_titles = [movie_dict[int(movie_id)] for movie_id in clicked_movie_ids]
+            clicked_movie_ids = [movie_id for i, movie_id in enumerate(clicked_movie_ids) if
+                                 i == 0 or movie_id != clicked_movie_ids[i - 1]]
+            watched_movie_obs = DaumMovies.objects.filter(movieid__in=clicked_movie_ids)
+            watched_movie_obs = sorted(watched_movie_obs, key=lambda x: clicked_movie_ids.index(x.movieid))
 
             # cf 추천 ##########################################
             # if request.user == 'smseo':
@@ -188,17 +192,17 @@ def log_click(request):
             ###################################################
 
             sasrec_recomm_mids = sasrec_predictor.predict(dbids=clicked_movie_ids)
+            sasrec_recomm = DaumMovies.objects.filter(movieid__in=sasrec_recomm_mids)
             context = {
                 'pop_movies': pop_movies,
                 'recomm_result': {
                     'sasrec': add_past_rating(username=request.user.username,
-                                              recomm_result=[movie_dict[_] for _ in sasrec_recomm_mids]),
-                    # 'sasrec': [movie_dict[_] for _ in [5, 6, 7]],
+                                              recomm_result=sasrec_recomm),
                     'cf': [],
                     'ngcf': [],
                     'kprn': []
                 },
-                'watched_movie': watched_movie_titles[::-1]
+                'watched_movie': watched_movie_obs[::-1]
             }
         return HttpResponse(json.dumps(context), content_type='application/json')
     else:
@@ -222,15 +226,17 @@ def log_star(request):
         'star': int(percentage / 10),
         'movieId': movie_id
     }
-
     table_clicklog.put_item(click_log=click_log)
     user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
     star_df = user_df[user_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
-    star_movie_ids = [title2id[title] for title in star_df['titleKo'].tolist()]
-    rated_movie_titles = [movie_dict[movie_id]['titleKo'] for movie_id in star_movie_ids]
+    star_movie_ids = star_df['movieId'].tolist()
+    star_movie_ids = list(map(int, star_movie_ids))
+    rated_movies = DaumMovies.objects.filter(movieid__in=star_movie_ids).values('movieid', 'titleko')
+    rated_movies = sorted(rated_movies, key=lambda x: star_movie_ids.index(x['movieid']))
+    rated_movies_titles = [rated_m['titleko'] for rated_m in rated_movies]
+
     context = {
-        'recomm_result': [movie_dict[_] for _ in star_movie_ids],
-        'watched_movie': rated_movie_titles[::-1],
+        'watched_movie': rated_movies_titles[::-1],
         'ratings': [float(star / 2) for star in star_df['star'].tolist()][::-1]
     }
     return HttpResponse(json.dumps(context), content_type='application/json')
@@ -238,6 +244,6 @@ def log_star(request):
 
 def movie_detail(request, movie_id):
     context = {
-        'movie': movie_dict[movie_id]
+        'movie': DaumMovies.objects.get(movieid=movie_id)
     }
     return render(request, "movie_detail.html", context=context)

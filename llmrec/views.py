@@ -3,6 +3,7 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+# 모델 불러와서
 
 
 # @csrf_exempt
@@ -23,6 +24,8 @@ def llmrec(request):
             message = data.get('message', '')
 
             # 여기서 message를 원하는 대로 처리
+            # TODO : 캐시로 히스토리 갖고있다가 multi-turn? 모델도 히스토리 모델이 필요하다. 한글, 챗, 히스토리 사용 가능한 모델이어야함.
+            # TODO : 히스토리 어디 어떻게 저장?
             print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
 
             response_message = '아직 모델이 없어요ㅠ'

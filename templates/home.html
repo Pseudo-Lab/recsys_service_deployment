@@ -47,12 +47,12 @@
                     <section>
                         {% for r in pop_movies %}
                         <article class='pop'>
-                            <div class="movie" dbid={{ r.movieId }} rank="{{ r.rank }}">
-                                <a href="/movie/{{ r.movieId }}">
-                                    <img src={{ r.posterUrl }} alt="">
+                            <div class="movie" dbid={{ r.movieid }} rank="{{ r.rank }}">
+                                <a href="/movie/{{ r.movieid }}">
+                                    <img src={{ r.posterurl }} alt="">
                                 </a>
-                                <h2>{{ r.titleKo }}</h2>
-                                <p>{{ r.synopsis_short }}</p>
+                                <h2>{{ r.titleko }}</h2>
+                                <p>{{ r.synopsis|slice:":100" }}{% if r.synopsis|length > 100 %}...{% endif %}</p>
                                 <div class="rating_box">
                                     <div class="rating">
                                         ★★★★★
@@ -66,12 +66,12 @@
 
                         {% for r in recomm_result.sasrec %}
                         <article class='sasrec'>
-                            <div class="movie" dbid={{ r.movieId }} rank="{{ r.rank }}">
+                            <div class="movie" dbid={{ r.movieid }} rank="{{ r.rank }}">
                                 <a href="/movie/{{ r.movieId }}">
-                                    <img src={{ r.posterUrl }} alt="">
+                                    <img src={{ r.posterurl }} alt="">
                                 </a>
-                                <h2>{{ r.titleKo }}</h2>
-                                <p>{{ r.synopsis_short }}</p>
+                                <h2>{{ r.titleko }}</h2>
+                                <p>{{ r.synopsis|slice:":100" }}{% if r.synopsis|length > 100 %}...{% endif %}</p>
                                 <div class="rating_box">
                                     <div class="rating">
                                         ★★★★★

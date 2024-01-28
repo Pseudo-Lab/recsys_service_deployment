@@ -30,9 +30,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     'movie_id':movie_id,
                 }),
                 dataType: "json",
+
                 success: function (response) {
                     $(".clicked_movies").html(tabName);
                     var watchedMovieList = response.watched_movie;
+                    console.log(response.watched_movie)
                     var ratings = response.ratings;
 
                     $(".watched_list").empty();

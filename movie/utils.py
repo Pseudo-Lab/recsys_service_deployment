@@ -40,7 +40,7 @@ def add_past_rating(username, recomm_result: List[Dict]):
         movie2rating = dict(zip(star_df['movieId'].astype(int), star_df['star'].astype(int)))
         # print(f"movie2rating : {movie2rating}")
         for one_movie_d in recomm_result:
-            one_movie_d['past_rating'] = int(movie2rating.get(one_movie_d['movieId'], 0)) * 10
+            one_movie_d.past_rating = int(movie2rating.get(one_movie_d.movieid, 0)) * 10
             # print(f"one_movie_d : {one_movie_d}")
         return recomm_result
     else:
@@ -49,5 +49,5 @@ def add_past_rating(username, recomm_result: List[Dict]):
 
 def add_rank(recomm_result):
     for rank, one_movie_d in enumerate(recomm_result, start=1):
-        one_movie_d['rank'] = rank
+        one_movie_d.rank = rank
     return recomm_result

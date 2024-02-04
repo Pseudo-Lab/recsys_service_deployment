@@ -3,7 +3,7 @@ import os
 import boto3
 import pandas as pd
 import pymysql
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Key, Attr
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
@@ -107,5 +107,11 @@ class DynamoDB:
 
     def get_a_user_logs(self, user_name: str):
         query = {"KeyConditionExpression": Key("userId").eq(user_name)}
+        resp = self.table.query(**query)
+        return pd.DataFrame(resp['Items'])
+
+    def get_a_session_logs(self, session_id: str):
+        query = {"KeyConditionExpression": Key("userId").eq('Anonymous'),
+                 "FilterExpression": Attr("sessionId").eq(session_id)}
         resp = self.table.query(**query)
         return pd.DataFrame(resp['Items'])

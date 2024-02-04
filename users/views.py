@@ -6,7 +6,7 @@ from users.forms import LoginForm, SignupForm
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect("/movie/movierec/")
+        return redirect("/")
 
     if request.method == "POST":
         form = LoginForm(data=request.POST)
@@ -32,7 +32,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect("/users/login/")
+    return redirect("/")
 
 
 def signup(request):
@@ -41,7 +41,7 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect("/movie/movierec/")
+            return redirect("")
     else:  # GET 요청에서는 빈 Form을 보여준다.
         form = SignupForm()
 

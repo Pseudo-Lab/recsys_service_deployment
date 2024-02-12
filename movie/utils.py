@@ -3,9 +3,9 @@ from typing import List, Dict
 
 import pandas as pd
 
-from clients import DynamoDB
+from db_clients.dynamodb import DynamoDBClient
 
-table_clicklog = DynamoDB(table_name='clicklog')
+table_clicklog = DynamoDBClient(table_name='clicklog')
 
 
 def get_pop(mysql):

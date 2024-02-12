@@ -14,7 +14,7 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv('.env.dev')
 
 os.environ['RDS_MYSQL_PW'] = 'Precsys1!'
 os.environ['AWS_ACCESS_KEY_ID'] = os.getenv('AWS_ACCESS_KEY_ID')

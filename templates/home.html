@@ -67,7 +67,7 @@
                         {% for r in recomm_result.sasrec %}
                         <article class='sasrec'>
                             <div class="movie" dbid={{ r.movieid }} rank="{{ r.rank }}">
-                                <a href="/movie/{{ r.movieId }}">
+                                <a href="/movie/{{ r.movieid }}">
                                     <img src={{ r.posterurl }} alt="">
                                 </a>
                                 <h2>{{ r.titleko }}</h2>

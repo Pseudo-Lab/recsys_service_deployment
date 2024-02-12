@@ -1,32 +1,41 @@
 import json
+import os
 import time
 
 import pandas as pd
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from kafka import KafkaProducer
+from dotenv import load_dotenv
+from kafka import KafkaConsumer, KafkaProducer
 
-from clients import MysqlClient, DynamoDB
+from clients import MysqlClient
+from db_clients.dynamodb import DynamoDBClient
 from movie.models import DaumMovies
 from movie.predictors.sasrec_predictor import sasrec_predictor
 from movie.utils import add_past_rating, add_rank
 from utils.pop_movies import get_pop
-from django.contrib.auth import get_user
+
+load_dotenv('.env.dev')
+
+# Kafka Producer 생성 프로듀서는 데이터 저장
+producer = KafkaProducer(bootstrap_servers=[os.getenv('BROKER_URL_IN_CONTAINER', 'localhost:9092')],
+                         value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+
 
 mysql = MysqlClient()
 pop_movies_ids = get_pop(mysql)
 pop_movies = list(DaumMovies.objects.filter(movieid__in=pop_movies_ids).values())
 pop_movies = sorted(pop_movies, key=lambda x: pop_movies_ids.index(x['movieid']))
 
-table_clicklog = DynamoDB(table_name='clicklog')
+table_clicklog = DynamoDBClient(table_name='clicklog')
 
 # TODO: cf 모델 로드를 predict.py에서 하기!
 # ------------------------------
-import pickle
-
-with open('pytorch_models/cf/funkSVD_model.pkl', 'rb') as file:
-    loaded_model = pickle.load(file)
+# import pickle
+#
+# with open('pytorch_models/cf/funkSVD_model.pkl', 'rb') as file:
+#     loaded_model = pickle.load(file)
 
 
 # ------------------------------
@@ -41,7 +50,7 @@ def home(request):
     session_id = request.session.session_key
 
     if request.method == "POST":
-
+        print(f"Home - POST 요청")
         watched_movie = request.POST['watched_movie']
         session_id = request.session.session_key
         print(f"Request")
@@ -91,14 +100,21 @@ def home(request):
             print(f"클릭로그 : 있음")
             print(f"user : {request.user}")
             # ------------------------------
-            print(user_df.tail(15))
+            print(user_df.tail(8))
 
             clicked_movie_ids = [int(mid) for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
-            clicked_movie_ids = [movie_id for i, movie_id in enumerate(clicked_movie_ids) if
-                                 i == 0 or movie_id != clicked_movie_ids[i - 1]]
-            watched_movie_obs = list(DaumMovies.objects.filter(movieid__in=clicked_movie_ids).values())
-            watched_movie_obs = sorted(watched_movie_obs, key=lambda x: clicked_movie_ids.index(x['movieid']))
+            watched_movie_obs = []
+            for mid in clicked_movie_ids[::-1]:
+                if mid is not None and not pd.isna(mid):
+                    watched_movie_obs.append(DaumMovies.objects.get(movieid=int(mid)))
+                if len(watched_movie_obs) >= 10:
+                    break
 
+            # # clicked_movie_ids = [movie_id for i, movie_id in enumerate(clicked_movie_ids)]
+            # print(clicked_movie_ids[::-1][:10])
+            # watched_movie_obs = list(DaumMovies.objects.filter(movieid__in=clicked_movie_ids).values())
+            # watched_movie_obs = sorted(watched_movie_obs, key=lambda x: clicked_movie_ids.index(x['movieid']))
+            # print(watched_movie_obs[0])
             # 추천 결과 생성
             # cf 추천 ################################################
             # if request.user == 'smseo':
@@ -127,7 +143,7 @@ def home(request):
                     'ngcf': [],
                     'kprn': []
                 },
-                'watched_movie': watched_movie_obs[::-1]
+                'watched_movie': watched_movie_obs
             }
 
         else:  # 클릭로그 없을 때 인기영화만
@@ -139,17 +155,13 @@ def home(request):
     return render(request, "home.html", context=context)
 
 
-# consumer = KafkaConsumer('movie_title_ver2',
-#                          bootstrap_servers=['localhost:9092'],
-#                          value_deserializer=lambda x: json.loads(x.decode('utf-8')))
-
-
 @csrf_exempt
 def log_click(request):
     if request.user.username == '':
         user_name = 'Anonymous'
     else:
         user_name = request.user.username
+    session_id = request.session.session_key
 
     if request.method == "POST":
         print(f"Click".ljust(60, '-'))
@@ -157,7 +169,7 @@ def log_click(request):
         print(f"\tL request.user.username : {request.user.username}")
 
         data = json.loads(request.body.decode('utf-8'))
-        print(data)
+        print(f"\tL data : {data}")
         movie_title = data.get('movie_title')
         page_url = data.get('page_url')
         movie_id = data.get('movie_id')
@@ -166,18 +178,12 @@ def log_click(request):
             request.session['init'] = True
             request.session.save()
 
-        session_id = request.session.session_key
-        print(f"session_id : {session_id}")
+        print(f"\tL session_id : {session_id}")
 
         # 터미널에 로그 출력
         print(f"\tL Clicked movie id : {movie_title}")
         print(f"\tL url: {page_url}")
 
-        # Kafka Producer 생성 프로듀서는 데이터 저장
-        producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
-                                 value_serializer=lambda v: json.dumps(v).encode('utf-8'))
-
-        # 클릭 로그를 Kafka topic에 전송
         message = {
             'userId': user_name,
             'sessionId': session_id,
@@ -186,30 +192,20 @@ def log_click(request):
             'url': page_url,
             'movieId': movie_id
         }
-        # message = {'movie_title': movie_title, 'session_id': session_id, 'url': page_url}
+        print(f"\tL message : {message}")
+
+        # 클릭 로그를 Kafka topic에 전송
         producer.send('log_movie_click', message)
         producer.flush()
-        producer.close()
 
-        # dynamoDB clicklog 테이블에 저장 ######################
-        click_log = {
-            'userId': user_name,
-            'sessionId': session_id,
-            'timestamp': int(time.time()),
-            'titleKo': movie_title,
-            'url': page_url,
-            'movieId': movie_id
-        }
-        table_clicklog.put_item(click_log=click_log)
-        ####################################################
-
-        # return JsonResponse({"status": "success"}, status=200)
-        if user_name == 'user':
-            user_df = table_clicklog.get_a_user_logs(user_name=user_name)
-        else:
+        if user_name == 'Anonymous':
+            print(f"\tL user_name : Anonymous")
             user_df = table_clicklog.get_a_session_logs(session_id=session_id)
+        else:
+            print(f"\tL user_name : {user_name}")
+            user_df = table_clicklog.get_a_user_logs(user_name=user_name)
 
-        print(user_df.tail(15))
+        print(user_df.tail(8))
 
         if not user_df.empty:
             clicked_movie_ids = [int(mid) for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
@@ -217,15 +213,6 @@ def log_click(request):
                                  i == 0 or movie_id != clicked_movie_ids[i - 1]]
             watched_movie_obs = list(DaumMovies.objects.filter(movieid__in=clicked_movie_ids).values())
             watched_movie_obs = sorted(watched_movie_obs, key=lambda x: clicked_movie_ids.index(x['movieid']))
-
-            # cf 추천 ##########################################
-            # if request.user == 'smseo':
-            #     new_user_id = 5001
-            # else:
-            #     new_user_id = 5002
-            # loaded_model.add_new_user(new_user_id, clicked_movie_ids)
-            # recomm_result = loaded_model.recommend_items(new_user_id, clicked_movie_ids)
-            ###################################################
 
             sasrec_recomm_mids = sasrec_predictor.predict(dbids=clicked_movie_ids)
             sasrec_recomm = list(DaumMovies.objects.filter(movieid__in=sasrec_recomm_mids).values())

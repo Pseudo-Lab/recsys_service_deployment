@@ -10,7 +10,7 @@ $(document).ready(function () {
 
     $(".model-rec img").click(function () {
         console.log('click event')
-        var movie_title = $(this).next("h2").text();
+        var movie_title = $(this).parent().next("h2").text();
         var movie_id = $(this).closest("div.movie").attr("dbid");
         // var rank = $(this).closest("div.movie").attr("rank");
         var page_url = window.location.href;

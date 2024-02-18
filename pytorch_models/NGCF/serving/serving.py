@@ -20,12 +20,12 @@ class NGCFServingModel(Model):
         self.ngcf_predictor = ngcf_predictor
 
     def load(self):
-        # 설정을 로드하고, 모델 및 필요한 데이터를 초기화합니다.
+        # 설정을 로드하고, 모델 및 필요한 데이터를 초기화.
         args = parse_args()  # 기본 설정 또는 커스텀 설정 로드
         self.model = NGCF(args).to(self.device)
         self.model.load_state_dict(torch.load(os.path.join(self.model_path, 'NGCF.pkl'), map_location=self.device))
         self.model.eval()
-        # 데이터 로딩 및 초기화에 필요한 추가적인 코드를 여기에 추가하세요.
+
     
     def predict(self, payload):
         # 요청 받은 데이터를 기반으로 추론 수행

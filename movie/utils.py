@@ -33,15 +33,16 @@ def get_pop(mysql):
     return pop_movies_id
 
 
-def add_past_rating(username, recomm_result: List[Dict]):
-    user_df = table_clicklog.get_a_user_logs(user_name=username)
+def add_past_rating(username, session_id, recomm_result: List[Dict]):
+    if username == 'Anonymous':
+        user_df = table_clicklog.get_a_session_logs(session_id=session_id)
+    else:
+        user_df = table_clicklog.get_a_user_logs(user_name=username)
     if 'star' in user_df.columns:
         star_df = user_df[user_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
         movie2rating = dict(zip(star_df['movieId'].astype(int), star_df['star'].astype(int)))
-        # print(f"movie2rating : {movie2rating}")
         for one_movie_d in recomm_result:
-            one_movie_d.past_rating = int(movie2rating.get(one_movie_d.movieid, 0)) * 10
-            # print(f"one_movie_d : {one_movie_d}")
+            one_movie_d['past_rating'] = int(movie2rating.get(one_movie_d['movieid'], 0)) * 10
         return recomm_result
     else:
         return recomm_result
@@ -49,5 +50,5 @@ def add_past_rating(username, recomm_result: List[Dict]):
 
 def add_rank(recomm_result):
     for rank, one_movie_d in enumerate(recomm_result, start=1):
-        one_movie_d.rank = rank
+        one_movie_d['rank'] = rank
     return recomm_result

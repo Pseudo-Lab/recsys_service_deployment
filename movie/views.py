@@ -12,11 +12,12 @@ from movie.models import DaumMovies
 from movie.predictors.sasrec_predictor import sasrec_predictor
 from movie.utils import add_past_rating, add_rank
 from utils.pop_movies import get_pop
+from django.contrib.auth import get_user
 
 mysql = MysqlClient()
 pop_movies_ids = get_pop(mysql)
-pop_movies = DaumMovies.objects.filter(movieid__in=pop_movies_ids)
-pop_movies = sorted(pop_movies, key=lambda x: pop_movies_ids.index(x.movieid))
+pop_movies = list(DaumMovies.objects.filter(movieid__in=pop_movies_ids).values())
+pop_movies = sorted(pop_movies, key=lambda x: pop_movies_ids.index(x['movieid']))
 
 table_clicklog = DynamoDB(table_name='clicklog')
 
@@ -31,13 +32,21 @@ with open('pytorch_models/cf/funkSVD_model.pkl', 'rb') as file:
 # ------------------------------
 
 def home(request):
-    if not request.user.is_authenticated:
-        return redirect("/users/login/")
+    # if not request.user.is_authenticated:
+    #     return redirect("/users/login/")
+    if request.user.username == '':
+        user_name = 'Anonymous'
+    else:
+        user_name = request.user.username
+    session_id = request.session.session_key
 
     if request.method == "POST":
+
         watched_movie = request.POST['watched_movie']
+        session_id = request.session.session_key
         print(f"Request")
         print(f"\tL user : {request.user}")
+        print(f"\tL session_id : {session_id}")
         print(f"\tL method POST")
         print(f"watched_movie : {watched_movie}")
         split = [int(wm) for wm in watched_movie.split()]
@@ -59,6 +68,7 @@ def home(request):
         context = {
             'recomm_result': {
                 'sasrec': add_rank(add_past_rating(username=request.user.username,
+                                                   session_id=session_id,
                                                    recomm_result=sasrec_recomm
                                                    )
                                    ),
@@ -69,18 +79,25 @@ def home(request):
             'watched_movie': watched_movie_obs
         }
     else:
-        user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
+        print(f"Home - GET 요청")
+
+        if not request.user.is_authenticated:
+            # user_df = pd.DataFrame({'movieId': []})
+            user_df = table_clicklog.get_a_session_logs(session_id=session_id)
+        else:
+            user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
+
         if not user_df.empty:  # 클릭로그 있을 때
             print(f"클릭로그 : 있음")
             print(f"user : {request.user}")
             # ------------------------------
-            print(user_df)
+            print(user_df.tail(15))
 
             clicked_movie_ids = [int(mid) for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
             clicked_movie_ids = [movie_id for i, movie_id in enumerate(clicked_movie_ids) if
                                  i == 0 or movie_id != clicked_movie_ids[i - 1]]
-            watched_movie_obs = DaumMovies.objects.filter(movieid__in=clicked_movie_ids)
-            watched_movie_obs = sorted(watched_movie_obs, key=lambda x: clicked_movie_ids.index(x.movieid))
+            watched_movie_obs = list(DaumMovies.objects.filter(movieid__in=clicked_movie_ids).values())
+            watched_movie_obs = sorted(watched_movie_obs, key=lambda x: clicked_movie_ids.index(x['movieid']))
 
             # 추천 결과 생성
             # cf 추천 ################################################
@@ -93,12 +110,16 @@ def home(request):
             # recomm_result = loaded_model.recommend_items(new_user_id, clicked_movie_ids)
             ######################################################
             sasrec_recomm_mids = sasrec_predictor.predict(dbids=clicked_movie_ids)
-            sasrec_recomm = DaumMovies.objects.filter(movieid__in=sasrec_recomm_mids)
+            sasrec_recomm = list(DaumMovies.objects.filter(movieid__in=sasrec_recomm_mids).values())
+            sasrec_recomm = sorted(sasrec_recomm, key=lambda x: sasrec_recomm_mids.index(x['movieid']))
             # context 구성
             context = {
-                'pop_movies': add_rank(add_past_rating(username=request.user.username, recomm_result=pop_movies)),
+                'pop_movies': add_rank(add_past_rating(username=user_name,
+                                                       session_id=session_id,
+                                                       recomm_result=pop_movies)),
                 'recomm_result': {
-                    'sasrec': add_rank(add_past_rating(username=request.user.username,
+                    'sasrec': add_rank(add_past_rating(username=user_name,
+                                                       session_id=session_id,
                                                        recomm_result=sasrec_recomm
                                                        )
                                        ),
@@ -125,9 +146,16 @@ def home(request):
 
 @csrf_exempt
 def log_click(request):
+    if request.user.username == '':
+        user_name = 'Anonymous'
+    else:
+        user_name = request.user.username
+
     if request.method == "POST":
         print(f"Click".ljust(60, '-'))
-        print(f"\tL user : {request.user}")
+        print(f"\tL request.user : {request.user}")
+        print(f"\tL request.user.username : {request.user.username}")
+
         data = json.loads(request.body.decode('utf-8'))
         print(data)
         movie_title = data.get('movie_title')
@@ -139,9 +167,10 @@ def log_click(request):
             request.session.save()
 
         session_id = request.session.session_key
+        print(f"session_id : {session_id}")
 
         # 터미널에 로그 출력
-        print(f"\tL Movie clicked: {movie_title}")
+        print(f"\tL Clicked movie id : {movie_title}")
         print(f"\tL url: {page_url}")
 
         # Kafka Producer 생성 프로듀서는 데이터 저장
@@ -150,7 +179,8 @@ def log_click(request):
 
         # 클릭 로그를 Kafka topic에 전송
         message = {
-            'userId': request.user.username,
+            'userId': user_name,
+            'sessionId': session_id,
             'timestamp': int(time.time()),
             'titleKo': movie_title,
             'url': page_url,
@@ -163,7 +193,8 @@ def log_click(request):
 
         # dynamoDB clicklog 테이블에 저장 ######################
         click_log = {
-            'userId': request.user.username,
+            'userId': user_name,
+            'sessionId': session_id,
             'timestamp': int(time.time()),
             'titleKo': movie_title,
             'url': page_url,
@@ -173,14 +204,19 @@ def log_click(request):
         ####################################################
 
         # return JsonResponse({"status": "success"}, status=200)
+        if user_name == 'user':
+            user_df = table_clicklog.get_a_user_logs(user_name=user_name)
+        else:
+            user_df = table_clicklog.get_a_session_logs(session_id=session_id)
 
-        user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
+        print(user_df.tail(15))
+
         if not user_df.empty:
-            clicked_movie_ids = [mid for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
+            clicked_movie_ids = [int(mid) for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
             clicked_movie_ids = [movie_id for i, movie_id in enumerate(clicked_movie_ids) if
                                  i == 0 or movie_id != clicked_movie_ids[i - 1]]
-            watched_movie_obs = DaumMovies.objects.filter(movieid__in=clicked_movie_ids)
-            watched_movie_obs = sorted(watched_movie_obs, key=lambda x: clicked_movie_ids.index(x.movieid))
+            watched_movie_obs = list(DaumMovies.objects.filter(movieid__in=clicked_movie_ids).values())
+            watched_movie_obs = sorted(watched_movie_obs, key=lambda x: clicked_movie_ids.index(x['movieid']))
 
             # cf 추천 ##########################################
             # if request.user == 'smseo':
@@ -192,11 +228,14 @@ def log_click(request):
             ###################################################
 
             sasrec_recomm_mids = sasrec_predictor.predict(dbids=clicked_movie_ids)
-            sasrec_recomm = DaumMovies.objects.filter(movieid__in=sasrec_recomm_mids)
+            sasrec_recomm = list(DaumMovies.objects.filter(movieid__in=sasrec_recomm_mids).values())
+            sasrec_recomm = sorted(sasrec_recomm, key=lambda x: sasrec_recomm_mids.index(x['movieid']))
+
             context = {
                 'pop_movies': pop_movies,
                 'recomm_result': {
-                    'sasrec': add_past_rating(username=request.user.username,
+                    'sasrec': add_past_rating(username=user_name,
+                                              session_id=session_id,
                                               recomm_result=sasrec_recomm),
                     'cf': [],
                     'ngcf': [],
@@ -204,14 +243,23 @@ def log_click(request):
                 },
                 'watched_movie': watched_movie_obs[::-1]
             }
+        else:
+            context = {
+                'pop_movies': pop_movies,
+            }
         return HttpResponse(json.dumps(context), content_type='application/json')
     else:
-
         return JsonResponse({"status": "failed"}, status=400)
 
 
 @csrf_exempt
 def log_star(request):
+    if request.user.username == '':
+        user_name = 'Anonymous'
+    else:
+        user_name = request.user.username
+
+    session_id = request.session.session_key
     print(f"star")
     data = json.loads(request.body.decode('utf-8'))
     percentage = data.get('percentage')
@@ -219,7 +267,8 @@ def log_star(request):
     page_url = data.get('page_url')
     movie_id = data.get('movie_id')
     click_log = {
-        'userId': request.user.username,
+        'userId': user_name,
+        'sessionId': session_id,
         'timestamp': int(time.time()),
         'titleKo': movie_title,
         'url': page_url,
@@ -227,7 +276,11 @@ def log_star(request):
         'movieId': movie_id
     }
     table_clicklog.put_item(click_log=click_log)
-    user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
+    if user_name == 'Anonymous':
+        user_df = table_clicklog.get_a_session_logs(session_id=session_id)
+    else:
+        user_df = table_clicklog.get_a_user_logs(user_name=user_name)
+
     star_df = user_df[user_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
     star_movie_ids = star_df['movieId'].tolist()
     star_movie_ids = list(map(int, star_movie_ids))

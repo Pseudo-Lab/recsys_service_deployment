@@ -4,7 +4,7 @@
 
 ## 1. INTRODUCTION
 
-<aside>
+<p class="callout">
 💡 In many real-world applications, users’ current interests are intrinsically **dynamic** and **evolving**, influenced by their **historical behaviors**.
 
 사용자의 관심사는 과거 행동에 영향을 받아 동적으로 변합니다.
@@ -13,7 +13,7 @@
     
     아이폰을 구매한 사용자는 다음에 아이폰 충전기를 구매할 수 있습니다. 갤럭시 충전기를 구매하진 않을 것입니다.
     
-</aside>
+</p>
 
 <aside>
 💡 To model such sequential dynamics in user behaviors, various methods have been proposed to make ***sequential recommendations*** based on users’ **historical interactions**. They aim to predict the successive item(s) that a user is likely to interact with given her/his past interactions.

@@ -4,7 +4,7 @@ main {
 
 }
 
-.center-main-field{
+.center-main-field {
     width: 75%;
 }
 
@@ -13,20 +13,27 @@ main {
     display: table-cell;
 }
 
-.center-main-field h1, h2, h3{
-	font-weight: normal;
-	margin: 0;
-	margin-top: 20px;
+.center-main-field h1, h2, h3 {
+    font-weight: normal;
+    margin: 0;
+    margin-top: 20px;
 }
 
 
 .center-main-field li {
-	margin-top: 10px;
+    margin-top: 10px;
     font-size: 18px;
 }
 
 
-.center-main-field  p{
-	margin-top: 10px;
+.center-main-field p {
+    margin-top: 10px;
     font-size: 18px;
+}
+
+.center-main-field .callout {
+    border: double #8192a1;
+    border-radius: 0.5em;
+    margin: 20px 0;
+    padding: 10px;
 }

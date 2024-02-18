@@ -1,8 +1,44 @@
-    <div class="group">
-        <ul class="navigation">
-            <li><a href="/">Movie Recommendation</a></li>
-            <li><a href="/paper_review/">Paper Review</a></li>
-            <li><a href="/about_us/">About Us</a></li>
-            <li><a href="/users/logout/">Logout</a></li>
+{% load socialaccount %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+<link rel="stylesheet" href="{% static 'css/login_modal.css' %}">
+
+<div class="group">
+    <ul class="navigation">
+        <li><a href="/">Movie Recommendation</a></li>
+        <li><a href="/paper_review/">Paper Review</a></li>
+        <li><a href="/about_us/">About Us</a></li>
+        {% if user.is_authenticated %}
+        <li><a href="/users/logout/">Log Out</a></li>
+        <li><a id="navbarUserName">👋 Hi, {{ user.username }}</a></li>
+        {% else %}
+        <li id="modalOpenButton"><a>Log In</a></li>
+        {% endif %}
+    </ul>
+</div>
+
+<!--Modal-->
+<div id="modalContainer" class="hidden">
+    <div id="modalContent">
+        <button id="modalCloseButton">X</button>
+        <ul>
+            <li><a href="{% provider_login_url 'google' %}"><i class="fa-brands fa-google"></i>Log in with Google</a></li>
+            <li><a href="/users/login/"><i class="fa-solid fa-signature"></i>Log in Nickname</a></li>
         </ul>
+
     </div>
+</div>
+
+<script>
+    const modalOpenButton = document.getElementById('modalOpenButton');
+    const modalCloseButton = document.getElementById('modalCloseButton');
+    const modal = document.getElementById('modalContainer');
+
+    modalOpenButton.addEventListener('click', () => {
+        modal.style.display = "flex";
+    });
+
+    modalCloseButton.addEventListener('click', () => {
+        modal.style.display = "none";
+    });
+</script>

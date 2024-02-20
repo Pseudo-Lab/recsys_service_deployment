@@ -1,0 +1,150 @@
+ul, ol, li {
+    list-style: none;
+}
+
+main {
+    display: table;
+    width: 100%;
+
+}
+
+.center-main-field li {
+    list-style: none;
+}
+
+.center-main-field {
+    width: 100%;
+}
+
+.side-gutter {
+    width: 50px;
+    display: table-cell;
+}
+
+.center-main-field h1, h2, h3 {
+    font-weight: normal;
+    margin: 0;
+    margin-top: 20px;
+}
+
+.center-main-field p {
+    margin-top: 5px;
+    color: black;
+}
+
+.side-gutter {
+    width: 50px;
+    display: table-cell;
+}
+
+.main-text-gutter {
+    height: 20px;
+}
+
+.sub-text {
+    padding-right: 300px;
+}
+
+.separator {
+    margin: 3em 0;
+}
+
+
+.center-main-field section {
+    width: 21%;
+    /*height: 30vh;*/
+    margin: 50px 10px;
+    text-align: center;
+
+    /*border: 1px solid red;*/
+
+
+}
+
+.center-main-field section ol, ul {
+    list-style: none;
+    padding: 0 0;
+
+}
+
+.center-main-field .profile-boxes {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.center-main-field article.profile {
+    text-align: center;
+    overflow: hidden;
+    /*border: 1px solid blue;*/
+    height: 70%;
+}
+
+/*.center-main-field article.profile .img-box{*/
+/*height: 70%;*/
+/*    overflow: hidden;*/
+
+/*}*/
+
+
+.center-main-field article.profile img {
+    width: 100%;
+
+    object-fit: cover;
+    background-size: cover;
+    /*text-align: center;*/
+    object-position: center center;
+
+}
+
+.center-main-field section h1 {
+    font-weight: bold;
+    font-size: 22px;
+    line-height: 1;
+    color: #555;
+    letter-spacing: 0.2em;
+    margin-bottom: 5px;
+}
+
+.center-main-field section h2 {
+    font-weight: normal;
+    font-size: 12px;
+    color: #bbb;
+    margin-bottom: 20px;
+}
+
+.center-main-field ul.contact span {
+    font-weight: normal;
+    font-size: 11px;
+    color: #555;
+    letter-spacing: 0.1em;
+}
+
+.center-main-field ul.contact li {
+    width: 100%;
+    padding: 10px 0px;
+
+
+}
+
+.center-main-field ul.contact li i {
+    width: 20%;
+    text-align: center;
+    color: #555;
+    font-size: 15px;
+    text-shadow: 2px 2px 2px #ddd;
+
+}
+
+.center-main-field ul.contact li span {
+    font-weight: normal;
+    font-size: 11px;
+    color: #555;
+    letter-spacing: 0.1em;
+    font-family: "obitron";
+}
+
+.center-main-field ul.contact a {
+
+    text-decoration: none;
+}

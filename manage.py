@@ -9,7 +9,7 @@ from producer import wait_for_kafka_broker
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
-    wait_for_kafka_broker()
+    wait_for_kafka_broker('wait broker in manage.py')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

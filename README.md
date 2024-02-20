@@ -18,10 +18,23 @@ docker-compose build
 docker-compose up -d
 ```
 # docker
+실행
 ```
-docker build -f Dockerfile . -t pseudorec
-docker run -p 80:8000 pseudorec
+docker-compose -f docker-compose.broker.yml up -d
+docker-compose up -d
 ```
+
+```shell
+docker-compose -f docker-compose.broker.yml down -v
+docker-compose down -v
+```
+
+```shell
+docker system prune -a
+docker system prune --volumes --force
+```
+
+
 
 # django 설치
 ```

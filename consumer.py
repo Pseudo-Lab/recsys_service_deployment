@@ -8,7 +8,7 @@ from kafka import KafkaConsumer
 from db_clients.dynamodb import DynamoDBClient
 from producer import wait_for_kafka_broker
 
-wait_for_kafka_broker()
+wait_for_kafka_broker('wait broker in consumer.py')
 print(f"os.getenv('BROKER_URL_IN_CONTAINER', 'localhost:9092') : {os.getenv('BROKER_URL_IN_CONTAINER', 'localhost:9092')}")
 
 # Kafka Consumer 인스턴스 생성

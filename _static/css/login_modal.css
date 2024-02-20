@@ -1,0 +1,73 @@
+ul, ol, li {
+    list-style: none;
+}
+
+#modalOpenButton, #modalCloseButton {
+    cursor: pointer;
+}
+
+#modalContainer {
+    position: absolute;
+    display: none;
+
+    justify-content: center;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1;
+}
+
+#modalContent {
+    position: absolute;
+    top: 50%;
+
+
+    /*width:400px;*/
+    width: 25vw;
+    /*height:600px;*/
+    height: auto;
+    padding: 1.5em;
+
+    text-align: center;
+
+    background-color: rgb(255, 255, 255);
+    border-radius: 10px;
+    box-shadow: 0 2px 3px 0 rgba(34, 36, 38, 0.15);
+
+    transform: translateY(-50%);
+}
+
+#modalContent ul {
+    display: flex;
+    flex-direction: column;
+    padding-left: 0;
+    gap: 1em;
+    margin-bottom: 0;
+}
+
+#modalContent li {
+    color: black;
+    cursor: pointer;
+}
+
+#modalContent li i{
+    margin-right: 1em;
+}
+
+#modalCloseButton {
+    top: 0.5em;
+    right: 1em;
+    border: none;
+    background-color: #ffffff;
+    position: absolute;
+
+}
+
+#modalContainer.hidden {
+    display: none;
+}

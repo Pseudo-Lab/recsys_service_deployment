@@ -6,7 +6,8 @@ import time
 from kafka import KafkaProducer
 
 
-def wait_for_kafka_broker():
+def wait_for_kafka_broker(comment='wait_for_kafka_broker'):
+    print(f"{comment}")
     max_retries = 10
     retries = 0
     while retries < max_retries:

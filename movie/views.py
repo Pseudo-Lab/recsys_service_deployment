@@ -287,3 +287,14 @@ def movie_detail(request, movie_id):
         'movie': DaumMovies.objects.get(movieid=movie_id)
     }
     return render(request, "movie_detail.html", context=context)
+
+@csrf_exempt
+def search(request):
+    if request.method == 'POST':
+        keyword=request.POST['keyword']
+        searched_movies = DaumMovies.objects.filter(titleko__contains=keyword)
+        context = {
+            'searched_movies' : searched_movies
+        }
+        return render(request, "home.html", context=context)
+

@@ -243,16 +243,26 @@ main .center-main-field .paper-review-main img {
     width: 100%;
 }
 
-main .model-rec .model-rec-header {
-    display: flex;
-    position: relative;
-    justify-content: end;
-    padding: 0 0 2em 0;
+main .model-rec .description{
+        padding-bottom: 2em;
+    height: 15vh;
 }
 
 main .model-rec .model-rec-header .listing-group {
     display: flex;
 }
+
+
+main .model-rec .description p{
+    color: #000;
+}
+main .model-rec .model-rec-header {
+    display: flex;
+    position: relative;
+/*justify-content: end;*/
+padding: 0 0 2em 0;
+}
+
 
 main .model-rec .model-rec-header .listing-group ul {
     /*width: 100%;*/
@@ -261,6 +271,7 @@ main .model-rec .model-rec-header .listing-group ul {
     gap: 1em;
     margin-bottom: 10px;
     margin-right: 20px;
+    padding-left: 0;
 }
 
 main .model-rec .model-rec-header .listing-group ul::after {
@@ -295,6 +306,8 @@ main .model-rec .model-rec-header .listing-group ul li.on a {
 }
 
 main .model-rec .model-rec-header .listing-group .search-icon {
+    position: absolute;
+    right: 0;
     z-index: 10;
     cursor: pointer;
 }

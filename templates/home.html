@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="{% static 'css/home_movie_rec.css' %}?v=2024011916">
     <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
     <script src="{% static 'js/isotope.pkgd.min.js' %}"></script>
-    <script defer src="{% static 'js/main.js' %}"></script>
+    <!--    <script defer src="{% static 'js/main.js' %}"></script>-->
     <script defer src="{% static 'js/star_logger.js' %}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{% static 'js/click_logger.js' %}"></script>
@@ -31,18 +31,66 @@
 </header>
 
 <main>
-    {% include 'left_col.html' %}
+    <div class="left-float-field">
+        <a href="/" class="logo">
+            <img src="{% static 'img/pseudorec logo tight.png' %}" alt="Logo">
+        </a>
+        <p class="pseudorec">Pseudo Rec</p>
+        <div class="menu">
+            <ul class="nav-links">
+                <li>
+                    <div class="icon-link">
+                        <a href="/">
+                            <ion-icon name="grid-outline"></ion-icon>
+                            <span>Models</span>
+                        </a>
+<!--                        <ion-icon name="chevron-down-outline"></ion-icon>-->
+                    </div>
+                </li>
+                <li>
+                    <div class="icon-link">
+                        <a href="/llmrec/">
+                            <ion-icon name="chatbox-outline"></ion-icon>
+                            <span>LLM<sup>beta</sup></span>
+                        </a>
+<!--                        <ion-icon name="chevron-down-outline"></ion-icon>-->
+                    </div>
+<!--                    <ul class="sub-menu">-->
+<!--                        <li><a href="/llmrec/">Hyeon-woo</a></li>-->
+<!--                        <li><a href="/llmrec/">Nam-joon</a></li>-->
+<!--                        <li><a href="/llmrec/">Kyeong-chan</a></li>-->
+<!--                        <li><a href="/llmrec/">Min-sang</a></li>-->
+<!--                        <li><a href="/llmrec/">Soon-hyeok</a></li>-->
+<!--                        <li><a href="/llmrec/"></a>Seung-min</li>-->
+<!--                        <li><a href="/llmrec/"></a>Kwon-dong</li>-->
+<!--                        <li><a href="/llmrec/"></a>Kyeong-ah</li>-->
+<!--                    </ul>-->
+                <li>
+            </ul>
+        </div>
+    </div>
     <div class="side-gutter"></div>
     <div class="inside">
         <div class="center-main-field">
             <div class="model-rec">
+                <div class="description">
+                    <h1>{{ description1 }}</h1>
+                    <p>{{ description2|safe }}</p>
+                </div>
                 <div class="model-rec-header">
                     <div class="listing-group">
                         <ul>
-                            <li class="on"><a href=".pop">인기 영화</a></li>
+                            {% if pop_on %}
+                            <li class="on"><a href="/">인기 영화</a></li>
+                            {% else %}
+                            <li><a href="/">인기 영화</a></li>
+                            {% endif %}
+
+                            {% if sasrec_on %}
+                            <li class="on"><a href="/sasrec/">SASRec</a></li>
+                            {% else %}
                             <li><a href="/sasrec/">SASRec</a></li>
-                            <li><a href=".ngcf">NGCF</a></li>
-                            <li><a href=".kprn">KPRN</a></li>
+                            {% endif %}
                         </ul>
                         <div class="search-icon">
                         <span class="icon">
@@ -62,11 +110,10 @@
                         </form>
                     </div>
                 </div>
-
-                <div>
+                <div class="posters">
                     <section>
-                        {% for r in pop_movies %}
-                        <article class='pop'>
+                        {% for r in movie_list %}
+                        <article>
                             <div class="movie" dbid={{ r.movieid }} rank="{{ r.rank }}">
                                 <a href="/movie/{{ r.movieid }}">
                                     <img src={{ r.posterurl }} alt="">
@@ -84,43 +131,43 @@
                         </article>
                         {% endfor %}
 
-                        {% for r in recomm_result.sasrec %}
-                        <article class='sasrec'>
-                            <div class="movie" dbid={{ r.movieid }} rank="{{ r.rank }}">
-                                <a href="/movie/{{ r.movieid }}">
-                                    <img src={{ r.posterurl }} alt="">
-                                </a>
-                                <h2>{{ r.titleko }}</h2>
-                                <p>{{ r.synopsis|slice:":100" }}{% if r.synopsis|length > 100 %}...{% endif %}</p>
-                                <div class="rating_box">
-                                    <div class="rating">
-                                        ★★★★★
-                                        <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>
-                                        <input type="range" value="0" step="1" min="0" max="10">
-                                    </div>
-                                </div>
-                            </div>
-                        </article>
-                        {% endfor %}
+                        <!--                        {% for r in recomm_result.sasrec %}-->
+                        <!--                        <article class='sasrec'>-->
+                        <!--                            <div class="movie" dbid={{ r.movieid }} rank="{{ r.rank }}">-->
+                        <!--                                <a href="/movie/{{ r.movieid }}">-->
+                        <!--                                    <img src={{ r.posterurl }} alt="">-->
+                        <!--                                </a>-->
+                        <!--                                <h2>{{ r.titleko }}</h2>-->
+                        <!--                                <p>{{ r.synopsis|slice:":100" }}{% if r.synopsis|length > 100 %}...{% endif %}</p>-->
+                        <!--                                <div class="rating_box">-->
+                        <!--                                    <div class="rating">-->
+                        <!--                                        ★★★★★-->
+                        <!--                                        <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>-->
+                        <!--                                        <input type="range" value="0" step="1" min="0" max="10">-->
+                        <!--                                    </div>-->
+                        <!--                                </div>-->
+                        <!--                            </div>-->
+                        <!--                        </article>-->
+                        <!--                        {% endfor %}-->
 
-                        {% for r in searched_movies %}
-                        <article class='sasrec'>
-                            <div class="movie" dbid={{ r.movieid }} rank="{{ r.rank }}">
-                                <a href="/movie/{{ r.movieid }}">
-                                    <img src={{ r.posterurl }} alt="">
-                                </a>
-                                <h2>{{ r.titleko }}</h2>
-                                <p>{{ r.synopsis|slice:":100" }}{% if r.synopsis|length > 100 %}...{% endif %}</p>
-                                <div class="rating_box">
-                                    <div class="rating">
-                                        ★★★★★
-                                        <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>
-                                        <input type="range" value="0" step="1" min="0" max="10">
-                                    </div>
-                                </div>
-                            </div>
-                        </article>
-                        {% endfor %}
+                        <!--                        {% for r in searched_movies %}-->
+                        <!--                        <article class='sasrec'>-->
+                        <!--                            <div class="movie" dbid={{ r.movieid }} rank="{{ r.rank }}">-->
+                        <!--                                <a href="/movie/{{ r.movieid }}">-->
+                        <!--                                    <img src={{ r.posterurl }} alt="">-->
+                        <!--                                </a>-->
+                        <!--                                <h2>{{ r.titleko }}</h2>-->
+                        <!--                                <p>{{ r.synopsis|slice:":100" }}{% if r.synopsis|length > 100 %}...{% endif %}</p>-->
+                        <!--                                <div class="rating_box">-->
+                        <!--                                    <div class="rating">-->
+                        <!--                                        ★★★★★-->
+                        <!--                                        <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>-->
+                        <!--                                        <input type="range" value="0" step="1" min="0" max="10">-->
+                        <!--                                    </div>-->
+                        <!--                                </div>-->
+                        <!--                            </div>-->
+                        <!--                        </article>-->
+                        <!--                        {% endfor %}-->
                     </section>
                 </div>
             </div>
@@ -137,18 +184,19 @@
     let searchBox = document.querySelector('.searchBox');
     let searchActive = false; // searchBtn의 상태를 추적하는 변수
     let searchInput = null;
+
     function initSearchInput() {
-    searchInput = document.getElementById('search-input');
-    if (searchInput) {
-        // transitionend 이벤트를 기다려서 focus를 주기
-        searchBox.addEventListener('transitionend', function () {
-            // transition이 완전히 끝난 후에 focus를 줌
-            searchInput.focus();
-        }, { once: true }); // 이벤트 리스너는 한 번만 실행되도록 once 옵션 사용
-    } else {
-        setTimeout(initSearchInput, 100); // 100ms 마다 다시 시도
+        searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            // transitionend 이벤트를 기다려서 focus를 주기
+            searchBox.addEventListener('transitionend', function () {
+                // transition이 완전히 끝난 후에 focus를 줌
+                searchInput.focus();
+            }, {once: true}); // 이벤트 리스너는 한 번만 실행되도록 once 옵션 사용
+        } else {
+            setTimeout(initSearchInput, 100); // 100ms 마다 다시 시도
+        }
     }
-}
 
 
     searchBtn.onclick = function () {

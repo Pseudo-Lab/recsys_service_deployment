@@ -8,59 +8,59 @@ main {
     display: table-cell;
 }
 
-.center-main-field{
+.center-main-field {
     width: 75%;
 }
 
-.center-main-field .button{
-border: none;
+.center-main-field .button {
+    border: none;
     padding: 0.625em;
     border-radius: 0.5em;
     cursor: pointer;
 }
 
-.center-main-field .button:hover{
-filter: brightness(0.9);
+.center-main-field .button:hover {
+    filter: brightness(0.9);
 }
 
-.center-main-field .button:active{
-transform: translateY(2px);
+.center-main-field .button:active {
+    transform: translateY(2px);
 }
 
 
-.center-main-field .chat-container{
-    background: #15202b;
+.center-main-field .chat-container {
+    /*background: #15202b;*/
     font-family: 'Roboto', sans-serif;
     border-radius: 0.5em;
     padding: 1.25em 1.25em;
     margin: auto;
     max-width: 37.5em;
     height: 37.5em;
-    box-shadow: 0 0 1.25em 0.5em #c3c3c333;
+    /*box-shadow: 0 0 1.25em 0.5em #c3c3c333;*/
 }
 
-.center-main-field .chat-header{
+.center-main-field .chat-header {
     margin-bottom: 1em;
     color: #fff;
 }
 
-.center-main-field .chat-header h2{
+.center-main-field .chat-header h2 {
     font-size: 1.25em;
     font-weight: bold;
 }
 
 
-.center-main-field .chat-messages{
+.center-main-field .chat-messages {
     /*height: 23em;*/
     height: 80%;
     overflow-y: scroll;
 }
 
-.center-main-field .chat-messages::-webkit-scrollbar{
+.center-main-field .chat-messages::-webkit-scrollbar {
     display: none;
 }
 
-.center-main-field .message{
+.center-main-field .message {
     padding: 0.625em;
     border-radius: 1em;
     margin-bottom: 0.625em;
@@ -69,38 +69,38 @@ transform: translateY(2px);
     color: #fff;
 }
 
-.center-main-field .message-sender{
+.center-main-field .message-sender {
     font-weight: bold;
     margin-bottom: 0.31em;
 }
 
-.center-main-field .message-text{
+.center-main-field .message-text {
     font-size: 1em;
     margin-bottom: 0.31em;
     word-wrap: break-word;
 }
 
-.center-main-field .message-timestamp{
+.center-main-field .message-timestamp {
     font-size: 0.75em;
     text-align: right;
 }
 
-.center-main-field .blue-bg{
+.center-main-field .blue-bg {
     background-color: #1c9bef;
 }
 
-.center-main-field .gray-bg{
+.center-main-field .gray-bg {
     background-color: #3d5365;
 }
 
-.center-main-field .chat-input-form{
+.center-main-field .chat-input-form {
     display: flex;
     align-items: center;
     margin-top: 2em;
     gap: 0.625em;
 }
 
-.center-main-field .chat-input{
+.center-main-field .chat-input {
     padding: 0.625em;
     border: none;
     border-radius: 0.5em;
@@ -110,14 +110,14 @@ transform: translateY(2px);
     flex-grow: 1;
 }
 
-.center-main-field .send-button{
+.center-main-field .send-button {
     background-color: #1c9bef;
     color: #fff;
     font-size: 1em;
     font-weight: bold;
 }
 
-.center-main-field .clear-chat-button{
+.center-main-field .clear-chat-button {
     display: block;
     margin: 2.5em auto;
 }

@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <title>PseudoRec</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
     <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
     <link rel="stylesheet" href="{% static 'css/llmrec.css' %}?v=2024011916">
@@ -23,32 +23,79 @@
 </header>
 
 <main>
-    {% include 'left_col.html' %}
+    <div class="left-float-field">
+        <a href="/" class="logo">
+            <img src="{% static 'img/pseudorec logo tight.png' %}" alt="Logo">
+        </a>
+        <p class="pseudorec">Pseudo Rec</p>
+        <div class="menu">
+            <ul>
+                <li><a href="/llmrec/">LLM 추천<sup>beta</sup></a></li>
+            </ul>
+        </div>
+    </div>
     <div class="side-gutter"></div>
     <div class="inside">
-        <div class="center-main-field">
-            <h1>Hi! Ask anything!</h1>
-            <h2>LLM 추천 화면입니다. 베타테스트 중입니다.</h2>
-            <div class="chat-container">
-                <div class="chat-messages">
-<!--                    <div class="message blue-bg">-->
-<!--                        <div class="message-sender">You</div>-->
-<!--                        <div class="message-text">Hey Jane, what's up?</div>-->
-<!--                        <div class="message-timestamp">10:30 AM</div>-->
-<!--                    </div>-->
-                    <div class="message gray-bg">
-                        <div class="message-sender">Pseudorec LLM</div>
-                        <div class="message-text">어떤 영화를 추천해드릴까요?</div>
-                        <div class="message-timestamp">10:35 AM</div>
+        <dev class="model-rec">
+            <div class="description">
+                <h1>Hyeon-woo</h1>
+                <p>김현우님의 LLM 추천입니다</p>
+            </div>
+            <div class="center-main-field">
+                <div class="model-rec-header">
+                    <div class="listing-group">
+                        <ul>
+                            {% if pop_on %}
+                            <li class="on"><a href="/">Hyeon-woo</a></li>
+                            {% else %}
+                            <li><a href="/">Hyeon-woo</a></li>
+                            {% endif %}
+
+                            {% if sasrec_on %}
+                            <li class="on"><a href="/sasrec/">Nam-joon</a></li>
+                            {% else %}
+                            <li><a href="/sasrec/">Nam-joon</a></li>
+                            {% endif %}
+                        </ul>
+                        <div class="search-icon">
+                        <span class="icon">
+                            <button type="submit" class="btn btn-sm button-theme">
+                                <ion-icon name="search-outline" class="searchBtn"></ion-icon>
+                            </button>
+                            <button type="button" class="close">
+                                <ion-icon name="close-outline" class="closeBtn"></ion-icon>
+                            </button>
+                        </span>
+                        </div>
+                    </div>
+
+                    <div class="searchBox">
+                        <form class="search-header" method="POST">
+                            <input type="text" placeholder="Search here . . ." name="keyword" id="search-input">
+                        </form>
                     </div>
                 </div>
-                <form class="chat-input-form">
-                    <input type="text" class="chat-input" required placeholder="Type here.."/>
-                    <button type="submit" class="button send-button">Send</button>
-                </form>
-                <button class="button clear-chat-button">Clear Chat</button>
+                <div class="chat-container">
+                    <div class="chat-messages">
+                        <!--                    <div class="message blue-bg">-->
+                        <!--                        <div class="message-sender">You</div>-->
+                        <!--                        <div class="message-text">Hey Jane, what's up?</div>-->
+                        <!--                        <div class="message-timestamp">10:30 AM</div>-->
+                        <!--                    </div>-->
+                        <div class="message gray-bg">
+                            <div class="message-sender">Pseudorec LLM</div>
+                            <div class="message-text">어떤 영화를 추천해드릴까요?</div>
+                            <div class="message-timestamp">10:35 AM</div>
+                        </div>
+                    </div>
+                    <form class="chat-input-form">
+                        <input type="text" class="chat-input" required placeholder="Type here.."/>
+                        <button type="submit" class="button send-button">Send</button>
+                    </form>
+                    <button class="button clear-chat-button">Clear Chat</button>
+                </div>
             </div>
-        </div>
+        </dev>
     </div>
 
 </main>

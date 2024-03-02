@@ -19,7 +19,9 @@ from utils.pop_movies import get_pop
 load_dotenv('.env.dev')
 
 # Kafka Producer 생성 프로듀서는 데이터 저장
-producer = KafkaProducer(bootstrap_servers=[os.getenv('BROKER_URL_IN_CONTAINER', 'localhost:9092')],
+broker_url = os.getenv('BROKER_URL_IN_CONTAINER', 'localhost:9092')
+print(f"broker_url : {broker_url}")
+producer = KafkaProducer(bootstrap_servers=[broker_url],
                          value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
 

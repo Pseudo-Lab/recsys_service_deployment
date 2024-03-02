@@ -7,5 +7,5 @@ urlpatterns = [
     path("movierec/.pop", home),
     path("movierec/.sasrec", home),
     path("<int:movie_id>", movie_detail),
-    path("", search, name='search')
+    path("search/<str:keyword>/", search),
 ]

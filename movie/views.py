@@ -31,18 +31,9 @@ pop_movies = sorted(pop_movies, key=lambda x: pop_movies_ids.index(x['movieid'])
 table_clicklog = DynamoDBClient(table_name='clicklog')
 
 # TODO: cf 모델 로드를 predict.py에서 하기!
-# ------------------------------
-# import pickle
-#
-# with open('pytorch_models/cf/funkSVD_model.pkl', 'rb') as file:
-#     loaded_model = pickle.load(file)
-
-
-# ------------------------------
 
 def home(request):
-    # if not request.user.is_authenticated:
-    #     return redirect("/users/login/")
+    print(f"movie/home view".ljust(100, '>'))
     if request.user.username == '':
         user_name = 'Anonymous'
     else:
@@ -60,15 +51,6 @@ def home(request):
         print(f"watched_movie : {watched_movie}")
         split = [int(wm) for wm in watched_movie.split()]
 
-        # ------------------------------
-        # if request.user == 'smseo':
-        #     new_user_id = 5001
-        # else:
-        #     new_user_id = 5002
-        #
-        # loaded_model.add_new_user(new_user_id, split)
-        # recomm_result = loaded_model.recommend_items(new_user_id, split)
-        # ------------------------------
         sasrec_recomm_mids = sasrec_predictor.predict(dbids=split)
         sasrec_recomm = DaumMovies.objects.filter(movieid__in=sasrec_recomm_mids)
         watched_movie_obs = DaumMovies.objects.filter(movieid__in=split)
@@ -89,9 +71,7 @@ def home(request):
         }
     else:
         print(f"Home - GET 요청")
-
         if not request.user.is_authenticated:
-            # user_df = pd.DataFrame({'movieId': []})
             user_df = table_clicklog.get_a_session_logs(session_id=session_id)
         else:
             user_df = table_clicklog.get_a_user_logs(user_name=request.user.username)
@@ -157,6 +137,7 @@ def home(request):
 
 @csrf_exempt
 def log_click(request):
+    print(f"movie/log_click view".ljust(100, '>'))
     if request.user.username == '':
         user_name = 'Anonymous'
     else:
@@ -241,6 +222,7 @@ def log_click(request):
 
 @csrf_exempt
 def log_star(request):
+    print(f"movie/log_star view".ljust(100, '>'))
     if request.user.username == '':
         user_name = 'Anonymous'
     else:
@@ -283,18 +265,21 @@ def log_star(request):
 
 
 def movie_detail(request, movie_id):
+    print(f"movie/movie_detail view".ljust(100, '>'))
     context = {
         'movie': DaumMovies.objects.get(movieid=movie_id)
     }
+    print(f"context completed : {context}")
     return render(request, "movie_detail.html", context=context)
 
-@csrf_exempt
-def search(request):
-    if request.method == 'POST':
-        keyword=request.POST['keyword']
-        searched_movies = DaumMovies.objects.filter(titleko__contains=keyword)
-        context = {
-            'searched_movies' : searched_movies
-        }
-        return render(request, "home.html", context=context)
 
+@csrf_exempt
+def search(request, keyword):
+    print(f"movie/search view".ljust(100, '>'))
+    if keyword:
+        searched_movies = DaumMovies.objects.filter(titleko__contains=keyword)
+    else:
+        searched_movies = None
+
+    context = {'searched_movies': searched_movies}
+    return render(request, "home.html", context=context)

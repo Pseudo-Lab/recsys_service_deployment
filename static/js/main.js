@@ -3,13 +3,14 @@ const frame = "section";
 const box = "article";
 const speed = '0.5s';
 const activeClass = "on";
-const btn = document.querySelectorAll("main ul li");
+const btn = document.querySelectorAll("main .inside ul li");
 let grid; //플러그인의 정보값이 담길 변수를 이곳에 전역으로 설정
 
 
 //이미지 소스를 활용한 모든 콘텐츠가 로딩완료되면
 window.addEventListener("load", () => {
     init(); //화면 초기화 함수 호출
+    console.log(btn)
     filter(btn); //정렬 버튼 기능 함수 호출
 });
 

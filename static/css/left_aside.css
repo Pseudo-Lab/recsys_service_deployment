@@ -1,4 +1,11 @@
 
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+
 .watched_movie{
         border-color: rgba(33,33,33,0.1);
     border-style: solid;

@@ -7,16 +7,16 @@
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link rel="icon" href="{% static 'img/favicon.ico' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
     <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
     <link rel="stylesheet" href="{% static 'css/home_movie_rec.css' %}?v=2024011916">
     <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
-    <script src="static/js/isotope.pkgd.min.js"></script>
-    <script defer src="static/js/main.js"></script>
-    <script defer src="static/js/star_logger.js"></script>
+    <script src="{% static 'js/isotope.pkgd.min.js' %}"></script>
+    <script defer src="{% static 'js/main.js' %}"></script>
+    <script defer src="{% static 'js/star_logger.js' %}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{% static 'js/click_logger.js' %}"></script>
     <!--    iconicons-->
@@ -36,28 +36,33 @@
     <div class="inside">
         <div class="center-main-field">
             <div class="model-rec">
-                <ul>
-                    <li><a href=".kprn">KPRN</a></li>
-                    <li><a href=".gru4rec">GRU4Rec</a></li>
-                    <li><a href=".ngcf">NGCF</a></li>
-                    <li><a href=".sasrec">SASRec</a></li>
-                    <li><a href=".search">search</a></li>
-                    <li class="on"><a href=".pop">인기 영화</a></li>
-                    <li>모델선택</li>
-                </ul>
-                <div class="search">
-                    <span class="icon">
-                        <ion-icon name="search-outline"></ion-icon>
-                        <ion-icon name="close-outline"></ion-icon>
-                    </span>
+                <div class="model-rec-header">
+                    <div class="listing-group">
+                        <ul>
+                            <li class="on"><a href=".pop">인기 영화</a></li>
+                            <li><a href="/sasrec/">SASRec</a></li>
+                            <li><a href=".ngcf">NGCF</a></li>
+                            <li><a href=".kprn">KPRN</a></li>
+                        </ul>
+                        <div class="search-icon">
+                        <span class="icon">
+                            <button type="submit" class="btn btn-sm button-theme">
+                                <ion-icon name="search-outline" class="searchBtn"></ion-icon>
+                            </button>
+                            <button type="button" class="close">
+                                <ion-icon name="close-outline" class="closeBtn"></ion-icon>
+                            </button>
+                        </span>
+                        </div>
+                    </div>
+
+                    <div class="searchBox">
+                        <form class="search-header" method="POST">
+                            <input type="text" placeholder="Search here . . ." name="keyword" id="search-input">
+                        </form>
+                    </div>
                 </div>
-                <div class="searchBox">
-                    <button type="button" class="close">x</button>
-                    <form action="{% url 'search' %}" class="search-header" , method="POST">
-                        <input type="text" placeholder="Search here . . ." name="keyword">
-                        <button type="submit" class="btn btn-sm button-theme"><ion-icon name="search-outline"></ion-icon></button>
-                    </form>
-                </div>
+
                 <div>
                     <section>
                         {% for r in pop_movies %}
@@ -126,6 +131,71 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
         crossorigin="anonymous"></script>
+<script>
+    let searchBtn = document.querySelector('.searchBtn');
+    let closeBtn = document.querySelector('.closeBtn');
+    let searchBox = document.querySelector('.searchBox');
+    let searchActive = false; // searchBtn의 상태를 추적하는 변수
+    let searchInput = null;
+    function initSearchInput() {
+    searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        // transitionend 이벤트를 기다려서 focus를 주기
+        searchBox.addEventListener('transitionend', function () {
+            // transition이 완전히 끝난 후에 focus를 줌
+            searchInput.focus();
+        }, { once: true }); // 이벤트 리스너는 한 번만 실행되도록 once 옵션 사용
+    } else {
+        setTimeout(initSearchInput, 100); // 100ms 마다 다시 시도
+    }
+}
+
+
+    searchBtn.onclick = function () {
+        if (!searchActive) { // searchBtn이 클릭되지 않은 상태일 때만 실행
+            searchBox.classList.add('active');
+            closeBtn.classList.add('active');
+            searchBtn.classList.add('active');
+            initSearchInput();
+            searchActive = true; // searchBtn이 클릭된 상태로 변경
+            console.log({'searchBox activated. searchActive': searchActive});
+        } else {
+            console.log({'searchActive': searchActive});
+            searchMovie(); // searchBtn이 활성화된 상태인 경우 검색 함수 실행
+        }
+    }
+    closeBtn.onclick = function () {
+        searchBox.classList.remove('active');
+        closeBtn.classList.remove('active');
+        searchBtn.classList.remove('active');
+        searchActive = false; // searchBtn이 클릭되지 않은 상태로 변경
+        console.log({'searchBox deactivated. searchActive': searchActive});
+    }
+
+    function searchMovie() {
+        let searchValue = document.getElementById('search-input').value.trim();
+        console.log({'searchMovie() function. searchActive : ': searchActive});
+        if (searchActive) { // searchBtn이 클릭된 상태인 경우에만 실행
+            if (searchValue.length > 1) {
+                location.href = '/movie/search/' + searchValue + "/";
+            } else {
+                alert('검색어 "' + searchValue + '"가 너무 짧습니다.');
+                return;
+            }
+        }
+    };
+    document.getElementById('search-input').addEventListener('keyup', function (event) {
+        if (searchActive) {
+            if (event.key === 'Enter') {
+                console.log('Search Enter key pressed');
+                searchMovie();
+            } else if (event.key === 'Escape') {
+                console.log('Escape key pressed');
+                closeBtn.click();
+            }
+        }
+    });
+</script>
 </body>
 
 </html>

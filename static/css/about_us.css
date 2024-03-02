@@ -61,7 +61,7 @@ main {
 
 }
 
-.center-main-field section ol, ul {
+.center-main-field .profile-boxes section ol, ul.contact {
     list-style: none;
     padding: 0 0;
 

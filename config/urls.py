@@ -33,6 +33,7 @@ urlpatterns = [
     path('about_us/', include('single_pages.urls')),
     path('llmrec/', include('llmrec.urls')),
     path('accounts/', include('allauth.urls')),
+    path('sasrec/', include('movie.urls')),
     # path('search/', include("movie.urls"))
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

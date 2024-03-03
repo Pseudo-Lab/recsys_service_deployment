@@ -1,0 +1,41 @@
+{% load static %}
+<div class="left-float-field">
+    <a href="/" class="logo">
+        <img src="{% static 'img/pseudorec logo tight.png' %}" alt="Logo">
+    </a>
+    <p class="pseudorec">Pseudo Rec</p>
+<!--    <div class="menu">-->
+<!--        <ul class="nav-links">-->
+<!--            <li>-->
+<!--                <div class="icon-link">-->
+<!--                    <a href="/">-->
+<!--                        <ion-icon name="documents-outline"></ion-icon>-->
+<!--                        <span>Paper Review</span>-->
+<!--                    </a>-->
+<!--                    &lt;!&ndash;                    <ion-icon name="chevron-down-outline" class="arrow"></ion-icon>&ndash;&gt;-->
+<!--                </div>-->
+<!--            </li>-->
+<!--            <li>-->
+<!--                <div class="icon-link">-->
+<!--                    <a>-->
+<!--                        <ion-icon name="newspaper-outline"></ion-icon>-->
+<!--                        <span>월간슈도렉</span>-->
+<!--                    </a>-->
+<!--                    &lt;!&ndash;                    <ion-icon name="chevron-down-outline" class="arrow"></ion-icon>&ndash;&gt;-->
+<!--                </div>-->
+<!--            <li>-->
+<!--        </ul>-->
+<!--    </div>-->
+</div>
+
+<script>
+    let arrow = document.querySelectorAll('.arrow');
+    console.log(arrow);
+    for (var i = 0; i < arrow.length; i++) {
+        arrow[i].addEventListener('click', (e) => {
+            let arrowParent = e.target.parentElement.parentElement;
+            console.log(arrowParent);
+            arrowParent.classList.toggle('showMenu');
+        });
+    }
+</script>

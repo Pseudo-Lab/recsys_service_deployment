@@ -1,0 +1,51 @@
+{% load static %}
+<div class="left-float-field">
+    <a href="/" class="logo">
+        <img src="{% static 'img/pseudorec logo tight.png' %}" alt="Logo">
+    </a>
+    <p class="pseudorec">Pseudo Rec</p>
+    <div class="menu">
+        <ul class="nav-links">
+            <li>
+                <div class="icon-link">
+                    <a href="/">
+                        <ion-icon name="grid-outline"></ion-icon>
+                        <span>Models</span>
+                    </a>
+<!--                    <ion-icon name="chevron-down-outline" class="arrow"></ion-icon>-->
+                </div>
+            </li>
+            <li>
+                <div class="icon-link">
+                    <a>
+                        <ion-icon name="chatbox-outline"></ion-icon>
+                        <span>LLM<sup>beta</sup></span>
+                    </a>
+                    <ion-icon name="chevron-down-outline" class="arrow"></ion-icon>
+                </div>
+                <ul class="sub-menu">
+                    <li><a href="/llmrec/hyeonwoo/">Hyeon-woo</a></li>
+                    <li><a href="/llmrec/namjoon/">Nam-joon</a></li>
+                    <li><a href="/llmrec/kyeongchan/">Kyeong-chan</a></li>
+                    <li><a href="/llmrec/minsang/">Min-sang</a></li>
+                    <li><a href="/llmrec/soonhyeok/">Soon-hyeok</a></li>
+                    <li><a href="/llmrec/seungmin/">Seung-min</a></li>
+                    <li><a href="/llmrec/kwondong/">Kwon-dong</a></li>
+                    <li><a href="/llmrec/kyeongah/">Kyeong-ah</a></li>
+                </ul>
+            <li>
+        </ul>
+    </div>
+</div>
+
+<script>
+        let arrow = document.querySelectorAll('.arrow');
+    console.log(arrow);
+    for (var i = 0; i < arrow.length; i++) {
+        arrow[i].addEventListener('click', (e) => {
+            let arrowParent = e.target.parentElement.parentElement;
+            console.log(arrowParent);
+            arrowParent.classList.toggle('showMenu');
+        });
+    }
+</script>

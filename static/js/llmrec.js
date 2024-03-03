@@ -41,11 +41,11 @@ chatInput.focus()
 
 
 // chat.js 파일에 이 코드를 추가합니다.
-
+const requestURL = window.location.pathname;
 const sendMessageToServer = (message) => {
     $.ajax({
         type: 'POST',
-        url: '/llmrec/',
+        url: requestURL,
         contentType: 'application/json',
         data: JSON.stringify({ message: message }),
         success: function(response) {

@@ -46,17 +46,18 @@ def get_pop(mysql):
     now_dt = datetime.fromtimestamp(now_ts)
 
     time_difference = now_dt - last_updated_dt
-    if time_difference > timedelta(hours=24):
-        print(f"Update pop movies - now : {now_dt}, last updated at : {last_updated_dt} ")
-        daum_ratings = mysql.get_daum_ratings()
-        grouped_df = daum_ratings.groupby('movieId')['rating'].agg(['mean', 'count']).reset_index()
-        rating_calculated_df = grouped_df.sort_values('mean', ascending=False)
-
-        rating_calculated_df.to_sql(name='daum_pop_movies', con=mysql.engine, if_exists='replace', index=False)
-        save_file(local_file_dir)
-
-    else:
-        print(f"Use existing pop movies - last updated at : {last_updated_dt}")
+    print(f"[pop movies] now : {now_dt}, last updated at : {last_updated_dt} ")
+    # if time_difference > timedelta(hours=24):
+    #     print(f"Update pop movies - now : {now_dt}, last updated at : {last_updated_dt} ")
+    #     daum_ratings = mysql.get_daum_ratings()
+    #     grouped_df = daum_ratings.groupby('movieId')['rating'].agg(['mean', 'count']).reset_index()
+    #     rating_calculated_df = grouped_df.sort_values('mean', ascending=False)
+    #
+    #     rating_calculated_df.to_sql(name='daum_pop_movies', con=mysql.engine, if_exists='replace', index=False)
+    #     save_file(local_file_dir)
+    #
+    # else:
+    #     print(f"Use existing pop movies - last updated at : {last_updated_dt}")
     sql = """
     select *
     from daum_pop_movies

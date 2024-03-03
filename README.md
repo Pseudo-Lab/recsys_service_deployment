@@ -23,12 +23,12 @@ docker-compose up -d
 docker-compose -f docker-compose.broker.yml up -d
 docker-compose up -d
 ```
-
+내리기
 ```shell
 docker-compose -f docker-compose.broker.yml down -v
 docker-compose down -v
 ```
-
+이미지/컨테이너/볼륨 삭제
 ```shell
 docker system prune -a
 docker system prune --volumes --force

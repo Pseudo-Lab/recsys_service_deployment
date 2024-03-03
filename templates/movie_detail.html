@@ -17,7 +17,17 @@
     {% include 'navbar.html' %}
 </header>
 <main>
-    {% include 'left_col.html' %}
+    <div class="left-float-field">
+    <a href="/" class="logo">
+        <img src="{% static 'img/pseudorec logo tight.png' %}" alt="Logo">
+    </a>
+    <p class="pseudorec">Pseudo Rec</p>
+    <div class="menu">
+        <ul>
+            <li><a href="/llmrec/">LLM 추천<sup>beta</sup></a></li>
+        </ul>
+    </div>
+</div>
     <div class="side-gutter"></div>
     <div class="center-main-field">
         <h2>{{ r.titleko }}</h2>

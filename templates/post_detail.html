@@ -20,6 +20,10 @@
             }
         };
     </script>
+        <!--    iconicons-->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
 </head>
 
 <body>
@@ -27,17 +31,7 @@
     {% include 'navbar.html' %}
 </header>
 <main>
-    <div class="left-float-field">
-    <a href="/" class="logo">
-        <img src="{% static 'img/pseudorec logo tight.png' %}" alt="Logo">
-    </a>
-    <p class="pseudorec">Pseudo Rec</p>
-    <div class="menu">
-        <ul>
-            <li><a href="/llmrec/">LLM 추천<sup>beta</sup></a></li>
-        </ul>
-    </div>
-</div>
+    {% include 'left_col_post_list.html' %}
     <div class="side-gutter"></div>
     <div class="center-main-field">
         <div class="paper-review-detail">

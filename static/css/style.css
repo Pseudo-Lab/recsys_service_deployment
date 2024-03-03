@@ -301,7 +301,7 @@ main .model-rec .model-rec-header .listing-group ul li a {
 
 main .model-rec .model-rec-header .listing-group ul li.on a {
     background: linear-gradient(45deg, #67faf3, #58abf8);
-    box-shadow: 0px 5px 20px rgba(0, 255, 255, 0.527);
+    /*box-shadow: 0px 5px 20px rgba(0, 255, 255, 0.527);*/
     color: #fff;
 }
 

@@ -20,7 +20,7 @@ load_dotenv('.env.dev')
 
 # Kafka Producer 생성 프로듀서는 데이터 저장
 broker_url = os.getenv('BROKER_URL_IN_CONTAINER', 'localhost:9092')
-print(f"broker_url : {broker_url}")
+print(f"[Broker Connection in Producer] os.getenv('BROKER_URL_IN_CONTAINER', 'localhost:9092') : {broker_url}")
 producer = KafkaProducer(bootstrap_servers=[broker_url],
                          value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
@@ -192,48 +192,51 @@ def log_click(request):
         print(f"\tL message : {message}")
 
         # 클릭 로그를 Kafka topic에 전송
+        print(f"\tL Send message to {'log_movie_click'} topic.")
         producer.send('log_movie_click', message)
         producer.flush()
+        print(f"\tL Done sending.")
 
-        if user_name == 'Anonymous':
-            print(f"\tL user_name : Anonymous")
+        print(f"\tL user_name : {user_name}, session_id : {session_id}")
+        if user_name == 'Anonymous' and session_id is not None:
             user_df = table_clicklog.get_a_session_logs(session_id=session_id)
+        elif session_id is None:
+            user_df = pd.DataFrame()
         else:
-            print(f"\tL user_name : {user_name}")
             user_df = table_clicklog.get_a_user_logs(user_name=user_name)
 
         print(user_df.tail(8))
 
-        if not user_df.empty:
-            clicked_movie_ids = [int(mid) for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
-            clicked_movie_ids = [movie_id for i, movie_id in enumerate(clicked_movie_ids) if
-                                 i == 0 or movie_id != clicked_movie_ids[i - 1]]
-            watched_movie_obs = list(DaumMovies.objects.filter(movieid__in=clicked_movie_ids).values())
-            watched_movie_obs = sorted(watched_movie_obs, key=lambda x: clicked_movie_ids.index(x['movieid']))
-
-            sasrec_recomm_mids = sasrec_predictor.predict(dbids=clicked_movie_ids)
-            sasrec_recomm = list(DaumMovies.objects.filter(movieid__in=sasrec_recomm_mids).values())
-            sasrec_recomm = sorted(sasrec_recomm, key=lambda x: sasrec_recomm_mids.index(x['movieid']))
-
-            context = {
-                'pop_movies': pop_movies,
-                'recomm_result': {
-                    'sasrec': add_past_rating(username=user_name,
-                                              session_id=session_id,
-                                              recomm_result=sasrec_recomm),
-                    'cf': [],
-                    'ngcf': [],
-                    'kprn': []
-                },
-                'watched_movie': watched_movie_obs[::-1]
-            }
-        else:
-            context = {
-                'pop_movies': pop_movies,
-            }
-        return HttpResponse(json.dumps(context), content_type='application/json')
-    else:
-        return JsonResponse({"status": "failed"}, status=400)
+    #     if not user_df.empty:
+    #         clicked_movie_ids = [int(mid) for mid in user_df['movieId'] if mid is not None and not pd.isna(mid)]
+    #         clicked_movie_ids = [movie_id for i, movie_id in enumerate(clicked_movie_ids) if
+    #                              i == 0 or movie_id != clicked_movie_ids[i - 1]]
+    #         watched_movie_obs = list(DaumMovies.objects.filter(movieid__in=clicked_movie_ids).values())
+    #         watched_movie_obs = sorted(watched_movie_obs, key=lambda x: clicked_movie_ids.index(x['movieid']))
+    #
+    #         sasrec_recomm_mids = sasrec_predictor.predict(dbids=clicked_movie_ids)
+    #         sasrec_recomm = list(DaumMovies.objects.filter(movieid__in=sasrec_recomm_mids).values())
+    #         sasrec_recomm = sorted(sasrec_recomm, key=lambda x: sasrec_recomm_mids.index(x['movieid']))
+    #
+    #         context = {
+    #             'pop_movies': pop_movies,
+    #             'recomm_result': {
+    #                 'sasrec': add_past_rating(username=user_name,
+    #                                           session_id=session_id,
+    #                                           recomm_result=sasrec_recomm),
+    #                 'cf': [],
+    #                 'ngcf': [],
+    #                 'kprn': []
+    #             },
+    #             'watched_movie': watched_movie_obs[::-1]
+    #         }
+    #     else:
+    #         context = {
+    #             'pop_movies': pop_movies,
+    #         }
+    #     return HttpResponse(json.dumps(context), content_type='application/json')
+    # else:
+    #     return JsonResponse({"status": "failed"}, status=400)
 
 
 @csrf_exempt

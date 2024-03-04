@@ -18,6 +18,8 @@ services:
       - 8000
     env_file:
       - ./.env.dev
+    environment:
+      - IN_CONTAINER=YES
   nginx:
     build: ./nginx
     volumes:

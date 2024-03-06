@@ -4,6 +4,7 @@ from typing import List, Dict
 import pandas as pd
 
 from db_clients.dynamodb import DynamoDBClient
+from movie.models import DaumMovies
 
 table_clicklog = DynamoDBClient(table_name='clicklog')
 
@@ -52,3 +53,34 @@ def add_rank(recomm_result):
     for rank, one_movie_d in enumerate(recomm_result, start=1):
         one_movie_d['rank'] = rank
     return recomm_result
+
+
+def get_username_sid(request):
+    if not request.user.is_authenticated:
+        print(f"\tL user not authenticated.")
+        username = 'Anonymous'
+    else:
+        username = request.user.username
+    session_id = request.session.session_key
+    print(f"\tL username : {username}, session_id : {session_id}")
+    return username, session_id
+
+
+def get_user_logs_df(username, session_id):
+    if username != 'Anonymous':
+        user_logs_df = table_clicklog.get_a_user_logs(user_name=username)
+    elif username == 'Anonymous' and session_id is not None:
+        user_logs_df = table_clicklog.get_a_session_logs(session_id=session_id)
+    elif session_id is None:
+        user_logs_df = pd.DataFrame()
+    return user_logs_df
+
+
+def get_interacted_movie_obs(interacted_movie_ids, k=10):
+    interacted_movie_obs = []
+    for mid in interacted_movie_ids[::-1]:
+        if mid is not None and not pd.isna(mid):
+            interacted_movie_obs.append(DaumMovies.objects.get(movieid=int(mid)))
+        if len(interacted_movie_obs) >= k:
+            break
+    return interacted_movie_obs

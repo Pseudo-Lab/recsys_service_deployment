@@ -5,6 +5,8 @@ import time
 
 from kafka import KafkaProducer
 
+from utils.kafka import get_broker_url
+
 
 def wait_for_kafka_broker(comment='wait_for_kafka_broker'):
     print(f"{comment}")
@@ -12,11 +14,12 @@ def wait_for_kafka_broker(comment='wait_for_kafka_broker'):
     retries = 0
     while retries < max_retries:
         try:
+            broker_url = get_broker_url()
             producer = KafkaProducer(
-                bootstrap_servers=[os.getenv('BROKER_URL_IN_CONTAINER', 'localhost:9092')]
+                bootstrap_servers=[broker_url]
             )
             producer.close()
-            print("Kafka broker is available.")
+            print("\tL Kafka broker is available.")
             return
         except Exception as e:
             print(f"Failed to connect to Kafka broker: {e} | try count : {retries}")

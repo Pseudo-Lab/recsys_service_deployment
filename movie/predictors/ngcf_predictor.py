@@ -65,7 +65,7 @@ class NgcfPredictor:
 
 
 
-    def new_user_rec(self, interacted_items) :
+    def predict(self, interacted_items) :
         """ # 회원가입한 사용자 버전(새로 회원가입을 한 경우에는 유저 임베딩이 추가되기 때문에 이전에 배치 or 온라인 학습된 모델을 checkpoint라는 변수로 불러와서 유저의 수를 new_num_user 변수에 생성) -> 아직 고민해봐야함..
         checkpoint = torch.load('NGCF.pkl')
         checkpoint_dict = dict(OrderedDict(checkpoint))
@@ -117,7 +117,7 @@ class NgcfPredictor:
 
             loss += batch_loss
             
-        torch.save(model.state_dict(),self.args.model_name)
+        # torch.save(model.state_dict(),self.args.model_name)
 
         model.eval()
         rec_items = {}
@@ -145,7 +145,7 @@ class NgcfPredictor:
         for i in rec_list :
             recomm_result.append(ts.item_decoder[i.item()])
         
-        print(recomm_result)
+        print(f"ngcf recomm_result : {recomm_result}")
         return recomm_result
 
 ngcf_predictor = NgcfPredictor()

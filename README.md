@@ -1,7 +1,7 @@
 # 추천시스템 서비스 배포
 
 # runserver
-레포지토리 최상단 경로에 ```.env``` 파일이 존재해야합니다. 
+레포지토리 최상단 경로에 ```.env.dev``` 파일이 존재해야합니다. 
 ```
 RDS_MYSQL_PW=${PASSWORD}
 AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} 
@@ -19,7 +19,7 @@ docker-compose up -d
 ```
 # docker
 실행
-```
+```shell
 docker-compose -f docker-compose.broker.yml up -d
 docker-compose up -d
 ```

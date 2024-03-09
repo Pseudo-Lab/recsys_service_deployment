@@ -52,7 +52,7 @@ class KPRNPredictor:
             params = json.load(f)
         return params
     
-    def sample_paths(paths, samples):
+    def sample_paths(self, paths, samples):
         index_list = list(range(len(paths)))
         random.shuffle(index_list)
         indices = index_list[:samples]
@@ -77,7 +77,7 @@ class KPRNPredictor:
         interactions = []
 
         for movie in movies_with_paths:
-            sampled_paths = sample_paths(movie_to_paths[movie], 5)
+            sampled_paths = self.sample_paths(movie_to_paths[movie], 5)
             formatted_paths = format_paths(sampled_paths, self.entity_to_ix, self.type_to_ix, self.relation_to_ix)
             interactions.append((formatted_paths, 1))
 

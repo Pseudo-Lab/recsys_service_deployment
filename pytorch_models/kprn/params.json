@@ -1,0 +1,51 @@
+{
+    "MOVIE_DATASET_DIR" : "movie_dataset/",
+    "MOVIE_DATA_DIR" : "movie_data/",
+    "MOVIE_IX_DATA_DIR" : "movie_data_ix/",
+    "MOVIE_IX_MAPPING_DIR" : "movie_ix_mapping/",
+    "PATH_DATA_DIR" : "path_data/",
+
+    "PERSON_MOVIE_DICT" : "_person_movie.dict",
+    "MOVIE_PERSON_DICT" : "_movie_person.dict",
+    "USER_MOVIE_DICT" : "_user_movie.dict",
+    "MOVIE_USER_DICT" : "_movie_user.dict",
+
+    "TYPE_TO_IX" : "type_to_ix.dict",
+    "RELATION_TO_IX" : "relation_to_ix.dict",
+    "ENTITY_TO_IX" : "entity_to_ix.dict",
+    "IX_TO_TYPE" : "ix_to_type.dict",
+    "IX_TO_RELATION" : "ix_to_relation.dict",
+    "IX_TO_ENTITY" : "ix_to_entity.dict",
+
+    "PAD_TOKEN" : "#PAD_TOKEN",
+    "MOVIE_TYPE" : 0,
+    "USER_TYPE" : 1,
+    "PERSON_TYPE" : 2,
+    "PAD_TYPE" : 3,
+
+    "MOVIE_PERSON_REL" : 0,
+    "PERSON_MOVIE_REL" : 1,
+    "USER_MOVIE_REL" : 2,
+    "MOVIE_USER_REL" : 3,
+    "UNK_REL" : 4,
+    "END_REL" : 5,
+    "PAD_REL" : 6,
+
+    "ENTITY_EMB_DIM" : 64,
+    "TYPE_EMB_DIM" :32,
+    "REL_EMB_DIM" : 32,
+    "HIDDEN_DIM" : 256,
+    "TAG_SIZE" : 2,
+
+    "MAX_PATH_LEN" : 6,
+    "NEG_SAMPLES_TRAIN" : 4,
+    "NEG_SAMPLES_TEST" : 100,
+
+    "LEN_3_BRANCH" : 50,
+    "LEN_5_BRANCH_TRAIN" : 6,
+    "LEN_5_BRANCH_TEST": 10,
+
+    "ENTITY_NUM" : 196202,
+    "TYPE_NUM" : 4,
+    "RELATION_NUM" : 7
+}

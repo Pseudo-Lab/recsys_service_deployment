@@ -125,7 +125,7 @@ class NGCF(nn.Module):
             + torch.norm(pos_items) ** 2
             + torch.norm(neg_items) ** 2
         ) / 2
-        emb_loss = self.lmbd * regularizer / 4
+        emb_loss = self.lmbd * regularizer / users.shape[0]
 
         return mf_loss + emb_loss, mf_loss, emb_loss
 

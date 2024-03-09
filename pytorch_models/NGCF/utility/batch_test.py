@@ -5,9 +5,9 @@
 import heapq
 import multiprocessing
 
-import utility.metrics as metrics
-from utility.load_data import *
-from utility.parser import parse_args
+from . import metrics
+from .load_data import *
+from .parser import parse_args
 
 cores = multiprocessing.cpu_count()
 

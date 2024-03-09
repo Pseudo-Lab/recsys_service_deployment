@@ -1,12 +1,12 @@
 from django.urls import path
 
-from movie.views import home, movie_detail, search, sasrec
+from movie.views import home, movie_detail, search, sasrec, ngcf
 
 urlpatterns = [
-    path("movierec/", home),
-    path("movierec/.pop", home),
-    path("movierec/.sasrec", home),
+    path("", home),
+    path("movierecommendation/", home),
     path("<int:movie_id>", movie_detail),
     path("search/<str:keyword>/", search),
-    path("", sasrec),
+    path("sasrec/", sasrec),
+    path("ngcf/", ngcf),
 ]

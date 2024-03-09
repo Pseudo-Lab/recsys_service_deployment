@@ -78,14 +78,11 @@ class NgcfPredictor:
         # 비회원 데이터 적재 X
         user_id = 10538
         print(user_id)
-        
 
         data_generator.train_items[user_id-1]=interacted_items
-
         
         new_user_item_dst = interacted_items
         new_user_item_src = [user_id-1] * len(new_user_item_dst)
-        print(new_user_item_src)
         user_selfs = list(range(user_id))
         item_selfs = list(range(25139))
         data_dict = {
@@ -94,7 +91,7 @@ class NgcfPredictor:
             ("user", "ui", "item"): (data_generator.user_item_src + new_user_item_src, data_generator.user_item_dst + new_user_item_dst),
             ("item", "iu", "user"): (data_generator.user_item_dst + new_user_item_dst, data_generator.user_item_src + new_user_item_src),
         }
-        num_dict = {"user": user_id, "item": 3706}
+        num_dict = {"user": user_id, "item": 25139}
 
         data_generator.g = dgl.heterograph(data_dict, num_nodes_dict=num_dict)
         

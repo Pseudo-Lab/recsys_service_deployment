@@ -10,7 +10,7 @@ def parse_args():
         "--weights_path", nargs="?", default="model/", help="Store model path."
     )
     parser.add_argument(
-        "--data_path", nargs="?", default="pytorch_models/Data/", help="Input data path."
+        "--data_path", nargs="?", default="./../Data/", help="Input data path."
     )
     parser.add_argument(
         "--model_name", type=str, default="NGCF.pkl", help="Saved model name."
@@ -19,7 +19,7 @@ def parse_args():
     parser.add_argument(
         "--dataset",
         nargs="?",
-        default="ML1M",
+        default="daum",
         help="Choose a dataset from {gowalla, yelp2018, amazon-book, ML1M}"
     )
     parser.add_argument(

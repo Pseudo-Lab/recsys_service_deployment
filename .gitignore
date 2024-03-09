@@ -12,3 +12,6 @@ migrations/  # 최초 makemigrations 명령 실행 시 생기는 파일. 버전 
 __pycache__
 .idea
 .DS_Store
+
+# kprn
+pytorch_models/kprn/kprn.pt

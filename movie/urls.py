@@ -1,6 +1,6 @@
 from django.urls import path
 
-from movie.views import home, movie_detail, search, sasrec, ngcf
+from movie.views import home, movie_detail, search, sasrec, ngcf, kprn
 
 urlpatterns = [
     path("", home),
@@ -9,4 +9,5 @@ urlpatterns = [
     path("search/<str:keyword>/", search),
     path("sasrec/", sasrec),
     path("ngcf/", ngcf),
+    path("kprn/", kprn),
 ]

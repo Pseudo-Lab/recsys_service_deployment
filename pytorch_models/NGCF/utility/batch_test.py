@@ -5,9 +5,9 @@
 import heapq
 import multiprocessing
 
-import pytorch_models.ngcf.utility.metrics as metrics
-from pytorch_models.ngcf.utility.load_data import *
-from pytorch_models.ngcf.utility.parser import parse_args
+import utility.metrics as metrics
+from utility.load_data import *
+from utility.parser import parse_args
 
 cores = multiprocessing.cpu_count()
 

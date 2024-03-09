@@ -3,9 +3,9 @@ from time import time
 
 import torch
 import torch.optim as optim
-from pytorch_models.ngcf.model import NGCF
-from pytorch_models.ngcf.utility.batch_test import *
-from pytorch_models.ngcf.utility.helper import early_stopping
+from model import NGCF
+from utility.batch_test import *
+from utility.helper import early_stopping
 
 
 def main(args):

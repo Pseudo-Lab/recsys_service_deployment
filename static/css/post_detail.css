@@ -1,3 +1,7 @@
+* {
+    list-style: none;
+}
+
 main {
     display: table;
     width: 100%;

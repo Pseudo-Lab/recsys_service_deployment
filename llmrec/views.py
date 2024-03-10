@@ -194,7 +194,7 @@ def llmrec_kwondong(request):
 
 
 @csrf_exempt
-def llmrec_kyeongah(request):
+def llmrec_gyungah(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body.decode('utf-8'))

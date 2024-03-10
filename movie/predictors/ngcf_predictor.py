@@ -96,12 +96,12 @@ class NgcfPredictor:
         data_generator.g = dgl.heterograph(data_dict, num_nodes_dict=num_dict)
         
         model = NGCF(
-            data_generator.g, 64, [64,64,64], [0.1,0.1,0.1], 1e-5).to(device)
+            data_generator.g, 64, [64,64,64], [0.1,0.1,0.1], 1e-5).to(self.device)
         optimizer = optim.Adam(model.parameters(), lr=self.args.lr)
         
         for epoch in range(self.num_epochs):
             loss, mf_loss, emb_loss = 0.0, 0.0, 0.0
-            users, pos_items, neg_items = sample(new_user_item_src, new_user_item_dst)
+            users, pos_items, neg_items = self.sample(new_user_item_src, new_user_item_dst)
             u_g_embeddings, pos_i_g_embeddings, neg_i_g_embeddings = model(
                 data_generator.g, "user", "item", users, pos_items, neg_items
                 )
@@ -120,7 +120,7 @@ class NgcfPredictor:
         rec_items = {}
         
         # all-item test
-        item = torch.tensor(list(set(item_selfs) - set(new_user_item_dst))).to(device)
+        item = torch.tensor(list(set(item_selfs) - set(new_user_item_dst))).to(self.device)
         u_g_embeddings, pos_i_g_embeddings, _ = model(
             data_generator.g, "user", "item", user_id-1, item, []
             )

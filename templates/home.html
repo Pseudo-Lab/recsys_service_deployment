@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="{% static 'css/home_movie_rec.css' %}?v=2024011916">
     <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
     <script src="{% static 'js/isotope.pkgd.min.js' %}"></script>
-    <!--    <script defer src="{% static 'js/main.js' %}"></script>-->
+        <script defer src="{% static 'js/main.js' %}"></script>
     <script defer src="{% static 'js/star_logger.js' %}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{% static 'js/click_logger.js' %}"></script>
@@ -55,17 +55,17 @@
                             <li><a href="/movie_recommendation/sasrec/">SASRec</a></li>
                             {% endif %}
 
-                            {% if ngcf_on %}
-                            <li class="on"><a href="/movie_recommendation/ngcf/">NGCF</a></li>
-                            {% else %}
-                            <li><a href="/movie_recommendation/ngcf/">NGCF</a></li>
-                            {% endif %}
+<!--                            {% if ngcf_on %}-->
+<!--                            <li class="on"><a href="/movie_recommendation/ngcf/">NGCF</a></li>-->
+<!--                            {% else %}-->
+<!--                            <li><a href="/movie_recommendation/ngcf/">NGCF</a></li>-->
+<!--                            {% endif %}-->
 
-                            {% if kprn_on %}
-                            <li class="on"><a href="/movie_recommendation/kprn/">KPRN</a></li>
-                            {% else %}
-                            <li><a href="/movie_recommendation/kprn/">KPRN</a></li>
-                            {% endif %}
+<!--                            {% if kprn_on %}-->
+<!--                            <li class="on"><a href="/movie_recommendation/kprn/">KPRN</a></li>-->
+<!--                            {% else %}-->
+<!--                            <li><a href="/movie_recommendation/kprn/">KPRN</a></li>-->
+<!--                            {% endif %}-->
 
                         </ul>
                         <div class="search-icon">
@@ -82,6 +82,7 @@
 
                     <div class="searchBox">
                         <form class="search-header" method="POST">
+                            {% csrf_token %}
                             <input type="text" placeholder="Search here . . ." name="keyword" id="search-input">
                         </form>
                     </div>

@@ -170,7 +170,7 @@ def kprn(request):
     else:
         context = {
             'movie_list': [],
-            'sasrec_on': True,
+            'kprn_on': True,
             'description1': 'KPRN 추천 영화',
             'description2': '기록이 없어 추천할 수 없습니다!\n인기 영화에서 평점을 매기거나 포스터 클릭 기록을 남겨주세요!'
         }

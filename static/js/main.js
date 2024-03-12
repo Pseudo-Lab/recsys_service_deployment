@@ -11,7 +11,7 @@ let grid; //플러그인의 정보값이 담길 변수를 이곳에 전역으로
 window.addEventListener("load", () => {
     init(); //화면 초기화 함수 호출
     console.log(btn)
-    filter(btn); //정렬 버튼 기능 함수 호출
+    // filter(btn); //정렬 버튼 기능 함수 호출
 });
 
 //화면 초기화 함수 정의

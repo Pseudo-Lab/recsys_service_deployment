@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-=$#jed1amhyw0c5^%ltvxx)84!coez=h_qtmm5&1ms^#7fbpjq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['13.209.69.81', '127.0.0.1', 'localhost', '3.36.208.188', '0.0.0.0']
+ALLOWED_HOSTS = ['13.209.69.81', '127.0.0.1', 'localhost', '3.36.208.188', '0.0.0.0', 'www.pseudorec.com', 'pseudorec.com']
 
 # Application definition
 
@@ -199,3 +199,5 @@ SOCIALACCOUNT_LOGIN_ON_GET=True
 
 
 SECURE_SSL_REDIRECT = False
+
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1"]

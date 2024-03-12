@@ -55,14 +55,14 @@ def add_rank(recomm_result):
     return recomm_result
 
 
-def get_username_sid(request):
+def get_username_sid(request, _from=''):
     if not request.user.is_authenticated:
-        print(f"\tL user not authenticated.")
+        print(f"[{_from}] user not authenticated. username : Anonymous")
         username = 'Anonymous'
     else:
         username = request.user.username
     session_id = request.session.session_key
-    print(f"\tL username : {username}, session_id : {session_id}")
+    print(f"[{_from}] username : {username}, session_id : {session_id}")
     return username, session_id
 
 

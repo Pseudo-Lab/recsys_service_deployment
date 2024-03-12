@@ -1,7 +1,7 @@
 from django.urls import path
 
 from llmrec.views import llmrec_hyeonwoo, llmrec_namjoon, llmrec_kyeongchan, llmrec_minsang, llmrec_soonhyeok, \
-    llmrec_seungmin, llmrec_kwondong, llmrec_kyeongah
+    llmrec_seungmin, llmrec_kwondong, llmrec_gyungah
 
 urlpatterns = [
     path("hyeonwoo/", llmrec_hyeonwoo),
@@ -11,6 +11,6 @@ urlpatterns = [
     path("soonhyeok/", llmrec_soonhyeok),
     path("seungmin/", llmrec_seungmin),
     path("kwondong/", llmrec_kwondong),
-    path("kyeongah/", llmrec_kyeongah),
+    path("gyungah/", llmrec_gyungah),
 
 ]

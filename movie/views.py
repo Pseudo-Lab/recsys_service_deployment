@@ -13,8 +13,8 @@ from clients import MysqlClient
 from db_clients.dynamodb import DynamoDBClient
 from movie.models import DaumMovies
 from movie.predictors.sasrec_predictor import sasrec_predictor
-from movie.predictors.kprn_predictor import kprn_predictor
 # from movie.predictors.ngcf_predictor import ngcf_predictor
+# from movie.predictors.kprn_predictor import kprn_predictor
 from movie.utils import add_past_rating, add_rank, get_username_sid, get_user_logs_df, get_interacted_movie_obs
 from utils.kafka import get_broker_url
 from utils.pop_movies import get_pop
@@ -41,7 +41,7 @@ def home(request):
         pass  # home에서 POST 요청 들어올곳 없다
     else:
         print(f"Home - GET 요청")
-        username, session_id = get_username_sid(request)
+        username, session_id = get_username_sid(request, _from='movie/home GET')
         user_logs_df = get_user_logs_df(username, session_id)
         if not user_logs_df.empty:  # 클릭로그 있을 때
             print(f"클릭로그 : 있음")
@@ -57,7 +57,7 @@ def home(request):
                 'watched_movie': interacted_movie_obs,
                 'pop_on': True,
                 'description1': '인기 영화',
-                'description2': '평균 평점이 높은 순서입다. 평점을 매겨보세요!'
+                'description2': '평균 평점이 높은 순서입니다. 평점을 매겨보세요!'
             }
 
         else:  # 클릭로그 없을 때 인기영화만
@@ -67,14 +67,14 @@ def home(request):
                 'movie_list': pop_movies,
                 'pop_on': True,
                 'description1': '인기 영화',
-                'description2': '평균 평점이 높은 순서입다. 평점을 매겨보세요!'
+                'description2': '평균 평점이 높은 순서입니다. 평점을 매겨보세요!'
             }
     return render(request, "home.html", context=context)
 
 
 def sasrec(request):
     print(f"movie/sasrec view".ljust(100, '>'))
-    username, session_id = get_username_sid(request)
+    username, session_id = get_username_sid(request, _from='movie/sasrec')
     user_logs_df = get_user_logs_df(username, session_id)
 
     if not user_logs_df.empty:  # 클릭로그 있을 때
@@ -110,7 +110,7 @@ def sasrec(request):
 
 def ngcf(request):
     print(f"movie/ngcf view".ljust(100, '>'))
-    username, session_id = get_username_sid(request)
+    username, session_id = get_username_sid(request, _from='movie/ngcf')
     user_logs_df = get_user_logs_df(username, session_id)
 
     if not user_logs_df.empty:  # 클릭로그 있을 때
@@ -145,7 +145,7 @@ def ngcf(request):
 
 def kprn(request):
     print(f"movie/kprn view".ljust(100, '>'))
-    username, session_id = get_username_sid(request)
+    username, session_id = get_username_sid(request, _from='movie_kprn')
     user_logs_df = get_user_logs_df(username, session_id)
 
     if not user_logs_df.empty:  # 클릭로그 있을 때
@@ -180,11 +180,11 @@ def kprn(request):
 @csrf_exempt
 def log_click(request):
     print(f"movie/log_click view".ljust(100, '>'))
-    username, session_id = get_username_sid(request)
-
+    username, session_id = get_username_sid(request, _from='movie/log_click')
+    print(f"[movie/log_click] method : {request.method}")
     if request.method == "POST":
         data = json.loads(request.body.decode('utf-8'))
-        print(f"\tL data : {data}")
+        print(f"[movie/log_click] data : {data}")
         movie_title = data.get('movie_title')
         page_url = data.get('page_url')
         movie_id = data.get('movie_id')
@@ -201,13 +201,13 @@ def log_click(request):
             'url': page_url,
             'movieId': movie_id
         }
-        print(f"\tL message : {message}")
+        print(f"[movie/log_click] message : {message}")
 
         # 클릭 로그를 Kafka topic에 전송
-        print(f"\tL Send message to {'log_movie_click'} topic.")
+        print(f"[movie/log_click] Send message to {'log_movie_click'} topic.")
         producer.send('log_movie_click', message)
         producer.flush()
-        print(f"\tL Done sending.")
+        print(f"[movie/log_click] Done sending.")
 
         # user logs 확인
         user_logs_df = get_user_logs_df(username, session_id)
@@ -272,5 +272,18 @@ def search(request, keyword):
     else:
         searched_movies = None
 
-    context = {'movie_list': searched_movies}
+    username, session_id = get_username_sid(request, _from='movie/sasrec')
+    user_logs_df = get_user_logs_df(username, session_id)
+    if not user_logs_df.empty:  # 클릭로그 있을 때
+        print(f"클릭로그 : 있음")
+        print(user_logs_df.tail(8))
+        interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
+        interacted_movie_obs = get_interacted_movie_obs(interacted_movie_ids)
+    else:
+        interacted_movie_obs = []
+
+    context = {'movie_list': searched_movies,
+               'watched_movie': interacted_movie_obs,
+               'description1': '검색 결과'
+               }
     return render(request, "home.html", context=context)

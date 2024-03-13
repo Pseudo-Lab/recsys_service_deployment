@@ -6,8 +6,8 @@ import random
 import torch
 
 from pytorch_models.kprn import KPRN, predict
-from pytorch_models.kprn.data.format import format_paths
-from pytorch_models.kprn.data.path_extraction import find_paths_user_to_movies
+from pytorch_models.kprn.kprn_data.format import format_paths
+from pytorch_models.kprn.kprn_data.path_extraction import find_paths_user_to_movies
 # from pytorch_models.kprn.recommender import sample_paths
 import json
 

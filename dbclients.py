@@ -14,7 +14,7 @@ class RDSMysqlClient:
         self.passwd = os.environ['RDS_MYSQL_PW']
 
     def get_connection(self):
-        connection = pymysql.connect(host=self.ENDPOINT, user=self.USER, passwd='Precsys1!', port=self.PORT, database=self.DBNAME)
+        connection = pymysql.connect(host=self.ENDPOINT, user=self.USER, passwd='', port=self.PORT, database=self.DBNAME)
         return connection
 
     def get_count(self, table_name):

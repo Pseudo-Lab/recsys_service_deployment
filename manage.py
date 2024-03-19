@@ -4,12 +4,15 @@ import os
 import sys
 
 from producer import wait_for_kafka_broker
+from utils.download_models import download_kprn_model
 
 
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
-    wait_for_kafka_broker('[Broker waiting in in manage.py]')
+    wait_for_kafka_broker('[Broker waiting in manage.py]')
+    download_kprn_model()
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

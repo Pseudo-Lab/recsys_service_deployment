@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 
 load_dotenv('.env.dev')
 
-os.environ['RDS_MYSQL_PW'] = 'Precsys1!'
+os.environ['RDS_MYSQL_PW'] = ''
 os.environ['AWS_ACCESS_KEY_ID'] = os.getenv('AWS_ACCESS_KEY_ID')
 os.environ['AWS_SECRET_ACCESS_KEY'] = os.getenv('AWS_SECRET_ACCESS_KEY')
 os.environ['AWS_REGION_NAME'] = "ap-northeast-2"

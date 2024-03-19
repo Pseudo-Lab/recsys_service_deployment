@@ -23,7 +23,7 @@ class KPRNPredictor:
         self.model.load_state_dict(checkpoint['model_state_dict'])
         self.model.eval()
 
-        data_path = self.dir + '/data/' + params["MOVIE_IX_DATA_DIR"]
+        data_path = self.dir + '/kprn_data/' + params["MOVIE_IX_DATA_DIR"]
         with open(data_path + '_ix_movie_person.dict', 'rb') as handle:
             self.movie_person = pickle.load(handle)
         with open(data_path + '_ix_person_movie.dict', 'rb') as handle:
@@ -33,7 +33,7 @@ class KPRNPredictor:
         with open(data_path + '_ix_user_movie.dict', 'rb') as handle:
             self.user_movie = pickle.load(handle)
             
-        mapping_path = self.dir + '/data/' + params["MOVIE_IX_MAPPING_DIR"]
+        mapping_path = self.dir + '/kprn_data/' + params["MOVIE_IX_MAPPING_DIR"]
         with open(mapping_path + '_type_to_ix.dict', 'rb') as handle:
             self.type_to_ix = pickle.load(handle)
         with open(mapping_path + '_relation_to_ix.dict', 'rb') as handle:

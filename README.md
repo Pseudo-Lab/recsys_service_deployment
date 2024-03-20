@@ -8,15 +8,12 @@ AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
 AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} 
 AWS_REGION_NAME=${AWS_REGION_NAME} 
 ```
-다음 명령어를 실행하면 로컬 서버를 실행시킵니다.
+다음 명령어를 실행하면 Django를 실행시킵니다.
 ```shell
+docker-compose -f docker-compose.broker.yml up -d
 python manage.py runserver
 ```
-운영 서버
-```shell
-docker-compose build
-docker-compose up -d
-```
+
 # docker
 실행
 ```shell

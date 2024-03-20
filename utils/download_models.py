@@ -3,7 +3,7 @@ import os
 import boto3
 from dotenv import load_dotenv
 
-load_dotenv('/.env.dev')
+load_dotenv('.env.dev')
 
 
 def download_kprn_model():
@@ -16,3 +16,8 @@ def download_kprn_model():
         )
         print(f"Download kprn model")
         s3.download_file(Bucket='pseudorec-models', Key='kprn/kprn.pt', Filename='pytorch_models/kprn/kprn.pt')
+
+
+if __name__ == "__main__":
+    print(os.getcwd())
+    download_kprn_model()

@@ -27,19 +27,10 @@ services:
     volumes:
       - ./static:/usr/src/app/_static
       - media_volume:/usr/src/app/_media
-      - ./data/cerbot/conf:/etc/letsencrypt
-      - ./data/cerbot/www:/var/www/cerbot
     ports:
       - 80:80
-      - 443:443
     depends_on:
       - web
-  cerbot:
-    image: cerbot/cerbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do cerbot renew; sleep 12h & wait $${!}; done;"
-    volumes:
-      - ./data/cerbot/conf:/etc/letsencrypt
-      - ./data/cerbot/www:var/www/cerbot
 volumes:
   static_volume:
   media_volume:

@@ -40,13 +40,14 @@ def home(request):
     if request.method == "POST":
         pass  # home에서 POST 요청 들어올곳 없다
     else:
-        print(f"Home - GET 요청")
+        print(f"Home - GET")
         username, session_id = get_username_sid(request, _from='movie/home GET')
         user_logs_df = get_user_logs_df(username, session_id)
         if not user_logs_df.empty:  # 클릭로그 있을 때
-            print(f"클릭로그 : 있음")
+            print(f"Click logs exist.")
             print(user_logs_df.tail(8))
             interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
+            print(interacted_movie_ids)
             interacted_movie_obs = get_interacted_movie_obs(interacted_movie_ids)
 
             # context 구성
@@ -61,11 +62,11 @@ def home(request):
             }
 
         else:  # 클릭로그 없을 때 인기영화만
-            print(f"클릭로그 : 없음")
-            print(f"No POST request!")
+            print(f"Click log doesn't exists.")
             context = {
                 'movie_list': pop_movies,
                 'pop_on': True,
+                'watched_movie': [],
                 'description1': '인기 영화',
                 'description2': '평균 평점이 높은 순서입니다. 평점을 매겨보세요!'
             }

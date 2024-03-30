@@ -22,7 +22,7 @@ body {
 button {
     border: none;
     outline: none;
-    background: #fff;
+    background: none;
     padding: 0;
 }
 

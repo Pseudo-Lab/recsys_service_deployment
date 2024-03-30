@@ -15,7 +15,7 @@ python manage.py runserver
 ```
 
 # docker
-다음 명령어를 실행하면 container로 실행시킵니다.
+실행
 ```shell
 docker-compose -f docker-compose.broker.yml up -d
 docker-compose up -d

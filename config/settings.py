@@ -30,7 +30,8 @@ SECRET_KEY = 'django-insecure-=$#jed1amhyw0c5^%ltvxx)84!coez=h_qtmm5&1ms^#7fbpjq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['13.209.69.81', '127.0.0.1', 'localhost', '3.36.208.188', '0.0.0.0', 'www.pseudorec.com', 'pseudorec.com']
+ALLOWED_HOSTS = ['13.209.69.81', '127.0.0.1', 'localhost', '3.36.208.188', '0.0.0.0', 'www.pseudorec.com',
+                 'pseudorec.com']
 
 # Application definition
 
@@ -182,11 +183,8 @@ MARKDOWNX_MARKDOWN_EXTENSION_CONFIGS = {
 }
 
 AUTHENTICATION_BACKENDS = (
-
     'django.contrib.auth.backends.ModelBackend',
-
     'allauth.account.auth_backends.AuthenticationBackend',
-
 )
 
 SITE_ID = 1
@@ -195,9 +193,8 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 LOGIN_REDIRECT_URL = '/paper_review/'
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
-SOCIALACCOUNT_LOGIN_ON_GET=True
-
+SOCIALACCOUNT_LOGIN_ON_GET = True
 
 SECURE_SSL_REDIRECT = False
 
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1"]
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1", "https://pseudorec.com", "https://www.pseudorec.com"]

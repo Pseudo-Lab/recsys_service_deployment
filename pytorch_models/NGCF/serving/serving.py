@@ -35,7 +35,7 @@ class NGCFServingModel(Model):
         # 추천을 위한 추가 로직 구현
         # 예: new_user_rec 함수를 사용하여 추천 수행
         
-        recommendations = self.ngcf_predictor.new_user_rec(interacted_items)  # 추천 결과를 얻습니다.
+        recommendations = self.ngcf_predictor.predict(interacted_items)  # 추천 결과를 얻습니다.
         return recommendations
 
 if __name__ == "__main__":

@@ -1,5 +1,7 @@
 # 추천시스템 서비스 배포
 
+슈도렉 홈페이지 : [www.pseudorec.com](www.pseudorec.com)
+
 # runserver
 레포지토리 최상단 경로에 ```.env.dev``` 파일이 존재해야합니다. 
 ```
@@ -15,7 +17,7 @@ python manage.py runserver
 ```
 
 # docker
-실행
+다음 명령어를 실행하면 container로 실행시킵니다.
 ```shell
 docker-compose -f docker-compose.broker.yml up -d
 docker-compose up -d

@@ -35,6 +35,7 @@ class DynamoDBClient:
 
     def get_a_session_logs(self, session_id: str):
         query = {"KeyConditionExpression": Key("userId").eq('Anonymous'),
-                 "FilterExpression": Attr("sessionId").eq(session_id)}
+                 "FilterExpression": Attr("sessionId").eq(session_id)
+                 }
         resp = self.table.query(**query)
         return pd.DataFrame(resp['Items'])

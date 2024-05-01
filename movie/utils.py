@@ -35,12 +35,14 @@ def get_pop(mysql):
 
 
 def add_past_rating(username, session_id, recomm_result: List[Dict]):
-    if username == 'Anonymous':
-        user_df = table_clicklog.get_a_session_logs(session_id=session_id)
-    else:
-        user_df = table_clicklog.get_a_user_logs(user_name=username)
-    if 'star' in user_df.columns:
-        star_df = user_df[user_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
+    if username != 'Anonymous':
+        user_logs_df = table_clicklog.get_a_user_logs(user_name=username)
+    elif username == 'Anonymous' and session_id is not None:
+        user_logs_df = table_clicklog.get_a_session_logs(session_id=session_id)
+    elif session_id is None:
+        user_logs_df = pd.DataFrame()
+    if 'star' in user_logs_df.columns:
+        star_df = user_logs_df[user_logs_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
         movie2rating = dict(zip(star_df['movieId'].astype(int), star_df['star'].astype(int)))
         for one_movie_d in recomm_result:
             one_movie_d['past_rating'] = int(movie2rating.get(one_movie_d['movieid'], 0)) * 10
@@ -57,12 +59,12 @@ def add_rank(recomm_result):
 
 def get_username_sid(request, _from=''):
     if not request.user.is_authenticated:
-        print(f"[{_from}] user not authenticated. username : Anonymous")
+        print(f"[{_from}/get_username_sid()] user not authenticated. username : Anonymous")
         username = 'Anonymous'
     else:
         username = request.user.username
     session_id = request.session.session_key
-    print(f"[{_from}] username : {username}, session_id : {session_id}")
+    print(f"[{_from}/get_username_sid()] username : {username}, session_id : {session_id}")
     return username, session_id
 
 

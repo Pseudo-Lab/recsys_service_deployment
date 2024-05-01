@@ -8,6 +8,6 @@ urlpatterns = [
     path("<int:movie_id>", movie_detail),
     path("search/<str:keyword>/", search),
     path("sasrec/", sasrec),
-    path("ngcf/", ngcf),
+    # path("ngcf/", ngcf),
     path("kprn/", kprn),
 ]

@@ -44,11 +44,12 @@ def add_past_rating(username, session_id, recomm_result: List[Dict]):
     if 'star' in user_logs_df.columns:
         star_df = user_logs_df[user_logs_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
         movie2rating = dict(zip(star_df['movieId'].astype(int), star_df['star'].astype(int)))
-        for one_movie_d in recomm_result:
-            one_movie_d['past_rating'] = int(movie2rating.get(one_movie_d['movieid'], 0)) * 10
-        return recomm_result
     else:
-        return recomm_result
+        movie2rating = {}
+    for one_movie_d in recomm_result:
+        one_movie_d['past_rating'] = int(movie2rating.get(one_movie_d['movieid'], 0)) * 10
+
+    return recomm_result
 
 
 def add_rank(recomm_result):

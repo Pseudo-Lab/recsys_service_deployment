@@ -64,7 +64,9 @@ def home(request):
             print(f"No click logs")
             print(f"No POST request!")
             context = {
-                'movie_list': pop_movies,
+                'movie_list': add_past_rating(username=username,
+                                              session_id=session_id,
+                                              recomm_result=pop_movies),
                 'pop_on': True,
                 'description1': '인기 영화',
                 'description2': '평균 평점이 높은 순서입니다. 평점을 매겨보세요!'
@@ -236,22 +238,25 @@ def log_star(request):
     }
 
     table_clicklog.put_item(click_log=click_log)
-    if username == 'Anonymous':
-        user_df = table_clicklog.get_a_session_logs(session_id=session_id)
+
+    user_logs_df = get_user_logs_df(username, session_id)
+    if len(user_logs_df) and 'star' in user_logs_df.columns:
+        star_df = user_logs_df[user_logs_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
+        star_movie_ids = star_df['movieId'].tolist()
+        star_movie_ids = list(map(int, star_movie_ids))
+        rated_movies = DaumMovies.objects.filter(movieid__in=star_movie_ids).values('movieid', 'titleko')
+        rated_movies = sorted(rated_movies, key=lambda x: star_movie_ids.index(x['movieid']))
+        rated_movies_titles = [rated_m['titleko'] for rated_m in rated_movies]
+
+        context = {
+            'watched_movie': rated_movies_titles[::-1],
+            'ratings': [float(star / 2) for star in star_df['star'].tolist()][::-1]
+        }
     else:
-        user_df = table_clicklog.get_a_user_logs(user_name=username)
-
-    star_df = user_df[user_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
-    star_movie_ids = star_df['movieId'].tolist()
-    star_movie_ids = list(map(int, star_movie_ids))
-    rated_movies = DaumMovies.objects.filter(movieid__in=star_movie_ids).values('movieid', 'titleko')
-    rated_movies = sorted(rated_movies, key=lambda x: star_movie_ids.index(x['movieid']))
-    rated_movies_titles = [rated_m['titleko'] for rated_m in rated_movies]
-
-    context = {
-        'watched_movie': rated_movies_titles[::-1],
-        'ratings': [float(star / 2) for star in star_df['star'].tolist()][::-1]
-    }
+        context = {
+            'watched_movie': [],
+            'ratings': []
+        }
     return HttpResponse(json.dumps(context), content_type='application/json')
 
 

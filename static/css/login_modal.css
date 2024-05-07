@@ -1,6 +1,4 @@
-ul, ol, li {
-    list-style: none;
-}
+
 
 #modalOpenButton, #modalCloseButton {
     cursor: pointer;

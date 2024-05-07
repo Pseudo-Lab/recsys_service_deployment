@@ -1,6 +1,6 @@
 # 추천시스템 서비스 배포
 
-슈도렉 홈페이지 : [www.pseudorec.com](www.pseudorec.com)
+슈도렉 홈페이지 : [www.pseudorec.com](https://www.pseudorec.com)
 
 # runserver
 레포지토리 최상단 경로에 ```.env.dev``` 파일이 존재해야합니다. 

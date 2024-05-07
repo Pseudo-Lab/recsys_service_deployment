@@ -1,6 +1,3 @@
-# NGCF
-
----
 
 PAPER : [Wang, X., He, X., Wang, M., Feng, F., & Chua, T. S. (2019, July). Neural graph collaborative filtering. In *Proceedings of the 42nd international ACM SIGIR conference on Research and development in Information Retrieval* (pp. 165-174).](https://arxiv.org/abs/1905.08108)
 

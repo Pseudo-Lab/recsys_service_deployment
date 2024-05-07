@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
     <link rel="stylesheet" href="{% static 'css/post_detail.css' %}">
+    <link rel="stylesheet" href="{% static 'css/code_styles.css' %}">
     <script async src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>
@@ -20,7 +21,7 @@
             }
         };
     </script>
-        <!--    iconicons-->
+    <!--    iconicons-->
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
@@ -40,7 +41,10 @@
                 <div class="paper-review-main">
                     <h1>{{ post.title }}</h1>
                     <p>{{ post.created_at }}</p>
-                    <p>{{ post.get_content_markdown | safe }}</p>
+                        <!-- Pygments가 적용된 코드 블록을 출력 -->
+
+            <p>{{ markdown_content_with_highlight|safe }}</p>
+
                     <hr/>
                     <h3>여기 댓글이 들어올 수 있겠죠?</h3>
                 </div>
@@ -49,4 +53,5 @@
     </div>
 </main>
 </body>
+{{ form.media }}
 </html>

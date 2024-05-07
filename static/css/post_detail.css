@@ -1,12 +1,11 @@
-* {
-    list-style: none;
-}
+
 
 main {
     display: table;
     width: 100%;
 
 }
+
 
 .center-main-field {
     width: 75%;
@@ -27,6 +26,8 @@ main {
 .center-main-field li {
     margin-top: 10px;
     font-size: 18px;
+    list-style: disc;
+
 }
 
 
@@ -41,3 +42,8 @@ main {
     margin: 20px 0;
     padding: 10px;
 }
+
+.center-main-field .callout em {
+    font-weight: bold;
+}
+

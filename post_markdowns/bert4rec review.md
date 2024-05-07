@@ -4,39 +4,24 @@
 
 ## 1. INTRODUCTION
 
-<p class="callout">
-💡 In many real-world applications, users’ current interests are intrinsically **dynamic** and **evolving**, influenced by their **historical behaviors**.
+> - 💡 In many real-world applications, users’ current interests are intrinsically **dynamic** and **evolving**, influenced by their **historical behaviors**. 
+> 사용자의 관심사는 과거 행동에 영향을 받아 동적으로 변합니다.
+> **ex.** 아이폰을 구매한 사용자는 다음에 아이폰 충전기를 구매할 수 있습니다. 갤럭시 충전기를 구매하진 않을 것입니다.
 
-사용자의 관심사는 과거 행동에 영향을 받아 동적으로 변합니다.
+- 💡 To model such sequential dynamics in user behaviors, various methods have been proposed to make ***sequential recommendations*** based on users’ **historical interactions**. They aim to predict the successive item(s) that a user is likely to interact with given her/his past interactions.
 
-- **ex.**
-    
-    아이폰을 구매한 사용자는 다음에 아이폰 충전기를 구매할 수 있습니다. 갤럭시 충전기를 구매하진 않을 것입니다.
-    
-</p>
+> 사용자의 과거 상호작용을 기반으로 다음에 선택할 아이템을 예측하는 것을 Sequential recommendation이라고 합니다.
 
-<aside>
-💡 To model such sequential dynamics in user behaviors, various methods have been proposed to make ***sequential recommendations*** based on users’ **historical interactions**. They aim to predict the successive item(s) that a user is likely to interact with given her/his past interactions.
 
-사용자의 과거 상호작용을 기반으로 다음에 선택할 아이템을 예측하는 것을 Sequential recommendation이라고 합니다.
 
-</aside>
-
-<aside>
-💡 The basic paradigm of previous work is to encode a user’s historical interactions into a vector using a **left-to-right sequential model** and make recommendations based on this hidden representation.
-
-기존 접근법들은 이를 위해 사용자의 과거 상호작용만을 hidden representaion으로 생성하여 추천을 제공했습니다.F
-
-- ex.
-    
-    Recurrent Neural Network (RNN)
-    
-
-이러한 방법은 다음과 같은 한계가 존재합니다**:**
-
-- 아이템에 대한 hidden representation이 과거의 정보만을 고려
-- 기존에 사용한 모델들은 엄격한 순서가 있다고 여겨지는 데이터를 위해 고안된 모델
-⇒ 반면, 사용자의 행동의 순서는 뒤바뀔 수 있음
+- 💡 The basic paradigm of previous work is to encode a user’s historical interactions into a vector using a **left-to-right sequential model** and make recommendations based on this hidden representation.
+> 기존 접근법들은 이를 위해 사용자의 과거 상호작용만을 hidden representaion으로 생성하여 추천을 제공했습니다.
+> ex. Recurrent Neural Network (RNN)
+> 
+> 이러한 방법은 다음과 같은 한계가 존재합니다 :
+>> - 아이템에 대한 hidden representation이 과거의 정보만을 고려
+>> - 기존에 사용한 모델들은 엄격한 순서가 있다고 여겨지는 데이터를 위해 고안된 모델
+>> - ⇒ 반면, 사용자의 행동의 순서는 뒤바뀔 수 있음
 </aside>
 
 <aside>
@@ -137,7 +122,7 @@ V=[v1,v2, . . . ,v_{|V|}]
 $$
 
 $$
-Su=[v^{(u)}_1, . . . ,v^{(u)}_t, . . . ,v^{(u)}_{n_u}]
+Su=[v^{(u)}\_1, . . . ,v^{(u)}\_t, . . . ,v^{(u)}\_{n\_u}]
 $$
 
 - 시계열 추천은 유저(u) 가 t + 1에서 상호작용할 아이템을 예측하는 것
@@ -167,7 +152,7 @@ $$
     
     ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/e2c6ab3a-b1f6-440d-8ef8-26023170c0c9/Untitled.png)
     
-    ```python
+```python
   
         class Attention(nn.Module):
             def forward(self, query, key, value, mask=None, dropout=None):
@@ -182,50 +167,50 @@ $$
                     p_attn = dropout(p_attn)
             
                 return torch.matmul(p_attn, value), p_attn
-    ```
+```
     
-    ```python
-    class MultiHeadAttention(nn.Module):
-        """
-        모델 크기와 헤드의 수를 입력을 받음
-        """
-        def __init__(self, num_heads, d_model, dropout=0.1):
-            super().__init__()
-            assert d_model % num_heads == 0
-            
-            self.d_k = d_model // num_heads
-            self.num_heads = num_heads
-            
-            self.q_linear = nn.Linear(d_model, d_model)
-            self.k_linear = nn.Linear(d_model, d_model)
-            self.v_linear = nn.Linear(d_model, d_model)
-            
-            self.output_linear = nn.Linear(d_model, d_model)
-            self.attention = Attention()
-            
-            self.dropout = nn.Dropout(dropout)
-            
-        def forward(self, query, key, value, mask=None):
-            batch_size = query.size(0)
-            q = self.q_linear(query).view(batch_size, -1, self.num_heads, self.d_k).transpose(1, 2)
-            k = self.k_linear(key).view(batch_size, -1, self.num_heads, self.d_k).transpose(1, 2)
-            v = self.v_linear(value).view(batch_size, -1, self.num_heads, self.d_k).transpose(1, 2)
-            
-            # 어텐션 적용
-            x, attn = self.attention(q, k, v, mask=mask, dropout=self.dropout)
-            
-            # concat 후 output lienear 적용
-            output = x.transpose(1, 2).contiguous().view(batch_size, -1, self.num_heads * self.d_k)
-            output = self.output_linear(output)
-            
-            return output
-    ```
+```python
+class MultiHeadAttention(nn.Module):
+    """
+    모델 크기와 헤드의 수를 입력을 받음
+    """
+    def __init__(self, num_heads, d_model, dropout=0.1):
+        super().__init__()
+        assert d_model % num_heads == 0
+        
+        self.d_k = d_model // num_heads
+        self.num_heads = num_heads
+        
+        self.q_linear = nn.Linear(d_model, d_model)
+        self.k_linear = nn.Linear(d_model, d_model)
+        self.v_linear = nn.Linear(d_model, d_model)
+        
+        self.output_linear = nn.Linear(d_model, d_model)
+        self.attention = Attention()
+        
+        self.dropout = nn.Dropout(dropout)
+        
+    def forward(self, query, key, value, mask=None):
+        batch_size = query.size(0)
+        q = self.q_linear(query).view(batch_size, -1, self.num_heads, self.d_k).transpose(1, 2)
+        k = self.k_linear(key).view(batch_size, -1, self.num_heads, self.d_k).transpose(1, 2)
+        v = self.v_linear(value).view(batch_size, -1, self.num_heads, self.d_k).transpose(1, 2)
+        
+        # 어텐션 적용
+        x, attn = self.attention(q, k, v, mask=mask, dropout=self.dropout)
+        
+        # concat 후 output lienear 적용
+        output = x.transpose(1, 2).contiguous().view(batch_size, -1, self.num_heads * self.d_k)
+        output = self.output_linear(output)
+        
+        return output
+```
     
 
 - Position-wise Feed-Forward Network
     - 각 헤드의 정보를 섞어주는 역활
     
-    ```python
+```python
     class PositionwiseFeedForward(nn.Module):
         def __init__(self, d_model, d_ff, dropout=0.1):
             super().__init__()
@@ -241,7 +226,7 @@ $$
             output = self.w_2(output)
             
             return output
-    ```
+```
     
 - Stacking Transformer Layer
     
@@ -254,8 +239,7 @@ $$
 we use the learnable positional embeddings instead of the fixed sinusoid embedding
 ```
 
-```
-
+```python
     class PositionalEmbedding(nn.Module):
         def __init__(self, max_len, d_model) -> None:
             super().__init__()
@@ -340,7 +324,7 @@ class BERT4Rec(nn.Module):
     
     ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/7c34f329-8a41-4fad-a310-247fde22ba14/Untitled.png)
     
-    ```python
+```python
     class BertTrainDataset(Dataset):
         def __init__(self, u2seq, max_len, mask_prob, mask_token, num_items, rng):
             self.u2seq = u2seq
@@ -389,7 +373,7 @@ class BERT4Rec(nn.Module):
     
         def _getseq(self, user):
             return self.u2seq[user]z
-    ```
+```
     
 
 ## 3.7 Discussion

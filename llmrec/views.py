@@ -1,28 +1,18 @@
 import json
 
+import requests
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from dotenv import load_dotenv
-from langchain import LLMChain
-from langchain.llms import HuggingFaceHub
 from langchain.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+from llmrec.utils import kyeongchan_model
+
+
 
 load_dotenv('.env.dev')
-repo_id = 'google/flan-t5-xxl'
-# 질의내용
-question = "Who is Son Heung Min? Where does he live?"
-# 템플릿
-template = """Question: {question}
-Answer: """
-prompt = PromptTemplate(template=template, input_variables=["question"])
-
-llm = HuggingFaceHub(
-    repo_id=repo_id,
-    model_kwargs={"temperature": 0.5,
-                  "max_length": 128}
-)
-llm_chain = LLMChain(prompt=prompt, llm=llm)
 
 
 @csrf_exempt
@@ -91,8 +81,32 @@ def llmrec_kyeongchan(request):
             # TODO : 히스토리 어디 어떻게 저장?
             print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
 
-            # response_message = llm_chain.run(question=message.get('text'))
-            response_message = '아직 모델이 없어요..'
+            # retrieval request ##########################
+            url = "http://3.36.208.188:8989/api/v1/retrieval/similarity_search/"
+
+            payload = {
+                "input": message.get('text'),
+                "top_k": 2,
+                "workspace_id": "76241726-616d-46bd-81ff-dfd07579d069"
+            }
+            headers = {
+                "Content-Type": "application/json"
+            }
+            response = requests.post(url, json=payload, headers=headers)
+            context_extended = ', '.join([_[0]['page_content'] for _ in response.json()])
+
+            template = '''You are an assistant for movie recommender. 
+                            Use the following pieces of retrieved context to answer the question. 
+                            If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
+
+                            Context: {context}
+
+                            Question: {input} 
+                            Answer:'''
+            prompt_template = PromptTemplate.from_template(template)
+            chain = prompt_template | kyeongchan_model | StrOutputParser()
+            response_message = chain.invoke({"context": context_extended, "input": message.get('text')})
+            # response_message = '아직 모델이 없어요..'
 
             # 클라이언트에게 성공적인 응답을 보냅니다.
             return JsonResponse({'status': 'success', 'message': response_message})

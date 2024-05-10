@@ -21,9 +21,9 @@ from utils.pop_movies import get_pop
 
 load_dotenv('.env.dev')
 
-broker_url = get_broker_url()
-producer = KafkaProducer(bootstrap_servers=[broker_url],
-                         value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+# broker_url = get_broker_url()
+# producer = KafkaProducer(bootstrap_servers=[broker_url],
+#                          value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
 mysql = MysqlClient()
 pop_movies_ids = get_pop(mysql)
@@ -203,13 +203,14 @@ def log_click(request):
             'url': page_url,
             'movieId': movie_id
         }
-        print(f"[movie/log_click] message : {message}")
-
-        # 클릭 로그를 Kafka topic에 전송
-        print(f"[movie/log_click] Send message to {'log_movie_click'} topic.")
-        producer.send('log_movie_click', message)
-        producer.flush()
-        print(f"[movie/log_click] Done sending.")
+        # print(f"[movie/log_click] message : {message}")
+        #
+        # # 클릭 로그를 Kafka topic에 전송
+        # print(f"[movie/log_click] Send message to {'log_movie_click'} topic.")
+        # producer.send('log_movie_click', message)
+        # producer.flush()
+        # print(f"[movie/log_click] Done sending.")
+        table_clicklog.put_item(click_log=message)
 
         # user logs 확인
         user_logs_df = get_user_logs_df(username, session_id)

@@ -13,7 +13,7 @@ from clients import MysqlClient
 from db_clients.dynamodb import DynamoDBClient
 from movie.models import DaumMovies
 from movie.predictors.sasrec_predictor import sasrec_predictor
-# from movie.predictors.ngcf_predictor import ngcf_predictor
+from movie.predictors.ngcf_predictor import ngcf_predictor
 from movie.predictors.kprn_predictor import kprn_predictor
 from movie.utils import add_past_rating, add_rank, get_username_sid, get_user_logs_df, get_interacted_movie_obs
 from utils.kafka import get_broker_url

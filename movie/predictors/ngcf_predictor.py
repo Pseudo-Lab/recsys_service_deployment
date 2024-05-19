@@ -74,26 +74,30 @@ class NgcfPredictor:
         user_id = new_num_user + 1
         print(user_id)
         """
-        print(f"interacted_items : {interacted_items}")
+        interacted_items = [ts.item_encoder[i] for i in interacted_items]
         # 비회원 데이터 적재 X
-        user_id = 10538
-        print(user_id)
+        user_id = len(ts.user_encoder) + 1
+        item_num = len(ts.item_encoder)
 
         data_generator.train_items[user_id - 1] = interacted_items
 
         new_user_item_dst = interacted_items
         new_user_item_src = [user_id - 1] * len(new_user_item_dst)
         user_selfs = list(range(user_id))
-        item_selfs = list(range(25139))
+        item_selfs = list(range(item_num))
         data_dict = {
             ("user", "user_self", "user"): (user_selfs, user_selfs),
             ("item", "item_self", "item"): (item_selfs, item_selfs),
             ("user", "ui", "item"): (
-            data_generator.user_item_src + new_user_item_src, data_generator.user_item_dst + new_user_item_dst),
+                data_generator.user_item_src + new_user_item_src,
+                data_generator.user_item_dst + new_user_item_dst
+            ),
             ("item", "iu", "user"): (
-            data_generator.user_item_dst + new_user_item_dst, data_generator.user_item_src + new_user_item_src),
+                data_generator.user_item_dst + new_user_item_dst,
+                data_generator.user_item_src + new_user_item_src
+            ),
         }
-        num_dict = {"user": user_id, "item": 25139}
+        num_dict = {"user": user_id, "item": item_num}
 
         data_generator.g = dgl.heterograph(data_dict, num_nodes_dict=num_dict)
 
@@ -144,7 +148,6 @@ class NgcfPredictor:
         for i in rec_list:
             recomm_result.append(ts.item_decoder[i])
 
-        print(f"ngcf recomm_result : {recomm_result}")
         return recomm_result
 
 

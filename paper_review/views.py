@@ -23,7 +23,8 @@ def index_monthly_pseudorec(request):
                   template_name='post_list.html',
                   context={
                       'posts': posts,
-                      'header': '월간슈도렉'
+                      'header': '월간슈도렉',
+                      'discription' : '추천시스템 트렌드 팔로업 월간지'
                   })
 
 

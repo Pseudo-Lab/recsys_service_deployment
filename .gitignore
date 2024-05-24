@@ -1,7 +1,6 @@
 data/
 .ipynb_checkpoints/
 *.pyc
-*/__pycache__/*
 __pycache__/
 
 # .env files

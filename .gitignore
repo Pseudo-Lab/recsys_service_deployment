@@ -3,8 +3,8 @@ data/
 *.pyc
 __pycache__/
 *.ipynb
-movie/__pycache__/*
-config/__pycache__/*
+*/__pycache__/*
+*/*/__pycache__/*
 
 # .env files
 .env

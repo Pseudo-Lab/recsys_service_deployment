@@ -37,7 +37,6 @@ val_data = x_valid.copy()
 # %% rating matrix about train/test set.
 
 n_item = len(set(data['iid']))
-print(n_item)
 n_user = len(set(data['uid']))
 
 # train_df = pd.DataFrame(columns={'uid','iid'})

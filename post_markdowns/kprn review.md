@@ -14,7 +14,7 @@
         - connectivity로 인해 KG 추천시스템이 **추론(reasoning)**과 **설명이 가능(explainability)** 해짐.
             - 예시
                 
-                ![Untitled](../../static/img/kprn review/preferential inference viea paths.png)
+                ![Untitled](../../../static/img/kprn review/preferential inference viea paths.png)
                 
                 - Alice는 Shape of You와 연결돼있고, 이는 Ed Sheeren이 부른 노래이다. 이로 인해 Ed Sheeren이 부른 I see Fire에도 Alice는 연결된다.
                 - 이러한 연결성이 발생하지 않은 user-item interaction에 대해서 추론을 할 수 있게 해준다. 결과적으로 I see Fire를 Alice하게 추천하게 된다.
@@ -64,7 +64,7 @@ $$
 
 지식 그래프를 이용한 추천 시스템에서는 이런 경로를 통해 설명 가능한 추천을 수행할 수 있다.
 
-![Untitled](../../static/img/kprn review/preferential inference viea paths.png)
+![Untitled](../../../static/img/kprn review/preferential inference viea paths.png)
 
 예를 들어,
 
@@ -93,7 +93,7 @@ $f$는 모델, $\Theta$는 파라미터, $\hat{y}_{ui}$는 예상 점수다.
 
 **Modeling**
 
-![Untitled](../../static/img/kprn review/modeling components.png)
+![Untitled](../../../static/img/kprn review/modeling components.png)
 
 KPRN은 3가지의 주요 컴포넌트로 이루어져 있다.
 
@@ -204,7 +204,7 @@ K는 1~15의 값으로 바꿔가면서 실험.
 
 </aside>
 
-![Untitled](../../static/img/kprn review/performance comparison.png)
+![Untitled](../../../static/img/kprn review/performance comparison.png)
 
 KPRN이 좋으니까 논문이 나왔겠죠…?
 
@@ -222,7 +222,7 @@ KPRN이 좋으니까 논문이 나왔겠죠…?
 
 `Relation modeling의 역할`
 
-![Untitled](../../static/img/kprn review/relation modeling.png)
+![Untitled](../../../static/img/kprn review/relation modeling.png)
 
 relation modeling을 하지 않는 KPRN-r 모델을 만들어 비교. (즉, input vector $\mathbf{x}\_{l}=\mathbf{e}\_{l} \oplus \mathbf{e'}\_{l}$)
 
@@ -231,7 +231,7 @@ relation modeling을 하지 않는 KPRN-r 모델을 만들어 비교. (즉, inpu
 
 `Weighted pooling에서 $\gamma$의 영향`
 
-![Untitled](../../static/img/kprn review/gamma effect.png)
+![Untitled](../../../static/img/kprn review/gamma effect.png)
 
 $\gamma$의 값을 [0.01, 0.1, 1, 10]으로 바꿔가면서 실험.
 

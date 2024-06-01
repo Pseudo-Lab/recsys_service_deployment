@@ -28,7 +28,7 @@ urlpatterns = [
     path('', home),
     path('log_click/', log_click, name='log_click'),
     path('log_star/', log_star, name='log_star'),
-path('archive/', include('paper_review.urls')),
+    path('archive/', include('paper_review.urls')),
     # path('paper_review/', include('paper_review.urls')),
     # path('monthly_pseudorec/', include('paper_review.urls')),
     path('markdownx/', include('markdownx.urls')),

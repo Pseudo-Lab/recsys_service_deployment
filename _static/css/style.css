@@ -19,7 +19,22 @@ body {
     background: #efefef;
 }
 
+button {
+    border: none;
+    outline: none;
+    background: #fff;
+    padding: 0;
+}
 
+.btn{
+    border: none;
+}
+
+/* Remove default click styles for ion-icon */
+ion-icon {
+    --ionicon-stroke-width: 32px; /* 임의의 값 설정 */
+    --ionicon-stroke-color: transparent; /* 클릭 시 테두리 색상을 투명하게 설정하여 테두리가 나타나지 않도록 함 */
+}
 
 
 /*header {*/
@@ -225,46 +240,83 @@ main .center-main-field .paper-review-main p {
 }
 
 main .center-main-field .paper-review-main img {
-    width:100%;
+    width: 100%;
 }
 
-main .model-rec ul {
-    width: 100%;
+main .model-rec .description{
+        padding-bottom: 2em;
+    height: 15vh;
+}
+
+main .model-rec .model-rec-header .listing-group {
+    display: flex;
+}
+
+
+main .model-rec .description p{
+    color: #000;
+}
+main .model-rec .model-rec-header {
+    display: flex;
+    position: relative;
+/*justify-content: end;*/
+padding: 0 0 2em 0;
+}
+
+
+main .model-rec .model-rec-header .listing-group ul {
+    /*width: 100%;*/
+    position: relative;
+    display: flex;
+    gap: 1em;
     margin-bottom: 10px;
     margin-right: 20px;
+    padding-left: 0;
 }
 
-main .model-rec ul::after {
+main .model-rec .model-rec-header .listing-group ul::after {
     content: '';
-    display: block;
+    display: flex;
     clear: both;
 }
 
-main .model-rec ul li {
-    float: right;
-    margin-right: 20px;
-    width: 100px;
-    height: 26px;
+main .model-rec .model-rec-header .listing-group ul li {
+    padding: 0 10px;
 }
 
-main .model-rec ul li a {
+main .model-rec .model-rec-header .listing-group ul li a {
     display: block;
+    position: relative;
     width: 100%;
-    height: 100%;
+    /*height: 100%;*/
     font: bold 12px/26px 'orbitron';
     color: #aaa;
     letter-spacing: 1px;
     text-align: center;
     border-radius: 5px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0px 10px 10px 0 rgba(0, 0, 0, 0.05);
     background: #fff;
+        padding: 0 10px;
 }
 
-main .model-rec ul li.on a {
+main .model-rec .model-rec-header .listing-group ul li.on a {
     background: linear-gradient(45deg, #67faf3, #58abf8);
-    box-shadow: 0px 5px 20px rgba(0, 255, 255, 0.527);
+    /*box-shadow: 0px 5px 20px rgba(0, 255, 255, 0.527);*/
     color: #fff;
 }
+
+main .model-rec .model-rec-header .listing-group .search-icon {
+    position: absolute;
+    right: 0;
+    z-index: 10;
+    cursor: pointer;
+}
+
+main .model-rec .model-rec-header .listing-group .search-icon  ion-icon{
+    font-size: 1.5em;
+}
+
+
 
 .searchGroup {
     display: flex;
@@ -279,19 +331,29 @@ main .model-rec ul li.on a {
 }
 
 .searchBox {
-    /*position: absolute;*/
-    right: 30px;
+    position: absolute;
+    /*left: 0;*/
+    right: 0;
+    width: 0;
     height: 100%;
-    background: #efefef;
+    /*display: flex;*/
+    background: #fff;
     align-items: center;
     padding: 0 30px;
+    transition: 0.5s ease-in-out;
+}
+
+.searchBox.active {
+    /*left: 0;*/
+    right: 0;
+    width: 100%;
 }
 
 .searchBox input {
     width: 100%;
     border: none;
     outline: none;
-    background-color: #efefef;
+    background-color: #fff;
     color: #000000;
     font-size: 1.25em;
     border-bottom: 1px solid rgba(0, 0, 0, 0.5);
@@ -300,7 +362,33 @@ main .model-rec ul li.on a {
 
 .searchBtn {
     position: relative;
-    top: 15px;
+    top: 10px;
+    left: 20px;
+    transition: 0.5s;
+}
+
+.searchBtn.active{
+    left: 0;
+    border: none;
+}
+
+.closeBtn {
+            position: relative;
+    top: 14px;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.5s;
+    scale: 0;
+
+}
+
+.closeBtn.active {
+    opacity: 1;
+    visibility: visible;
+    transition: 0.5s;
+    scale: 1;
+        position: relative;
+    top: 14px;
 }
 
 main .model-rec section {
@@ -315,7 +403,7 @@ main .model-rec section::after {
 
 main .model-rec section article {
     width: 16%;
-    max-width : 300px;
+    max-width: 300px;
     float: left;
     box-sizing: border-box;
     /*padding: 12px;*/
@@ -374,7 +462,7 @@ main .model-rec section article div h2 {
 }
 
 main .model-rec section article div p {
-    font: 10px/1.2 'arial';
+    font: 12px/1.2 'arial';
     color: #777;
     margin-bottom: 5px;
     overflow: hidden;
@@ -434,7 +522,6 @@ main .model-rec section article > div:hover h2, p {
     /*header {*/
     /*    width: 100%;*/
     /*}*/
-
     /*main {*/
     /*    margin-left: 350px;*/
     /*}*/
@@ -444,50 +531,50 @@ main .model-rec section article > div:hover h2, p {
 }
 
 /*@media screen and (max-width: 1199px) {*/
-    /*header {*/
-    /*    width: 100%;*/
-    /*    height: 80px;*/
-    /*    position: relative;*/
-    /*}*/
+/*header {*/
+/*    width: 100%;*/
+/*    height: 80px;*/
+/*    position: relative;*/
+/*}*/
 
-    /*header h1 {*/
-    /*    font: bold 24px/1 'orbitron';*/
-    /*    transform: translateY(80%);*/
-    /*}*/
+/*header h1 {*/
+/*    font: bold 24px/1 'orbitron';*/
+/*    transform: translateY(80%);*/
+/*}*/
 
-    /*header h1::before, header h1::after {*/
-    /*    display: none;*/
-    /*}*/
+/*header h1::before, header h1::after {*/
+/*    display: none;*/
+/*}*/
 
-    /*header div.clicked_movies {*/
-    /*    display: none;*/
-    /*}*/
+/*header div.clicked_movies {*/
+/*    display: none;*/
+/*}*/
 
-    /*header div.watched_list {*/
-    /*    display: none;*/
-    /*}*/
+/*header div.watched_list {*/
+/*    display: none;*/
+/*}*/
 
-    /*header ul {*/
-    /*    left: 83%;*/
-    /*    bottom: 25px;*/
-    /*}*/
+/*header ul {*/
+/*    left: 83%;*/
+/*    bottom: 25px;*/
+/*}*/
 
-    /*header ul li {*/
-    /*    margin-right: 20px;*/
-    /*}*/
+/*header ul li {*/
+/*    margin-right: 20px;*/
+/*}*/
 
-    /*header ul li a {*/
-    /*    font-size: 20px;*/
-    /*}*/
+/*header ul li a {*/
+/*    font-size: 20px;*/
+/*}*/
 
-    /*header ul li a span {*/
-    /*    display: none;*/
-    /*}*/
+/*header ul li a span {*/
+/*    display: none;*/
+/*}*/
 
-    /*main {*/
-    /*    width: 100%;*/
-    /*    margin-left: 0px;*/
-    /*}*/
+/*main {*/
+/*    width: 100%;*/
+/*    margin-left: 0px;*/
+/*}*/
 
 /*    main .model-rec section article {*/
 /*        width: 25%;*/
@@ -508,7 +595,6 @@ main .model-rec section article > div:hover h2, p {
     /*header ul {*/
     /*    left: 70%;*/
     /*}*/
-
     main .model-rec section article {
         width: 50%;
     }
@@ -518,22 +604,18 @@ main .model-rec section article > div:hover h2, p {
     /*header ul {*/
     /*    display: none;*/
     /*}*/
-
     /*main ul {*/
     /*    margin-right: 0px;*/
     /*    box-sizing: border-box;*/
     /*    padding: 0px 13px;*/
     /*}*/
-
     /*main ul li {*/
     /*    margin-right: 2%;*/
     /*    width: 32%;*/
     /*}*/
-
     /*main ul li:nth-of-type(1) {*/
     /*    margin-right: 0%;*/
     /*}*/
-
     main .model-rec section article {
         width: 100%;
     }

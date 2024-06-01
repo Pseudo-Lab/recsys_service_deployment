@@ -9,8 +9,7 @@ from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 from llmrec.utils import kyeongchan_model
-
-
+from movie.utils import get_username_sid
 
 load_dotenv('.env.dev')
 
@@ -72,6 +71,7 @@ def llmrec_namjoon(request):
 @csrf_exempt
 def llmrec_kyeongchan(request):
     if request.method == 'POST':
+        username, session_id = get_username_sid(request, _from='llmrec_kyeongchan')
         try:
             data = json.loads(request.body.decode('utf-8'))
             message = data.get('message', '')
@@ -79,7 +79,7 @@ def llmrec_kyeongchan(request):
             # 여기서 message를 원하는 대로 처리
             # TODO : 캐시로 히스토리 갖고있다가 multi-turn? 모델도 히스토리 모델이 필요하다. 한글, 챗, 히스토리 사용 가능한 모델이어야함.
             # TODO : 히스토리 어디 어떻게 저장?
-            print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
+            print(f"[{message.get('timestamp')}]{username}({session_id}) : {message.get('text')}")
 
             # retrieval request ##########################
             url = "http://3.36.208.188:8989/api/v1/retrieval/similarity_search/"
@@ -92,20 +92,19 @@ def llmrec_kyeongchan(request):
             headers = {
                 "Content-Type": "application/json"
             }
-            response = requests.post(url, json=payload, headers=headers)
-            context_extended = ', '.join([_[0]['page_content'] for _ in response.json()])
+            # response = requests.post(url, json=payload, headers=headers)
+            # context_extended = ', '.join([_[0]['page_content'] for _ in response.json()])
 
-            template = '''You are an assistant for movie recommender. 
-                            Use the following pieces of retrieved context to answer the question. 
-                            If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
+            template = '''You are an excellent movie curator. Your job is to recommend movie to user based on Context.
+            Context:
 
-                            Context: {context}
-
-                            Question: {input} 
-                            Answer:'''
+            Context : {}
+            Question: {input}
+            
+            Answer:'''
             prompt_template = PromptTemplate.from_template(template)
             chain = prompt_template | kyeongchan_model | StrOutputParser()
-            response_message = chain.invoke({"context": context_extended, "input": message.get('text')})
+            response_message = chain.invoke({"input": message.get('text')})
             # response_message = '아직 모델이 없어요..'
 
             # 클라이언트에게 성공적인 응답을 보냅니다.

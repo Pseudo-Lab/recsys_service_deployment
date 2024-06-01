@@ -139,6 +139,7 @@ class Data(object):
         return self.n_users, self.n_items
 
     def print_statistics(self):
+        print(f"NGCF data info".ljust(60, '-'))
         print("n_users=%d, n_items=%d" % (self.n_users, self.n_items))
         print("n_interactions=%d" % (self.n_train + self.n_test))
         print(
@@ -149,3 +150,4 @@ class Data(object):
                 (self.n_train + self.n_test) / (self.n_users * self.n_items),
             )
         )
+        print(f"".ljust(60, '-'))

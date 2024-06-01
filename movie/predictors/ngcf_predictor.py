@@ -24,7 +24,7 @@ class NgcfPredictor:
     def __init__(self):
         self.args = parse_args()
         self.device = 'cpu'
-        self.num_recommendations = 10
+        self.num_recommendations = 30
         self.num_epochs = 10
 
     def sample(self, users, items):

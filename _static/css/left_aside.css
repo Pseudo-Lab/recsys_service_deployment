@@ -1,6 +1,15 @@
+.left-float-field ul, ol, li {
+    list-style: none;
+}
 
-.watched_movie{
-        border-color: rgba(33,33,33,0.1);
+a {
+    text-decoration: none;
+    color: black;
+}
+
+
+.watched_movie {
+    border-color: rgba(33, 33, 33, 0.1);
     border-style: solid;
     border-width: 0 0 1px 0;
 }
@@ -23,4 +32,53 @@ main div.watched_list p {
     vertical-align: top;
     width: 200px;
 
+}
+
+.left-float-field .nav-links {
+
+    margin-top: 20px;
+    padding-left: 0px;
+        margin-left: 3em;
+
+}
+
+.left-float-field .nav-links li {
+    height: 50px;
+    font-size: 20px;
+    transition: all 0.4s ease;
+}
+
+.left-float-field .nav-links li ion-icon{
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.left-float-field .nav-links li.showMenu ion-icon.arrow{
+transform: rotate(-180deg);
+    cursor: pointer;
+}
+
+.left-float-field .nav-links li .sub-menu {
+    padding: 14px 0px 14px 20px;
+    margin-top: -10px;
+    text-align: justify;
+    display: none;
+    transition: all 0.3s ease;
+
+
+}
+
+.left-float-field .nav-links li.showMenu .sub-menu {
+display: block;
+transition: all 0.3s ease;
+}
+
+
+
+.left-float-field .nav-links li .sub-menu li {
+    padding: 10px 0;
+}
+
+.left-float-field .nav-links .sub-menu li a:hover {
+    color: #1c9bef;
 }

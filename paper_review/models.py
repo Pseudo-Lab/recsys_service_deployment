@@ -4,7 +4,7 @@ from markdownx.models import MarkdownxField
 
 
 class Post(models.Model):
-    title = models.CharField(max_length=30)
+    title = models.CharField(max_length=100)
     # content = models.TextField()
     content = MarkdownxField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -28,12 +28,17 @@ class Post(models.Model):
         self.save()   # aws mysql로 바꾸면서 에러났는데 settings에서 'charset': 'utf8mb4' 추가하니 됐음
 
 class PostMonthlyPseudorec(models.Model):
-    title = models.CharField(max_length=30)
-    # content = models.TextField()
+    title = models.CharField(max_length=100, default='제목 작성')
+    subtitle = models.CharField(max_length=100, default='부제 작성')
+    month = models.CharField(max_length=10, default='203004')
+    card_image = models.ImageField("카드 이미지", upload_to="paper_review/card_imgs", blank=True)
     content = MarkdownxField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    # category = models.CharField(max_length=30, default=None, null=True)
+    author = models.CharField(max_length=50, default='작성자추가')
+    author_image = models.ImageField("작성자 이미지", upload_to="paper_review/author_imgs", blank=True)
+    tag1 = models.CharField(max_length=50, default='Recommendation Model')
+    tag2 = models.CharField(max_length=50, default='Tech')
 
     def __str__(self):
         return f"[{self.pk}]{self.title}"

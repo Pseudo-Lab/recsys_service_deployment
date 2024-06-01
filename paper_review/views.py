@@ -14,17 +14,25 @@ def index_paper_review(request):
                   template_name='post_list.html',
                   context={
                       'posts': posts,
-                      'header':'Paper Review'
+                      'header': 'Paper Review'
                   })
 
+
 def index_monthly_pseudorec(request):
-    posts =PostMonthlyPseudorec.objects.all().order_by('-pk')
+    posts = PostMonthlyPseudorec.objects.all().order_by('-pk')
+    # return render(request=request,
+    #               template_name='post_list.html',
+    #               context={
+    #                   'posts': posts,
+    #                   'header': '월간슈도렉',
+    #                   'discription': '추천시스템 트렌드 팔로업 월간지'
+    #               })
     return render(request=request,
-                  template_name='post_list.html',
+                  template_name='post_list_monthly_pseudorec.html',
                   context={
                       'posts': posts,
                       'header': '월간슈도렉',
-                      'discription' : '추천시스템 트렌드 팔로업 월간지'
+                      'description': '추천시스템 트렌드 팔로업 월간지'
                   })
 
 
@@ -78,7 +86,11 @@ def single_post_page_paper_review(request, pk):
 def single_post_page_monthly_pseudorec(request, pk):
     post = PostMonthlyPseudorec.objects.get(pk=pk)
     md_mapper = {
-        1: 'post_markdowns/monthly_pseudorec_202404.md'
+        1: 'post_markdowns/monthly_pseudorec/202404_kyungah.md',
+        2: 'post_markdowns/monthly_pseudorec/202404_minsang.md',
+        3: 'post_markdowns/monthly_pseudorec/202404_kyeongchan.md',
+        4: 'post_markdowns/monthly_pseudorec/202404_hyunwoo.md',
+        5: 'post_markdowns/monthly_pseudorec/202404_namjoon.md'
     }
     md_file_path = md_mapper[pk]
     post.set_content_from_md_file(md_file_path)

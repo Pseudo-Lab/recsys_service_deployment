@@ -15,3 +15,5 @@ __pycache__
 
 # kprn
 pytorch_models/kprn/kprn.pt
+
+chroma.sqlite3

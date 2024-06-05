@@ -8,8 +8,10 @@ from dotenv import load_dotenv
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-from llmrec.utils import kyeongchan_model
+# from llmrec.utils import kyeongchan_model
+from llmrec.utils.hyeonwoo.load_chain import get_chain
 from movie.utils import get_username_sid
+
 
 load_dotenv('.env.dev')
 
@@ -22,14 +24,12 @@ def llmrec_hyeonwoo(request):
             message = data.get('message', '')
 
             # 여기서 message를 원하는 대로 처리
-            # TODO : 캐시로 히스토리 갖고있다가 multi-turn? 모델도 히스토리 모델이 필요하다. 한글, 챗, 히스토리 사용 가능한 모델이어야함.
-            # TODO : 히스토리 어디 어떻게 저장?
+            question = message.get('text')
+            new_response = get_chain(question)
             print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
 
-            response_message = '[현우님 모델]아직 모델이 없어요ㅠ'
-
             # 클라이언트에게 성공적인 응답을 보냅니다.
-            return JsonResponse({'status': 'success', 'message': response_message, 'url': '/llmrec/hyeonwoo/'})
+            return JsonResponse({'status': 'success', 'message': new_response, 'url': '/llmrec/hyeonwoo/'})
         except json.JSONDecodeError as e:
             # JSON 디코딩 오류가 발생한 경우 에러 응답을 보냅니다.
             return JsonResponse({'status': 'error', 'message': str(e)})

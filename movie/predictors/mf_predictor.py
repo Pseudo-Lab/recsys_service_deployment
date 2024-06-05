@@ -16,7 +16,7 @@ class MFPredictor:
                                      params["num_negatives"], path=self.dir+'/pth/bpr_mf_model_20.pth')
         
         self.item_id_map = self.load_dict_from_pickle(self.dir+'/data/item_dict.pkl')
-        self.pop_movie = self.load_dict_from_pickle(dir+'/data/pop_movie200.pkl')
+        self.pop_movie = self.load_dict_from_pickle(self.dir+'/data/pop_movie200.pkl')
     
     def load_params(self):
         with open(os.path.join(self.dir, 'params.json'), 'r') as f:

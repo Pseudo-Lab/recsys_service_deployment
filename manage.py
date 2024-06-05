@@ -5,6 +5,7 @@ import sys
 
 from producer import wait_for_kafka_broker
 from utils.download_models import download_kprn_model
+from utils.download_vectordb import download_vectordb
 
 
 def main():
@@ -12,6 +13,7 @@ def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     # wait_for_kafka_broker('[Broker waiting in manage.py]')
     download_kprn_model()
+    download_vectordb()
 
     try:
         from django.core.management import execute_from_command_line

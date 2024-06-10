@@ -1,6 +1,10 @@
 data/
 .ipynb_checkpoints/
 *.pyc
+__pycache__/
+*.ipynb
+*/__pycache__/*
+*/*/__pycache__/*
 
 # .env files
 .env

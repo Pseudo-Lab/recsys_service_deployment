@@ -13,8 +13,9 @@ from clients import MysqlClient
 from db_clients.dynamodb import DynamoDBClient
 from movie.models import DaumMovies
 from movie.predictors.sasrec_predictor import sasrec_predictor
-from movie.predictors.ngcf_predictor import ngcf_predictor
+# from movie.predictors.ngcf_predictor import ngcf_predictor
 from movie.predictors.kprn_predictor import kprn_predictor
+from movie.predictors.mf_predictor import mf_predictor
 from movie.utils import add_past_rating, add_rank, get_username_sid, get_user_logs_df, get_interacted_movie_obs
 from utils.kafka import get_broker_url
 from utils.pop_movies import get_pop
@@ -110,40 +111,39 @@ def sasrec(request):
     return render(request, "home.html", context=context)
 
 
-def ngcf(request):
-    print(f"movie/ngcf view".ljust(100, '>'))
-    username, session_id = get_username_sid(request, _from='movie/ngcf')
-    user_logs_df = get_user_logs_df(username, session_id)
+# def ngcf(request):
+#     print(f"movie/ngcf view".ljust(100, '>'))
+#     username, session_id = get_username_sid(request, _from='movie/ngcf')
+#     user_logs_df = get_user_logs_df(username, session_id)
 
-    if not user_logs_df.empty:  # 클릭로그 있을 때
-        interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
-        interacted_movie_obs = get_interacted_movie_obs(interacted_movie_ids)
+#     if not user_logs_df.empty:  # 클릭로그 있을 때
+#         interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
+#         interacted_movie_obs = get_interacted_movie_obs(interacted_movie_ids)
 
-        ngcf_recomm_mids = ngcf_predictor.predict(interacted_items=interacted_movie_ids)
-        ngcf_recomm = list(DaumMovies.objects.filter(movieid__in=ngcf_recomm_mids).values())
+#         ngcf_recomm_mids = ngcf_predictor.predict(interacted_items=interacted_movie_ids)
+#         ngcf_recomm = list(DaumMovies.objects.filter(movieid__in=ngcf_recomm_mids).values())
 
-        # context 구성
-        context = {
-            'ngcf_on': True,
-            'movie_list': add_rank(add_past_rating(username=username,
-                                                   session_id=session_id,
-                                                   recomm_result=ngcf_recomm
-                                                   )),
-            'watched_movie': interacted_movie_obs,
-            'description1': 'NGCF 추천 영화',
-            'description2': "NGCF 추천결과입니다"
-                            "<br><a href='https://www.pseudorec.com/paper_review/2/'>논문리뷰 보러가기↗</a>"
-        }
-        return render(request, "home.html", context=context)
-    else:
-        context = {
-            'movie_list': [],
-            'ngcf_on': True,
-            'description1': 'SASRec 추천 영화',
-            'description2': '기록이 없어 추천할 수 없습니다!\n인기 영화에서 평점을 매기거나 포스터 클릭 기록을 남겨주세요!'
-        }
-    return render(request, "home.html", context=context)
-
+#         # context 구성
+#         context = {
+#             'ngcf_on': True,
+#             'movie_list': add_rank(add_past_rating(username=username,
+#                                                    session_id=session_id,
+#                                                    recomm_result=ngcf_recomm
+#                                                    )),
+#             'watched_movie': interacted_movie_obs,
+#             'description1': 'NGCF 추천 영화',
+#             'description2': "NGCF 추천결과입니다"
+#                             "<br><a href='https://www.pseudorec.com/paper_review/2/'>논문리뷰 보러가기↗</a>"
+#         }
+#         return render(request, "home.html", context=context)
+#     else:
+#         context = {
+#             'movie_list': [],
+#             'ngcf_on': True,
+#             'description1': 'SASRec 추천 영화',
+#             'description2': '기록이 없어 추천할 수 없습니다!\n인기 영화에서 평점을 매기거나 포스터 클릭 기록을 남겨주세요!'
+#         }
+#     return render(request, "home.html", context=context)
 
 def kprn(request):
     print(f"movie/kprn view".ljust(100, '>'))
@@ -174,6 +174,41 @@ def kprn(request):
             'movie_list': [],
             'kprn_on': True,
             'description1': 'KPRN 추천 영화',
+            'description2': '기록이 없어 추천할 수 없습니다!\n인기 영화에서 평점을 매기거나 포스터 클릭 기록을 남겨주세요!'
+        }
+
+    return render(request, "home.html", context=context)
+
+def general_mf(request):
+    print(f"movie/general_mf view".ljust(100, '>'))
+    username, session_id = get_username_sid(request, _from='movie_general_mf') 
+    user_logs_df = get_user_logs_df(username, session_id) 
+    # user_logs_df_star = user_logs_df[~user_logs_df.star.isna()]
+
+    if not user_logs_df.empty:  # 클릭로그 있을 때
+        interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
+        interacted_movie_obs = get_interacted_movie_obs(interacted_movie_ids)
+
+        mf_recomm_mids = mf_predictor.predict(9360, dbids=interacted_movie_ids)
+        mf_recomm = list(DaumMovies.objects.filter(movieid__in=mf_recomm_mids).values())
+        mf_recomm = sorted(mf_recomm, key=lambda x: mf_recomm_mids.index(x['movieid']))
+
+        context = {
+            'mf_on': True,
+            'movie_list': add_rank(add_past_rating(username=username,
+                                                   session_id=session_id,
+                                                   recomm_result=mf_recomm
+                                                   )),
+            'watched_movie': interacted_movie_obs,
+            'description1': 'General MF 추천 영화',
+            'description2': "사용자가 별점 매긴 영화를 본 다른 사용자가 시청한 영화, 또는 영화를 제작한 감독/배우의 다른 영화를 추천해줍니다."
+                            # "<br><a href='https://www.pseudorec.com/paper_review/1/'>논문리뷰 보러가기↗</a>"
+        }
+    else:
+        context = {
+            'movie_list': [],
+            'mf_on': True,
+            'description1': 'General MF 추천 영화',
             'description2': '기록이 없어 추천할 수 없습니다!\n인기 영화에서 평점을 매기거나 포스터 클릭 기록을 남겨주세요!'
         }
 

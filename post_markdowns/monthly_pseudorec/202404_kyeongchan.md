@@ -63,7 +63,7 @@ services:
 
 <1> “{host port 번호} : {컨테이너 포트 번호}”를 의미한다. kafka 컨테이너를 띄우기 전에는 localhost:9092로 연결이 안되지만, kafka 컨테이너 띄운 후 연결 된다.
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/290b158e-6a67-4a74-9097-ddcf175cc456/Untitled.png)
+![Untitled](../../../static/img/monthly_pseudorec_202404/kyeongchan_kafka_connection.png)
 
 <2> {listener 이름} : {보안 프로토콜} 형식으로 적는다. “INSIDE”와 “OUTSIDE”라는 이름의 리스너를 적는다.
 
@@ -71,4 +71,4 @@ services:
 
 <4> `KAFKA_ADVERTISED_LISTENERS`가 좀 헷갈리던데…! 일단 카프카 프로듀서, 컨슈머에게 노출할 주소이다. 외부의 Producer는 Broker에게 바로 데이터를 보내는게 아니라 Broker 서버의 정보와 토픽 정보를 먼저 요청한 후, 서버리스트를 받고나서 거기에 데이터를 보내는데, `KAFKA_ADVERTISED_LISTENERS` 가 바로 ‘여기로 보내면 돼’라고 Producer client에게 반환해주는 서버리스트라고 한다.
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/61384864-c1a0-4bd4-9da8-04a7065906e3/Untitled.png)
+![Untitled](../../../static/img/monthly_pseudorec_202404/kyeongchan_docker_network_architecture.png)

@@ -1,4 +1,4 @@
-pre { line-height: 125%; }
+pre { line-height: 125%; margin-top: 1rem; padding: 20px 20px;}
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
 span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
 td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }

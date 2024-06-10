@@ -4,7 +4,7 @@
 
 저희는 기본적으로 RAG를 이용하여 영화의 메타 정보를 가져오고, 이를 기반으로 LLM과 결합시켜 Chatbot 형태의 추천시스템을 만드려고 계획하고 있습니다. 그렇다면, 이때 RAG를 이용해서 영화의 메타 정보 및 내용을 가져와야하고 이때 이를 위한 자연어 처리 or 임베딩 모델이 필요합니다. 
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/110d08ed-20b8-4e81-9970-bdafc706d7d2/Untitled.png)
+![Untitled](../../../static/img/monthly_pseudorec_202404/hyeonwoo_architecture.png)
 
 실제 위의 그림에서 왼쪽의 파트라고 생각하시면 됩니다. 그렇다면, 현재 RAG에서 임베딩 추출은 어떻게 진행이 되고 있을까요? 
 
@@ -33,13 +33,11 @@ embeddings = last_token_pool(outputs.last_hidden_state, batch_dict['attention_ma
 
 그렇다면 이를 위해서 어떤 작업을 해줘야하나요? 비슷한 문서는 비슷한 임베딩을 가지도록 추가 학습이 필요하고, 이를 적용한 대표적인 논문이 E5-Mistral 이라는 논문입니다. 
 
- 
-
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/99354cbc-5805-426c-a7bf-f77e5999bf7c/Untitled.png)
+![Untitled](../../../static/img/monthly_pseudorec_202404/hyeonwoo_mteb_leaderboard.png)
 
 해당 방법은 MTEB 이라는 임베딩 리더보드에서 상위권의 모델로 간단한 방법을 통해서도 높은 성능을 달성한 모델입니다. 
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/5a885138-5144-453a-ab62-0a699f89af8f/Untitled.png)
+![Untitled](../../../static/img/monthly_pseudorec_202404/hyeonwoo_loss.png)
 
 그럼 어떻게 해당 방법이 높은 성능을 달성할 수 있었을까요? 그 방법은 로스의 구성에 있습니다. 
 
@@ -47,9 +45,7 @@ embeddings = last_token_pool(outputs.last_hidden_state, batch_dict['attention_ma
 
 실제 수식을 보면 알겠지만, 주어진 Query와 연관이 있는 Document+와 연관이 없는 Document (ni)를 기반으로 로스를 계산 하게 됩니다. 이때, 학습 방법은 
 
-![출처 : https://nuguziii.github.io/survey/S-006/](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/803d1327-2020-4dc1-965d-8da256ba73f5/Untitled.png)
-
-출처 : https://nuguziii.github.io/survey/S-006/
+![Untitled](../../../static/img/monthly_pseudorec_202404/hyeonwoo_metric_learning_loss.png)*출처 : 🔗 <a href="https://nuguziii.github.io/survey/S-006/" target="_blank" style="text-decoration: underline;">https://nuguziii.github.io/survey/S-006/ ↗</a>*
 
 Positive samples 간에 거리는 가깝게, Negative Samples간의 거리는 멀게 학습되어서 저희가 원하는 유사 영화끼리 같은 임베딩 상에 매핑되도록 도와줍니다. 
 

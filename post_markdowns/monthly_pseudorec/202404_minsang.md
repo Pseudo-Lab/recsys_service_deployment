@@ -4,7 +4,7 @@
 
 2019년에 제안된 Knowledgeaware Path Recurrent Network, 줄여서 KPRN은 이렇게 개체(entity) 사이의 관계(relation)들을 이용해 만들어진 그래프 기반 추천시스템입니다.
 
-[Explainable Reasoning over Knowledge Graphs for Recommendation](https://arxiv.org/abs/1811.04540)
+📄 <a href="https://arxiv.org/abs/1811.04540" target="_blank" style="text-decoration: underline;">**Explainable Reasoning over Knowledge Graphs for Recommendation ↗**</a>
 
  처음 <추천시스템 주요 논문 리뷰 및 구현>에 참여했을 때, 여러가지 추천시스템 중에서 KPRN을 고른 것은 두 가지 이유 때문이었습니다. 
 
@@ -14,15 +14,11 @@
 
 그렇게 추천시스템 스터디가 시작된지 어언 1년이 지나, 슈도렉 홈페이지에 KPRN 모델이 올라갔습니다. 오늘 글에서는 KPRN 소개와 더 생각해 볼 점들을 다뤄보려고 합니다.
 
-- **아직 슈도렉 홈페이지에 안 들어가봤다면?**
-
-[PseudoRec](https://www.pseudorec.com/)
-
 ## KPRN의 작동 방식
 
 KPRN은 아이템과 사용자, 그리고 다른 메타데이터를 가지고 만든 지식 그래프를 이용합니다. 그리고 이 그래프 안에서의 경로를 통해 사용자가 해당 아이템을 좋아할 점수를 계산합니다.
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/b009adac-2a42-4bc5-8467-8cbdcbb49ab0/Untitled.png)
+![Untitled](../../../static/img/monthly_pseudorec_202404/minsang_example.png)
 
 예를 들어, 위의 사례를 살펴볼까요?
 
@@ -44,24 +40,22 @@ $$
 
 KPRN은 이렇게 지식 그래프 상에 존재하는 경로들을 이용해 추천을 해줍니다. 유저 $u$, 아이템 $i$, 둘을 잇는 경로의 집합 $P(u,i)=\{p_1, p_2, ..., p_K\}$가 주어졌을 때, 다음 식을 통해 둘 사이의 관계를 추측하는 것이죠.
 
-$$
-\hat{y}_{ui}=f_\Theta(u,i|P(u,i))
-$$
+$$ \hat{y}\_{ui}=f_\Theta(u,i|P(u,i)) $$
 
-($f$는 모델, $\Theta$는 파라미터, $\hat{y}_{ui}$는 예상 점수)
+($f$는 모델, $\Theta$는 파라미터, $\hat{y}\_{ui}$는 예상 점수)
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/865b8446-0aa0-4fed-b8a3-2bd3fc1c0179/Untitled.png)
+![Untitled](../../../static/img/monthly_pseudorec_202404/minsang_kprn_layers.png)
 
 KPRN에서는 이를 위해 경로 $p_k$를 임베딩 벡터로 표현하는 `Embedding Layer`, Long-term sequential information을 활용하기 위한 `LSTM Layer`, 그리고 여러 경로로부터 얻은 점수를 하나로 합쳐 최종 점수는 산출하는 데 사용하는 `Pooling Layer`를 이용해 이 작업을 수행하고 있습니다. 즉, KPRN의 작동 방식을 간단히 요약하자면 아래와 같습니다.
 
 - 지식그래프로부터 유저 $u$와 다른 아이템들 사이에 존재하는 경로를 뽑아냅니다. 이 때, 연산 시간을 단축시키기 위해 경로의 길이나 갯수에 제한을 두기도 합니다.
 - 각각의 경로 $p_k$에 대해, 해당 경로가 주어졌을 때 $(u, interact, i)$의 관계가 있을 예상 점수를 구합니다. $f_\Theta(u,i|p_k)$와 같은 함수 형태를 따르고 있겠죠!
-- 여러 경로에 대한 점수를 종합해 최총 $(u, interact, i)$에 대한 점수 $\hat{y}_{ui}=f_\Theta(u,i|P(u,i))$를 구합니다.
+- 여러 경로에 대한 점수를 종합해 최종 $(u, interact, i)$에 대한 점수 $\hat{y}\_{ui}=f_\Theta(u,i|P(u,i))$를 구합니다.
 - 점수가 가장 높은 아이템 $i$를 추천작으로 제시합니다.
 
 자세한 모델 설명은 슈도렉의 KPRN 설명글을 참조해주시기 바랍니다!
 
-[KPRN 논문리뷰 - Paper Review](https://www.pseudorec.com/paper_review/1/)
+🔗 <a href="https://www.pseudorec.com/archive/paper_review/1/" target="_blank" style="text-decoration: underline;">**KPRN 논문리뷰 - Paper Review ↗**</a>
 
 ## KPRN은 다른 방식과 뭐가 다를까?
 
@@ -70,7 +64,7 @@ KPRN에서는 이를 위해 경로 $p_k$를 임베딩 벡터로 표현하는 `Em
 유저 $u$와 아이템 $i$를 연결하는 $K$개의 경로로부터 얻은 점수 $S=\{s_1, s_2, ..., s_K\}$가 있다고 할 때, 최종 점수는 다음과 같은 weighted pooling으로 정해집니다.
 
 $$
-\hat{y}_{ui}=\sigma(g\left(s_1, s_2, ..., s_K)\right)=\sigma \left( log \left[ \sum_{k=1}^{K}{exp \left( \frac{s_k}{\gamma} \right)}\right]  \right)
+\hat{y}_{ui}=\sigma(g\left(s_1, s_2, ..., s_K)\right)=\sigma \left( log \left\[ \sum\_{k=1}^{K}{exp \left( \frac{s_k}{\gamma} \right)}\right]  \right)
 $$
 
 단순한 평균 대신 이런 복잡한 함수를 쓰는 데는 몇 가지 이유가 있습니다. 그 중 하나는 각 경로의 중요도를 제시할 수 있다는 점입니다. 아래와 같이 미분값을 계산해 사용하면 됩니다.
@@ -101,7 +95,7 @@ $$
 
 지금까지 나온 영화와 관련 종사자, 그리고 유저들이 모두 포함된 지식 그래프를 만든다고 생각해보세요. 그 크기가 네트워크의 경로를 모두 계산하려면 연산력이 많이 필요하고 시간도 오래 걸립니다. 빠른 피드백을 줘야하는 추천시스템에는 어울리지 않을 수도 있습니다. 그래서 실제 적용 사례에서는 경로의 길이나 갯수에 제한을 겁니다. (지금 슈도렉에 올라간 KPRN의 경우 길이가 최대 5인 경로들만 고려하고 있습니다. 또한, 모든 경로를 사용하는 대신 정해진 갯수의 경로를 샘플링하여 추천에 사용하고 있습니다)
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/9984793b-9138-47fd-99ab-f7e9b269bac6/Untitled.png)
+![Untitled](../../../static/img/monthly_pseudorec_202404/minsang_performance.png)
 
 그런데 이렇게 경로의 일부만 고려하면 성능이 줄어들지는 않을까요? 여기서 KPRN의 장점이 드러납니다. 위 그림에서 파란색 그래프는 KPRN의 추천이 정확한 비율, 주황색은 경로 갯수를 세어서 얻은 추천이 정확한 비율을 나타냅니다. 왼쪽의 그래프 (a)는 모든 경로를 고려한 경우입니다. 파란색과 주황색 그래프를 비교해보면 거의 같은 성능임을 알 수 있습니다. KPRN이 우리가 의도했던대로 잘 작동하고 있는 셈이죠.
 

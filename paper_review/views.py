@@ -20,13 +20,6 @@ def index_paper_review(request):
 
 def index_monthly_pseudorec(request):
     posts = PostMonthlyPseudorec.objects.all().order_by('-pk')
-    # return render(request=request,
-    #               template_name='post_list.html',
-    #               context={
-    #                   'posts': posts,
-    #                   'header': '월간슈도렉',
-    #                   'discription': '추천시스템 트렌드 팔로업 월간지'
-    #               })
     return render(request=request,
                   template_name='post_list_monthly_pseudorec.html',
                   context={
@@ -90,7 +83,8 @@ def single_post_page_monthly_pseudorec(request, pk):
         2: 'post_markdowns/monthly_pseudorec/202404_minsang.md',
         3: 'post_markdowns/monthly_pseudorec/202404_kyeongchan.md',
         4: 'post_markdowns/monthly_pseudorec/202404_hyunwoo.md',
-        5: 'post_markdowns/monthly_pseudorec/202404_namjoon.md'
+        5: 'post_markdowns/monthly_pseudorec/202404_namjoon.md',
+        6: 'post_markdowns/monthly_pseudorec/202404_soonhyeok.md'
     }
     md_file_path = md_mapper[pk]
     post.set_content_from_md_file(md_file_path)

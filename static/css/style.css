@@ -237,10 +237,19 @@ main .center-main-field .paper-review-main p {
     color: black;
     margin-bottom: 0px;
     /*margin-top: 20px;*/
+    letter-spacing: 1px;
+    line-height: 2;
 }
 
 main .center-main-field .paper-review-main img {
     width: 100%;
+    max-width: 800px;
+    height: auto;
+}
+
+main .center-main-field .paper-review-main code {
+    background-color: beige;
+    border-radius: 5px; /* 테두리 모서리를 둥글게 만듦 */
 }
 
 main .model-rec .description{

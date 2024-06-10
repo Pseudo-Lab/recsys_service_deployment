@@ -1,0 +1,1 @@
+{"user_col": "nickName", "item_col": "movieId", "rating_col": "rating", "n_features": 10, "learning_rate":1e-3, "reg_lambda":1e-5, "num_epochs":100, "batch_size":128, "patience":10, "num_negatives":10}

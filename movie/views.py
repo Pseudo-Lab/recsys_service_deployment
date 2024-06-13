@@ -16,7 +16,8 @@ from movie.predictors.sasrec_predictor import sasrec_predictor
 from movie.predictors.ngcf_predictor import ngcf_predictor
 from movie.predictors.kprn_predictor import kprn_predictor
 from movie.predictors.mf_predictor import mf_predictor
-from movie.utils import add_past_rating, add_rank, get_username_sid, get_user_logs_df, get_interacted_movie_obs
+from movie.utils import add_past_rating, add_rank, get_username_sid, get_user_logs_df, get_interacted_movie_obs, \
+    log_tracking
 from utils.kafka import get_broker_url
 from utils.pop_movies import get_pop
 
@@ -34,15 +35,18 @@ pop_movies = sorted(pop_movies, key=lambda x: pop_movies_ids.index(x['movieid'])
 table_clicklog = DynamoDBClient(table_name='clicklog')
 
 
+
 # TODO: cf 모델 로드를 predict.py에서 하기!
 
 def home(request):
     print(f"movie/home view".ljust(100, '>'))
+
     if request.method == "POST":
         pass  # home에서 POST 요청 들어올곳 없다
     else:
         print(f"Home - GET")
         username, session_id = get_username_sid(request, _from='movie/home GET')
+        log_tracking(request=request, view='home')
         user_logs_df = get_user_logs_df(username, session_id)
         if len(user_logs_df):  # 클릭로그 있을 때
             print(f"Click logs exist.")

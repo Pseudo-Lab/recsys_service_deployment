@@ -1,3 +1,8 @@
+body{
+    height: 100vh;
+    background: white;
+}
+
 main {
     display: table;
     width: 100%;
@@ -10,6 +15,7 @@ main {
 
 .center-main-field {
     width: 75%;
+    /*height: 100vh;*/
 }
 
 .center-main-field .button {
@@ -33,9 +39,9 @@ main {
     font-family: 'Roboto', sans-serif;
     border-radius: 0.5em;
     padding: 1.25em 1.25em;
-    margin: auto;
-    max-width: 37.5em;
-    height: 37.5em;
+    margin-left: 20%;
+    max-width: 40vw;
+    height: 80vh;
     /*box-shadow: 0 0 1.25em 0.5em #c3c3c333;*/
 }
 
@@ -66,7 +72,7 @@ main {
     margin-bottom: 0.625em;
     display: flex;
     flex-direction: column;
-    color: #fff;
+    color: #000000;
 }
 
 .center-main-field .message-sender {
@@ -86,14 +92,39 @@ main {
 }
 
 .center-main-field .blue-bg {
-    background-color: #1c9bef;
+    /*display: inline-block;*/
+    /*background-color: #1c9bef;*/
+}
+
+.center-main-field .blue-bg .message-text {
+    text-align: right;
+}
+
+.center-main-field .blue-bg .message-sender{
+    text-align: right;
 }
 
 .center-main-field .gray-bg {
-    background-color: #3d5365;
+    /*display: inline-block;*/
+    /*background-color: #bdbdbd;*/
+
+}
+
+.center-main-field .gray-bg .message-text {
+    text-align: left;
+}
+
+.center-main-field .gray-bg .message-sender{
+    text-align: left;
+}
+
+.center-main-field .gray-bg .message-timestamp {
+    text-align: left;
 }
 
 .center-main-field .chat-input-form {
+
+    margin-bottom: 100px;
     display: flex;
     align-items: center;
     margin-top: 2em;
@@ -121,127 +152,6 @@ main {
     display: block;
     margin: 2.5em auto;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

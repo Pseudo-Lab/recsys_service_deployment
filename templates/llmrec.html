@@ -28,10 +28,10 @@
     {% include 'left_col_home.html' %}
     <div class="side-gutter"></div>
     <div class="inside">
-        <dev class="model-rec">
+        <div class="model-rec">
             <div class="description">
                 <h1>{{description1}}</h1>
-                <p>{{description2}}</p>
+                <p>{{description2|safe}}</p>
             </div>
             <div class="center-main-field">
                 <div class="chat-container">
@@ -46,10 +46,10 @@
                         <input type="text" class="chat-input" required placeholder="Type here.."/>
                         <button type="submit" class="button send-button">Send</button>
                     </form>
-                    <button class="button clear-chat-button">Clear Chat</button>
+<!--                    <button class="button clear-chat-button">Clear Chat</button>-->
                 </div>
             </div>
-        </dev>
+        </div>
     </div>
 
 </main>

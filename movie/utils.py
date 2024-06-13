@@ -1,3 +1,4 @@
+import time
 from collections import Counter
 from typing import List, Dict
 
@@ -7,7 +8,7 @@ from db_clients.dynamodb import DynamoDBClient
 from movie.models import DaumMovies
 
 table_clicklog = DynamoDBClient(table_name='clicklog')
-
+table_tracking = DynamoDBClient(table_name='tracking')
 
 def get_pop(mysql):
     print(f"get popular movies..")
@@ -79,7 +80,7 @@ def get_user_logs_df(username, session_id):
     return user_logs_df
 
 
-def get_interacted_movie_obs(interacted_movie_ids, k=10):
+def get_interacted_movie_obs(interacted_movie_ids, k=50):
     interacted_movie_obs = []
     for mid in interacted_movie_ids[::-1]:
         if mid is not None and not pd.isna(mid):
@@ -87,3 +88,13 @@ def get_interacted_movie_obs(interacted_movie_ids, k=10):
         if len(interacted_movie_obs) >= k:
             break
     return interacted_movie_obs
+
+def log_tracking(request, view):
+    username, session_id = get_username_sid(request, _from='log_tracking')
+    log = {
+        'userId': username,
+        'view' : view,
+        'timestamp': int(time.time()),
+    }
+    table_tracking.put_item(click_log=log)
+

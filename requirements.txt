@@ -64,7 +64,6 @@ google-auth==2.29.0
 googleapis-common-protos==1.63.0
 griffe==0.36.9
 grpcio==1.63.0
-guardrails-ai==0.4.4
 guardrails-api-client==0.1.1
 gunicorn==21.2.0
 h11==0.14.0

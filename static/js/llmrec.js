@@ -5,9 +5,16 @@ const chatInput = document.querySelector('.chat-input');
 const clearChatBtn = document.querySelector('.clear-chat-button');
 
 const createChatMessageElement = (message) => {
-    const serverIcon = '<img src="../../static/img/llm_icon/hyeonwoo.jpeg" alt="Server Icon" class="message-icon">';  // 아이콘 이미지
-
     if (message.url === '/llmrec/hyeonwoo/') {
+        const serverIcon = '<img src="../../static/img/llm_icon/hyeonwoo.jpeg" alt="Server Icon" class="message-icon">';  // 아이콘 이미지
+        return `
+        <div class="message ${message.sender === 'You' ? 'blue-bg' : 'gray-bg'}">
+            ${message.sender !== 'You' ? `<div class="message-icon">${serverIcon}</div>` : ''}
+            <div class="message-sender">${message.sender}</div>
+            <div class="message-text">${message.text.replace(/\n/g, '<br>')}</div>
+        </div>`;
+    } else if (message.url === '/llmrec/gyungah/') {
+        const serverIcon = '<img src="../../static/img/llm_icon/gyungah.jpeg" alt="Server Icon" class="message-icon">';  // 아이콘 이미지
         return `
         <div class="message ${message.sender === 'You' ? 'blue-bg' : 'gray-bg'}">
             ${message.sender !== 'You' ? `<div class="message-icon">${serverIcon}</div>` : ''}

@@ -43,7 +43,7 @@ def llmrec_hyeonwoo(request):
     else:
         context = {
             'description1': "Hyeonwoo's LLMREC",
-            'description2': "안녕하세요! 저는 PseudoRec에서 개발된 영화 추천 AI 코난이에요!🎬✨ <br>명탐정으로서 여러분들의 요구사항을 해결할게요 🕵️!"
+            'description2': "안녕하세요! 저는 PseudoRec에서 개발된 영화 추천 AI 코난이에요!🎬✨ <br>명탐정으로서 여러분들의 요구사항을 해결할게요 🕵️"
         }
         return render(request, "llmrec.html", context)
 

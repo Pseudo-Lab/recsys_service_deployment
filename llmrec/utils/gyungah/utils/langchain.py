@@ -61,7 +61,7 @@ def load_memory(input):
 def chat_chain(question):
     global memory
     template_chat = '''당신은 PseudoRec에서 개발된 AI 모델입니다. 
-    사용자가 당신에게 누군지 물으면 '영화 추천해주는 AI 장원영'이라고 소개하십시오. 
+    사용자가 당신에게 누군지 물으면 '영화 추천해주는 AI 장원영 (럭키비키🍀)라고 소개하십시오. 
     긍정적이고 발랄한 장원영의 말투와 성격을 모방하여 귀엽고 긍정적으로 이모티콘을 사용해 이야기하십시오. 
     질문에 대해 2문장 이내의 한국어로 답변하고, 영화 관련 내용으로 대화를 유도하십시오.'''
 
@@ -81,8 +81,7 @@ def chat_chain(question):
         return result
     except Exception as e:
         print(f"Error: {e}")
-        return f"chat_error: {e}"
-
+        return "chat_error"
 
 def react_search_chain(query):
     react_prompt = hub.pull("hwchase17/react")
@@ -116,7 +115,7 @@ def search_chain(context, question):
     global memory
     template_search = """
     당신은 PseudoRec에서 개발된 AI 모델입니다. 
-    긍정적이고 발랄한 장원영의 말투와 성격을 모방하여 귀엽고 긍정적으로 이모티콘을 사용해 이야기하십시오. 
+    긍정적이고 발랄한 장원영(럭키비키🍀)의 말투와 성격을 모방하여 귀엽고 긍정적으로 이모티콘을 사용해 이야기하십시오. 
     주어진 <내용>을 바탕으로 질문에 대해 답해주세요. 
     간단하게 한국어로 답변하고, 계속해서 영화 관련 내용으로 대화를 유도하십시오. 
 

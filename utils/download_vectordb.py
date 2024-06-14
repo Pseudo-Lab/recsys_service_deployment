@@ -6,6 +6,17 @@ from dotenv import load_dotenv
 load_dotenv('.env.dev')
 
 
+def make_dir_n_download(s3, bucket, key, dir, filename):
+    file_dir = os.path.join(dir, filename)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+    if not os.path.exists(file_dir):
+        print(f"download {key} -> {file_dir}...")
+        s3.download_file(Bucket=bucket, Key=key, Filename=os.path.join(dir, filename))
+    else:
+        print(f"file exists : {file_dir}")
+
+
 def download_vectordb():
     print(f"Download chroma.sqlite3".ljust(60, '-'))
     s3 = boto3.client(
@@ -16,20 +27,25 @@ def download_vectordb():
     )
     if not os.path.exists('llmrec/vector_dbs/hyeonwoo'):
         os.makedirs('llmrec/vector_dbs/hyeonwoo')
-    if not os.path.exists('llmrec/vector_dbs/hyeonwoo/chroma.sqlite3'):
-        print(f"Download Hyeonwoo's chromadb")
-        s3.download_file(Bucket='pseudorec-data', Key='hyeonwoo/chroma_db_content_0614/chroma.sqlite3', Filename='llmrec/vector_dbs/hyeonwoo/chroma.sqlite3')
-        s3.download_file(Bucket='pseudorec-data', Key='hyeonwoo/chroma_db_title_0614/chroma.sqlite3', Filename='llmrec/vector_dbs/hyeonwoo/chroma.sqlite3')
-        s3.download_file(Bucket='pseudorec-data', Key='hyeonwoo/dictionary/actor_rec.json', Filename='llmrec/vector_dbs/hyeonwoo/dictionary/actor_rec.json')
-        s3.download_file(Bucket='pseudorec-data', Key='hyeonwoo/dictionary/director_rec.json', Filename='llmrec/vector_dbs/hyeonwoo/dictionary/director_rec.json')
-        s3.download_file(Bucket='pseudorec-data', Key='hyeonwoo/dictionary/title_rec.json', Filename='llmrec/vector_dbs/hyeonwoo/dictionary/title_rec.json')
+    print(f"Download Hyeonwoo's vector db & files...")
+    make_dir_n_download(s3=s3, bucket='pseudorec-data', key='hyeonwoo/chroma_db_content_0614/chroma.sqlite3',
+                        dir='llmrec/vector_dbs/hyeonwoo/chroma_db_content_0614', filename='chroma.sqlite3')
+    make_dir_n_download(s3=s3, bucket='pseudorec-data', key='hyeonwoo/chroma_db_title_0614/chroma.sqlite3',
+                        dir='llmrec/vector_dbs/hyeonwoo/chroma_db_content_0614', filename='chroma.sqlite3')
+    make_dir_n_download(s3=s3, bucket='pseudorec-data', key='hyeonwoo/dictionary/actor_rec.json',
+                        dir='llmrec/vector_dbs/hyeonwoo/dictionary', filename='actor_rec.json')
+    make_dir_n_download(s3=s3, bucket='pseudorec-data', key='hyeonwoo/dictionary/director_rec.json',
+                        dir='llmrec/vector_dbs/hyeonwoo/dictionary', filename='director_rec.json')
+    make_dir_n_download(s3=s3, bucket='pseudorec-data', key='hyeonwoo/dictionary/title_rec.json',
+                        dir='llmrec/vector_dbs/hyeonwoo/dictionary', filename='title_rec.json')
+    make_dir_n_download(s3=s3, bucket='pseudorec-data', key='hyeonwoo/dictionary/title_synopsis_dict.json',
+                        dir='llmrec/vector_dbs/hyeonwoo/dictionary', filename='title_synopsis_dict.json')
 
     if not os.path.exists('llmrec/vector_dbs/gyungah'):
         os.makedirs('llmrec/vector_dbs/gyungah')
-    if not os.path.exists('llmrec/vector_dbs/hyeonwoo/chroma.sqlite3'):
-        print(f"Download Gyungah's chromadb")
-        s3.download_file(Bucket='pseudorec-data', Key='gyungah/chroma.sqlite3',
-                         Filename='llmrec/vector_dbs/gyungah/chroma.sqlite3')
+    print(f"Download Gyungah's vector db & files...")
+    make_dir_n_download(s3=s3, bucket='pseudorec-data', key='gyungah/chroma.sqlite3',
+                        dir='llmrec/vector_dbs/gyungah', filename='chroma.sqlite3')
 
 
 if __name__ == "__main__":

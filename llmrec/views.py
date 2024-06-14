@@ -8,7 +8,7 @@ from langchain.schema import HumanMessage
 
 # from llmrec.utils import kyeongchan_model
 from db_clients.dynamodb import DynamoDBClient
-from llmrec.utils.hyeonwoo.load_chain import get_chain
+from llmrec.utils.hyeonwoo.load_chain import router
 from llmrec.utils.gyungah.load_chain import get_chain as g_get_chain
 from llmrec.utils.kyeongchan.get_model import kyeongchan_model
 from llmrec.utils.log_questions import log_llm
@@ -30,7 +30,7 @@ def llmrec_hyeonwoo(request):
             question = message.get('text')
             log_llm(request=request, question=question, model_name='hyeonwoo')
             print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
-            new_response = get_chain(question)
+            new_response = router(question)
             log_llm(request=request, answer=new_response, model_name='hyeonwoo')
 
 

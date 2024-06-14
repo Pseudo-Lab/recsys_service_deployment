@@ -26,6 +26,7 @@ from langchain_upstage import (
 )
 from langchain_chroma import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+import difflib
 load_dotenv(".env.dev")
 
 embeddings_model = UpstageEmbeddings(model="solar-embedding-1-large")
@@ -391,6 +392,13 @@ content_retriever = content_db.as_retriever(
     search_type="similarity_score_threshold", 
     search_kwargs={"k": 1, "score_threshold": 0.01}) # Query와 유사한거 찾는 녀석 (K=4)
 
+def find_closest_match(search_result, dictionary_keys):   
+    # 가장 많이 일치하는 단어 찾기
+    matches = difflib.get_close_matches(search_result, dictionary_keys, n=1, cutoff=0)
+    
+    # 매칭 결과 반환
+    return matches[0] if matches else None
+
 def rec_by_intent(intent, question):
     print("  👉 추천형태:", intent)
     rag_chain = (
@@ -398,6 +406,7 @@ def rec_by_intent(intent, question):
         | ChatUpstage() # chat
         | StrOutputParser() # output parser
     )
+    responses = None
     if '제목' in intent: 
         # 제목만 추출해주는 코드 
         key = rag_chain.invoke({"question":question, "format":"제목"})
@@ -409,6 +418,7 @@ def rec_by_intent(intent, question):
         key = rag_chain.invoke({"question":question, "format":"배우"})
         print("  ⛏️ 추출된 영화 배우:", key)
         try: 
+            key = difflib.get_close_matches(key, list(actor_rec.keys()), n=1, cutoff=0)[0]
             output = actor_rec[key][0:5]
             responses = responses_form(output)
             # content = [title_synopsis_dict[a] for a in output]
@@ -419,12 +429,13 @@ def rec_by_intent(intent, question):
         key = rag_chain.invoke({"question":question, "format":"감독"})
         print("  ⛏️ 추출된 영화 감독:", key)
         try: 
+            key = difflib.get_close_matches(key, list(director_rec.keys()), n=1, cutoff=0)[0]
             output = director_rec[key][0:5]
             responses = responses_form(output)
             # content = [title_synopsis_dict[a] for a in output]
         except: 
             responses = None
-    else: 
+    if responses == None: 
         # 내용기반으로 RAG 진행 
         chain = get_chain(key="content")
         responses = chain.invoke(question)

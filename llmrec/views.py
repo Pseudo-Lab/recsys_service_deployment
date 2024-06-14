@@ -68,7 +68,7 @@ def llmrec_namjoon(request):
 
 
             # 클라이언트에게 성공적인 응답을 보냅니다.
-            return JsonResponse({'status': 'success', 'message': response_message})
+            return JsonResponse({'status': 'success', 'message': response_message, 'url': '/llmrec/namjoon/'})
         except json.JSONDecodeError as e:
             # JSON 디코딩 오류가 발생한 경우 에러 응답을 보냅니다.
             return JsonResponse({'status': 'error', 'message': str(e)})
@@ -226,7 +226,7 @@ def llmrec_gyungah(request):
 
             print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
 
-            return JsonResponse({'status': 'success', 'message': new_response})
+            return JsonResponse({'status': 'success', 'message': new_response, 'url': '/llmrec/gyungah/'})
         except json.JSONDecodeError as e:
             # JSON 디코딩 오류가 발생한 경우 에러 응답을 보냅니다.
             return JsonResponse({'status': 'error', 'message': str(e)})

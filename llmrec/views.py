@@ -9,6 +9,7 @@ from langchain.schema import HumanMessage
 # from llmrec.utils import kyeongchan_model
 from db_clients.dynamodb import DynamoDBClient
 from llmrec.utils.hyeonwoo.load_chain import get_chain
+from llmrec.utils.gyungah.load_chain import get_chain as g_get_chain
 from llmrec.utils.kyeongchan.get_model import kyeongchan_model
 from llmrec.utils.log_questions import log_question
 from movie.utils import get_username_sid, log_tracking
@@ -28,7 +29,7 @@ def llmrec_hyeonwoo(request):
             # 여기서 message를 원하는 대로 처리
             question = message.get('text')
             new_response = get_chain(question)
-            log_question(request=request, question=question)
+            log_question(request=request, question=question, model_name='hyeonwoo')
             print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
 
 
@@ -53,7 +54,7 @@ def llmrec_namjoon(request):
             data = json.loads(request.body.decode('utf-8'))
             message = data.get('message', '')
             question = message.get('text')
-            log_question(request=request, question=question)
+            log_question(request=request, question=question, model_name='namjoon')
 
             # 여기서 message를 원하는 대로 처리
             # TODO : 캐시로 히스토리 갖고있다가 multi-turn? 모델도 히스토리 모델이 필요하다. 한글, 챗, 히스토리 사용 가능한 모델이어야함.
@@ -84,7 +85,7 @@ def llmrec_kyeongchan(request):
             data = json.loads(request.body.decode('utf-8'))
             message = data.get('message', '')
             question = message.get('text')
-            log_question(request=request, question=question)
+            log_question(request=request, question=question, model_name='kyeongchan')
 
             # 여기서 message를 원하는 대로 처리
             print(f"[{message.get('timestamp')}]{username}({session_id}) : {message.get('text')}")
@@ -119,7 +120,7 @@ def llmrec_kyeongchan(request):
             response_message = kyeongchan_model([
                 HumanMessage(message.get('text'))
             ])
-            print(response_message)
+            print(f"response_message : {response_message}")
 
             def message_stream():
                 yield json.dumps({'status': 'start', 'message': 'Streaming started...\n'})
@@ -150,7 +151,7 @@ def llmrec_minsang(request):
             data = json.loads(request.body.decode('utf-8'))
             message = data.get('message', '')
             question = message.get('text')
-            log_question(request=request, question=question)
+            log_question(request=request, question=question, model_name='minsang')
 
             # 여기서 message를 원하는 대로 처리
             # TODO : 캐시로 히스토리 갖고있다가 multi-turn? 모델도 히스토리 모델이 필요하다. 한글, 챗, 히스토리 사용 가능한 모델이어야함.
@@ -180,7 +181,7 @@ def llmrec_soonhyeok(request):
             data = json.loads(request.body.decode('utf-8'))
             message = data.get('message', '')
             question = message.get('text')
-            log_question(request=request, question=question)
+            log_question(request=request, question=question, model_name='soonhyeok')
 
             # 여기서 message를 원하는 대로 처리
             # TODO : 캐시로 히스토리 갖고있다가 multi-turn? 모델도 히스토리 모델이 필요하다. 한글, 챗, 히스토리 사용 가능한 모델이어야함.
@@ -209,18 +210,13 @@ def llmrec_gyungah(request):
         try:
             data = json.loads(request.body.decode('utf-8'))
             message = data.get('message', '')
-            question = message.get('text')
-            log_question(request=request, question=question)
 
-            # 여기서 message를 원하는 대로 처리
-            # TODO : 캐시로 히스토리 갖고있다가 multi-turn? 모델도 히스토리 모델이 필요하다. 한글, 챗, 히스토리 사용 가능한 모델이어야함.
-            # TODO : 히스토리 어디 어떻게 저장?
+            question = message.get('text')
+            new_response = g_get_chain(question)
+            log_question(request=request, question=question, model_name='hyeonwoo')
             print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
 
-            response_message = '[경아님 모델]아직 모델이 없어요ㅠ'
-
-            # 클라이언트에게 성공적인 응답을 보냅니다.
-            return JsonResponse({'status': 'success', 'message': response_message})
+            return JsonResponse({'status': 'success', 'message': new_response})
         except json.JSONDecodeError as e:
             # JSON 디코딩 오류가 발생한 경우 에러 응답을 보냅니다.
             return JsonResponse({'status': 'error', 'message': str(e)})

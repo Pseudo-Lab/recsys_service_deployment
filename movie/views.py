@@ -40,13 +40,12 @@ table_clicklog = DynamoDBClient(table_name='clicklog')
 
 def home(request):
     print(f"movie/home view".ljust(100, '>'))
-
+    log_tracking(request=request, view='home')
     if request.method == "POST":
         pass  # home에서 POST 요청 들어올곳 없다
     else:
         print(f"Home - GET")
         username, session_id = get_username_sid(request, _from='movie/home GET')
-        log_tracking(request=request, view='home')
         user_logs_df = get_user_logs_df(username, session_id)
         if len(user_logs_df):  # 클릭로그 있을 때
             print(f"Click logs exist.")
@@ -82,6 +81,7 @@ def home(request):
 
 def sasrec(request):
     print(f"movie/sasrec view".ljust(100, '>'))
+    log_tracking(request=request, view='sasrec')
     username, session_id = get_username_sid(request, _from='movie/sasrec')
     user_logs_df = get_user_logs_df(username, session_id)
 
@@ -118,6 +118,7 @@ def sasrec(request):
 
 def ngcf(request):
     print(f"movie/ngcf view".ljust(100, '>'))
+    log_tracking(request=request, view='ngcf')
     username, session_id = get_username_sid(request, _from='movie/ngcf')
     user_logs_df = get_user_logs_df(username, session_id)
 
@@ -152,6 +153,7 @@ def ngcf(request):
 
 def kprn(request):
     print(f"movie/kprn view".ljust(100, '>'))
+    log_tracking(request=request, view='kprn')
     username, session_id = get_username_sid(request, _from='movie_kprn')
     user_logs_df = get_user_logs_df(username, session_id)
 
@@ -186,6 +188,7 @@ def kprn(request):
 
 def general_mf(request):
     print(f"movie/general_mf view".ljust(100, '>'))
+    log_tracking(request=request, view='general_mf')
     username, session_id = get_username_sid(request, _from='movie_general_mf') 
     user_logs_df = get_user_logs_df(username, session_id) 
     # user_logs_df_star = user_logs_df[~user_logs_df.star.isna()]
@@ -221,6 +224,7 @@ def general_mf(request):
 @csrf_exempt
 def log_click(request):
     print(f"movie/log_click view".ljust(100, '>'))
+    log_tracking(request=request, view='click')
     username, session_id = get_username_sid(request, _from='movie/log_click')
     print(f"[movie/log_click] method : {request.method}")
     if request.method == "POST":
@@ -260,6 +264,7 @@ def log_click(request):
 @csrf_exempt
 def log_star(request):
     print(f"movie/log_star view".ljust(100, '>'))
+    log_tracking(request=request, view='star')
     username, session_id = get_username_sid(request)
 
     data = json.loads(request.body.decode('utf-8'))
@@ -302,6 +307,7 @@ def log_star(request):
 
 def movie_detail(request, movie_id):
     print(f"movie/movie_detail view".ljust(100, '>'))
+    log_tracking(request=request, view='movie_detail')
     context = {
         'movie': DaumMovies.objects.get(movieid=movie_id)
     }
@@ -312,6 +318,7 @@ def movie_detail(request, movie_id):
 @csrf_exempt
 def search(request, keyword):
     print(f"movie/search view".ljust(100, '>'))
+    log_tracking(request=request, view='search')
     if keyword:
         searched_movies = DaumMovies.objects.filter(titleko__contains=keyword)
     else:

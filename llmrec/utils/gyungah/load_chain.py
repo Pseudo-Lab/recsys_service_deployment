@@ -1,5 +1,5 @@
 from colorama import Fore, Style
-from .utils.langchain import *
+from llmrec.utils.gyungah.utils.langchain import *
 
 def router(question):
     print(Fore.BLACK+f'질문: {question}'+Style.RESET_ALL+'\n')

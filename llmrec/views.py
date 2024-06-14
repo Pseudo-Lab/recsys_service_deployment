@@ -11,6 +11,7 @@ from db_clients.dynamodb import DynamoDBClient
 from llmrec.utils.hyeonwoo.load_chain import router
 from llmrec.utils.gyungah.load_chain import get_chain as g_get_chain
 from llmrec.utils.kyeongchan.get_model import kyeongchan_model
+from llmrec.utils.soonhyeok.GraphRAG import get_results
 from llmrec.utils.log_questions import log_llm
 from movie.utils import get_username_sid, log_tracking
 
@@ -178,7 +179,6 @@ def llmrec_minsang(request):
         }
         return render(request, "llmrec.html", context)
 
-
 @csrf_exempt
 def llmrec_soonhyeok(request):
     log_tracking(request=request, view='soonhyeok')
@@ -195,7 +195,7 @@ def llmrec_soonhyeok(request):
             # TODO : 히스토리 어디 어떻게 저장?
             print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
 
-            response_message = '[순혁님 모델]아직 모델이 없어요ㅠ'
+            response_message = get_results(question)
             log_llm(request=request, answer=response_message, model_name='soonhyeok')
 
             # 클라이언트에게 성공적인 응답을 보냅니다.
@@ -206,7 +206,7 @@ def llmrec_soonhyeok(request):
     else:
         context = {
             'description1': "Soonhyeok's LLMREC",
-            'description2': "준비중입니다.",
+            'description2': "GrpahRAG을 기반으로 유사한 영화를 찾아 추천합니다. 최신 기술을 접목한 추천 챗봇을 사용해보세요!",
         }
         return render(request, "llmrec.html", context)
 

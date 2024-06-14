@@ -1,105 +1,84 @@
-const chatHeader = document.querySelector('.chat-header')
-const chatMessages = document.querySelector('.chat-messages')
-const chatInputForm = document.querySelector('.chat-input-form')
-const chatInput = document.querySelector('.chat-input')
-const clearChatBtn = document.querySelector('.clear-chat-button')
+const chatHeader = document.querySelector('.chat-header');
+const chatMessages = document.querySelector('.chat-messages');
+const chatInputForm = document.querySelector('.chat-input-form');
+const chatInput = document.querySelector('.chat-input');
+const clearChatBtn = document.querySelector('.clear-chat-button');
 
-const createChatMessageElement = (message) => `
-<div class="message ${message.sender == 'You' ? 'blue-bg' : 'gray-bg'}">
-<!--    <div class="message-timestamp">${message.timestamp}</div>-->
-    <div class="message-sender">${message.sender}</div>
-    <div class="message-text">${message.text.replace(/\n/g, '<br>')}</div>
-    
-</div>
-`
-let messageSender = 'You'
+const createChatMessageElement = (message) => {
+    const serverIcon = '<img src="../../static/img/llm_icon/hyeonwoo.jpeg" alt="Server Icon" class="message-icon">';  // 아이콘 이미지
 
-chatInput.focus()
+    if (message.url === '/llmrec/hyeonwoo/') {
+        return `
+        <div class="message ${message.sender === 'You' ? 'blue-bg' : 'gray-bg'}">
+            ${message.sender !== 'You' ? `<div class="message-icon">${serverIcon}</div>` : ''}
+            <div class="message-sender">${message.sender}</div>
+            <div class="message-text">${message.text.replace(/\n/g, '<br>')}</div>
+        </div>`;
+    } else {
+        return `
+        <div class="message ${message.sender === 'You' ? 'blue-bg' : 'gray-bg'}">
+            <div class="message-sender">${message.sender}</div>
+            <div class="message-text">${message.text.replace(/\n/g, '<br>')}</div>
+        </div>`;
+    }
+};
 
-// const updateMessageSender = (name) => {
-//     messageSender = name
-//     chatHeader.innerText = `${messageSender} chatting...`
-//     chatInput.placeholder = `Type here, ${messageSender}`
-// }
+// Automatically focus the chat input
+chatInput.focus();
 
-// const sendMessage = (e) => {
-//     e.preventDefault()
-//
-//     const timestamp = new Date().toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true})
-//     const message = {
-//         sender: messageSender,
-//         text: chatInput.value,
-//         timestamp,
-//     }
-//
-//     chatMessages.innerHTML += createChatMessageElement(message)
-//
-//     chatInputForm.reset()
-//     chatMessages.scrollTop = chatMessages.scrollHeight
-// }
-
-
-
-
-// chat.js 파일에 이 코드를 추가합니다.
-const requestURL = window.location.pathname;
+// Function to send a chat message to the server
 const sendMessageToServer = (message) => {
     $.ajax({
         type: 'POST',
-        url: requestURL,
+        url: window.location.pathname,
         contentType: 'application/json',
         data: JSON.stringify({ message: message }),
         success: function(response) {
-            // 서버에서의 성공 응답 처리
-            console.log(response.status, response.message);
+            // 성공 응답 처리, URL 포함
+            let senderName;
+            if (response.url === '/llmrec/hyeonwoo/') {
+                senderName = '쿠도 신이치';
+            } else if (response.url === '/llmrec/gyungah/') {
+                senderName = '장원영';
+            } else {
+                senderName = 'PseudoRec GPT';
+            }
 
-            // 채팅창에 서버 응답을 추가
             const serverMessage = {
-                sender: 'PseudoRec GPT',
+                sender: senderName,
                 text: response.message,
-                timestamp: new Date().toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })
+                timestamp: new Date().toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }),
+                url: response.url  // 서버 응답에서 URL 추출
             };
-            chatMessages.innerHTML += createChatMessageElement(serverMessage);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            chatMessages.innerHTML += createChatMessageElement(serverMessage);  // 메시지 요소 생성
+            chatMessages.scrollTop = chatMessages.scrollHeight;  // 스크롤 조정
         },
         error: function(error) {
-            // 서버에서의 에러 응답 처리
-            console.error('Error sending message:', error.responseText);
+            console.error('Error sending message:', error.responseText);  // 오류 응답 처리
         }
     });
 };
 
 
-
+// Event handler for sending a message
 const sendMessage = (e) => {
     e.preventDefault();
 
     const timestamp = new Date().toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true});
     const message = {
-        sender: messageSender,
+        sender: 'You',
         text: chatInput.value,
         timestamp,
     };
 
-    // 채팅 메시지를 서버로 전송합니다.
+    // Send the message to the server
     sendMessageToServer(message);
 
-    // 화면에 메시지 추가 및 리셋 코드는 그대로 유지합니다.
+    // Add message to the chat window and reset the input
     chatMessages.innerHTML += createChatMessageElement(message);
     chatInputForm.reset();
     chatMessages.scrollTop = chatMessages.scrollHeight;
 };
 
-
+// Add the event listener to the form
 chatInputForm.addEventListener('submit', sendMessage);
-
-
-
-
-
-
-
-
-
-
-

@@ -153,99 +153,17 @@ main {
     margin: 2.5em auto;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+.message {
+    position: relative;
+    padding-left: 0px; /* 메시지 텍스트와 아이콘 사이에 공간 확보 */
+}
+
+.message-icon {
+    left: -20%; /* 아이콘을 메시지 박스 왼쪽 외부로 이동 */
+    width: 40px;         /* 이미지 크기 조정 */
+    height: 40px;        /* 이미지 크기 조정 */
+    border-radius: 50%;  /* 이미지를 원형으로 만듦 */
+    object-fit: cover;   /* 이미지가 요소에 꽉 차도록 */
+    float: left;         /* 왼쪽으로 정렬 */
+    margin-right: 0px;  /* 오른쪽 여백 설정 */
+}

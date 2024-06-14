@@ -21,6 +21,7 @@ def router(question):
         new_response = chat_chain(question)
 
     # print(Fore.BLUE + f'답변: {new_response.content}' + Style.RESET_ALL + '\n')
+    print(new_response)
     return new_response.content
 
 

@@ -11,7 +11,7 @@ from db_clients.dynamodb import DynamoDBClient
 from llmrec.utils.hyeonwoo.load_chain import get_chain
 from llmrec.utils.gyungah.load_chain import get_chain as g_get_chain
 from llmrec.utils.kyeongchan.get_model import kyeongchan_model
-from llmrec.utils.log_questions import log_question
+from llmrec.utils.log_questions import log_llm
 from movie.utils import get_username_sid, log_tracking
 
 load_dotenv('.env.dev')
@@ -28,9 +28,10 @@ def llmrec_hyeonwoo(request):
 
             # 여기서 message를 원하는 대로 처리
             question = message.get('text')
-            new_response = get_chain(question)
-            log_question(request=request, question=question, model_name='hyeonwoo')
+            log_llm(request=request, question=question, model_name='hyeonwoo')
             print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
+            new_response = get_chain(question)
+            log_llm(request=request, answer=new_response, model_name='hyeonwoo')
 
 
             # 클라이언트에게 성공적인 응답을 보냅니다.
@@ -54,7 +55,7 @@ def llmrec_namjoon(request):
             data = json.loads(request.body.decode('utf-8'))
             message = data.get('message', '')
             question = message.get('text')
-            log_question(request=request, question=question, model_name='namjoon')
+            log_llm(request=request, question=question, model_name='namjoon')
 
             # 여기서 message를 원하는 대로 처리
             # TODO : 캐시로 히스토리 갖고있다가 multi-turn? 모델도 히스토리 모델이 필요하다. 한글, 챗, 히스토리 사용 가능한 모델이어야함.
@@ -62,6 +63,8 @@ def llmrec_namjoon(request):
             print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
 
             response_message = '[남준님 모델]아직 모델이 없어요ㅠ'
+            log_llm(request=request, answer=response_message, model_name='namjoon')
+
 
             # 클라이언트에게 성공적인 응답을 보냅니다.
             return JsonResponse({'status': 'success', 'message': response_message})
@@ -85,7 +88,7 @@ def llmrec_kyeongchan(request):
             data = json.loads(request.body.decode('utf-8'))
             message = data.get('message', '')
             question = message.get('text')
-            log_question(request=request, question=question, model_name='kyeongchan')
+            log_llm(request=request, question=question, model_name='kyeongchan')
 
             # 여기서 message를 원하는 대로 처리
             print(f"[{message.get('timestamp')}]{username}({session_id}) : {message.get('text')}")
@@ -120,6 +123,7 @@ def llmrec_kyeongchan(request):
             response_message = kyeongchan_model([
                 HumanMessage(message.get('text'))
             ])
+            log_llm(request=request, answer=response_message, model_name='kyeongchan')
             print(f"response_message : {response_message}")
 
             def message_stream():
@@ -151,7 +155,8 @@ def llmrec_minsang(request):
             data = json.loads(request.body.decode('utf-8'))
             message = data.get('message', '')
             question = message.get('text')
-            log_question(request=request, question=question, model_name='minsang')
+            log_llm(request=request, question=question, model_name='minsang')
+
 
             # 여기서 message를 원하는 대로 처리
             # TODO : 캐시로 히스토리 갖고있다가 multi-turn? 모델도 히스토리 모델이 필요하다. 한글, 챗, 히스토리 사용 가능한 모델이어야함.
@@ -159,6 +164,7 @@ def llmrec_minsang(request):
             print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
 
             response_message = '[민상님 모델]아직 모델이 없어요ㅠ'
+            log_llm(request=request, answer=response_message, model_name='minsang')
 
             # 클라이언트에게 성공적인 응답을 보냅니다.
             return JsonResponse({'status': 'success', 'message': response_message})
@@ -181,7 +187,8 @@ def llmrec_soonhyeok(request):
             data = json.loads(request.body.decode('utf-8'))
             message = data.get('message', '')
             question = message.get('text')
-            log_question(request=request, question=question, model_name='soonhyeok')
+            log_llm(request=request, question=question, model_name='soonhyeok')
+
 
             # 여기서 message를 원하는 대로 처리
             # TODO : 캐시로 히스토리 갖고있다가 multi-turn? 모델도 히스토리 모델이 필요하다. 한글, 챗, 히스토리 사용 가능한 모델이어야함.
@@ -189,6 +196,7 @@ def llmrec_soonhyeok(request):
             print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
 
             response_message = '[순혁님 모델]아직 모델이 없어요ㅠ'
+            log_llm(request=request, answer=response_message, model_name='soonhyeok')
 
             # 클라이언트에게 성공적인 응답을 보냅니다.
             return JsonResponse({'status': 'success', 'message': response_message})
@@ -212,8 +220,10 @@ def llmrec_gyungah(request):
             message = data.get('message', '')
 
             question = message.get('text')
+            log_llm(request=request, question=question, model_name='gyungah')
             new_response = g_get_chain(question)
-            log_question(request=request, question=question, model_name='hyeonwoo')
+            log_llm(request=request, answer=new_response, model_name='gyungah')
+
             print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
 
             return JsonResponse({'status': 'success', 'message': new_response})

@@ -118,7 +118,7 @@ def router(chain, question):
     # 1차 개선
     # DB -> 임베딩화까지 시키면
     if "영화추천" in response:
-        # print("영화추천: ", response)
+        print("영화추천: ", response)
         # DB에 영화 추천정보를 담아놓은 방법
         # 히스토리까지 담겨있으면? 같이 활용 가능
         # 챗봇 2 : 영화추천 봇
@@ -131,7 +131,7 @@ def router(chain, question):
         new_response = rag_chain.invoke(question)
     # 못찾는 경우 검색으로 넘어가도록 ..
     elif ("검색" in response) or ("검색" in new_response):
-        # print("검색: ", response)
+        print("검색: ", response)
         # 챗봇 3 : 검색을 기반으로 채팅해주는 챗봇3
         # 얘도 검색 개선 필요 !! Cohere <— 요 회사? 완전 짱!
         # 미국 1대장과 학생들 + 아이들
@@ -146,7 +146,7 @@ def router(chain, question):
         # print(Fore.RED + f'검색결과: {result}' + Style.RESET_ALL + '\n')
         new_response = rag_chain.invoke({"question": question, "context": search.run(question)})
     else:
-        # print("채팅: ", response)
+        print("채팅: ", response)
         # | ChatUpstage() | StrOutputParser()
         # 챗봇4 : 검색을 기반으로 채팅해주는 챗봇4
         rag_chain = (

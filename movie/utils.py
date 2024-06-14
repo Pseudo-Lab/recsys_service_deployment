@@ -10,6 +10,7 @@ from movie.models import DaumMovies
 table_clicklog = DynamoDBClient(table_name='clicklog')
 table_tracking = DynamoDBClient(table_name='tracking')
 
+
 def get_pop(mysql):
     print(f"get popular movies..")
     daum_ratings = mysql.get_daum_ratings()
@@ -89,12 +90,13 @@ def get_interacted_movie_obs(interacted_movie_ids, k=50):
             break
     return interacted_movie_obs
 
+
 def log_tracking(request, view):
     username, session_id = get_username_sid(request, _from='log_tracking')
     log = {
         'userId': username,
-        'view' : view,
+        'sessionId': session_id,
+        'view': view,
         'timestamp': int(time.time()),
     }
     table_tracking.put_item(click_log=log)
-

@@ -21,3 +21,5 @@ __pycache__
 pytorch_models/kprn/kprn.pt
 
 chroma.sqlite3
+
+llmrec/vector_dbs/*

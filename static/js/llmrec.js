@@ -8,7 +8,7 @@ const createChatMessageElement = (message) => `
 <div class="message ${message.sender == 'You' ? 'blue-bg' : 'gray-bg'}">
 <!--    <div class="message-timestamp">${message.timestamp}</div>-->
     <div class="message-sender">${message.sender}</div>
-    <div class="message-text">${message.text}</div>
+    <div class="message-text">${message.text.replace(/\n/g, '<br>')}</div>
     
 </div>
 `

@@ -14,7 +14,7 @@ main {
 }
 
 .center-main-field {
-    width: 75%;
+    width: 90%;
     /*height: 100vh;*/
 }
 
@@ -39,8 +39,8 @@ main {
     font-family: 'Roboto', sans-serif;
     border-radius: 0.5em;
     padding: 1.25em 1.25em;
-    margin-left: 20%;
-    max-width: 40vw;
+    margin-left: 5%;
+    max-width: 100vw;
     height: 80vh;
     /*box-shadow: 0 0 1.25em 0.5em #c3c3c333;*/
 }

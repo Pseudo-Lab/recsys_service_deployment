@@ -40,8 +40,8 @@ def signup(request):
         form = SignupForm(data=request.POST, files=request.FILES)
         if form.is_valid():
             user = form.save()
-            login(request, user)
-            return redirect("")
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            return redirect("/")
     else:  # GET 요청에서는 빈 Form을 보여준다.
         form = SignupForm()
 

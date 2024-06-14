@@ -6,7 +6,7 @@ const clearChatBtn = document.querySelector('.clear-chat-button');
 
 const createChatMessageElement = (message) => {
     if (message.url === '/llmrec/hyeonwoo/') {
-        const serverIcon = '<img src="../../static/img/llm_icon/hyeonwoo.jpeg" alt="Server Icon" class="message-icon">';  // 아이콘 이미지
+        const serverIcon = '<img src="../../static/img/llm_icon/hyeonwoo.png" alt="Server Icon" class="message-icon">';  // 아이콘 이미지
         return `
         <div class="message ${message.sender === 'You' ? 'blue-bg' : 'gray-bg'}">
             ${message.sender !== 'You' ? `<div class="message-icon">${serverIcon}</div>` : ''}
@@ -14,7 +14,7 @@ const createChatMessageElement = (message) => {
             <div class="message-text">${message.text.replace(/\n/g, '<br>')}</div>
         </div>`;
     } else if (message.url === '/llmrec/gyungah/') {
-        const serverIcon = '<img src="../../static/img/llm_icon/gyungah.jpeg" alt="Server Icon" class="message-icon">';  // 아이콘 이미지
+        const serverIcon = '<img src="../../static/img/llm_icon/gyungah.png" alt="Server Icon" class="message-icon">';  // 아이콘 이미지
         return `
         <div class="message ${message.sender === 'You' ? 'blue-bg' : 'gray-bg'}">
             ${message.sender !== 'You' ? `<div class="message-icon">${serverIcon}</div>` : ''}
@@ -44,7 +44,7 @@ const sendMessageToServer = (message) => {
             // 성공 응답 처리, URL 포함
             let senderName;
             if (response.url === '/llmrec/hyeonwoo/') {
-                senderName = '쿠도 신이치';
+                senderName = '코난';
             } else if (response.url === '/llmrec/gyungah/') {
                 senderName = '장원영';
             } else {

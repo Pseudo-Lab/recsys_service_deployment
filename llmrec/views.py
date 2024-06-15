@@ -11,7 +11,7 @@ from db_clients.dynamodb import DynamoDBClient
 from llmrec.utils.hyeonwoo.load_chain import router
 from llmrec.utils.gyungah.load_chain import get_chain as g_get_chain
 from llmrec.utils.kyeongchan.get_model import kyeongchan_model
-# from llmrec.utils.soonhyeok.GraphRAG import get_results
+from llmrec.utils.soonhyeok.GraphRAG import get_results
 from llmrec.utils.log_questions import log_llm
 from movie.utils import get_username_sid, log_tracking
 
@@ -232,7 +232,7 @@ def llmrec_gyungah(request):
             return JsonResponse({'status': 'error', 'message': str(e)})
     else:
         context = {
-            'description1': "Kyeongah's LLMREC",
+            'description1': "Gyungah's LLMREC",
             'description2': "안녕하세요! 저는 PseudoRec에서 개발된 영화 추천 AI 장원영이에요!🎬✨ <br>귀엽고 긍정적인 말투로 여러분께 딱 맞는 영화를 추천해드릴게요! 🍿💖"
         }
         return render(request, "llmrec.html", context)

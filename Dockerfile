@@ -24,3 +24,4 @@ RUN pip install -r requirements.txt
 
 # 모델 다운로드
 RUN python utils/download_models.py
+RUN python utils/download_vectordb.py

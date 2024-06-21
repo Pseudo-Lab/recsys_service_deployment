@@ -39,3 +39,11 @@ class DynamoDBClient:
                  }
         resp = self.table.query(**query)
         return pd.DataFrame(resp['Items'])
+
+    # def delete_all_interactions(self, user_name: str):
+    #     items_to_delete = self.get_a_user_logs(user_name)
+    #     with self.table.batch_writer() as batch:
+    #         for index, item in items_to_delete.iterrows():
+    #             batch.delete_item(Key={'userId': item['userId'], 'sessionId': item['sessionId']})
+
+

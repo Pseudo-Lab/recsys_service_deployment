@@ -100,3 +100,8 @@ def log_tracking(request, view):
         'timestamp': int(time.time()),
     }
     table_tracking.put_item(click_log=log)
+
+
+def get_poster_urls(movie_ids):
+    movies = DaumMovies.objects.filter(movieid__in=movie_ids).values('movieid', 'posterurl')
+    return {movie['movieid']: movie['posterurl'] for movie in movies}

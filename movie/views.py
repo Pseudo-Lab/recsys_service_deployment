@@ -3,7 +3,7 @@ import time
 
 import pandas as pd
 import requests
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from dotenv import load_dotenv
@@ -13,7 +13,7 @@ from db_clients.dynamodb import DynamoDBClient
 from movie.models import DaumMovies
 from movie.predictors.mf_predictor import mf_predictor
 from movie.utils import add_past_rating, add_rank, get_username_sid, get_user_logs_df, get_interacted_movie_obs, \
-    log_tracking
+    log_tracking, get_poster_urls
 from utils.pop_movies import get_pop
 
 load_dotenv('.env.dev')
@@ -29,6 +29,7 @@ pop_movies = sorted(pop_movies, key=lambda x: pop_movies_ids.index(x['movieid'])
 
 table_clicklog = DynamoDBClient(table_name='clicklog')
 
+
 def home(request):
     print(f"movie/home view".ljust(100, '>'))
     log_tracking(request=request, view='home')
@@ -41,15 +42,23 @@ def home(request):
         if len(user_logs_df):  # 클릭로그 있을 때
             print(f"Click logs exist.")
             print(user_logs_df.tail(8))
-            interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
-            interacted_movie_obs = get_interacted_movie_obs(interacted_movie_ids)
+            # interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
+            # interacted_movie_obs = get_interacted_movie_obs(interacted_movie_ids)
+            user_logs_df.sort_values(by='timestamp', ascending=False, inplace=True)
+            user_logs_df['star'] = user_logs_df['star'].map(lambda x: float(int(x) / 2) if not pd.isna(x) else 'click')
+            interacted_movie_d = user_logs_df[['movieId', 'titleKo', 'star']].to_dict(orient='records')
+            movie_ids = [int(obs['movieId']) for obs in interacted_movie_d]
+            poster_urls = get_poster_urls(movie_ids)
+
+            for obs in interacted_movie_d:
+                obs['posterUrl'] = poster_urls.get(int(obs['movieId']), '')
 
             # context 구성
             context = {
                 'movie_list': add_rank(add_past_rating(username=username,
                                                        session_id=session_id,
                                                        recomm_result=pop_movies)),
-                'watched_movie': interacted_movie_obs,
+                'watched_movie': interacted_movie_d,
                 'pop_on': True,
                 'description1': '인기 영화',
                 'description2': '평균 평점이 높은 순서입니다. 평점을 매겨보세요!'
@@ -232,6 +241,7 @@ def general_mf(request):
             'watched_movie': interacted_movie_obs,
             'description1': 'General MF 추천 영화',
             'description2': "사용자가 별점 매긴 영화를 본 다른 사용자가 시청한 영화, 또는 영화를 제작한 감독/배우의 다른 영화를 추천해줍니다."
+                            "<br>구현한 사람 : 조경아"
         }
     else:
         context = {
@@ -363,3 +373,18 @@ def search(request, keyword):
                'description1': '검색 결과'
                }
     return render(request, "home.html", context=context)
+
+
+# from django.views.decorators.http import require_POST
+# from django.shortcuts import redirect
+# from django.urls import reverse
+#
+# @require_POST
+# def delete_all_interactions(request):
+#     # Ensure the request is a POST request
+#     if request.method == 'POST':
+#         username = request.POST.get('username')  # Adjust based on how you pass the username
+#
+#
+#         table_clicklog.delete_all_interactions(username)
+#     return redirect(reverse('home'))  # home 페이지로 리디렉션

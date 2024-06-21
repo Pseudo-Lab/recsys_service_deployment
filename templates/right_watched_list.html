@@ -1,13 +1,20 @@
 <div class="right-field">
+    <h4>Interactions</h4>
     <div class="watched_list">
         {% for wm in watched_movie %}
         <div class="watched_movie">
             <div class="poster">
-                <img src={{ wm.posterurl }} alt="">
+                <img src={{ wm.posterUrl }} alt="">
             </div>
             <div class="title">
-                <p>{{ wm.titleko }}</p>
+                <p>{{ wm.titleKo }}</p>
+                {% if wm.star != 'click' %}
+                <p class="star">★ {{ wm.star }}</p>
+                {% else %}
+                <p class="no-star">{{ wm.star }}</p>
+                {% endif %}
             </div>
+
         </div>
         {% endfor %}
     </div>

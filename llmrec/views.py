@@ -17,6 +17,7 @@ from llmrec.utils.kyeongchan.get_model import kyeongchan_model
 from llmrec.utils.log_questions import log_llm
 from llmrec.utils.soonhyeok.GraphRAG import get_results
 from movie.utils import get_username_sid, log_tracking, get_user_logs_df
+from utils.log_config import logger
 
 mysql = MysqlClient()
 load_dotenv('.env.dev')
@@ -162,8 +163,7 @@ def llmrec_kyeongchan(request):
         WHERE movieId in ({history_mids})
         """
         sql = sql.format(history_mids=', '.join([str(hmid) for hmid in history_mids]))
-        with mysql.get_connection() as conn:
-            history_df = pd.read_sql(sql, conn)
+        history_df = pd.read_sql(sql, mysql.engine)
 
         preference_prompt = """다음은 유저가 최근 본 영화들이야. 이 영화들을 보고 유저의 영화 취향을 한 문장으로 설명해. 다른 말은 하지마.
 
@@ -173,9 +173,8 @@ def llmrec_kyeongchan(request):
             HumanMessage(preference_prompt)
         ])
 
-        logging.info("로깅")
+        logger.info("로깅")
 
-        # API 엔드포인트 URL
         url = 'http://127.0.0.1:7001/sasrec/'
         # 요청 헤더
         headers = {
@@ -197,32 +196,30 @@ def llmrec_kyeongchan(request):
         FROM daum_movies
         WHERE movieId IN ({','.join(map(str, sasrec_recomm_mids))})
         """
-        with mysql.get_connection() as conn:
-            df = pd.read_sql(sql, conn)
+        df = pd.read_sql(sql, mysql.engine)
         df_sorted = df.set_index('movieId').loc[sasrec_recomm_mids].reset_index()
+
+        candidates_lst = []
+        for _, row in df_sorted[['movieId', 'titleKo']].iterrows():
+            candidates_lst.append(f"{row['titleKo']}({row['movieId']})")
 
         profile = preference_response.content
         history_mtitles = ', '.join(history_df['titleKo'].tolist())
-        candidates = ', '.join(df_sorted['titleKo'].tolist())
+        candidates = ', '.join(candidates_lst)
 
-        recommendation_prompt = f"""너는 유능한 영화 평론가야.
-        1. {username}님의 시청 이력에 기반해서 후보로부터 3가지 영화를 추천해.
-        2. {username}님의 프로파일을 참고해. 추천 근거를 공손한 어투로 작성해줘. 
+        recommendation_prompt = f"""너는 유능하고 친절한 영화 전문가이고 영화 추천에 탁월한 능력을 갖고 있어. 너의 작업은 :
+        1. {username}님에게 후보로부터 1가지 영화를 골라 추천해줘.
+        2. 시청한 영화들의 특징을 꼼꼼히 분석해서 타당한 추천 근거를 들어줘. 장르, 스토리, 인기도, 감독, 배우 등을 분석하면 좋아.
+        3. 추천 근거를 정성스럽고 길게 작성해줘.
 
-        출력 형식은 다음과 같아.
-        [
-            {{
-                영화이름 : 추천 근거
-            }},
-            {{
-                영화이름 : 추천 근거
-            }},
-            {{
-                영화이름 : 추천 근거
-            }},
-        ]
+        출력 형식은 다음과 같이 json으로 반환해줘.
 
-        프로파일 : {profile}
+        {{
+            "titleKo" : "영화 이름1",
+            "movieId" : "영화 id",
+            "reason" : "추천 근거"
+        }}
+
         시청 이력 : {history_mtitles}
         후보 : {candidates}"""
 
@@ -230,22 +227,30 @@ def llmrec_kyeongchan(request):
             HumanMessage(recommendation_prompt)
         ])
         recommendations = json.loads(response_message.content)
-        answer_lines = []
-        for recommendation in recommendations:
-            for movie, reason in recommendation.items():
-                answer_lines.append(f"{movie}: {reason}")
-        initial_message = '<br>'.join(answer_lines)
-        image = """
-        <img src="https://img1.daumcdn.net/thumb/C408x596/?fname=https%3A%2F%2Ft1.daumcdn.net%2Fmovie%2F54d73561dce387c9a482cee6a47beacb6318d18e"
-        alt="Daum Movie Image">
+        recommended_mid = int(recommendations['movieId'])
+        sql = f"""
+        SELECT dm.movieId,
+        dm.posterUrl,
+        dmsp.synopsis_prep
+        FROM daum_movies dm
+        LEFT JOIN daum_movies_synopsis_prep dmsp ON dm.movieId = dmsp.movieId
+        where dm.movieId = {recommended_mid}
         """
+        df = pd.read_sql(sql, mysql.engine)
+        poster_url = df.iloc[0]['posterUrl']
+        synopsis_prep = df.iloc[0]['synopsis_prep']
+
+        image = f"""
+        <img src="{poster_url}" alt="Daum Movie Image" style="width: 300px;">
+        """
+
+        answer = image + '<br>' + recommendations['reason'] + '<br><bn>시놉시스<br>' + synopsis_prep
 
         context = {
             'description1': "Kyeongchan's LLMREC",
             'description2': "Self-Querying을 이용한 RAG를 사용해 추천합니다!.",
-            'initial_message': image + initial_message,
+            'initial_message': answer,
         }
-
 
         return render(request, "llmrec.html", context)
 

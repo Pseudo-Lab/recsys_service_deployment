@@ -2,8 +2,6 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-
-from producer import wait_for_kafka_broker
 from utils.download_models import download_kprn_model
 from utils.download_vectordb import download_vectordb
 

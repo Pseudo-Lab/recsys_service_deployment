@@ -50,9 +50,30 @@ pip install 'django<5'
 바로가기 새창띄우기
 ![Untitled](../../../static/img/monthly_pseudorec_202404/hyeonwoo_metric_learning_loss.png)*출처 : <a href="https://nuguziii.github.io/survey/S-006/" target="_blank">https://nuguziii.github.io/survey/S-006/</a>*
 
+
+## 논문 리뷰에서
+
 📄 paper :  <a href="https://arxiv.org/pdf/1905.08108.pdf" target="_blank" style="text-decoration: underline;">**Neural Graph Collaborative Filtering ↗**</a>
 
 🔗 <a href="https://www.pseudorec.com/archive/paper_review/1/" target="_blank">**KPRN 논문리뷰 - Paper Review ↗**</a>
 
-바로가기 문자
+## view에서
+
+"<br>🔗 <a href='https://www.pseudorec.com/archive/paper_review/3/' target='_blank'>SASRec 논문리뷰 ↗</a>"
+
+## 바로가기 문자
 ↗
+
+## box에 넣고싶을 때
+
+<div class="custom-class">
+<p>
+💡 In many real-world applications, users’ current interests are intrinsically <strong>dynamic</strong> and **evolving**, influenced by their **historical behaviors**.
+</p>
+<p>
+사용자의 관심사는 과거 행동에 영향을 받아 동적으로 변합니다.
+</p>
+</div>
+
+## img 태그로 사이즈 조정하고 싶을 때
+<img alt="Untitled" src="../../../static/img/paper_review/ngcf_review/optimization.png" width="500px">

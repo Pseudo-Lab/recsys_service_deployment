@@ -1,3 +1,5 @@
+📄 paper :  <a href="https://ieeexplore.ieee.org/abstract/document/9892682" target="_blank" style="text-decoration: underline;">**SR-GNN: Spatial Relation-Aware Graph Neural Network for Fine-Grained Image Categorization ↗**</a>
+
 ### Abstract
 
 - 세션 기반의 추천 (session-based rec) 목적성 : 유저를 특정하기 어려운(anonymous) 세션 데이터 기반 유저의 다음 액션 예측
@@ -28,7 +30,7 @@
         - 세션 그래프 기반으로 아이템들의 트랜지션을 포착하고 아이템들의 정확한 임베딩 백터 생성(기존 MC, RNN 기반 추천 모델에선 어려웠던 부분)함으로써 세션 표현을 보다 신뢰할 수 있게끔 구성하고 다음 아이템 클릭을 추론
     - **SR-GNN workflow**
         
-        ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/6e27ed14-d378-4ae7-b362-e8788bbf4dd9/Untitled.png)
+        ![Untitled](../../../static/img/paper_review/srgnn_review/workflow.png)
         
         <aside>
         ✅ **briefly summary**
@@ -119,7 +121,7 @@ GNN을 통해 노드의 잠재 벡터를 구하는 방법
     - $A_s \in \mathbb R^{n*2n}:$ 노드들 간의 관계 표현을 정의하는 connection matrix
         - 두 개의 인접행렬 $A_s^{(out)}, A_s^{(in)}$의 concat으로 이뤄진 행렬. 각각이 weighted connection으로 표현되어있음
             
-            ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/638ea55c-956f-4889-905c-56959d668e5e/Untitled.png)
+        ![Untitled](../../../static/img/paper_review/srgnn_review/adjacency matrix.png)
             
         - 예를 들어 session $s =  [v_1,v_2,v_3,v_2, v_4]$에 대한 그래프 G와 connection matrix $A_s$는 위와 같이 표현될 수 있음
         - SR-GNN에서는 이러한 connection matrix를 다양한 구조로 사용할 수 있음.
@@ -222,7 +224,7 @@ GNN을 통해 노드의 잠재 벡터를 구하는 방법
 
 **Comparison with Baseline Methods**
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/4cd43beb-928e-47d1-983c-dd17a2011374/Untitled.png)
+![Untitled](../../../static/img/paper_review/srgnn_review/comparison.png)
 
 - FPMC - 메모리 문제로 Yoochoose 1/4 진행 불가
 - 모든 부분에서 SRGNN이 우수했음
@@ -239,7 +241,7 @@ graph 내 아이템들 간 관계를 생성하는 데에 유연함.
 - SR-GNN-NGC (with normalized global connections): Edge weights를 global graph에서 SR-GNN을 통해 가져온다
 - SR-GNN-FC (with full connections): boolean weights를 사용해 모든 상위 관계를 표현하고, 그에 맞는 connection matrix를 SR-GNN에 입혀준다.
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/1090e9b2-6067-44aa-b477-d678edef5abc/Untitled.png)
+![Untitled](../../../static/img/paper_review/srgnn_review/comparison_connection_schemes.png)
 
 - 세 가지 connection이 NARM, STAMP 대비 더 우수하거나 비슷한 성능을 보임
 - SR-GNN-NGC : 현 세션 외 다른 세션에 대한 영향(from global)을 고려하는데, 이로인해 현 세션 graph 내 높은 degree를 가진 경우 영향이 줄어듦(weight의 감소)
@@ -257,7 +259,7 @@ graph 내 아이템들 간 관계를 생성하는 데에 유연함.
 - SR-GNN-AVG (Global Embedding with average pooling)
 - SR-GNN-ATT (Global Embedding with the attention mechanism)
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/b3923517-08b8-4457-ac9b-29ca568bb4fb/Untitled.png)
+![Untitled](../../../static/img/paper_review/srgnn_review/comparison_session_embeddings.png)
 
 - Embedding을 각각 달리한 결과 하이브리드 임베딩 모델인 SR-GNN이 가장 높은 결과를 보였고, 결론적으로 현 세션의 interest와 long-term preference를 함께 고려하는 것이 효과적.
 - SR-GNN-ATT는 SR-GNN-AVG보다 항상 좋았는데, 세션이 noisy 데이터를 포함하여 독립적으로 처리될 수  없음을 알려줌. 또한 어텐션 메커니즘이 long-term preference를 캐치하기 위해 세션 데이터 내에서 주요한 행동을 추출하는데에 도움이 됨.
@@ -271,7 +273,7 @@ graph 내 아이템들 간 관계를 생성하는 데에 유연함.
     - Yoochoose: 0.701, 0.299
     - Diginetica: 0.764, 0.236
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/6fb1de01-85b4-474b-87d9-b3a6604fdd43/Untitled.png)
+![Untitled](../../../static/img/paper_review/srgnn_review/analysis_on_sequence_length.png)
 
 - 전반적으로 SR-GNN과 그 변형 variants들, 그리고 신경망을 활용한 session based 추천의 성능이 각기 다른 세션 길이에 따라서도 안정적인 performance를 보임
 - STAMP: short과 long그룹의 차이가 컸는데, 아이템의 중복에 따른 결과이다.

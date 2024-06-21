@@ -4,54 +4,94 @@
 
 ## 1. INTRODUCTION
 
-> - 💡 In many real-world applications, users’ current interests are intrinsically **dynamic** and **evolving**, influenced by their **historical behaviors**. 
-> 사용자의 관심사는 과거 행동에 영향을 받아 동적으로 변합니다.
-> **ex.** 아이폰을 구매한 사용자는 다음에 아이폰 충전기를 구매할 수 있습니다. 갤럭시 충전기를 구매하진 않을 것입니다.
+<div class="custom-class">
+<p>
+💡 In many real-world applications, users’ current interests are intrinsically <strong>dynamic</strong> and <strong>evolving</strong>, influenced by their <strong>historical behaviors</strong>.
+</p>
+<p>
+사용자의 관심사는 과거 행동에 영향을 받아 동적으로 변합니다.
+</p>
+<p>
+<strong>ex.</strong> 아이폰을 구매한 사용자는 다음에 아이폰 충전기를 구매할 수 있습니다. 갤럭시 충전기를 구매하진 않을 것입니다.
+</p>
+</div>
 
+
+<div class="custom-class">
+<p>
 - 💡 To model such sequential dynamics in user behaviors, various methods have been proposed to make ***sequential recommendations*** based on users’ **historical interactions**. They aim to predict the successive item(s) that a user is likely to interact with given her/his past interactions.
+</p>
+<p>
+사용자의 과거 상호작용을 기반으로 다음에 선택할 아이템을 예측하는 것을 Sequential recommendation이라고 합니다.
+</p>
+</div>
 
-> 사용자의 과거 상호작용을 기반으로 다음에 선택할 아이템을 예측하는 것을 Sequential recommendation이라고 합니다.
+<div class="custom-class">
+<p>
+💡 The basic paradigm of previous work is to encode a user’s historical interactions into a vector using a **left-to-right sequential model** and make recommendations based on this hidden representation.
+</p>
+<p>
+기존 접근법들은 이를 위해 사용자의 과거 상호작용만을 hidden representaion으로 생성하여 추천을 제공했습니다.
+</p>
+<p>
+ex. Recurrent Neural Network (RNN)
+</p>
+<p>
+이러한 방법은 다음과 같은 한계가 존재합니다 :
+</p>
+<p>
+- 아이템에 대한 hidden representation이 과거의 정보만을 고려
+</p>
+<p>
+- 기존에 사용한 모델들은 엄격한 순서가 있다고 여겨지는 데이터를 위해 고안된 모델
+</p>
+<p>
+⇒ 반면, 사용자의 행동의 순서는 뒤바뀔 수 있음
+</p>
+</div>
 
 
-
-- 💡 The basic paradigm of previous work is to encode a user’s historical interactions into a vector using a **left-to-right sequential model** and make recommendations based on this hidden representation.
-> 기존 접근법들은 이를 위해 사용자의 과거 상호작용만을 hidden representaion으로 생성하여 추천을 제공했습니다.
-> ex. Recurrent Neural Network (RNN)
-> 
-> 이러한 방법은 다음과 같은 한계가 존재합니다 :
->> - 아이템에 대한 hidden representation이 과거의 정보만을 고려
->> - 기존에 사용한 모델들은 엄격한 순서가 있다고 여겨지는 데이터를 위해 고안된 모델
->> - ⇒ 반면, 사용자의 행동의 순서는 뒤바뀔 수 있음
-</aside>
-
-<aside>
+<div class="custom-class">
+<p>
 💡 To address the limitations mentioned above, we seek to use a bidirectional model to learn the representations for users’ historical behavior sequences. Specifically, inspired by the success of **BERT** in text understanding, we propose to apply the deep bidirectional self-attention model to sequential recommendation.
-
+</p>
+<p>
 위 문제를 해결하기 위해, 본 논문에서는 sequential recommendation에 **BERT** 모델을 활용하는 것을 제안합니다.
-
+</p>
+<p>
 ⇒ 과거와 미래 정보로부터 얻는 context를 모두 활용할 수 있음
+</p>
+</div>
 
-</aside>
 
-<aside>
+<div class="custom-class">
+<p>
 💡 Jointly conditioning on both left and right context in BERT cause information leakage. To tackle this problem, we introduce the ***Cloze*** task to take the place of the objective in unidirectional models.
-
+</p>
+<p>
 과거와 미래 정보를 활용하여 학습하게 되면 간접적으로 예측 아이템을 보게 됩니다. 이 문제를 해결하기 위해 **Cloze** 방법론을 제안합니다.
-
+</p>
+<p>
 **Cloze**
-
+</p>
+<p>
 랜덤하게 아이템을 [mask] 토큰으로 숨기고, context를 기반으로 해당 item의 id를 예측하는 학습 방법
-
+</p>
+<p>
 ⇒ 학습 데이터가 늘어나는 효과
+</p>
+</div>
 
-</aside>
 
-<aside>
+<div class="custom-class">
+<p>
 💡 However, a downside of the Cloze task is that it is not consistent with the final task. To fix this, during the test, we a**ppend the special token “[mask]” at the end of the input sequence** to indicate the item that we need to predict, and then make recommendations base on its final hidden vector.
-
+</p>
+<p>
 그러나 Cloze 방법론은 sequential 추천의 최종 목표와 일치하지 않습니다. 따라서 테스트 단계에서는 [mask] 토큰을 입력의 마지막에 추가하여 다음에 나타날 아이템을 예측하도록 합니다.
+</p>
+</div>
 
-</aside>
 
 **Contributions:**
 
@@ -131,12 +171,12 @@ $$
 
 - **B**idirectional **E**ncoder Representations from **T**ransformers to a new task, sequential **R**ecommendation
     
-    ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/8e1e6952-5931-48ee-b426-4bc71eeef976/Untitled.png)
+    ![Untitled](../../../static/img/paper_review/bert4rec_review/model_architecture.png)
     
 
 ## 3.3 Transformer Layer
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/9b7f41b7-fda8-4f0e-8a7e-7f2b86d27012/Untitled.png)
+![Untitled](../../../static/img/paper_review/bert4rec_review/transformer_layer.png)
 
 - Multi-Head Self-Attention
     
@@ -144,13 +184,13 @@ $$
     Attention(Q,K,V) = softmax(\frac{QK^T}{\sqrt{d/h}})
     $$
     
-    ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/819516a9-6214-48a3-a401-29a89d7d360a/Untitled.png)
+    ![Untitled](../../../static/img/paper_review/bert4rec_review/mh_attention1.png)
     
-    ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/abccd29e-0373-46e8-a06d-e2fff506de76/Untitled.png)
+    ![Untitled](../../../static/img/paper_review/bert4rec_review/mh_attention2.png)
     
-    ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/2ae37b2e-26ac-4abe-bbcc-50d5997437d8/Untitled.png)
+    ![Untitled](../../../static/img/paper_review/bert4rec_review/mh_attention3.png)
     
-    ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/e2c6ab3a-b1f6-440d-8ef8-26023170c0c9/Untitled.png)
+    ![Untitled](../../../static/img/paper_review/bert4rec_review/mh_attention4.png)
     
 ```python
   
@@ -230,7 +270,7 @@ class MultiHeadAttention(nn.Module):
     
 - Stacking Transformer Layer
     
-    ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/6fa8e487-e83c-472a-8c3c-4517ae380e3c/Untitled.png)
+    ![Untitled](../../../static/img/paper_review/bert4rec_review/stacking_transformer_layer.png)
     
 
 ## 3.4 Embedding Layer
@@ -322,7 +362,7 @@ class BERT4Rec(nn.Module):
 
 - **Cloze 학습 방법**
     
-    ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/7c34f329-8a41-4fad-a310-247fde22ba14/Untitled.png)
+    ![Untitled](../../../static/img/paper_review/bert4rec_review/cloze.png)
     
 ```python
     class BertTrainDataset(Dataset):
@@ -390,6 +430,6 @@ class BERT4Rec(nn.Module):
 
 # 4. EXPERIMENTS
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/3ec7ae4f-4f63-47a4-a507-03441ce6fcd6/Untitled.png)
+![Untitled](../../../static/img/paper_review/bert4rec_review/experiments1.png)
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/8543147b-3382-47da-bb65-d4345cfedd64/Untitled.png)
+![Untitled](../../../static/img/paper_review/bert4rec_review/experiments2.png)

@@ -104,7 +104,7 @@ def sasrec(request):
             'description1': 'SASRec 추천 영화',
             'description2': "클릭하거나 별점 매긴 영화를 기반으로 다음에 클릭할 영화를 추천합니다."
                             "<br>구현한 사람 : 이경찬"
-                            "<br><a href='https://www.pseudorec.com/archive/paper_review/3/'>논문리뷰 보러가기↗</a>"
+                            "<br>🔗 <a href='https://www.pseudorec.com/archive/paper_review/3/' target='_blank'>SASRec 논문리뷰 ↗</a>"
         }
         return render(request, "home.html", context=context)
     else:
@@ -114,6 +114,7 @@ def sasrec(request):
             'description1': 'SASRec 추천 영화',
             'description2': "기록이 없어 추천할 수 없습니다!"
                             "<br>인기 영화에서 평점을 매기거나 포스터 클릭 기록을 남겨주세요!"
+                            "<br>🔗 <a href='https://www.pseudorec.com/archive/paper_review/3/' target='_blank'>SASRec 논문리뷰 ↗</a>"
         }
     return render(request, "home.html", context=context)
 
@@ -154,7 +155,7 @@ def ngcf(request):
         #                 '<br>인기 영화에서 평점을 매기거나 포스터 클릭 기록을 남겨주세요!'
         'description2': "배포 준비 중입니다. 🥹 추론 시간 최적화 작업 중입니다!"
                         "<br>담당자 : 박순혁"
-                        "<br><a href='https://www.pseudorec.com/archive/paper_review/2/'>논문리뷰 보러가기↗</a>"
+                        "<br>🔗 <a href='https://www.pseudorec.com/archive/paper_review/2/' target='_blank'>NGCF 논문리뷰 ↗</a>"
     }
     return render(request, "home.html", context=context)
 
@@ -193,7 +194,7 @@ def kprn(request):
             'description1': 'KPRN 추천 영화',
             'description2': "사용자가 별점 매긴 영화를 본 다른 사용자가 시청한 영화, 또는 영화를 제작한 감독/배우의 다른 영화를 추천해줍니다."
                             "<br>구현한 사람 : 남궁민상"
-                            "<br><a href='https://www.pseudorec.com/archive/paper_review/1/'>논문리뷰 보러가기↗</a>"
+                            "<br>🔗 <a href='https://www.pseudorec.com/archive/paper_review/1/' target='_blank'>KPRN 논문리뷰 ↗</a>"
         }
     else:
         context = {
@@ -201,6 +202,7 @@ def kprn(request):
             'kprn_on': True,
             'description1': 'KPRN 추천 영화',
             'description2': '기록이 없어 추천할 수 없습니다!\n인기 영화에서 평점을 매기거나 포스터 클릭 기록을 남겨주세요!'
+                            "<br>🔗 <a href='https://www.pseudorec.com/archive/paper_review/1/' target='_blank'>KPRN 논문리뷰 ↗</a>"
         }
 
     return render(request, "home.html", context=context)

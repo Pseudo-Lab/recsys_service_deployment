@@ -26,7 +26,7 @@ button {
     padding: 0;
 }
 
-.btn{
+.btn {
     border: none;
 }
 
@@ -252,8 +252,8 @@ main .center-main-field .paper-review-main code {
     border-radius: 5px; /* 테두리 모서리를 둥글게 만듦 */
 }
 
-main .model-rec .description{
-        padding-bottom: 2em;
+main .model-rec .description {
+    padding-bottom: 2em;
     height: 15vh;
 }
 
@@ -262,14 +262,16 @@ main .model-rec .model-rec-header .listing-group {
 }
 
 
-main .model-rec .description p{
+main .model-rec .description p {
     color: #000;
 }
+
 main .model-rec .model-rec-header {
     display: flex;
     position: relative;
-/*justify-content: end;*/
-padding: 0 0 2em 0;
+    margin-top: 10px;
+    /*justify-content: end;*/
+    padding: 0 0 2em 0;
 }
 
 
@@ -305,7 +307,7 @@ main .model-rec .model-rec-header .listing-group ul li a {
     border-radius: 5px;
     box-shadow: 0px 10px 10px 0 rgba(0, 0, 0, 0.05);
     background: #fff;
-        padding: 0 10px;
+    padding: 0 10px;
 }
 
 main .model-rec .model-rec-header .listing-group ul li.on a {
@@ -321,10 +323,9 @@ main .model-rec .model-rec-header .listing-group .search-icon {
     cursor: pointer;
 }
 
-main .model-rec .model-rec-header .listing-group .search-icon  ion-icon{
+main .model-rec .model-rec-header .listing-group .search-icon ion-icon {
     font-size: 1.5em;
 }
-
 
 
 .searchGroup {
@@ -376,13 +377,13 @@ main .model-rec .model-rec-header .listing-group .search-icon  ion-icon{
     transition: 0.5s;
 }
 
-.searchBtn.active{
+.searchBtn.active {
     left: 0;
     border: none;
 }
 
 .closeBtn {
-            position: relative;
+    position: relative;
     top: 14px;
     opacity: 0;
     visibility: hidden;
@@ -396,7 +397,7 @@ main .model-rec .model-rec-header .listing-group .search-icon  ion-icon{
     visibility: visible;
     transition: 0.5s;
     scale: 1;
-        position: relative;
+    position: relative;
     top: 14px;
 }
 

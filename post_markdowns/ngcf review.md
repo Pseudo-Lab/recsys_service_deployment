@@ -20,7 +20,7 @@
 
 <img alt="Untitled" src="../../../static/img/paper_review/ngcf_review/embedding_layer.png" width="500px">
 
-user 와 item 임베딩을 column 벡터형태로 하나의 parameter matrx인 E로 표현.
+user 와 item 임베딩을 column 벡터형태로 하나의 parameter matrix인 E로 표현.
 
 기존의 MF와 NCF 방법론에서는 임베딩들을 interaction layer에 직접 연결하여 prediction score를 계산.
 

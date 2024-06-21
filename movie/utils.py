@@ -81,14 +81,17 @@ def get_user_logs_df(username, session_id):
     return user_logs_df
 
 
-def get_interacted_movie_obs(interacted_movie_ids, k=50):
-    interacted_movie_obs = []
-    for mid in interacted_movie_ids[::-1]:
-        if mid is not None and not pd.isna(mid):
-            interacted_movie_obs.append(DaumMovies.objects.get(movieid=int(mid)))
-        if len(interacted_movie_obs) >= k:
-            break
-    return interacted_movie_obs
+def get_interacted_movie_dicts(user_logs_df, k=5):
+    user_logs_df['timestamp'] = user_logs_df['timestamp'].astype(int)  # timestamp 열을 정수형으로 변환
+    top_k_logs_df = user_logs_df.nlargest(k, 'timestamp')
+    top_k_logs_df['star'] = top_k_logs_df['star'].map(lambda x: float(int(x) / 2) if not pd.isna(x) else 'click')
+    interacted_movie_d = top_k_logs_df[['movieId', 'titleKo', 'star']].to_dict(orient='records')
+    movie_ids = [int(obs['movieId']) for obs in interacted_movie_d]
+    poster_urls = get_poster_urls(movie_ids)
+    for obs in interacted_movie_d:
+        obs['posterUrl'] = poster_urls.get(int(obs['movieId']), '')
+
+    return interacted_movie_d
 
 
 def log_tracking(request, view):

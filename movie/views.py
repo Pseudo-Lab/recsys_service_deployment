@@ -12,8 +12,8 @@ from clients import MysqlClient
 from db_clients.dynamodb import DynamoDBClient
 from movie.models import DaumMovies
 from movie.predictors.mf_predictor import mf_predictor
-from movie.utils import add_past_rating, add_rank, get_username_sid, get_user_logs_df, get_interacted_movie_obs, \
-    log_tracking, get_poster_urls
+from movie.utils import add_past_rating, add_rank, get_username_sid, get_user_logs_df, \
+    log_tracking, get_interacted_movie_dicts
 from utils.pop_movies import get_pop
 
 load_dotenv('.env.dev')
@@ -42,18 +42,7 @@ def home(request):
         if len(user_logs_df):  # 클릭로그 있을 때
             print(f"Click logs exist.")
             print(user_logs_df.tail(8))
-            # interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
-            # interacted_movie_obs = get_interacted_movie_obs(interacted_movie_ids)
-            user_logs_df.sort_values(by='timestamp', ascending=False, inplace=True)
-            user_logs_df['star'] = user_logs_df['star'].map(lambda x: float(int(x) / 2) if not pd.isna(x) else 'click')
-            interacted_movie_d = user_logs_df[['movieId', 'titleKo', 'star']].to_dict(orient='records')
-            movie_ids = [int(obs['movieId']) for obs in interacted_movie_d]
-            poster_urls = get_poster_urls(movie_ids)
-
-            for obs in interacted_movie_d:
-                obs['posterUrl'] = poster_urls.get(int(obs['movieId']), '')
-
-            # context 구성
+            interacted_movie_d = get_interacted_movie_dicts(user_logs_df)
             context = {
                 'movie_list': add_rank(add_past_rating(username=username,
                                                        session_id=session_id,
@@ -84,9 +73,9 @@ def sasrec(request):
     username, session_id = get_username_sid(request, _from='movie/sasrec')
     user_logs_df = get_user_logs_df(username, session_id)
 
-    if not user_logs_df.empty:  # 클릭로그 있을 때
+    if len(user_logs_df):  # 클릭로그 있을 때
         interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
-        interacted_movie_obs = get_interacted_movie_obs(interacted_movie_ids)
+        interacted_movie_d = get_interacted_movie_dicts(user_logs_df)
 
         # sasrec_recomm_mids = sasrec_predictor.predict(dbids=interacted_movie_ids)
         url = "http://15.165.169.138:7001/sasrec/"
@@ -109,7 +98,7 @@ def sasrec(request):
                                                    session_id=session_id,
                                                    recomm_result=sasrec_recomm
                                                    )),
-            'watched_movie': interacted_movie_obs,
+            'watched_movie': interacted_movie_d,
             'description1': 'SASRec 추천 영화',
             'description2': "클릭하거나 별점 매긴 영화를 기반으로 다음에 클릭할 영화를 추천합니다."
                             "<br>구현한 사람 : 이경찬"
@@ -134,7 +123,7 @@ def ngcf(request):
     # username, session_id = get_username_sid(request, _from='movie/ngcf')
     # user_logs_df = get_user_logs_df(username, session_id)
     #
-    # if not user_logs_df.empty:  # 클릭로그 있을 때
+    # if len(user_logs_df):  # 클릭로그 있을 때
     #     interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
     #     interacted_movie_obs = get_interacted_movie_obs(interacted_movie_ids)
     #
@@ -175,11 +164,10 @@ def kprn(request):
     username, session_id = get_username_sid(request, _from='movie_kprn')
     user_logs_df = get_user_logs_df(username, session_id)
 
-    if not user_logs_df.empty:  # 클릭로그 있을 때
+    if len(user_logs_df):  # 클릭로그 있을 때
         interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
-        interacted_movie_obs = get_interacted_movie_obs(interacted_movie_ids)
+        interacted_movie_dicts = get_interacted_movie_dicts(user_logs_df)
 
-        # kprn_recomm_mids = kprn_predictor.predict(dbids=interacted_movie_ids)
         url = "http://15.165.169.138:7001/kprn/"
         headers = {
             "accept": "application/json",
@@ -199,7 +187,7 @@ def kprn(request):
                                                    session_id=session_id,
                                                    recomm_result=kprn_recomm
                                                    )),
-            'watched_movie': interacted_movie_obs,
+            'watched_movie': interacted_movie_dicts,
             'description1': 'KPRN 추천 영화',
             'description2': "사용자가 별점 매긴 영화를 본 다른 사용자가 시청한 영화, 또는 영화를 제작한 감독/배우의 다른 영화를 추천해줍니다."
                             "<br>구현한 사람 : 남궁민상"
@@ -222,11 +210,10 @@ def general_mf(request):
     log_tracking(request=request, view='general_mf')
     username, session_id = get_username_sid(request, _from='movie_general_mf')
     user_logs_df = get_user_logs_df(username, session_id)
-    # user_logs_df_star = user_logs_df[~user_logs_df.star.isna()]
 
-    if not user_logs_df.empty:  # 클릭로그 있을 때
+    if len(user_logs_df):  # 클릭로그 있을 때
         interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
-        interacted_movie_obs = get_interacted_movie_obs(interacted_movie_ids)
+        interacted_movie_dicts = get_interacted_movie_dicts(user_logs_df)
 
         mf_recomm_mids = mf_predictor.predict(9360, dbids=interacted_movie_ids)
         mf_recomm = list(DaumMovies.objects.filter(movieid__in=mf_recomm_mids).values())
@@ -238,7 +225,7 @@ def general_mf(request):
                                                    session_id=session_id,
                                                    recomm_result=mf_recomm
                                                    )),
-            'watched_movie': interacted_movie_obs,
+            'watched_movie': interacted_movie_dicts,
             'description1': 'General MF 추천 영화',
             'description2': "사용자가 별점 매긴 영화를 본 다른 사용자가 시청한 영화, 또는 영화를 제작한 감독/배우의 다른 영화를 추천해줍니다."
                             "<br>구현한 사람 : 조경아"
@@ -320,21 +307,15 @@ def log_star(request):
 
     user_logs_df = get_user_logs_df(username, session_id)
     if len(user_logs_df) and 'star' in user_logs_df.columns:
-        star_df = user_logs_df[user_logs_df['star'].notnull()].drop_duplicates(subset=['titleKo'], keep='last')
-        star_movie_ids = star_df['movieId'].tolist()
-        star_movie_ids = list(map(int, star_movie_ids))
-        rated_movies = DaumMovies.objects.filter(movieid__in=star_movie_ids).values('movieid', 'titleko')
-        rated_movies = sorted(rated_movies, key=lambda x: star_movie_ids.index(x['movieid']))
-        rated_movies_titles = [rated_m['titleko'] for rated_m in rated_movies]
-
+        interacted_movie_dicts = get_interacted_movie_dicts(user_logs_df)
+        for _ in interacted_movie_dicts:
+            print(_)
         context = {
-            'watched_movie': rated_movies_titles[::-1],
-            'ratings': [float(star / 2) for star in star_df['star'].tolist()][::-1]
+            'watched_movie': interacted_movie_dicts
         }
     else:
         context = {
-            'watched_movie': [],
-            'ratings': []
+            'watched_movie': []
         }
     return HttpResponse(json.dumps(context), content_type='application/json')
 
@@ -360,16 +341,15 @@ def search(request, keyword):
 
     username, session_id = get_username_sid(request, _from='movie/sasrec')
     user_logs_df = get_user_logs_df(username, session_id)
-    if not user_logs_df.empty:  # 클릭로그 있을 때
+    if len(user_logs_df):  # 클릭로그 있을 때
         print(f"클릭로그 : 있음")
         print(user_logs_df.tail(8))
-        interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
-        interacted_movie_obs = get_interacted_movie_obs(interacted_movie_ids)
+        interacted_movie_dicts = get_interacted_movie_dicts(user_logs_df)
     else:
-        interacted_movie_obs = []
+        interacted_movie_dicts = []
 
     context = {'movie_list': searched_movies,
-               'watched_movie': interacted_movie_obs,
+               'watched_movie': interacted_movie_dicts,
                'description1': '검색 결과'
                }
     return render(request, "home.html", context=context)

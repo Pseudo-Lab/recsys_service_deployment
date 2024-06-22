@@ -11,4 +11,5 @@ urlpatterns = [
     path("ngcf/", ngcf),
     path("kprn/", kprn),
     path("mf/", general_mf),
+    # path("delete_all_history/", delete_all_history),
 ]

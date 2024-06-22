@@ -1,4 +1,5 @@
 import os
+from decimal import Decimal
 
 import boto3
 import pandas as pd
@@ -40,10 +41,17 @@ class DynamoDBClient:
         resp = self.table.query(**query)
         return pd.DataFrame(resp['Items'])
 
-    # def delete_all_interactions(self, user_name: str):
-    #     items_to_delete = self.get_a_user_logs(user_name)
-    #     with self.table.batch_writer() as batch:
-    #         for index, item in items_to_delete.iterrows():
-    #             batch.delete_item(Key={'userId': item['userId'], 'sessionId': item['sessionId']})
+    # def delete_item(self, user_id: str, timestamp: Decimal, session_id: str):
+    #     key = {
+    #         'userId': user_id,
+    #         'timestamp': timestamp
+    #     }
+    #     condition_expression = Attr('sessionId').eq(session_id)
+    #     try:
+    #         response = self.table.delete_item(
+    #             Key=key,
+    #             ConditionExpression=condition_expression
+    #         )
+    #         return response
 
 

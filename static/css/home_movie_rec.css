@@ -61,3 +61,16 @@ article {
     color: #8192a1;
 }
 
+.right-field .btn-small {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    background-color: #6c757d; /* 중간 회색 */
+    color: white;
+}
+
+.right-field .btn-small:hover {
+    background-color: #5a6268; /* 약간 더 어두운 회색 */
+}

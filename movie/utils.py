@@ -81,7 +81,7 @@ def get_user_logs_df(username, session_id):
     return user_logs_df
 
 
-def get_interacted_movie_dicts(user_logs_df, k=5):
+def get_interacted_movie_dicts(user_logs_df, k=50):
     user_logs_df['timestamp'] = user_logs_df['timestamp'].astype(int)  # timestamp 열을 정수형으로 변환
     top_k_logs_df = user_logs_df.nlargest(k, 'timestamp')
     top_k_logs_df['star'] = top_k_logs_df['star'].map(lambda x: float(int(x) / 2) if not pd.isna(x) else 'click')

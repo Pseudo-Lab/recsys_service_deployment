@@ -308,8 +308,6 @@ def log_star(request):
     user_logs_df = get_user_logs_df(username, session_id)
     if len(user_logs_df) and 'star' in user_logs_df.columns:
         interacted_movie_dicts = get_interacted_movie_dicts(user_logs_df)
-        for _ in interacted_movie_dicts:
-            print(_)
         context = {
             'watched_movie': interacted_movie_dicts
         }
@@ -355,16 +353,14 @@ def search(request, keyword):
     return render(request, "home.html", context=context)
 
 
-# from django.views.decorators.http import require_POST
-# from django.shortcuts import redirect
-# from django.urls import reverse
+from django.http import JsonResponse
+
+
+# @csrf_exempt
+# def delete_all_history(request):
+#     username, session_id = get_username_sid(request)
+#     # 로그를 삭제하는 코드 추가
+#     print(1)
+#     # delete_user_logs(username, session_id)  # 사용자 로그를 삭제하는 함수를 호출합니다.
 #
-# @require_POST
-# def delete_all_interactions(request):
-#     # Ensure the request is a POST request
-#     if request.method == 'POST':
-#         username = request.POST.get('username')  # Adjust based on how you pass the username
-#
-#
-#         table_clicklog.delete_all_interactions(username)
-#     return redirect(reverse('home'))  # home 페이지로 리디렉션
+#     return JsonResponse({'status': 'success'})

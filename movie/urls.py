@@ -1,6 +1,7 @@
 from django.urls import path
 
-from movie.views import home, movie_detail, search, sasrec, kprn, general_mf, ngcf, delete_movie_interaction
+from movie.views import home, movie_detail, search, sasrec, kprn, general_mf, ngcf, delete_movie_interaction, \
+    delete_all_interactions
 
 urlpatterns = [
     path("", home),
@@ -12,5 +13,6 @@ urlpatterns = [
     path("kprn/", kprn),
     path("mf/", general_mf),
     path('delete_movie_interaction/', delete_movie_interaction, name='delete_movie_interaction'),
+    path('delete_all_interactions/', delete_all_interactions, name='delete_all_interactions')
 
 ]

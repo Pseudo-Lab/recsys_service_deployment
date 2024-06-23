@@ -94,16 +94,21 @@ main div.watched_list p.star {
     padding-left: 10px;
 }
 
+    .button-container {
+        text-align: center; /* 가운데 정렬 */
+        margin-top: 20px; /* 원하는 만큼의 마진을 추가하여 위로 올립니다. */
+    }
+
 .right-field .btn-small {
     padding: 5px 10px;
     font-size: 14px;
     border: none;
     border-radius: 3px;
     cursor: pointer;
-    background-color: #6c757d; /* 중간 회색 */
+    background-color: #f89494; /* 중간 회색 */
     color: white;
 }
 
 .right-field .btn-small:hover {
-    background-color: #5a6268; /* 약간 더 어두운 회색 */
+    background-color: #a81e1e; /* 약간 더 어두운 회색 */
 }

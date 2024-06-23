@@ -1,6 +1,7 @@
 import json
 import time
 
+import boto3
 import pandas as pd
 import requests
 from django.http import HttpResponse, JsonResponse
@@ -265,7 +266,9 @@ def log_click(request):
             'timestamp': int(time.time()),
             'titleKo': movie_title,
             'url': page_url,
-            'movieId': movie_id
+            'movieId': movie_id,
+            'star':None
+
         }
         # print(f"[movie/log_click] message : {message}")
         #
@@ -383,3 +386,33 @@ def delete_movie_interaction(request):
 
         # POST 요청이 아닌 경우에는 에러 응답을 반환합니다.
     return JsonResponse({'error': '잘못된 요청입니다.'}, status=400)
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+
+@csrf_exempt
+def delete_all_interactions(request):
+    username, session_id = get_username_sid(request)
+    if request.method == 'POST':
+        user_logs_df = get_user_logs_df(username, session_id)
+        keys_to_delete = []
+        response = table_clicklog.table.scan(
+            FilterExpression=boto3.dynamodb.conditions.Attr('userId').eq(username)
+        )
+        for item in response['Items']:
+            keys_to_delete.append({
+                'userId': item['userId'],
+                'timestamp': item['timestamp']
+            })
+        # Batch delete items
+        with table_clicklog.table.batch_writer() as batch:
+            for key in keys_to_delete:
+                batch.delete_item(
+                    Key=key
+                )
+
+        return JsonResponse({'message': '모든 기록이 성공적으로 삭제되었습니다.'})
+    else:
+        return JsonResponse({'error': 'POST 요청이 아닙니다.'}, status=400)

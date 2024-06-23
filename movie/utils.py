@@ -84,7 +84,11 @@ def get_user_logs_df(username, session_id):
 def get_interacted_movie_dicts(user_logs_df, k=50):
     user_logs_df['timestamp'] = user_logs_df['timestamp'].astype(int)  # timestamp 열을 정수형으로 변환
     top_k_logs_df = user_logs_df.nlargest(k, 'timestamp')
-    top_k_logs_df['star'] = top_k_logs_df['star'].map(lambda x: float(int(x) / 2) if not pd.isna(x) else 'click')
+
+    if 'star' in top_k_logs_df:
+        top_k_logs_df['star'] = top_k_logs_df['star'].map(lambda x: float(int(x) / 2) if not pd.isna(x) else 'click')
+    else:
+        top_k_logs_df['star'] = 'click'
     interacted_movie_d = top_k_logs_df[['movieId', 'titleKo', 'timestamp', 'star']].to_dict(orient='records')
     movie_ids = [int(obs['movieId']) for obs in interacted_movie_d]
     poster_urls = get_poster_urls(movie_ids)

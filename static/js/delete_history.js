@@ -35,3 +35,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('delete-all-history').addEventListener('click', function() {
+        if (confirm('정말로 모든 기록을 삭제하시겠습니까?')) {
+            // AJAX 요청
+            fetch('/movie_recommendation/delete_all_interactions/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({}),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 성공적으로 처리된 경우, 여기에 추가적인 작업을 할 수 있습니다.
+                console.log('모든 기록 삭제 완료:', data);
+                // 페이지 리로드 또는 필요한 다른 작업을 수행할 수 있습니다.
+                location.reload(); // 예시로 페이지를 리로드하는 방법
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    });
+});

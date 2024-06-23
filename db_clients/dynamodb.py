@@ -41,6 +41,11 @@ class DynamoDBClient:
         resp = self.table.query(**query)
         return pd.DataFrame(resp['Items'])
 
+    def get_description(self, table_name='clicklog'):
+        response = self.client.describe_table(TableName=table_name)
+        return response
+
+
     # def delete_item(self, user_id: str, timestamp: Decimal, session_id: str):
     #     key = {
     #         'userId': user_id,

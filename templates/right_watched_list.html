@@ -2,9 +2,11 @@
     <h4>Interactions</h4>
     <div class="watched_list">
         {% for wm in watched_movie %}
-        <div class="watched_movie">
+        <div class="watched_movie" data-timestamp="{{ wm.timestamp }}">
             <div class="poster">
-                <img src={{ wm.posterUrl }} alt="">
+                <a href="/movie/{{ wm.movieId }}">
+                    <img src="{{ wm.posterUrl }}" alt="">
+                </a>
             </div>
             <div class="title">
                 <p>{{ wm.titleKo }}</p>
@@ -14,10 +16,13 @@
                 <p class="no-star">{{ wm.star }}</p>
                 {% endif %}
             </div>
+            <div class="delete-icon">
+                <span class="delete-button">x</span>
+            </div>
         </div>
         {% endfor %}
     </div>
-<!--    <div class="button-container">-->
-<!--        <button id="delete-all-history" class="btn-small">모두 지우기</button>-->
-<!--    </div>-->
+    <!--    <div class="button-container">-->
+    <!--        <button id="delete-all-history" class="btn-small">모두 지우기</button>-->
+    <!--    </div>-->
 </div>

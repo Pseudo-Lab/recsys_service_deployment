@@ -41,7 +41,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         var movieHtml = `
                             <div class="watched_movie">
                                 <div class="poster">
-                                    <img src="${wm.posterUrl}" alt="">
+                                    <a href="/movie/${ wm.movieId }">
+                                        <img src="${ wm.posterUrl }" alt="">
+                                    </a>
                                 </div>
                                 <div class="title">
                                     <p>${wm.titleKo}</p>

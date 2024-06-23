@@ -356,11 +356,30 @@ def search(request, keyword):
 from django.http import JsonResponse
 
 
-# @csrf_exempt
-# def delete_all_history(request):
-#     username, session_id = get_username_sid(request)
-#     # 로그를 삭제하는 코드 추가
-#     print(1)
-#     # delete_user_logs(username, session_id)  # 사용자 로그를 삭제하는 함수를 호출합니다.
-#
-#     return JsonResponse({'status': 'success'})
+@csrf_exempt
+def delete_movie_interaction(request):
+    username, session_id = get_username_sid(request)
+    if request.method == 'POST':
+        # POST 요청으로 전달된 데이터를 JSON으로 파싱하여 변수에 저장합니다.
+        data = json.loads(request.body)
+        timestamp = data.get('timestamp')
+        movie_id = data.get('movieId')
+
+        table_clicklog.table.delete_item(
+            Key={"userId": username, "timestamp": int(timestamp)},
+        )
+
+        user_logs_df = get_user_logs_df(username, session_id)
+        if len(user_logs_df) and 'star' in user_logs_df.columns:
+            interacted_movie_dicts = get_interacted_movie_dicts(user_logs_df)
+            context = {
+                'watched_movie': interacted_movie_dicts
+            }
+        else:
+            context = {
+                'watched_movie': []
+            }
+        return HttpResponse(json.dumps(context), content_type='application/json')
+
+        # POST 요청이 아닌 경우에는 에러 응답을 반환합니다.
+    return JsonResponse({'error': '잘못된 요청입니다.'}, status=400)

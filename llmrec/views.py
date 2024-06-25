@@ -8,12 +8,15 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from dotenv import load_dotenv
 from langchain.schema import HumanMessage
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import PromptTemplate
 
 from clients import MysqlClient
 from db_clients.dynamodb import DynamoDBClient
 from llmrec.utils.gyungah.load_chain import get_chain as g_get_chain
 from llmrec.utils.hyeonwoo.load_chain import router
 from llmrec.utils.kyeongchan.get_model import kyeongchan_model
+from llmrec.utils.kyeongchan.search_engine import SearchManager
 from llmrec.utils.log_questions import log_llm
 from llmrec.utils.soonhyeok.GraphRAG import get_results
 from movie.utils import get_username_sid, log_tracking, get_user_logs_df
@@ -85,9 +88,9 @@ def llmrec_namjoon(request):
 
 
 # @csrf_exempt
-# def llmrec_kyeongchan(request):
+# def llmrec_kyeongchan.html(request):
 #     log_tracking(request=request, view='kyeongchan')
-#     username, session_id = get_username_sid(request, _from='llmrec_kyeongchan')
+#     username, session_id = get_username_sid(request, _from='llmrec_kyeongchan.html')
 #     if request.method == 'POST':
 #         try:
 #             data = json.loads(request.body.decode('utf-8'))
@@ -254,33 +257,130 @@ def llmrec_namjoon(request):
 #
 #         return render(request, "llmrec.html", context)
 
+# @csrf_exempt
+# def llmrec_kyeongchan(request):
+#     log_tracking(request=request, view='kyeongchan')
+#     if request.method == 'POST':
+#         try:
+#             data = json.loads(request.body.decode('utf-8'))
+#             message = data.get('message', '')
+#             question = message.get('text')
+#             log_llm(request=request, question=question, model_name='kyeongchan')
+#
+#             print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
+#
+#             response_message = '[경찬님 모델]아직 모델이 없어요ㅠ'
+#             log_llm(request=request, answer=response_message, model_name='minsang')
+#
+#             # 클라이언트에게 성공적인 응답을 보냅니다.
+#             return JsonResponse({'status': 'success', 'message': response_message})
+#         except json.JSONDecodeError as e:
+#             # JSON 디코딩 오류가 발생한 경우 에러 응답을 보냅니다.
+#             return JsonResponse({'status': 'error', 'message': str(e)})
+#     else:
+#         context = {
+#             'description1': "Kyeongchan's LLMREC",
+#             'description2': "준비중입니다.",
+#         }
+#         return render(request, "llmrec.html", context)
+@csrf_exempt
+def stream_chat(request):
+    text = request.GET.get('text')
+    search_manager = SearchManager(
+        api_key="",
+        index="86f92d0e-e8ec-459a-abb8-0262bbf794a2",
+        top_k=5,
+        score_threshold=0.7
+    )
+    search_manager.add_engine("self")
+    # context = search_manager.search_all(text)
+    template = '''You are an excellent movie curator. Your job is to recommend movie to user based on Context.
+    Context:
+    {context}
+
+    Question: {input}
+    Answer:'''
+
+    prompt_template = PromptTemplate.from_template(template)
+    chain = prompt_template | kyeongchan_model | StrOutputParser()
+
+    def message_stream():
+        for chunk in chain.stream({"input": text, "context": "봉준호 감독 영화"}):
+            data = json.dumps(chunk)
+            yield f'data: {data}\n\n'
+
+    # async def message_stream():
+    #     async for chunk in chain.astream({"input": text, "context": "봉준호 감독 영화"}):
+    #         data = json.dumps(chunk)
+    #         yield f'data: {data}\n\n'
+
+    return StreamingHttpResponse(message_stream(), content_type='text/event-stream')
+
 @csrf_exempt
 def llmrec_kyeongchan(request):
     log_tracking(request=request, view='kyeongchan')
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body.decode('utf-8'))
-            message = data.get('message', '')
-            question = message.get('text')
-            log_llm(request=request, question=question, model_name='kyeongchan')
-
-            print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
-
-            response_message = '[경찬님 모델]아직 모델이 없어요ㅠ'
-            log_llm(request=request, answer=response_message, model_name='minsang')
-
-            # 클라이언트에게 성공적인 응답을 보냅니다.
-            return JsonResponse({'status': 'success', 'message': response_message})
-        except json.JSONDecodeError as e:
-            # JSON 디코딩 오류가 발생한 경우 에러 응답을 보냅니다.
-            return JsonResponse({'status': 'error', 'message': str(e)})
-    else:
+    if request.method == 'GET':
         context = {
             'description1': "Kyeongchan's LLMREC",
-            'description2': "준비중입니다.",
+            'description2': "Self-Querying을 이용한 RAG를 사용해 추천합니다!.",
         }
-        return render(request, "llmrec.html", context)
+        return render(request, "llmrec_kyeongchan.html", context)
 
+    # if request.method == 'POST':
+    #     username, session_id = get_username_sid(request, _from='llmrec_kyeongchan')
+    #     try:
+    #         data = json.loads(request.body.decode('utf-8'))
+    #         message = data.get('message', '')
+    #         question = message.get('text')
+    #         log_llm(request=request, question=question, model_name='kyeongchan')
+    #
+    #         # 여기서 message를 원하는 대로 처리
+    #         print(f"[{message.get('timestamp')}]{username}({session_id}) : {message.get('text')}")
+    #         search_manager = SearchManager(
+    #             api_key="",
+    #             index="86f92d0e-e8ec-459a-abb8-0262bbf794a2",
+    #             top_k=5,
+    #             score_threshold=0.7
+    #         )
+    #         search_manager.add_engine("self")
+    #         # response = search_manager.search_all(question)
+    #         # TODO response 전처리
+    #
+    #         # TODO 개인화 추천
+    #
+    #         template = '''You are an excellent movie curator. Your job is to recommend movie to user based on Context.
+    #         Context:
+    #         {context}
+    #
+    #         Question: {input}
+    #         Answer:'''
+    #
+    #         prompt_template = PromptTemplate.from_template(template)
+    #         chain = prompt_template | kyeongchan_model | StrOutputParser()
+    #
+    #         # chunks = []
+    #         # for chunk in chain.stream({"input": message.get('text'), "context": "봉준호 감독 영화"}):
+    #         #     chunks.append(chunk)
+    #         #     print(chunk, end="|", flush=True)
+    #
+    #         # chain.astream({"input": message.get('text'), "context": "봉준호 감독 영화"})
+    #         # response_message = chain.invoke({"input": message.get('text'), "context": "봉준호 감독 영화"})
+    #         # log_llm(request=request, answer=response_message, model_name='kyeongchan')
+    #         # print(f"response_message : {response_message}")
+    #         # return JsonResponse({'status': 'success', 'message': response_message})
+    #
+    #         # 클라이언트에게 성공적인 응답을 보냅니다.
+    #         # return JsonResponse({'status': 'success', 'message': response_message})
+    #     except json.JSONDecodeError as e:
+    #         # JSON 디코딩 오류가 발생한 경우 에러 응답을 보냅니다.
+    #         return JsonResponse({'status': 'error', 'message': str(e)})
+    #
+    #     async def message_stream():
+    #         async for chunk in chain.astream({"input": message.get('text'), "context": "봉준호 감독 영화"}):
+    #             data = json.dumps(dict(chunk))
+    #             yield data
+    #
+    #     return StreamingHttpResponse(message_stream(), content_type='text/event-stream')
 
 @csrf_exempt
 def llmrec_minsang(request):

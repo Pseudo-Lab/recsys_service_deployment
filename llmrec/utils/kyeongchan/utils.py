@@ -85,22 +85,29 @@ def get_landing_page_recommendation(username, user_logs_df, kyeongchan_model):
     1. {username}님에게 후보로부터 1가지 영화를 골라 추천해줘.
     2. 시청한 영화들의 특징을 꼼꼼히 분석해서 타당한 추천 근거를 들어줘. 장르, 스토리, 인기도, 감독, 배우 등을 분석하면 좋아.
     3. 추천 근거를 정성스럽고 길게 작성해줘.
-
-    출력 형식은 다음과 같이 json으로 반환해줘.
-
-    {{
-        "titleKo" : "영화 이름1",
-        "movieId" : "영화 id",
-        "reason" : "추천 근거"
+    
+    ```Example
+    시청 이력 : 밀정, 택시운전사, 1987
+    후보 : 더 킹(98333), 남한산성(106472), 남산의 부장들(122091), 기생충(111292), 더 서클(94966), 히트맨(131909)
+    
+    
+    answer : {{
+        "titleKo": "기생충", 
+        "movieId': "111292", 
+        "reason": "{username}님 안녕하세요! 지난 시청 이력을 분석한 결과, 밀정, 택시운전사, 1987과 같은 역사적 이슈를 다룬 영화를 선호하셨던 점을 고려하면 기생충을 강력히 추천드립니다! 기생충은 사회적 계층과 경제 격차를 주제로 한 작품으로, 봉준호 감독의 예술적 연출과 깊은 사회적 메시지로 관람객들에게 많은 호평을 받았습니다. 이 영화는 단순한 엔터테인먼트를 넘어서 사회적 문제에 대한 깊은 고찰을 제공하며, 관객들에게 강력한 메시지를 전달합니다. 또한, 기생충은 국제적으로도 매우 큰 인기를 얻어, 칸 영화제에서는 황금종려상을 수상하였고, 아카데미 시상식에서도 작품상과 감독상을 비롯한 여러 부문에서 수상하며 주목받은 작품입니다. 당신의 시청 이력을 바탕으로 한 이 추천은 밀정, 택시운전사, 1987과 같은 역사적 장르를 선호하시는 분들께 이 영화가 매우 맞을 것이라고 확신합니다. 기생충을 통해 새로운 시각과 깊은 감동을 경험해보세요! 😄"
     }}
+    ```
 
     시청 이력 : {history_mtitles}
-    후보 : {candidates}"""
+    후보 : {candidates}
+    answer : """
 
+    print(recommendation_prompt)
     response_message = kyeongchan_model([
         HumanMessage(recommendation_prompt)
     ])
-
+    print(f"ChatGPT 답변".center(100, '-'))
+    print(response_message.content)
     recommendations = json.loads(response_message.content)
     recommended_mid = int(recommendations['movieId'])
 

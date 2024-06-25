@@ -320,6 +320,7 @@ def llmrec_kyeongchan(request):
     log_tracking(request=request, view='kyeongchan')
     if request.method == 'GET':
         user_logs_df = get_user_logs_df(username, session_id)
+        print(user_logs_df)
         answer = get_landing_page_recommendation(username, user_logs_df, kyeongchan_model)
         context = {
             'description1': "Kyeongchan & Byeongcheol LLMREC",

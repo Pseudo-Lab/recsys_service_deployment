@@ -9,7 +9,7 @@
           integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
     <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
-    <link rel="stylesheet" href="{% static 'css/movie_chat.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/llmrec_kyeongchan.css' %}?v=2024011916">
     <script defer src="{% static 'js/stream_chat.js' %}"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <!--    iconicons-->
@@ -35,7 +35,12 @@
             </div>
             <div class="center-main-field">
                 <div class="chat-container">
-                    <div class="chat-messages"></div>
+                    <div class="chat-messages">
+                        <div class="message gray-bg">
+                            <div class="message-sender"></div>
+                            <div class="message-text">{{initial_message|safe}}</div>
+                        </div>
+                    </div>
                     <form class="chat-input-form">
                         <input type="text" class="chat-input" required placeholder="Type here.."/>
                         <button type="submit" id="send-button" class="button send-button">

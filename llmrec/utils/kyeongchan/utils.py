@@ -67,6 +67,7 @@ def get_recomm_movies_titles(sasrec_recomm_mids):
 
     return candidates_lst
 
+
 def tmdb_search_title(title):
     url = f"https://api.themoviedb.org/3/search/movie?query={title}&include_adult=true&language=ko-KR&page=1"
     headers = {
@@ -75,6 +76,7 @@ def tmdb_search_title(title):
     }
     response = requests.get(url, headers=headers)
     return response.json()
+
 
 def tmdb_movies_details(tmdb_movie_id):
     url = f'https://api.themoviedb.org/3/movie/{tmdb_movie_id}?language=ko-KR'
@@ -85,7 +87,6 @@ def tmdb_movies_details(tmdb_movie_id):
     response = requests.get(url, headers=headers)
     return response.json()
 
-import requests
 
 def tmdb_movies_credits(tmdb_movie_id):
     url = f"https://api.themoviedb.org/3/movie/{tmdb_movie_id}/credits?language=ko-KR"
@@ -95,6 +96,7 @@ def tmdb_movies_credits(tmdb_movie_id):
     }
     response = requests.get(url, headers=headers)
     return response.json()
+
 
 def get_history_with_meta(history_df):
     history_with_meta = ''
@@ -141,6 +143,7 @@ def get_history_with_meta(history_df):
         history_with_meta += '\n'
     return history_with_meta
 
+
 def get_landing_page_recommendation(username, user_logs_df, kyeongchan_model):
     history_mids = get_interacted_movie_ids(user_logs_df)
     history_df, history_with_join = get_history_with_newline(history_mids)
@@ -148,7 +151,8 @@ def get_landing_page_recommendation(username, user_logs_df, kyeongchan_model):
     # user preference
     history_with_meta = get_history_with_meta(history_df)
     preference_response = kyeongchan_model([
-        HumanMessage(PromptTemplates.preference_prompt_template.format(username=username, history_with_meta=history_with_meta))
+        HumanMessage(
+            PromptTemplates.preference_prompt_template.format(username=username, history_with_meta=history_with_meta))
     ])
     profile = preference_response.content
     print(f"profile".center(100, '-'))
@@ -164,11 +168,13 @@ def get_landing_page_recommendation(username, user_logs_df, kyeongchan_model):
     history_mtitles = ', '.join(history_df['titleKo'].tolist())
 
     print(f"prompt".center(100, '-'))
-    print(f"{PromptTemplates.recommendation_prompt.format(username=username, history_with_meta=history_with_meta, candidates=candidates)}")
+    print(
+        f"{PromptTemplates.recommendation_prompt.format(username=username, history_with_meta=history_with_meta, candidates=candidates)}")
 
     response_message = kyeongchan_model([
-        HumanMessage(PromptTemplates.recommendation_prompt.format(username=username, history_with_meta=history_with_meta,
-                                                                  candidates=candidates))
+        HumanMessage(
+            PromptTemplates.recommendation_prompt.format(username=username, history_with_meta=history_with_meta,
+                                                         candidates=candidates))
     ])
 
     print(f"ChatGPT 답변".center(100, '-'))

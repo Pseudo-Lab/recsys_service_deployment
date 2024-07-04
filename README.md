@@ -33,7 +33,16 @@ docker system prune -a
 docker system prune --volumes --force
 ```
 
+# TMDB
 
+**movie > details**
+```
+https://developer.themoviedb.org/reference/movie-details
+```
+**search > movie**
+```
+https://developer.themoviedb.org/reference/search-movie
+```
 
 # django 설치
 ```

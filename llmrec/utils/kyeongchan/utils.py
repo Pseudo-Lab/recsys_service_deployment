@@ -150,6 +150,8 @@ def get_landing_page_recommendation(username, user_logs_df, kyeongchan_model):
 
     # user preference
     history_with_meta = get_history_with_meta(history_df)
+    print(f"preference prompt".center(100, '-'))
+    print(PromptTemplates.preference_prompt_template.format(username=username, history_with_meta=history_with_meta))
     preference_response = kyeongchan_model([
         HumanMessage(
             PromptTemplates.preference_prompt_template.format(username=username, history_with_meta=history_with_meta))
@@ -191,6 +193,7 @@ def get_landing_page_recommendation(username, user_logs_df, kyeongchan_model):
     where dm.movieId = {recommended_mid}
     """
     df = pd.read_sql(sql, mysql.engine)
+    print(f"df : {df}")
     poster_url = df.iloc[0]['posterUrl']
     synopsis_prep = df.iloc[0]['synopsis_prep']
 

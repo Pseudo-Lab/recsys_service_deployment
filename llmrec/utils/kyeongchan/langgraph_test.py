@@ -1,3 +1,5 @@
+# https://langchain-ai.github.io/langgraph/tutorials/rag/langgraph_adaptive_rag/
+
 import os
 from typing import TypedDict, List
 import requests
@@ -24,23 +26,21 @@ class GraphState(TypedDict):
     profile: str
     movies: List[str]
     history: List[dict]
-    user_profile: str
-    candidate: List
+    candidate: List[dict]
     recommendation: str
     answer: str
     status: str
 
 
-def classify(state: GraphState) -> GraphState:
-    '''
-    input: GraphState
-    output: GraphState
-        type_ : intent
-        query : entity
-    '''
-
+def classification(state: GraphState) -> GraphState:
     question = state["question"]
-    system_template = """
+
+    if question == "":
+        state['type_'] = 'MAIN'
+        return state
+    else:
+
+        system_template = """
 You are a kind assistant for classifying user query type into the follwing categories:
 GENRE, NAME, PERSON
 
@@ -52,27 +52,56 @@ type: NAME, query: 슈렉
 
 """
 
-    chat_prompt = ChatPromptTemplate.from_messages(
-        [
-            SystemMessagePromptTemplate.from_template(system_template),
-            HumanMessagePromptTemplate.from_template("question: {question}"),
-        ]
-    )
+        chat_prompt = ChatPromptTemplate.from_messages(
+            [
+                SystemMessagePromptTemplate.from_template(system_template),
+                HumanMessagePromptTemplate.from_template("question: {question}"),
+            ]
+        )
 
-    # messages = chat_prompt.format_messages(question=question)
-    # print(messages)
-    chain = chat_prompt | llm | StrOutputParser()
-    response = chain.invoke({"question": question})
-    output_dict = {}
-    for part in response.split(', '):
-        key, value = part.split(': ')
-        output_dict[key] = value
-    state['type_'] = output_dict['type']
-    state['query'] = output_dict['query']
-    state['id'] = get_movie_id(state['name'])['id']
-    return state
+        # messages = chat_prompt.format_messages(question=question)
+        # print(messages)
+        chain = chat_prompt | llm | StrOutputParser()
+        response = chain.invoke({"question": question})
+        output_dict = {}
+        for part in response.split(', '):
+            key, value = part.split(': ')
+            output_dict[key] = value
+        state['type_'] = output_dict['type']
+        state['query'] = output_dict['query']
+        state['id'] = get_movie_id(state['name'])['id']
+        return state
 
-def get_user_profile(state: GraphState):
+
+def query_router(state: GraphState):
+  if state['type_'] == "GENRE":
+      return "GENRE"
+  if state['type_'] == "NAME":
+      return "NAME"
+  if state['type_'] == "PERSON":
+      return "PERSON"
+  if state['type_'] == "DATE":
+      return "DATE"
+  if state['type_'] == "KEYWORD":
+      return "KEYWORD"
+  if state['type_'] == "NORMAL":
+      return "NORMAL"
+  if state['type_'] == "MAIN":
+      return "MAIN"
+
+
+# def should_continue(state):
+#     messages = state['messages']
+#     last_message = messages[-1]
+#     # If there is no function call, then we finish
+#     if "function_call" not in last_message.additional_kwargs:
+#         return "end"
+#     # Otherwise if there is, we continue
+#     else:
+#         return "continue"
+
+
+def user_profile(state: GraphState):
     history = '\n'.join(map(str, state['history']))
 
 
@@ -104,7 +133,7 @@ output:"""
     # print(messages)
     chain = chat_prompt | llm | StrOutputParser()
     response = chain.invoke({'history': history, 'username': state['user_id']})
-    state['user_profile'] = response
+    state['profile'] = response
     return state
 
 def get_user_history(state: GraphState):
@@ -121,11 +150,58 @@ def get_user_history(state: GraphState):
     state['history'] = history
     return state
 
-def get_recommend_movie(state: GraphState):
-    recommend_movies = ['반도, 담보, 싱크홀, 다만 악에서 구하소서, 콜, 살아있다, 범죄도시2, 도굴, 강철비2: 정상회담, 검객, 소울, 이웃사촌, 오케이 마담, 남산의 부장들, 백두산, 히트맨, 루카, 극한직업, 서복, 테넷, 이터널스, 엑시트, 베놈 2: 렛 데어 비 카니지, 원더 우먼 1984, 런, 낙원의 밤']
+
+def get_candidate_movie(state: GraphState):
+    recommend_movies = ['기생충', '더 킹', '남한산성', '더 서클', '히트맨', '살아있다', '범죄도시2']
+    candidates = []
+    for r in recommend_movies:
+        dic_ = {}
+        movie_id = get_movie_id(r)
+        dic_['movie'] = r
+        dic_['genres'] = get_genre_by_movie_id(movie_id)
+        dic_['keyword'] = get_keyword_by_movie_id(movie_id)
+        candidates.append(dic_)
+    state['candidate'] = candidates
+    return state
+
 
 def recommend_movie(state: GraphState):
-    pass
+    candidate = '\n'.join(map(str, state['candidate']))
+    system_template = """
+너는 유능하고 친절한 영화 전문가이고 영화 추천에 탁월한 능력을 갖고 있어. 너의 작업은 :
+1. {username}님의 후보 영화들로부터 1가지 영화를 골라 추천해줘.
+2. 영화 취향을 분석해서 타당한 추천 근거를 들어줘. 장르, 스토리, 인기도, 감독, 배우 등을 분석하면 좋아.
+3. 추천 근거를 정성스럽고 길게 마크다운 행태로 작성해줘.
+
+```Example
+영화 취향: 역사 영화를 좋아합니다.
+후보: 
+{{'movie': '남산의 부장들', 'genres': ['드라마', '스릴러'], 'keyword': ["assassination", "washington dc, usa", "paris, france", "based on novel or book", "politics", "dictator", "1970s", "hearing", "dictatorship", "based on true story", "military dictatorship", "assassination of president", "korea president", "park chung-hee", "south korea"]}}
+{{'movie': '1987', 'genres': ['드라마', '역사', '스릴러'], 'keyword': ["students' movement", "protest", "democracy", "military dictatorship", "historical event", "student protest", "communism", "1980s", "democratization movement", "south korea", "seoul, south korea"]}}
+
+answer: {{
+    "titleKo": "기생충", 
+    "reason": "{username}님 안녕하세요! 지난 시청 이력을 분석한 결과, 밀정, 택시운전사, 1987과 같은 역사적 이슈를 다룬 영화를 선호하셨던 점을 고려하면 남산의 부장들을 강력히 추천드립니다! 기생충은 사회적 계층과 경제 격차를 주제로 한 작품으로, 봉준호 감독의 예술적 연출과 깊은 사회적 메시지로 관람객들에게 많은 호평을 받았습니다. 이 영화는 단순한 엔터테인먼트를 넘어서 사회적 문제에 대한 깊은 고찰을 제공하며, 관객들에게 강력한 메시지를 전달합니다. 또한, 기생충은 국제적으로도 매우 큰 인기를 얻어, 칸 영화제에서는 황금종려상을 수상하였고, 아카데미 시상식에서도 작품상과 감독상을 비롯한 여러 부문에서 수상하며 주목받은 작품입니다. 당신의 시청 이력을 바탕으로 한 이 추천은 밀정, 택시운전사, 1987과 같은 역사적 장르를 선호하시는 분들께 이 영화가 매우 맞을 것이라고 확신합니다. 기생충을 통해 새로운 시각과 깊은 감동을 경험해보세요! 😄"
+}}
+```
+
+영화 취향 : {profile}
+후보 : {candidate}
+
+answer:
+"""
+    chat_prompt = ChatPromptTemplate.from_messages(
+        [
+            SystemMessagePromptTemplate.from_template(system_template),
+        ]
+    )
+    chain = chat_prompt | llm | StrOutputParser()
+    answer = chain.invoke({'profile': state['profile'], 'username': state['user_id'], 'candidate': candidate})
+    state['answer'] = answer
+    return state
+
+def recommend_check(state: GraphState):
+    return 'end'
 
 def get_movie_id(movie_name: str):
     query = movie_name
@@ -186,26 +262,45 @@ def get_movie_info_by_name(state: GraphState):
 workflow = StateGraph(GraphState)
 
 workflow.add_node("get_user_history", get_user_history)
-workflow.add_node("get_user_profile", get_user_profile)
-
-
+workflow.add_node("user_profile", user_profile)
+workflow.add_node("classification", classification)
+workflow.add_node("get_candidate_movie", get_candidate_movie)
 workflow.add_node("recommend_movie", recommend_movie)
+# workflow.add_node("recommend_check", recommend_check)
 
-# workflow.set_conditional_entry_point(
-#     classify,
-#     {
-#         "GENRE": "get_movie_id",
-#         "NAME": "get_movie_id",
-#     },
-# )
+workflow.add_conditional_edges(
+    'classification',
+    query_router,
+    {
+        'MAIN': 'get_candidate_movie'
+    },
+)
 
-workflow.add_edge("get_user_history", "get_user_profile")
-workflow.add_edge("get_user_profile", "recommend_movie")
+workflow.add_edge("get_user_history", "user_profile")
+workflow.add_edge("user_profile", "classification")
+workflow.add_edge("get_candidate_movie", "recommend_movie")
+
+workflow.add_conditional_edges(
+    'recommend_movie',
+    recommend_check,
+    {
+        'end': END
+    }
+)
+
+# workflow.add_edge("classification", "classification")
 
 workflow.set_entry_point("get_user_history")
 app = workflow.compile()
 
 from langchain_core.runnables import RunnableConfig
-config = RunnableConfig(recursion_limit=100, configurable={"thread_id": "TODO"})
-inputs = GraphState(question="원피스 추천해줘")
-app.invoke(inputs, config=config)
+config = RunnableConfig(recursion_limit=100, configurable={"thread_id": "movie"})
+inputs = GraphState(question="")
+for output in app.stream(inputs, config=config):
+    for key, value in output.items():
+        print(f"Output from node '{key}':")
+        print("---")
+        print(value)
+    print("\n---\n")
+
+print(value['answer'])

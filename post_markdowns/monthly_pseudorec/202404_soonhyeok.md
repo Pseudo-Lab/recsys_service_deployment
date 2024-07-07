@@ -1,5 +1,6 @@
 📄 paper :  <a href="https://arxiv.org/pdf/1905.08108.pdf" target="_blank" style="text-decoration: underline;">**Neural Graph Collaborative Filtering ↗**</a>
 
+※ 수식이 깨져보이신다면 새로고침을 해주세요
 
 # Model
 

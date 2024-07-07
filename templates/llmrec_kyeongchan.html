@@ -36,10 +36,12 @@
             <div class="center-main-field">
                 <div class="chat-container">
                     <div class="chat-messages">
+                        {% if initial_message != '' %}
                         <div class="message gray-bg">
                             <div class="message-sender"></div>
-                            <div class="message-text">{{initial_message|safe}}</div>
+                            <div class="message-text">{{ initial_message | safe }}</div>
                         </div>
+                        {% endif %}
                     </div>
                     <form class="chat-input-form">
                         <input type="text" class="chat-input" required placeholder="Type here.."/>

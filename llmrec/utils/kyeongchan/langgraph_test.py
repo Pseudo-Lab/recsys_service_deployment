@@ -7,8 +7,10 @@ import json
 from langgraph.checkpoint import MemorySaver
 from langgraph.graph import END, StateGraph
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
+
+from llmrec.utils.kyeongchan.search_engine import SearchManager
 
 os.environ["KC_TMDB_READ_ACCESS_TOKEN"] = ""
 os.environ["OPENAI_API_KEY"] = ''
@@ -16,8 +18,10 @@ os.environ["OPENAI_API_KEY"] = ''
 llm = ChatOpenAI(model_name="gpt-3.5-turbo")
 
 class GraphState(TypedDict):
+    is_movie_recommendation_query: str  # 영화 추천 질의 유무
     question: str
     query: str
+    filter: str # 메타 정보 필터링 쿼리
     type_: str # 영화 질문 타입
     user_id: str
     id: str
@@ -31,6 +35,239 @@ class GraphState(TypedDict):
     answer: str
     status: str
 
+
+def is_recommend(state: GraphState) -> str:
+    question = state["question"]
+    # 프롬프트 조회 후 YES or NO 로 응답
+    system_template = """
+    아래의 질의가 영화 관련 질의인지 파악 후 "YES" or "NO"로 답변해주세요.
+    
+    """
+    chat_prompt = ChatPromptTemplate.from_messages(
+        [
+            SystemMessagePromptTemplate.from_template(system_template),
+            HumanMessagePromptTemplate.from_template("question: {question}"),
+        ]
+    )
+    chain = chat_prompt | llm | StrOutputParser()
+    response = chain.invoke({"question": question})
+    state['is_movie_recommendation_query'] = response
+    return state
+
+
+def is_recommend_yes_or_no(state: StateGraph):
+    is_movie_recommendation_query = state['is_movie_recommendation_query']
+    if is_movie_recommendation_query == "NO":
+        return "NO"
+    else:
+        return "YES"
+
+def meta_detection(state: GraphState) -> GraphState:
+    question = state['question']
+    system_template = """
+Your goal is to structure the user's query to match the request schema provided below.
+<< Structured Request Schema >>
+When responding use a markdown code snippet with a JSON object formatted in the following schema:
+```json
+{{
+    "query": string \ text string to compare to document contents
+    "filter": string \ logical condition statement for filtering documents
+}}
+```
+The query string should contain only text that is expected to match the contents of documents. Any conditions in the filter should not be mentioned in the query as well.
+A logical condition statement is composed of one or more comparison and logical operation statements.
+A comparison statement takes the form: `comp(attr, val)`:
+- `comp` (eq | ne | gt | gte | lt | lte | contain | like | in | nin): comparator
+- `attr` (string):  name of attribute to apply the comparison to
+- `val` (string): is the comparison value
+A logical operation statement takes the form `op(statement1, statement2, ...)`:
+- `op` (and | or | not): logical operator
+- `statement1`, `statement2`, ... (comparison statements or logical operation statements): one or more statements to apply the operation to
+Make sure that you only use the comparators and logical operators listed above and no others.
+Make sure that filters only refer to attributes that exist in the data source.
+Make sure that filters only use the attributed names with its function names if there are functions applied on them.
+Make sure that filters only use format `YYYY-MM-DD` when handling date data typed values.
+Make sure that filters take into account the descriptions of attributes and only make comparisons that are feasible given the type of data being stored.
+Make sure that filters are only used as needed. If there are no filters that should be applied return "NO_FILTER" for the filter value.
+
+<< Example 1. >>
+Data Source:
+```json
+{{
+    "content": "Description of a movie",
+    "attributes": {{
+        "titleKo": {{
+            "type": "string",
+            "description": "한국어 영화 제목"
+        }},
+        "titleEn": {{
+            "type": "integer",
+            "description": "영어 영화 제목"
+        }},
+        "synopsis": {{
+            "type": "string",
+            "description": "간단한 줄거리나 개요"
+        }},
+        "numOfSiteRatings": {{
+            "type": "integer",
+            "description": "영화 평가 점수"
+        }},
+        "lead_role_etd_str": {{
+            "type": "string",
+            "description": "영화 주연 배우의 이름"
+        }},
+        "supporting_role_etd_str": {{
+            "type": "string",
+            "description": "영화 조연 배우의 이름"
+        }},
+        "director_etd_str": {{
+            "type": "string",
+            "description": "영화 감독의 이름"
+        }}
+    }}
+}}
+```
+User Query:
+장동건이 출연하는 멜로 감성의 영화를 추천해줘
+Structured Request:
+```json
+{{
+    "query": "멜로 감성",
+    "filter": "and(or(like(\"lead_role_etd_str\", \"장동건\"), like(\"supporting_role_etd_str\", \"장동건\")))"
+}}
+```
+<< Example 2. >>
+Data Source:
+```json
+{{
+    "content": "Description of a movie",
+    "attributes": {{
+        "titleKo": {{
+            "type": "string",
+            "description": "한국어 영화 제목"
+        }},
+        "titleEn": {{
+            "type": "integer",
+            "description": "영어 영화 제목"
+        }},
+        "synopsis": {{
+            "type": "string",
+            "description": "간단한 줄거리나 개요"
+        }},
+        "numOfSiteRatings": {{
+            "type": "integer",
+            "description": "영화 평가 점수"
+        }},
+        "lead_role_etd_str": {{
+            "type": "string",
+            "description": "영화 주연 배우의 이름"
+        }},
+        "supporting_role_etd_str": {{
+            "type": "string",
+            "description": "영화 조연 배우의 이름"
+        }},
+        "director_etd_str": {{
+            "type": "string",
+            "description": "영화 감독의 이름"
+        }}
+    }}
+}}
+```
+User Query:
+챗지피티가 만든 영화를 추천해줘
+Structured Request:
+```json
+{{
+    "query": "",
+    "filter": "NO_FILTER"
+}}
+```
+<< Example 3. >>
+Data Source:
+```json
+{{
+    "content": "영화를 추천해주세요.",
+    "attributes": {{
+    "titleKo": {{
+        "description": "한국어 영화 제목",
+        "type": "string"
+    }},
+    "titleEn": {{
+        "description": "영어 영화 제목",
+        "type": "integer"
+    }},
+    "synopsis": {{
+        "description": "간단한 줄거리나 개요",
+        "type": "string"
+    }},
+    "numOfSiteRatings": {{
+        "description": "영화 평가 점수",
+        "type": "integer"
+    }},
+    "lead_role_etd_str": {{
+        "description": "영화 주연 배우의 이름",
+        "type": "string"
+    }},
+    "supporting_role_etd_str": {{
+        "description": "영화 조연 배우의 이름",
+        "type": "string"
+    }},
+    "director_etd_str": {{
+        "description": "영화 감독의 이름",
+        "type": "string"
+    }}
+}}
+
+```
+User Query:
+{question}
+Structured Request:
+"""
+    chat_prompt = ChatPromptTemplate.from_messages(
+        [
+            SystemMessagePromptTemplate.from_template(system_template),
+            HumanMessagePromptTemplate.from_template("question: {question}"),
+        ]
+    )
+    chain = chat_prompt | llm | StrOutputParser()
+    response = chain.invoke({"question": question})
+    response = response.replace('```', '').replace('json', '')
+    response_dic = json.loads(response)
+    state['query'] = response_dic['query']
+    state['filter'] = response_dic['filter']
+    return state
+
+def self_query_retrieval_yes_or_no(state: GraphState):
+    result = state['candidate']
+    if len(result) > 0:
+        return "YES"
+    else:
+        return "NO"
+
+def self_query_retrieval(state: GraphState) -> GraphState:
+    question = state['question']
+    search_manager = SearchManager(
+        api_key=os.getenv("OPENAI_API_KEY"),
+        index="86f92d0e-e8ec-459a-abb8-0262bbf794a2",
+        top_k=5,
+        score_threshold=0.7
+    )
+    search_manager.add_engine("self")
+    context = search_manager.search_all(question)
+    state['candidate'] = context['self']
+    return state
+
+
+
+def call_sasrec(state: GraphState):
+    pass
+
+def meta_detection_yes_or_no(state: GraphState):
+    filter = state['filter']
+    if len(filter) > 0:
+        return "YES"
+    else:
+        return "NO"
 
 def classification(state: GraphState) -> GraphState:
     question = state["question"]
@@ -114,7 +351,7 @@ The history movies and their keywords and genres are:
 {{'movie': '1987', 'genres': ['드라마', '역사', '스릴러'], 'keyword': ["students' movement", "protest", "democracy", "military dictatorship", "historical event", "student protest", "communism", "1980s", "democratization movement", "south korea", "seoul, south korea"]}}
 ```
 
-output: 역사적 배경을 바탕으로 한 영화들을 선호하시며, 특히 사회적, 정치적 이슈를 깊이 있게 다룬 작품들을 즐기시는 것 같습니다. 액션과 드라마, 스릴러 장르를 통해 긴장감 넘치는 전개와 인간의 용기, 희생을 담은 스토리에 매료되시는 경향이 있습니다. 세 영화 모두 대한민국의 중요한 역사적 사건들을 다루며, 그 시대의 아픔과 진실을 파헤치려는 인물들의 이야기를 통해 깊은 감동을 주고 있습니다. 이러한 영화들은 강렬한 서사와 뛰어난 연기, 그리고 역사적 사실에 기반한 드라마틱한 전개를 특징으로 합니다.
+output: 역사적 배경을 바탕으로 한 영화들을 선호하시며, 특히 사회적, 정치적 이슈를 깊이 있게 다룬 작품들을 즐기시는 것 같습니다.
 
 
 The history movies and their keywords and genres are:
@@ -152,9 +389,10 @@ def get_user_history(state: GraphState):
 
 
 def get_candidate_movie(state: GraphState):
-    recommend_movies = ['기생충', '더 킹', '남한산성', '더 서클', '히트맨', '살아있다', '범죄도시2']
+    movie_lists = [movie['metadata']['titleKo'] for movie in state['candidate']]
+    # recommend_movies = ['기생충', '더 킹', '남한산성', '더 서클', '히트맨', '살아있다', '범죄도시2']
     candidates = []
-    for r in recommend_movies:
+    for r in movie_lists:
         dic_ = {}
         movie_id = get_movie_id(r)
         dic_['movie'] = r
@@ -197,10 +435,11 @@ answer:
     )
     chain = chat_prompt | llm | StrOutputParser()
     answer = chain.invoke({'profile': state['profile'], 'username': state['user_id'], 'candidate': candidate})
-    state['answer'] = answer
+    answer = json.loads(answer)
+    state['answer'] = answer['answer']
     return state
 
-def recommend_check(state: GraphState):
+def relevance_check(state: GraphState):
     return 'end'
 
 def get_movie_id(movie_name: str):
@@ -261,41 +500,65 @@ def get_movie_info_by_name(state: GraphState):
 
 workflow = StateGraph(GraphState)
 
+workflow.add_node("is_recommend", is_recommend)
 workflow.add_node("get_user_history", get_user_history)
 workflow.add_node("user_profile", user_profile)
-workflow.add_node("classification", classification)
+# workflow.add_node("classification", classification)
 workflow.add_node("get_candidate_movie", get_candidate_movie)
 workflow.add_node("recommend_movie", recommend_movie)
-# workflow.add_node("recommend_check", recommend_check)
+workflow.add_node("meta_detection", meta_detection)
+workflow.add_node("call_sasrec", call_sasrec)
+workflow.add_node("self_query_retrieval", self_query_retrieval)
 
 workflow.add_conditional_edges(
-    'classification',
-    query_router,
+    'is_recommend',
+    is_recommend_yes_or_no,
     {
-        'MAIN': 'get_candidate_movie'
-    },
+        'YES': 'get_user_history',
+        'NO': END,
+    }
 )
 
 workflow.add_edge("get_user_history", "user_profile")
-workflow.add_edge("user_profile", "classification")
+workflow.add_edge("user_profile", "meta_detection")
+
+workflow.add_conditional_edges(
+    'meta_detection',
+    meta_detection_yes_or_no,
+    {
+        'YES': 'self_query_retrieval',
+        'NO': 'call_sasrec'
+    }
+)
+
+workflow.add_edge('call_sasrec', 'get_candidate_movie')
+
+workflow.add_conditional_edges(
+    'self_query_retrieval',
+    self_query_retrieval_yes_or_no,
+    {
+        'YES': 'get_candidate_movie',
+        'NO': END,
+    }
+)
+
 workflow.add_edge("get_candidate_movie", "recommend_movie")
 
 workflow.add_conditional_edges(
     'recommend_movie',
-    recommend_check,
+    relevance_check,
     {
-        'end': END
+        'OK' : END,
+        'NOT OK': 'recommend_movie'
     }
 )
 
-# workflow.add_edge("classification", "classification")
-
-workflow.set_entry_point("get_user_history")
+workflow.set_entry_point("is_recommend")
 app = workflow.compile()
 
 from langchain_core.runnables import RunnableConfig
 config = RunnableConfig(recursion_limit=100, configurable={"thread_id": "movie"})
-inputs = GraphState(question="")
+inputs = GraphState(question="봉준호 감독이 만든 영화 추천해줘")
 for output in app.stream(inputs, config=config):
     for key, value in output.items():
         print(f"Output from node '{key}':")

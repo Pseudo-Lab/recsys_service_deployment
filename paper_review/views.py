@@ -79,12 +79,18 @@ def single_post_page_paper_review(request, pk):
 def single_post_page_monthly_pseudorec(request, pk):
     post = PostMonthlyPseudorec.objects.get(pk=pk)
     md_mapper = {
-        1: 'post_markdowns/monthly_pseudorec/202404_kyungah.md',
-        2: 'post_markdowns/monthly_pseudorec/202404_minsang.md',
-        3: 'post_markdowns/monthly_pseudorec/202404_kyeongchan.md',
-        4: 'post_markdowns/monthly_pseudorec/202404_hyunwoo.md',
-        5: 'post_markdowns/monthly_pseudorec/202404_namjoon.md',
-        6: 'post_markdowns/monthly_pseudorec/202404_soonhyeok.md'
+        1: 'post_markdowns/monthly_pseudorec/202405/202404_kyungah.md',
+        2: 'post_markdowns/monthly_pseudorec/202405/202404_minsang.md',
+        3: 'post_markdowns/monthly_pseudorec/202405/202404_kyeongchan.md',
+        4: 'post_markdowns/monthly_pseudorec/202405/202404_hyunwoo.md',
+        5: 'post_markdowns/monthly_pseudorec/202405/202404_namjoon.md',
+        6: 'post_markdowns/monthly_pseudorec/202405/202404_soonhyeok.md',
+        7: 'post_markdowns/monthly_pseudorec/202406/202406_kyeongchan.md',
+        8: 'post_markdowns/monthly_pseudorec/202406/202406_soonhyeok.md',
+        9: 'post_markdowns/monthly_pseudorec/202406/202406_namjoon.md',
+        10: 'post_markdowns/monthly_pseudorec/202406/202406_hyeonwoo.md',
+        11: 'post_markdowns/monthly_pseudorec/202406/202406_minsang.md',
+        12: 'post_markdowns/monthly_pseudorec/202406/202406_gyungah.md',
     }
     md_file_path = md_mapper[pk]
     post.set_content_from_md_file(md_file_path)

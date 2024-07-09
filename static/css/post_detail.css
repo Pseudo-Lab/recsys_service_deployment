@@ -2,12 +2,11 @@
 main {
     display: table;
     width: 100%;
-
 }
 
 
 .center-main-field {
-    width: 75%;
+    width: 100%;
 }
 
 .side-gutter {
@@ -21,7 +20,6 @@ main {
     margin-top: 20px;
     margin-bottom: 20px;
 }
-
 
 .center-main-field li {
     margin-top: 10px;

@@ -66,6 +66,11 @@ pip install 'django<5'
 
 🔗 <a href="https://www.pseudorec.com/archive/paper_review/1/" target="_blank">**KPRN 논문리뷰 - Paper Review ↗**</a>
 
+🤗 
+
+📂
+
+
 ## view에서
 
 "<br>🔗 <a href='https://www.pseudorec.com/archive/paper_review/3/' target='_blank'>SASRec 논문리뷰 ↗</a>"

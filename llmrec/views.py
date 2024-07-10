@@ -13,6 +13,7 @@ from db_clients.dynamodb import DynamoDBClient
 from llmrec.utils.gyungah.load_chain import get_chain as g_get_chain
 from llmrec.utils.hyeonwoo.load_chain import router
 from llmrec.utils.kyeongchan.get_model import kyeongchan_model
+from llmrec.utils.kyeongchan.langgraph_test import app, GraphState
 from llmrec.utils.kyeongchan.utils import get_landing_page_recommendation
 from llmrec.utils.kyeongchan.search_engine import SearchManager
 from llmrec.utils.log_questions import log_llm
@@ -280,38 +281,35 @@ def llmrec_namjoon(request):
 #             'description2': "준비중입니다.",
 #         }
 #         return render(request, "llmrec.html", context)
-@csrf_exempt
-def stream_chat(request):
-    text = request.GET.get('text')
-    search_manager = SearchManager(
-        api_key="",
-        index="86f92d0e-e8ec-459a-abb8-0262bbf794a2",
-        top_k=5,
-        score_threshold=0.7
-    )
-    search_manager.add_engine("self")
-    # context = search_manager.search_all(text)
-    template = '''You are an excellent movie curator. Your job is to recommend movie to user based on Context.
-    Context:
-    {context}
+# @csrf_exempt
+# def stream_chat(request):
+#     text = request.GET.get('text')
+    # search_manager = SearchManager(
+    #     api_key="",
+    #     index="86f92d0e-e8ec-459a-abb8-0262bbf794a2",
+    #     top_k=5,
+    #     score_threshold=0.7
+    # )
+    # search_manager.add_engine("self")
+    # # context = search_manager.search_all(text)
+    # template = '''You are an excellent movie curator. Your job is to recommend movie to user based on Context.
+    # Context:
+    # {context}
+    #
+    # Question: {input}
+    # Answer:'''
+    #
+    # prompt_template = PromptTemplate.from_template(template)
+    # chain = prompt_template | kyeongchan_model | StrOutputParser()
 
-    Question: {input}
-    Answer:'''
-
-    prompt_template = PromptTemplate.from_template(template)
-    chain = prompt_template | kyeongchan_model | StrOutputParser()
-
-    def message_stream():
-        for chunk in chain.stream({"input": text, "context": "봉준호 감독 영화"}):
-            data = json.dumps(chunk)
-            yield f'data: {data}\n\n'
-
-    # async def message_stream():
-    #     async for chunk in chain.astream({"input": text, "context": "봉준호 감독 영화"}):
+    # def message_stream():
+    #     for chunk in chain.stream({"input": text, "context": "봉준호 감독 영화"}):
     #         data = json.dumps(chunk)
     #         yield f'data: {data}\n\n'
 
-    return StreamingHttpResponse(message_stream(), content_type='text/event-stream')
+
+
+    # return StreamingHttpResponse(message_stream(), content_type='text/event-stream')
 
 
 @csrf_exempt
@@ -328,6 +326,16 @@ def llmrec_kyeongchan(request):
             'initial_message': answer,
         }
         return render(request, "llmrec_kyeongchan.html", context)
+    else:
+        data = json.loads(request.body.decode('utf-8'))
+        message = data.get('message', '')['text']
+        from langchain_core.runnables import RunnableConfig
+        config = RunnableConfig(recursion_limit=10, configurable={"thread_id": "movie"})
+        inputs = GraphState(question=message)
+        response_message = app.invoke(inputs, config=config)
+        return JsonResponse({'status': 'success', 'message': response_message['answer']})
+
+
 
 
 @csrf_exempt

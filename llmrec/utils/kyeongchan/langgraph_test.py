@@ -1,4 +1,6 @@
 # https://langchain-ai.github.io/langgraph/tutorials/rag/langgraph_adaptive_rag/
+import sys
+sys.path.insert(0, '/Users/kyeongchanlee/PycharmProjects/recsys_service_deployment')
 
 import os
 from typing import TypedDict, List
@@ -11,9 +13,11 @@ from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 
 from llmrec.utils.kyeongchan.search_engine import SearchManager
+from dotenv import load_dotenv
+load_dotenv('.env.dev')
 
-os.environ["KC_TMDB_READ_ACCESS_TOKEN"] = ""
-os.environ["OPENAI_API_KEY"] = ''
+# os.environ["KC_TMDB_READ_ACCESS_TOKEN"] = ""
+# os.environ["OPENAI_API_KEY"] = ''
 
 llm = ChatOpenAI(model_name="gpt-3.5-turbo")
 
@@ -40,7 +44,28 @@ def is_recommend(state: GraphState) -> str:
     question = state["question"]
     # 프롬프트 조회 후 YES or NO 로 응답
     system_template = """
-    아래의 질의가 영화 관련 질의인지 파악 후 "YES" or "NO"로 답변해주세요.
+### GOAL
+* You are a bot that assists with movie recommendations.
+* Classify responses based on the input. Categorize them as 'General Conversation', 'Movie Recommendation'
+* If the query content is general conversation, return 'General'.
+* If the query content is related to movie recommendations, return 'Recommend'.
+* Do not provide any other responses.
+
+### EXAMPLE1
+USER:
+오늘 날씨 짱이다! 
+
+ANSWER:
+'General Conversation'
+
+### EXAMPLE2
+USER:
+좋은 영화 하나 추천해줘
+20대 여자가 볼만한 영화 추천해줘
+
+ANSWER:
+'Movie Recommendation'
+### 
     
     """
     chat_prompt = ChatPromptTemplate.from_messages(
@@ -55,12 +80,17 @@ def is_recommend(state: GraphState) -> str:
     return state
 
 
+
 def is_recommend_yes_or_no(state: StateGraph):
     is_movie_recommendation_query = state['is_movie_recommendation_query']
-    if is_movie_recommendation_query == "NO":
+    if is_movie_recommendation_query == "'General Conversation'":
         return "NO"
     else:
         return "YES"
+
+def ask_only_movie(state: StateGraph):
+    state['answer'] = '영화 추천 관련된 질문만 해주세요.'
+    return state
 
 def meta_detection(state: GraphState) -> GraphState:
     question = state['question']
@@ -395,13 +425,22 @@ def get_candidate_movie(state: GraphState):
     for r in movie_lists:
         dic_ = {}
         movie_id = get_movie_id(r)
+        if movie_id is None:
+            continue
         dic_['movie'] = r
         dic_['genres'] = get_genre_by_movie_id(movie_id)
         dic_['keyword'] = get_keyword_by_movie_id(movie_id)
         candidates.append(dic_)
+
+    #TODO candidates가 없는 경우 처리
     state['candidate'] = candidates
     return state
 
+def candidate_exist(state: GraphState):
+    if len(state['candidate']) == 0:
+        return "NO"
+    else:
+        return "YES"
 
 def recommend_movie(state: GraphState):
     candidate = '\n'.join(map(str, state['candidate']))
@@ -436,11 +475,13 @@ answer:
     chain = chat_prompt | llm | StrOutputParser()
     answer = chain.invoke({'profile': state['profile'], 'username': state['user_id'], 'candidate': candidate})
     answer = json.loads(answer)
-    state['answer'] = answer['answer']
+    print(answer)
+    state['answer'] = answer['reason']
     return state
 
 def relevance_check(state: GraphState):
-    return 'end'
+    return 'YES'
+
 
 def get_movie_id(movie_name: str):
     query = movie_name
@@ -450,7 +491,10 @@ def get_movie_id(movie_name: str):
         'accept': 'application/json'
     }
     response = requests.get(url, headers=headers).json()
-    movie_id = response['results'][0]['id']
+    if len(response['results']) > 0:
+        movie_id = response['results'][0]['id']
+    else:
+        movie_id = None
     return movie_id
 
 def get_genre_by_movie_id(movie_id: str) -> List:
@@ -501,6 +545,7 @@ def get_movie_info_by_name(state: GraphState):
 workflow = StateGraph(GraphState)
 
 workflow.add_node("is_recommend", is_recommend)
+workflow.add_node("ask_only_movie", ask_only_movie)
 workflow.add_node("get_user_history", get_user_history)
 workflow.add_node("user_profile", user_profile)
 # workflow.add_node("classification", classification)
@@ -515,10 +560,10 @@ workflow.add_conditional_edges(
     is_recommend_yes_or_no,
     {
         'YES': 'get_user_history',
-        'NO': END,
+        'NO': 'ask_only_movie',
     }
 )
-
+workflow.add_edge("ask_only_movie", END)
 workflow.add_edge("get_user_history", "user_profile")
 workflow.add_edge("user_profile", "meta_detection")
 
@@ -542,13 +587,22 @@ workflow.add_conditional_edges(
     }
 )
 
-workflow.add_edge("get_candidate_movie", "recommend_movie")
+workflow.add_conditional_edges(
+    'get_candidate_movie',
+    candidate_exist,
+    {
+        "YES" : 'recommend_movie',
+        # "NO" : 'sorry' #TODO sorry node 만들어야함
+    }
+)
+
+# workflow.add_edge("get_candidate_movie", "recommend_movie")
 
 workflow.add_conditional_edges(
     'recommend_movie',
     relevance_check,
     {
-        'OK' : END,
+        'YES' : END,
         'NOT OK': 'recommend_movie'
     }
 )
@@ -556,14 +610,15 @@ workflow.add_conditional_edges(
 workflow.set_entry_point("is_recommend")
 app = workflow.compile()
 
-from langchain_core.runnables import RunnableConfig
-config = RunnableConfig(recursion_limit=100, configurable={"thread_id": "movie"})
-inputs = GraphState(question="봉준호 감독이 만든 영화 추천해줘")
-for output in app.stream(inputs, config=config):
-    for key, value in output.items():
-        print(f"Output from node '{key}':")
-        print("---")
-        print(value)
-    print("\n---\n")
-
-print(value['answer'])
+# from langchain_core.runnables import RunnableConfig
+# config = RunnableConfig(recursion_limit=100, configurable={"thread_id": "movie"})
+# inputs = GraphState(question="안녕")
+# app.invoke(inputs, config=config)
+# for output in app.stream(inputs, config=config):
+#     for key, value in output.items():
+#         print(f"Output from node '{key}':")
+#         print("---")
+#         print(value)
+#     print("\n---\n")
+#
+# print(value['answer'])

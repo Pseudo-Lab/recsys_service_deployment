@@ -6,7 +6,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .codehilite .hll { background-color: #ffffcc }
 .codehilite { background: #f8f8f8; width: 800px}
 .codehilite .c { color: #3D7B7B; font-style: italic } /* Comment */
-.codehilite .err { border: 1px solid #FF0000 } /* Error */
+/*.codehilite .err { border: 1px solid #FF0000 } !* Error *!*/
 .codehilite .k { color: #008000; font-weight: bold } /* Keyword */
 .codehilite .o { color: #666666 } /* Operator */
 .codehilite .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */

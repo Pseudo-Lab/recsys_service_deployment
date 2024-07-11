@@ -70,8 +70,11 @@ pip install 'django<5'
 
 📂
 
+## 글 중간에 삽입할 때
+<a href="www.google.com" target="_blank" style="text-decoration: underline;">**구글 ↗**</a>
 
-## view에서
+
+## ml 모델 추천 view description2에서
 
 "<br>🔗 <a href='https://www.pseudorec.com/archive/paper_review/3/' target='_blank'>SASRec 논문리뷰 ↗</a>"
 
@@ -91,3 +94,4 @@ pip install 'django<5'
 
 ## img 태그로 사이즈 조정하고 싶을 때
 <img alt="Untitled" src="../../../static/img/paper_review/ngcf_review/optimization.png" width="500px">
+

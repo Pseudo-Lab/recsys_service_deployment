@@ -6,7 +6,9 @@ main {
 
 
 .center-main-field {
-    width: 100%;
+    max-width: 800px;
+    flex: 1;
+    margin: 0 auto;
 }
 
 .side-gutter {
@@ -17,7 +19,7 @@ main {
 .center-main-field h1, h2, h3 {
     font-weight: normal;
     margin: 0;
-    margin-top: 20px;
+    margin-top: 50px;
     margin-bottom: 20px;
 }
 
@@ -43,5 +45,183 @@ main {
 
 .center-main-field .callout em {
     font-weight: bold;
+}
+
+.center-main-field blockquote {
+    padding: 0 15px; /* 양쪽에 15px 패딩 */
+    color: #666; /* 텍스트 색상 #666 */
+    border-left: 4px solid #ddd; /* 왼쪽 테두리 4px, 색상 #ddd */
+    display: block; /* 블록 요소로 설정 */
+    margin-block-start: 1em; /* 상단 여백 1em */
+    margin-block-end: 1em; /* 하단 여백 1em */
+    /*margin-inline-start: 40px;  !* 왼쪽 여백 40px *!*/
+    margin-inline-end: 40px; /* 오른쪽 여백 40px */
+    unicode-bidi: isolate; /* 텍스트 방향성 격리 */
+}
+
+.center-main-field p em {
+    font-style: italic; /* 이탤릭체 적용 */
+    color: #555; /* 텍스트 색상 */
+    display: block; /* 블록 요소로 표시 */
+    margin-top: 10px; /* 상단 여백 */
+    text-align: center; /* 중앙 정렬 */
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+img {
+    cursor: pointer;
+}
+
+.popup {
+    display: flex;
+    position: fixed;
+    z-index: 1;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.9);
+    align-items: center;
+    justify-content: center;
+}
+
+.popup-content {
+    margin: auto;
+    display: block;
+    width: auto;
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+hr {
+    border: none;
+    text-align: center;
+    margin: 40px 0;
+    position: relative;
+}
+
+hr::after {
+    content: '• • •';
+    letter-spacing: 0.6em;
+    font-size: 20px;
+    color: #000;
+    display: inline-block;
+    background: white;
+    padding: 0 10px;
+}
+
+/* TOC 스타일 */
+aside.toc {
+    max-width: 500px;
+    position: fixed;
+    right: 40px;
+    top: 100px;
+    /*width: 200px;*/
+}
+
+aside.toc ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+aside.toc ul li {
+    margin-bottom: 10px;
+}
+
+aside.toc ul li a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+aside.toc ul li a:hover {
+    text-decoration: underline;
+}
+
+/* 헤드라인 수준에 따른 들여쓰기 */
+aside.toc ul li.level-1 {
+    margin-left: 0;
+}
+
+aside.toc ul li.level-2 {
+    margin-left: 20px;
+}
+
+aside.toc ul li.level-3 {
+    margin-left: 40px;
+}
+
+
+#section-0 {
+    font-weight: bold;
+
+}
+
+@media (max-width: 2000px) {
+    aside.toc {
+        width: 200px;
+    }
+}
+
+
+/* 미디어 쿼리: 창 너비가 1200px보다 작아지면 TOC 숨기기 */
+@media (max-width: 1500px) {
+    aside.toc {
+        display: none;
+    }
+
+    .left-float-field {
+        display: none;
+    }
+}
+
+
+
+
+
+main .center-main-field .paper-review-main .user {
+    display: flex;
+    align-items: center; /* 자식 요소들이 수직 가운데 정렬되도록 설정 */
+    gap: 10px; /* 이미지와 텍스트 사이에 간격 추가 */
+    margin-top: 10px;
+}
+
+main .center-main-field .paper-review-main .user img {
+      width: 40px;
+  height: 40px;
+    border-radius: 50%; /* 이미지의 모서리를 둥글게 설정 */
+    margin: 0;
+}
+
+main .center-main-field .paper-review-main .user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* 텍스트를 왼쪽으로 정렬 */
 }
 

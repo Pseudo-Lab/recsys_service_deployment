@@ -40,49 +40,49 @@
             <hr/>
             {% regroup posts by month as post_groups %}
             {% for group in post_groups %}
-            <article>
-                <h2>{{ group.month }}</h2>
+            <h2>{{ group.month }}</h2>
+            <div class="container">
+                <h2>{{ group.grouper }}</h2> <!-- Group by month -->
                 <div class="container">
-                    <h2>{{ group.grouper }}</h2> <!-- Group by month -->
-                    <div class="container">
-                        {% for post in group.list %}
-                        <div class="card">
-                            <div class="card-header">
-                                {% if post.card_image %}
-                                <img src="{{ post.card_image.url }}" alt="Card Image">
+                    {% for post in group.list %}
+                    <div class="card">
+                        <div class="card-header">
+                            {% if post.card_image %}
+                            <img src="{{ post.card_image.url }}" alt="Card Image">
+                            {% else %}
+                            <p>No image available</p>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <span class="tag tag-teal">{{post.tag1}}</span>
+                            <span class="tag tag-purple">{{post.tag2}}</span>
+                            <h4><a href="{{ post.get_absolute_url }}">{{post.title}}</a></h4>
+                            <p>{{post.subtitle}}</p>
+                            <div class="user">
+                                {% if post.author_image %}
+                                <img src={{post.author_image.url}} alt="user 2">
                                 {% else %}
                                 <p>No image available</p>
                                 {% endif %}
-                            </div>
-                            <div class="card-body">
-                                <span class="tag tag-teal">{{post.tag1}}</span>
-                                <span class="tag tag-purple">{{post.tag2}}</span>
-                                <h4><a href="{{ post.get_absolute_url }}">{{post.title}}</a></h4>
-                                <p>{{post.subtitle}}</p>
-                                <div class="user">
-
-                                    {% if post.author_image %}
-                                    <img src={{post.author_image.url}} alt="user 2">
-                                    {% else %}
-                                    <p>No image available</p>
-                                    {% endif %}
-                                    <div class="user-info">
-                                        <h5>{{post.author}}</h5>
-                                        <small>2024.05</small>
-                                    </div>
+                                <div class="user-info">
+                                    <h5>{{post.author}}</h5>
+                                    <small>{{post.month}}</small>
                                 </div>
                             </div>
                         </div>
-                        {% endfor %}
                     </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+
+            </div>
             </article>
-            {% endfor %}
 
         </div>
-        </article>
-
-    </div>
     </div>
 </main>
 </body>
 </html>
+
+
+

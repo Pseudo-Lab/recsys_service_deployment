@@ -1,4 +1,6 @@
-월간 슈도렉 5월호를 작성한 지가 엊그제 같은데 벌써 6월호를 작성하게 되다니 시간이 참 빠르게 지나가는 것 같습니다. 지난 [5월호](https://pseudorec.com/archive/monthly_pseudorec/6/)에 NGCF를 통한 영화 추천에 대해 소개해드렸다면 ****이번 6월호에는 현재 PseudoRec에 Beta 버전으로 배포되어 있는 제 LLM 모델(Feat. GraphRAG)에 대해 소개하고자 합니다.
+월간 슈도렉 5월호를 작성한 지가 엊그제 같은데 벌써 6월호를 작성하게 되다니 시간이 참 빠르게 지나가는 것 같습니다. 지난
+<a href="https://pseudorec.com/archive/monthly_pseudorec/6/" target="_blank" style="text-decoration: underline;">**5월호 ↗**</a>
+에 NGCF를 통한 영화 추천에 대해 소개해드렸다면 이번 6월호에는 현재 PseudoRec에 Beta 버전으로 배포되어 있는 제 LLM 모델(Feat. GraphRAG)에 대해 소개하고자 합니다.
 
 프롬프트 엔지니어링에 대한 기초 지식이 있다는 전제하에 설명드리겠습니다.
 
@@ -18,7 +20,7 @@ RAG는 Retrieval시 유저의 쿼리와 유사한 k개의 벡터 노드만을 �
 
 ### 0. Flow Chart
 
-![graphrag_framework.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/a4ae10c3-c30b-42b3-ac0b-e91d278f526d/graphrag_framework.png)
+![0](../../../static/img/monthly_pseudorec_202406/soonhyeok/flowchart.png)
 
 GraphRAG의 Flow chart를 통해 어떻게 영화 추천 챗봇을 구축했는지 단계별로 설명드리겠습니다.
 
@@ -36,7 +38,7 @@ GraphRAG의 Flow chart를 통해 어떻게 영화 추천 챗봇을 구축했는�
 
 먼저 데이터를 DB에 적재(Load)하여 KG(Knowledge graph)화 하기 위해서는 어떠한 entity를 도출하여 relation을 부여할지에 대한 고민이 필요합니다. 따라서 DB에 적재하기 이전에 Task별로 특정 도메인에 특화된 그래프 모델링이 필수입니다.
 
-!https://velog.velcdn.com/images/soonhp/post/da325b84-bc32-4ec6-83f8-9f0fd7463c97/image.png
+![0](../../../static/img/monthly_pseudorec_202406/soonhyeok/graph modeling.png)
 
 Task는 영화 추천이기 때문에 위 이미지와 같이 영화에 특화된 그래프 모델링을 구축합니다.
 
@@ -66,7 +68,7 @@ Synopsis 노드 또한 해당 Movie 노드와 HAS_SYNOPSIS 라는 연결관계�
 
 **데이터프레임**
 
-!https://velog.velcdn.com/images/soonhp/post/c699c36b-da08-46f6-87b3-526e8e99a66b/image.png
+![0](../../../static/img/monthly_pseudorec_202406/soonhyeok/dataframe.png)
 
 **dataload.py**
 
@@ -129,7 +131,7 @@ Movie, Director, Actor node를 생성하여 각각 연결관계로 edge를 부�
 
 **Neo4j**
 
-![neo4j.gif](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/1efbcdcf-5ac3-4cfc-8d57-419840bf9bd2/neo4j.gif)
+![0](https://file.notion.so/f/f/333f96cf-396d-45ff-8331-232d41bd4d55/1efbcdcf-5ac3-4cfc-8d57-419840bf9bd2/neo4j.gif?id=0f4651be-584f-49d3-b5b2-7b55500231e3&table=block&spaceId=333f96cf-396d-45ff-8331-232d41bd4d55&expirationTimestamp=1720764000000&signature=qdlyRHj_-rY0v44d5JlvS5UZx8htUuBQ3t6GyWMgh8c)
 
 DB에 적재 후 Neo4j browser를 통해 cypher 쿼리로 Movie(괴물) 노드와 연결되어있는 subgraph를 가져왔습니다.
 
@@ -297,11 +299,11 @@ LLM모델은 OpenAI 사의 gpt-3.5-turbo 모델 사용했습니다.
 
 아래 이미지와 같이 사용자 쿼리가 들어오면 유사한 Synopsis 노드를 찾아 연결되어있는 SubGraph를 context에 증강하게 됩니다. 이렇게 증강된 쿼리와 subgraph의 내용을 담은 context를 최종적으로 LLM 모델에 보내 답변을 생성합니다.
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/0a39023d-2ef9-4c41-b885-8c4f22e720c0/Untitled.png)
+![0](../../../static/img/monthly_pseudorec_202406/soonhyeok/subgraph.png)
 
 ### 4. Answer
 
-!https://velog.velcdn.com/images/soonhp/post/81e7a2fe-2c3f-4461-90e6-fbf1bf93ea3c/image.png
+![0](../../../static/img/monthly_pseudorec_202406/soonhyeok/answer.png)
 
 ## Limitation
 
@@ -316,4 +318,8 @@ LLM모델은 OpenAI 사의 gpt-3.5-turbo 모델 사용했습니다.
     
     추가적으로 사용자 쿼리를 파싱해서 각 entity(keyword)를 추출하여 연결관계가 있는 지를 확인하거나 유사한 것을 retrieval 할 수도 있을 것입니다.(GraphCypherQAChain)
     
-    (ex. Q : ‘봉준호’ 감독이 만든 영화 중 ‘송강호’가 나오고 ‘부자와 가난한 사람들의 사회 문제를 다룬 영화’가 무엇이지? A:  Cypher Query Generation : “””MATCH (:Director{name:’봉준호’}-[*..2]->(:Actor{name:’송강호’}-[*..2]→(:Synopsis{textEmbedding:[0.002,0.134,…]}—>(m:Movie) Return m””” Answer : 기생충 입니다.)
+    ex.
+    
+    Q : ‘봉준호’ 감독이 만든 영화 중 ‘송강호’가 나오고 ‘부자와 가난한 사람들의 사회 문제를 다룬 영화’가 무엇이지? 
+    
+    A:  Cypher Query Generation : “””MATCH (:Director{name:’봉준호’}-[*..2]->(:Actor{name:’송강호’}-[*..2]→(:Synopsis{textEmbedding:[0.002,0.134,…]}—>(m:Movie) Return m””” Answer : 기생충 입니다.)

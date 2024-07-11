@@ -4,6 +4,7 @@ from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
 
+from movie.utils import log_tracking
 from paper_review.models import Post, PostMonthlyPseudorec
 
 
@@ -93,6 +94,7 @@ def single_post_page_monthly_pseudorec(request, pk):
         12: 'post_markdowns/monthly_pseudorec/202406/202406_gyungah.md',
     }
     md_file_path = md_mapper[pk]
+    log_tracking(request=request, view='/'.join(md_file_path.split('/')[1:]))
     post.set_content_from_md_file(md_file_path)
 
     # Markdown 내용을 읽어와서 파싱

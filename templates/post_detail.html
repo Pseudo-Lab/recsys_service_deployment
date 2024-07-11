@@ -40,18 +40,105 @@
             <div class="right-field">
                 <div class="paper-review-main">
                     <h1>{{ post.title }}</h1>
-                    <p>{{ post.created_at }}</p>
-                        <!-- Pygments가 적용된 코드 블록을 출력 -->
+                                                <div class="user">
+                                {% if post.author_image %}
+                                <img src={{post.author_image.url}} alt="user 2">
+                                {% else %}
+                                <p>No image available</p>
+                                {% endif %}
+                                <div class="user-info">
+                                    <h5>{{post.author}}</h5>
+                                    <small>{{post.month}}</small>
+                                </div>
+                            </div>
+                    <!-- Pygments가 적용된 코드 블록을 출력 -->
 
-            <p>{{ markdown_content_with_highlight|safe }}</p>
+                    <p>{{ markdown_content_with_highlight|safe }}</p>
 
                     <hr/>
-<!--                    <h3>여기 댓글이 들어올 수 있겠죠?</h3>-->
+                    <!--                    <h3>여기 댓글이 들어올 수 있겠죠?</h3>-->
                 </div>
             </div>
         </div>
     </div>
+    <aside class="toc">
+        <h2>Table of Contents</h2>
+        <ul id="toc-list">
+            <!-- 여기에 JavaScript로 TOC 항목이 추가됩니다. -->
+        </ul>
+    </aside>
 </main>
 </body>
 {{ form.media }}
 </html>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const images = document.querySelectorAll(".center-main-field img");
+
+        images.forEach(img => {
+            img.addEventListener('click', () => {
+                const popup = document.createElement("div");
+                popup.id = "image-popup";
+                popup.className = "popup";
+                popup.innerHTML = '<span class="close">&times;</span><img class="popup-content" id="popup-img">';
+
+                document.body.appendChild(popup);
+
+                const popupImg = document.getElementById("popup-img");
+                popupImg.src = img.src;
+
+                // Remove inline style and use CSS classes instead
+                popup.classList.add('visible');
+
+                popupImg.addEventListener('click', () => {
+                    popup.style.display = "none";
+                    document.body.removeChild(popup);
+                });
+
+                const span = document.querySelector(".close");
+
+                span.addEventListener('click', () => {
+                    // Remove the popup element from the DOM
+                    popup.remove();
+                });
+
+                popup.addEventListener('click', (event) => {
+                    if (event.target === popup) {
+                        // Remove the popup element from the DOM
+                        popup.remove();
+                    }
+                });
+            });
+        });
+    });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const tocList = document.getElementById('toc-list');
+    const headers = document.querySelectorAll('.paper-review-main h1, .paper-review-main h2, .paper-review-main h3');
+
+    headers.forEach((header, index) => {
+        const id = `section-${index}`;
+        header.id = id;
+
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `#${id}`;
+        a.textContent = header.textContent;
+
+        // 헤드라인 수준에 따라 클래스 추가
+        if (header.tagName === 'H1') {
+            li.classList.add('level-1');
+        } else if (header.tagName === 'H2') {
+            li.classList.add('level-2');
+        } else if (header.tagName === 'H3') {
+            li.classList.add('level-3');
+        }
+
+        li.appendChild(a);
+        tocList.appendChild(li);
+    });
+});
+
+
+</script>

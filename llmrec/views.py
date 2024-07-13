@@ -340,8 +340,8 @@ from django.http import JsonResponse
 
 @csrf_exempt
 def llmrec_kyeongchan(request):
+    username, session_id = get_username_sid(request, _from='llmrec_kyeongchan')
     if request.method == 'GET':
-        username, session_id = get_username_sid(request, _from='llmrec_kyeongchan')
         log_tracking(request=request, view='kyeongchan')
         context = {
             'description1': "Kyeongchan & Byeongcheol LLMREC",
@@ -354,7 +354,7 @@ def llmrec_kyeongchan(request):
         message = data.get('message', '')['text']
         from langchain_core.runnables import RunnableConfig
         config = RunnableConfig(recursion_limit=10, configurable={"thread_id": "movie"})
-        inputs = GraphState(question=message)
+        inputs = GraphState(question=message, user_id=username)
         response_message = app.invoke(inputs, config=config)
         return JsonResponse({'status': 'success', 'message': response_message['answer']})
 

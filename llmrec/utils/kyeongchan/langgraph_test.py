@@ -444,12 +444,12 @@ def candidate_exist(state: GraphState):
         return "YES"
 
 def recommend_movie(state: GraphState):
-    candidate = '\n'.join(map(str, state['candidate']))
+    candidates = '\n'.join(map(str, state['candidate']))
     system_template = """
 너는 유능하고 친절한 영화 전문가이고 영화 추천에 탁월한 능력을 갖고 있어. 너의 작업은 :
 1. {username}님의 후보 영화들로부터 1가지 영화를 골라 추천해줘.
 2. 영화 취향을 분석해서 타당한 추천 근거를 들어줘. 장르, 스토리, 인기도, 감독, 배우 등을 분석하면 좋아.
-3. 추천 근거를 정성스럽고 길게 마크다운 행태로 작성해줘.
+3. 후보 영화 중 에서 한가지 영화를 골라 답변을 해주세요.
 
 ```Example
 영화 취향: 역사 영화를 좋아합니다.
@@ -463,8 +463,9 @@ answer: {{
 }}
 ```
 
-영화 취향 : {profile}
-후보 : {candidate}
+영화 취향: {profile}
+후보: 
+{candidates}
 
 answer:
 """
@@ -474,7 +475,7 @@ answer:
         ]
     )
     chain = chat_prompt | llm | StrOutputParser()
-    answer = chain.invoke({'profile': state['profile'], 'username': state['user_id'], 'candidate': candidate})
+    answer = chain.invoke({'profile': state['profile'], 'username': state['user_id'], 'candidates': candidates})
     answer = json.loads(answer)
     print(answer)
     state['answer'] = answer['reason']

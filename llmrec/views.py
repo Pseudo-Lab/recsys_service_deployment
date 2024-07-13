@@ -314,28 +314,53 @@ def stream_chat(request):
     return StreamingHttpResponse(message_stream(), content_type='text/event-stream')
 
 
+# @csrf_exempt
+# def llmrec_kyeongchan(request):
+#     username, session_id = get_username_sid(request, _from='llmrec_kyeongchan')
+#     log_tracking(request=request, view='kyeongchan')
+#     if request.method == 'GET':
+#         user_logs_df = get_user_logs_df(username, session_id)
+#         if len(user_logs_df):
+#             print(user_logs_df)
+#             answer = get_landing_page_recommendation(username, user_logs_df, kyeongchan_model)
+#             context = {
+#                 'description1': "Kyeongchan & Byeongcheol LLMREC",
+#                 'description2': "Self-Querying을 이용한 RAG를 사용해 추천합니다!.",
+#                 'initial_message': answer,
+#             }
+#         else:
+#             context = {
+#                 'description1': "Kyeongchan & Byeongcheol LLMREC",
+#                 'description2': "Self-Querying을 이용한 RAG를 사용해 추천합니다!.",
+#                 'initial_message': '',
+#             }
+#
+#         return render(request, "llmrec_kyeongchan.html", context)
+
+
+from django.http import JsonResponse
+
 @csrf_exempt
 def llmrec_kyeongchan(request):
     username, session_id = get_username_sid(request, _from='llmrec_kyeongchan')
     log_tracking(request=request, view='kyeongchan')
-    if request.method == 'GET':
-        user_logs_df = get_user_logs_df(username, session_id)
-        if len(user_logs_df):
-            print(user_logs_df)
-            answer = get_landing_page_recommendation(username, user_logs_df, kyeongchan_model)
-            context = {
-                'description1': "Kyeongchan & Byeongcheol LLMREC",
-                'description2': "Self-Querying을 이용한 RAG를 사용해 추천합니다!.",
-                'initial_message': answer,
-            }
-        else:
-            context = {
-                'description1': "Kyeongchan & Byeongcheol LLMREC",
-                'description2': "Self-Querying을 이용한 RAG를 사용해 추천합니다!.",
-                'initial_message': '',
-            }
+    context = {
+        'description1': "Kyeongchan & Byeongcheol LLMREC",
+        'description2': "Self-Querying을 이용한 RAG를 사용해 추천합니다!.",
+        'initial_message': f'{username}의 취향을 분석 중입니다..',
+    }
+    return render(request, "llmrec_kyeongchan.html", context)
 
-        return render(request, "llmrec_kyeongchan.html", context)
+@csrf_exempt
+def get_initial_recommendation(request):
+    username, session_id = get_username_sid(request, _from='llmrec_kyeongchan')
+    user_logs_df = get_user_logs_df(username, session_id)
+    if len(user_logs_df):
+        answer = get_landing_page_recommendation(username, user_logs_df, kyeongchan_model)
+    else:
+        answer = ''
+    print(f"answer : {answer}")
+    return JsonResponse({'status': 'success', 'message': answer})
 
 
 @csrf_exempt

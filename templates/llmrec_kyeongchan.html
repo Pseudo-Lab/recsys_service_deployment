@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="ko">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 <head>
     <meta charset="UTF-8">
     <title>PseudoRec</title>
@@ -10,14 +9,11 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
     <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
     <link rel="stylesheet" href="{% static 'css/llmrec_kyeongchan.css' %}?v=2024011916">
-    <script defer src="{% static 'js/stream_chat.js' %}"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <!--    iconicons-->
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-
+    <script defer src="{% static 'js/llmrec_kyeongchan.js' %}"></script>
 </head>
-
 <body>
 
 <header>
@@ -35,7 +31,7 @@
             </div>
             <div class="center-main-field">
                 <div class="chat-container">
-                    <div class="chat-messages">
+                    <div class="chat-messages" id="chatMessages">
                         {% if initial_message != '' %}
                         <div class="message gray-bg">
                             <div class="message-sender"></div>

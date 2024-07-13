@@ -62,7 +62,7 @@ main {
 .center-main-field p em {
     font-style: italic; /* 이탤릭체 적용 */
     color: #555; /* 텍스트 색상 */
-    display: block; /* 블록 요소로 표시 */
+    /*display: block; !* 블록 요소로 표시 *!*/
     margin-top: 10px; /* 상단 여백 */
     text-align: center; /* 중앙 정렬 */
 }

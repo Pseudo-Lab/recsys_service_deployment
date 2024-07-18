@@ -2,7 +2,7 @@
 
 ※ 수식이 깨져보이신다면 새로고침을 해주세요
 
-> 본 게시글은 ‘Mathematics of Machine Learning’ 책을 번역하였습니다. 복습 시 한 호습에 읽히도록 필요한 부분만 개인적인 해석을 달아 적어 놓는 것이 이 글의 목적입니다.
+> 본 게시글은 ‘Mathematics of Machine Learning’ 책을 번역하였습니다. 복습 시 한 호흡에 읽히도록 필요한 부분만 개인적인 해석을 달아 적어 놓는 것이 이 글의 목적입니다.
 
 Collaborative Filtering(CF)는 가장 대표적인 추천시스템입니다. CF는 이웃 기반 방법과 Latent Factor 방식으로 나뉩니다.
 저는 ‘Mathematics of Machine Learning’ 책을 학교에서 배울 때 Matrix Decomposition이 추천시스템의 Latent Factor 부분에 대해 살짝 다룬다는 걸 알고 있었는데,

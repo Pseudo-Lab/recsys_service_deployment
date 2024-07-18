@@ -6,7 +6,7 @@
 
 ![Untitled](../../../static/img/monthly_pseudorec_202406/hyeonwoo/character chatbot money.png)
 
-출처 : https://eopla.net/magazines/17883
+출처 : <a href="https://eopla.net/magazines/17883" target="_blank" style="text-decoration: underline;">**https://eopla.net/magazines/17883 ↗**</a>
 
 AI 리서치 엔지니어로서 그렇다면, 이러한 캐릭터 봇을 만드려면 어떻게 해야할지? 한번 관련 연구를 찾아보고 두가지를 소개하려고 합니다. 
 

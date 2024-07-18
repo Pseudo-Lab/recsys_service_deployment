@@ -27,6 +27,31 @@ table_clicklog = DynamoDBClient(table_name='clicklog')
 
 
 @csrf_exempt
+def pplrec(request):
+    log_tracking(request=request, view='pplrec')
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            message = data.get('message', '')
+
+            # 여기서 message를 원하는 대로 처리
+            question = message.get('text')
+            log_llm(request=request, question=question, model_name='pplrec')
+            print(f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}")
+            new_response = '준비중이예요오오오'
+            log_llm(request=request, answer=new_response, model_name='pplrec')
+
+            return JsonResponse({'status': 'success', 'message': new_response})
+        except json.JSONDecodeError as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    else:
+        context = {
+            'description1': "Pseudorec's Personalized LLM Recommendation",
+            'description2': "슈도렉 멤버가 다같이 만드는 영화 A-Z LLM 모델"
+        }
+        return render(request, "llmrec_pplrec.html", context)
+
+@csrf_exempt
 def llmrec_hyeonwoo(request):
     log_tracking(request=request, view='hyeonwoo')
     if request.method == 'POST':

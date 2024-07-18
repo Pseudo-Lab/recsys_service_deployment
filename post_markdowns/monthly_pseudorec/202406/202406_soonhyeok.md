@@ -131,7 +131,7 @@ Movie, Director, Actor node를 생성하여 각각 연결관계로 edge를 부�
 
 **Neo4j**
 
-![0](https://file.notion.so/f/f/333f96cf-396d-45ff-8331-232d41bd4d55/1efbcdcf-5ac3-4cfc-8d57-419840bf9bd2/neo4j.gif?id=0f4651be-584f-49d3-b5b2-7b55500231e3&table=block&spaceId=333f96cf-396d-45ff-8331-232d41bd4d55&expirationTimestamp=1720764000000&signature=qdlyRHj_-rY0v44d5JlvS5UZx8htUuBQ3t6GyWMgh8c)
+![0](../../../static/img/monthly_pseudorec_202406/soonhyeok/neo4j.gif)
 
 DB에 적재 후 Neo4j browser를 통해 cypher 쿼리로 Movie(괴물) 노드와 연결되어있는 subgraph를 가져왔습니다.
 

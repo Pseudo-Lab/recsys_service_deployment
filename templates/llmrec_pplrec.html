@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ko">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+<head>
+    <meta charset="UTF-8">
+    <title>PseudoRec</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/llmrec.css' %}?v=2024011916">
+    <script defer src="{% static 'js/llmrec.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!--    iconicons-->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+</head>
+
+<body>
+
+<header>
+    {% include 'navbar.html' %}
+</header>
+
+<main>
+    {% include 'left_col_home.html' %}
+    <div class="side-gutter"></div>
+    <div class="inside">
+        <div class="model-rec">
+            <div class="description">
+                <h1>{{description1}}</h1>
+                <p>{{description2|safe}}</p>
+            </div>
+            <div class="center-main-field">
+                <div class="chat-container">
+                    <div class="chat-messages">
+                        <div class="message gray-bg">
+                            <div class="message-sender"></div>
+                            <div class="message-text">{{initial_message|safe}}</div>
+                        </div>
+                    </div>
+                    <form class="chat-input-form" method="POST">
+                        <input type="text" class="chat-input" required placeholder="Type here.."/>
+                        <button type="submit" class="button send-button">Send</button>
+                    </form>
+<!--                    <button class="button clear-chat-button">Clear Chat</button>-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

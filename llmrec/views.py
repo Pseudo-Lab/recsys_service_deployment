@@ -18,7 +18,7 @@ from llmrec.utils.kyeongchan.utils import get_landing_page_recommendation
 from llmrec.utils.kyeongchan.search_engine import SearchManager
 from llmrec.utils.log_questions import log_llm
 from llmrec.utils.soonhyeok.GraphRAG import get_results
-from movie.utils import get_username_sid, log_tracking, get_user_logs_df
+from movie.utils import get_username_sid, log_tracking, get_user_logs_df, get_interacted_movie_dicts
 
 mysql = MysqlClient()
 load_dotenv('.env.dev')
@@ -29,6 +29,7 @@ table_clicklog = DynamoDBClient(table_name='clicklog')
 @csrf_exempt
 def pplrec(request):
     log_tracking(request=request, view='pplrec')
+    username, session_id = get_username_sid(request, _from='llmrec/pplrec GET')
     if request.method == 'POST':
         try:
             data = json.loads(request.body.decode('utf-8'))
@@ -45,9 +46,12 @@ def pplrec(request):
         except json.JSONDecodeError as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
     else:
+        user_logs_df = get_user_logs_df(username, session_id)
+        interacted_movie_d = get_interacted_movie_dicts(user_logs_df)
         context = {
             'description1': "Pseudorec's Personalized LLM Recommendation",
-            'description2': "슈도렉 멤버가 다같이 만드는 영화 A-Z LLM 모델"
+            'description2': "슈도렉 멤버가 다같이 만드는 영화 A-Z LLM 모델",
+            'watched_movie': interacted_movie_d,
         }
         return render(request, "llmrec_pplrec.html", context)
 

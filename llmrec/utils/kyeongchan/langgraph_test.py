@@ -1,5 +1,6 @@
 # https://langchain-ai.github.io/langgraph/tutorials/rag/langgraph_adaptive_rag/
 import sys
+
 sys.path.insert(0, '/Users/kyeongchanlee/PycharmProjects/recsys_service_deployment')
 
 import os
@@ -14,6 +15,7 @@ from langchain_core.output_parsers import StrOutputParser
 
 from llmrec.utils.kyeongchan.search_engine import SearchManager
 from dotenv import load_dotenv
+
 load_dotenv('.env.dev')
 
 # os.environ["KC_TMDB_READ_ACCESS_TOKEN"] = ""
@@ -21,12 +23,13 @@ load_dotenv('.env.dev')
 
 llm = ChatOpenAI(model_name="gpt-3.5-turbo")
 
+
 class GraphState(TypedDict):
     is_movie_recommendation_query: str  # 영화 추천 질의 유무
     question: str
     query: str
-    filter: str # 메타 정보 필터링 쿼리
-    type_: str # 영화 질문 타입
+    filter: str  # 메타 정보 필터링 쿼리
+    type_: str  # 영화 질문 타입
     user_id: str
     id: str
     genre_ids: List[str]
@@ -41,6 +44,7 @@ class GraphState(TypedDict):
 
 
 def is_recommend(state: GraphState) -> str:
+    print(f"is_recommend".center(60, '-'))
     question = state["question"]
     # 프롬프트 조회 후 YES or NO 로 응답
     system_template = """
@@ -77,22 +81,29 @@ ANSWER:
     chain = chat_prompt | llm | StrOutputParser()
     response = chain.invoke({"question": question})
     state['is_movie_recommendation_query'] = response
+    print(f"{response}")
     return state
-
 
 
 def is_recommend_yes_or_no(state: StateGraph):
+    print(f"is_recommend_yes_or_no".center(60, '-'))
     is_movie_recommendation_query = state['is_movie_recommendation_query']
     if is_movie_recommendation_query == "'General Conversation'":
+        print(f"NO")
         return "NO"
     else:
+        print(f"YES")
         return "YES"
 
+
 def ask_only_movie(state: StateGraph):
+    print(f"ask_only_movie".center(60, '-'))
     state['answer'] = '영화 추천 관련된 질문만 해주세요.'
     return state
 
+
 def meta_detection(state: GraphState) -> GraphState:
+    print(f"meta_detection".center(60, '-'))
     question = state['question']
     system_template = """
 Your goal is to structure the user's query to match the request schema provided below.
@@ -267,14 +278,18 @@ Structured Request:
     state['filter'] = response_dic['filter']
     return state
 
+
 def self_query_retrieval_yes_or_no(state: GraphState):
+    print(f"self_query_retrieval_yes_or_no".center(60, '-'))
     result = state['candidate']
     if len(result) > 0:
         return "YES"
     else:
         return "NO"
 
+
 def self_query_retrieval(state: GraphState) -> GraphState:
+    print(f"self_query_retrieval".center(60, '-'))
     question = state['question']
     search_manager = SearchManager(
         api_key=os.getenv("OPENAI_API_KEY"),
@@ -288,25 +303,27 @@ def self_query_retrieval(state: GraphState) -> GraphState:
     return state
 
 
-
 def call_sasrec(state: GraphState):
     pass
 
+
 def meta_detection_yes_or_no(state: GraphState):
+    print(f"meta_detection_yes_or_no".center(60, '-'))
     filter = state['filter']
     if len(filter) > 0:
         return "YES"
     else:
         return "NO"
 
+
 def classification(state: GraphState) -> GraphState:
+    print(f"classification".center(60, '-'))
     question = state["question"]
 
     if question == "":
         state['type_'] = 'MAIN'
         return state
     else:
-
         system_template = """
 You are a kind assistant for classifying user query type into the follwing categories:
 GENRE, NAME, PERSON
@@ -318,7 +335,6 @@ type: NAME, query: 슈렉
 
 
 """
-
         chat_prompt = ChatPromptTemplate.from_messages(
             [
                 SystemMessagePromptTemplate.from_template(system_template),
@@ -341,20 +357,21 @@ type: NAME, query: 슈렉
 
 
 def query_router(state: GraphState):
-  if state['type_'] == "GENRE":
-      return "GENRE"
-  if state['type_'] == "NAME":
-      return "NAME"
-  if state['type_'] == "PERSON":
-      return "PERSON"
-  if state['type_'] == "DATE":
-      return "DATE"
-  if state['type_'] == "KEYWORD":
-      return "KEYWORD"
-  if state['type_'] == "NORMAL":
-      return "NORMAL"
-  if state['type_'] == "MAIN":
-      return "MAIN"
+    print(f"query_router".center(60, '-'))
+    if state['type_'] == "GENRE":
+        return "GENRE"
+    if state['type_'] == "NAME":
+        return "NAME"
+    if state['type_'] == "PERSON":
+        return "PERSON"
+    if state['type_'] == "DATE":
+        return "DATE"
+    if state['type_'] == "KEYWORD":
+        return "KEYWORD"
+    if state['type_'] == "NORMAL":
+        return "NORMAL"
+    if state['type_'] == "MAIN":
+        return "MAIN"
 
 
 # def should_continue(state):
@@ -369,8 +386,8 @@ def query_router(state: GraphState):
 
 
 def user_profile(state: GraphState):
+    print(f"user_profile".center(60, '-'))
     history = '\n'.join(map(str, state['history']))
-
 
     system_template = """
 다음은 {username}가 최근 본 영화 이력입니다. 아래의 내용을 참고하여 {username}님의 영화 취향만 한줄로 설명해주세요.
@@ -403,7 +420,9 @@ output:"""
     state['profile'] = response
     return state
 
+
 def get_user_history(state: GraphState):
+    print(f"get_user_history".center(60, '-'))
     user_id = state['user_id']
     user_history = ['아바타', '알라딘', '승리호']
     history = []
@@ -419,7 +438,7 @@ def get_user_history(state: GraphState):
 
 
 def get_candidate_movie(state: GraphState):
-    print(f"state : {state}")
+    print(f"get_candidate_movie".center(60, '-'))
     movie_lists = [movie['metadata']['titleKo'] for movie in state['candidate']]
     # recommend_movies = ['기생충', '더 킹', '남한산성', '더 서클', '히트맨', '살아있다', '범죄도시2']
     candidates = []
@@ -433,17 +452,21 @@ def get_candidate_movie(state: GraphState):
         dic_['keyword'] = get_keyword_by_movie_id(movie_id)
         candidates.append(dic_)
 
-    #TODO candidates가 없는 경우 처리
+    # TODO candidates가 없는 경우 처리
     state['candidate'] = candidates
     return state
 
+
 def candidate_exist(state: GraphState):
+    print(f"candidate_exist".center(60, '-'))
     if len(state['candidate']) == 0:
         return "NO"
     else:
         return "YES"
 
+
 def recommend_movie(state: GraphState):
+    print(f"recommend_movie".center(60, '-'))
     candidates = '\n'.join(map(str, state['candidate']))
     system_template = """
 너는 유능하고 친절한 영화 전문가이고 영화 추천에 탁월한 능력을 갖고 있어. 너의 작업은 :
@@ -477,15 +500,17 @@ answer:
     chain = chat_prompt | llm | StrOutputParser()
     answer = chain.invoke({'profile': state['profile'], 'username': state['user_id'], 'candidates': candidates})
     answer = json.loads(answer)
-    print(answer)
     state['answer'] = answer['reason']
     return state
 
+
 def relevance_check(state: GraphState):
+    print(f"relevance_check".center(60, '-'))
     return 'YES'
 
 
 def get_movie_id(movie_name: str):
+    print(f"get_movie_id".center(60, '-'))
     query = movie_name
     url = f'https://api.themoviedb.org/3/search/movie?query={query}&include_adult=false&language=ko-KR&page=1'
     headers = {
@@ -499,7 +524,9 @@ def get_movie_id(movie_name: str):
         movie_id = None
     return movie_id
 
+
 def get_genre_by_movie_id(movie_id: str) -> List:
+    print(f"get_genre_by_movie_id".center(60, '-'))
     """Search genre by movie_id"""
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?language=ko-KR"
     headers = {
@@ -512,6 +539,7 @@ def get_genre_by_movie_id(movie_id: str) -> List:
 
 
 def get_keyword_by_movie_id(movie_id: str) -> List:
+    print(f"get_keyword_by_movie_id".center(60, '-'))
     """Search movies by movie keyword"""
     url = f'https://api.themoviedb.org/3/movie/{movie_id}/keywords'
     headers = {
@@ -523,7 +551,9 @@ def get_keyword_by_movie_id(movie_id: str) -> List:
     keyword = [keyword['name'] for keyword in response['keywords']]
     return keyword
 
+
 def get_movie_info_by_name(state: GraphState):
+    print(f"get_movie_info_by_name".center(60, '-'))
     '''
     input: GraphState
     output: GraphState
@@ -543,6 +573,7 @@ def get_movie_info_by_name(state: GraphState):
     state['genre_ids'] = genre_ids
     state['name'] = name
     return state
+
 
 workflow = StateGraph(GraphState)
 
@@ -568,7 +599,6 @@ workflow.add_conditional_edges(
 workflow.add_edge("ask_only_movie", END)
 workflow.add_edge("get_user_history", "user_profile")
 workflow.add_edge("user_profile", "meta_detection")
-
 workflow.add_conditional_edges(
     'meta_detection',
     meta_detection_yes_or_no,
@@ -577,9 +607,7 @@ workflow.add_conditional_edges(
         'NO': 'call_sasrec'
     }
 )
-
 workflow.add_edge('call_sasrec', 'get_candidate_movie')
-
 workflow.add_conditional_edges(
     'self_query_retrieval',
     self_query_retrieval_yes_or_no,
@@ -588,27 +616,23 @@ workflow.add_conditional_edges(
         'NO': END,
     }
 )
-
 workflow.add_conditional_edges(
     'get_candidate_movie',
     candidate_exist,
     {
-        "YES" : 'recommend_movie',
+        "YES": 'recommend_movie',
         # "NO" : 'sorry' #TODO sorry node 만들어야함
     }
 )
-
 # workflow.add_edge("get_candidate_movie", "recommend_movie")
-
 workflow.add_conditional_edges(
     'recommend_movie',
     relevance_check,
     {
-        'YES' : END,
+        'YES': END,
         'NOT OK': 'recommend_movie'
     }
 )
-
 workflow.set_entry_point("is_recommend")
 app = workflow.compile()
 

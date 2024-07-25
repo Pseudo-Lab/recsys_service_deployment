@@ -1,4 +1,4 @@
-body{
+body {
     height: 100vh;
 
 }
@@ -6,22 +6,40 @@ body{
 main {
     display: table;
     width: 100%;
-        background: #212529 !important;
+    background: #212529 !important;
     color: #ffffff; /* 폰트 색을 흰색으로 설정 */
 }
 
-header{
+header {
     background: #212529 !important;
 }
 
-.left-float-field a{
-    color: gray;
+header ul li a {
+    color: #acacac;
 }
 
-main .left-float-field p.pseudorec{
+header ul li a#navbarUserName {
+    color: #acacac;
+}
+
+.left-float-field a {
+    color: #acacac;
+}
+
+main .left-float-field p.pseudorec {
     color: #ffffff;
 }
 
+main .model-rec .description {
+        padding-bottom  : 0;
+    height: 5vh;
+}
+
+
+main .model-rec .description p{
+    color: #ffffff;
+
+}
 
 .side-gutter {
     width: 50px;
@@ -85,7 +103,7 @@ main .left-float-field p.pseudorec{
 
 .center-main-field .chat-messages {
     /*height: 23em;*/
-    height: 80%;
+    height: 100%;
     overflow-y: scroll;
 }
 
@@ -105,6 +123,7 @@ main .left-float-field p.pseudorec{
 .center-main-field .message-sender {
     font-weight: bold;
     margin-bottom: 0.31em;
+        color: #355edc;
 }
 
 .center-main-field .message-text {
@@ -112,6 +131,8 @@ main .left-float-field p.pseudorec{
     margin-bottom: 0.31em;
     word-wrap: break-word;
 }
+
+
 
 .center-main-field .message-timestamp {
     font-size: 0.75em;
@@ -127,8 +148,15 @@ main .left-float-field p.pseudorec{
     text-align: right;
 }
 
-.center-main-field .message-human .message-sender{
+.center-main-field .message-human .message-sender {
     text-align: right;
+}
+
+.center-main-field .message {
+    /*display: inline-block;*/
+    /*background-color: #bdbdbd;*/
+    color: #ffffff;
+
 }
 
 .center-main-field .gray-bg {
@@ -141,7 +169,7 @@ main .left-float-field p.pseudorec{
     text-align: left;
 }
 
-.center-main-field .gray-bg .message-sender{
+.center-main-field .gray-bg .message-sender {
     text-align: left;
 }
 
@@ -150,7 +178,6 @@ main .left-float-field p.pseudorec{
 }
 
 .center-main-field .chat-input-form {
-
     margin-bottom: 100px;
     display: flex;
     align-items: center;
@@ -185,14 +212,16 @@ main .left-float-field p.pseudorec{
 /*    padding-left: 0px; !* 메시지 텍스트와 아이콘 사이에 공간 확보 *!*/
 /*}*/
 
+
+
 .message-icon {
     left: -20%; /* 아이콘을 메시지 박스 왼쪽 외부로 이동 */
-    width: 40px;         /* 이미지 크기 조정 */
-    height: 40px;        /* 이미지 크기 조정 */
-    border-radius: 50%;  /* 이미지를 원형으로 만듦 */
-    object-fit: cover;   /* 이미지가 요소에 꽉 차도록 */
-    float: left;         /* 왼쪽으로 정렬 */
-    margin-right: 0px;  /* 오른쪽 여백 설정 */
+    width: 40px; /* 이미지 크기 조정 */
+    height: 40px; /* 이미지 크기 조정 */
+    border-radius: 50%; /* 이미지를 원형으로 만듦 */
+    object-fit: cover; /* 이미지가 요소에 꽉 차도록 */
+    float: left; /* 왼쪽으로 정렬 */
+    margin-right: 0px; /* 오른쪽 여백 설정 */
 }
 
 .response-container {
@@ -205,4 +234,17 @@ main .left-float-field p.pseudorec{
     margin-top: 10px;
     padding: 5px 10px;
     cursor: pointer;
+}
+
+main div.watched_list p
+{
+    color: #fff;
+}
+
+.watched_movie{
+    border-color: rgba(178, 178, 178, 0.1)
+}
+
+main div.watched_list p{
+    border: none;
 }

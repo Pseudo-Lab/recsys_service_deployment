@@ -372,10 +372,13 @@ def llmrec_kyeongchan(request):
     username, session_id = get_username_sid(request, _from='llmrec_kyeongchan')
     if request.method == 'GET':
         log_tracking(request=request, view='kyeongchan')
+        user_logs_df = get_user_logs_df(username, session_id)
+        interacted_movie_d = get_interacted_movie_dicts(user_logs_df)
         context = {
             'description1': "Kyeongchan & Byeongcheol LLMREC",
             'description2': "Self-Querying을 이용한 RAG를 사용해 추천합니다!.",
             'initial_message': f'{username}의 취향을 분석 중입니다..',
+            'watched_movie': interacted_movie_d
         }
         return render(request, "llmrec_kyeongchan.html", context)
     else:

@@ -1,21 +1,21 @@
-document.addEventListener("DOMContentLoaded", function() {
-    fetch("/llmrec/get_initial_recommendation/")
-        .then(response => response.json())
-        .then(data => {
-            const chatMessages = document.getElementById('chatMessages');
-            if (chatMessages) {
-                const message = {
-                    sender: 'PseudoRec GPT',
-                    text: data.message,
-                    timestamp: new Date().toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true}),
-                };
-                chatMessages.innerHTML += createInitialRecommendationMessageElement(message);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            } else {
-                console.error("chatMessages element not found");
-            }
-        });
-});
+// document.addEventListener("DOMContentLoaded", function() {
+//     fetch("/llmrec/get_initial_recommendation/")
+//         .then(response => response.json())
+//         .then(data => {
+//             const chatMessages = document.getElementById('chatMessages');
+//             if (chatMessages) {
+//                 const message = {
+//                     sender: 'PseudoRec GPT',
+//                     text: data.message,
+//                     timestamp: new Date().toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true}),
+//                 };
+//                 chatMessages.innerHTML += createInitialRecommendationMessageElement(message);
+//                 chatMessages.scrollTop = chatMessages.scrollHeight;
+//             } else {
+//                 console.error("chatMessages element not found");
+//             }
+//         });
+// });
 
 const createInitialRecommendationMessageElement = (message) => {
     return `
@@ -52,7 +52,7 @@ const createChatMessageElement = (message) => {
         return `
         <div class="message ${message.sender === 'You' ? 'blue-bg' : 'gray-bg'}">
             <div class="message-sender">${message.sender}</div>
-            <div class="message-text">${message.text.replace(/\n/g, '<br>')}</div>
+            <div class="message-text">${message.text}</div>
         </div>`;
     }
 };
@@ -61,6 +61,12 @@ const createChatMessageElement = (message) => {
 if (chatInput) {
     chatInput.focus();
 }
+
+const scrollToBottom = () => {
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+};
 
 // Function to send a chat message to the server
 const sendMessageToServer = (message) => {
@@ -86,7 +92,7 @@ const sendMessageToServer = (message) => {
                 url: response.url
             };
             chatMessages.innerHTML += createChatMessageElement(serverMessage);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            setTimeout(scrollToBottom, 100);
         },
         error: function(error) {
             console.error('Error sending message:', error.responseText);
@@ -103,10 +109,10 @@ const sendMessage = (e) => {
         text: chatInput.value,
         timestamp,
     };
-    sendMessageToServer(message);
     chatMessages.innerHTML += createChatMessageElement(message);
+    setTimeout(scrollToBottom, 100);
+    sendMessageToServer(message);
     chatInputForm.reset();
-    chatMessages.scrollTop = chatMessages.scrollHeight;
 };
 
 // Add the event listener to the form

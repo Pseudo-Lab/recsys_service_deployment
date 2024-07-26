@@ -1,6 +1,10 @@
 # https://langchain-ai.github.io/langgraph/tutorials/rag/langgraph_adaptive_rag/
 import sys
 
+import pandas as pd
+
+from movie.utils import get_user_logs_df
+
 sys.path.insert(0, '/Users/kyeongchanlee/PycharmProjects/recsys_service_deployment')
 
 import os
@@ -16,12 +20,16 @@ from langchain_core.output_parsers import StrOutputParser
 from llmrec.utils.kyeongchan.search_engine import SearchManager
 from dotenv import load_dotenv
 
+from clients import MysqlClient
+
+mysql = MysqlClient()
+
 load_dotenv('.env.dev')
 
 # os.environ["KC_TMDB_READ_ACCESS_TOKEN"] = ""
 # os.environ["OPENAI_API_KEY"] = ''
 
-llm = ChatOpenAI(model_name="gpt-3.5-turbo")
+llm = ChatOpenAI(model_name="gpt-4o")
 
 
 class GraphState(TypedDict):
@@ -30,7 +38,7 @@ class GraphState(TypedDict):
     query: str
     filter: str  # 메타 정보 필터링 쿼리
     type_: str  # 영화 질문 타입
-    user_id: str
+    username: str
     id: str
     genre_ids: List[str]
     name: str
@@ -39,12 +47,13 @@ class GraphState(TypedDict):
     history: List[dict]
     candidate: List[dict]
     recommendation: str
-    answer: str
     status: str
+    answer: str
+    final_answer: str
 
 
 def is_recommend(state: GraphState) -> str:
-    print(f"is_recommend".center(60, '-'))
+    # print(f"is_recommend".center(60, '-'))
     question = state["question"]
     # 프롬프트 조회 후 YES or NO 로 응답
     system_template = """
@@ -56,54 +65,50 @@ def is_recommend(state: GraphState) -> str:
 * Do not provide any other responses.
 
 ### EXAMPLE1
-USER:
-오늘 날씨 짱이다! 
+USER: 오늘 날씨 짱이다! 
 
-ANSWER:
-'General Conversation'
+ANSWER: 'General Conversation'
 
 ### EXAMPLE2
-USER:
-좋은 영화 하나 추천해줘
+USER: 좋은 영화 하나 추천해줘
 20대 여자가 볼만한 영화 추천해줘
 
-ANSWER:
-'Movie Recommendation'
+ANSWER: 'Movie Recommendation'
 ### 
     
     """
     chat_prompt = ChatPromptTemplate.from_messages(
         [
             SystemMessagePromptTemplate.from_template(system_template),
-            HumanMessagePromptTemplate.from_template("question: {question}"),
+            HumanMessagePromptTemplate.from_template("USER: {question}\n\nANSWER: "),
         ]
     )
     chain = chat_prompt | llm | StrOutputParser()
     response = chain.invoke({"question": question})
     state['is_movie_recommendation_query'] = response
-    print(f"{response}")
+    # print(f"state['is_movie_recommendation_query'] : {state['is_movie_recommendation_query']}")
     return state
 
 
 def is_recommend_yes_or_no(state: StateGraph):
-    print(f"is_recommend_yes_or_no".center(60, '-'))
+    # print(f"is_recommend_yes_or_no".center(60, '-'))
     is_movie_recommendation_query = state['is_movie_recommendation_query']
     if is_movie_recommendation_query == "'General Conversation'":
-        print(f"NO")
+        # print(f"NO")
         return "NO"
     else:
-        print(f"YES")
+        # print(f"YES")
         return "YES"
 
 
 def ask_only_movie(state: StateGraph):
-    print(f"ask_only_movie".center(60, '-'))
-    state['answer'] = '영화 추천 관련된 질문만 해주세요.'
+    # print(f"ask_only_movie".center(60, '-'))
+    state['final_answer'] = '영화 추천 관련된 질문만 해주세요.'
     return state
 
 
 def meta_detection(state: GraphState) -> GraphState:
-    print(f"meta_detection".center(60, '-'))
+    # print(f"Self-Querying".center(60, '-'))
     question = state['question']
     system_template = """
 Your goal is to structure the user's query to match the request schema provided below.
@@ -276,30 +281,42 @@ Structured Request:
     response_dic = json.loads(response)
     state['query'] = response_dic['query']
     state['filter'] = response_dic['filter']
+    # print(f"state['query'] : {state['query']}")
+    # print(f"state['filter'] : {state['filter']}")
     return state
 
 
 def self_query_retrieval_yes_or_no(state: GraphState):
-    print(f"self_query_retrieval_yes_or_no".center(60, '-'))
+    # print(f"self_query_retrieval_yes_or_no".center(60, '-'))
     result = state['candidate']
     if len(result) > 0:
+        # print(f"YES")
         return "YES"
     else:
+        # print(f"NO")
         return "NO"
 
 
 def self_query_retrieval(state: GraphState) -> GraphState:
-    print(f"self_query_retrieval".center(60, '-'))
+    # print(f"self_query_retrieval".center(60, '-'))
     question = state['question']
     search_manager = SearchManager(
         api_key=os.getenv("OPENAI_API_KEY"),
         index="86f92d0e-e8ec-459a-abb8-0262bbf794a2",
-        top_k=5,
+        top_k=10,
         score_threshold=0.7
     )
     search_manager.add_engine("self")
     context = search_manager.search_all(question)
     state['candidate'] = context['self']
+    # if state['candidate']:
+    #     print(f"state['candidate'] : ")
+    #     for ci, candidate_movie in enumerate(state['candidate'], start=1):
+    #         print(f"{ci}. {candidate_movie['metadata']['titleKo']}({candidate_movie['metadata']['titleEn']})")
+    #         print(f"Lead Roles : {', '.join(candidate_movie['metadata']['lead_role_etd_str'])}")
+    #         print(f"Director : {', '.join(candidate_movie['metadata']['director_etd_str'])}")
+    #         print()
+
     return state
 
 
@@ -308,16 +325,18 @@ def call_sasrec(state: GraphState):
 
 
 def meta_detection_yes_or_no(state: GraphState):
-    print(f"meta_detection_yes_or_no".center(60, '-'))
+    # print(f"meta_detection_yes_or_no".center(60, '-'))
     filter = state['filter']
     if len(filter) > 0:
+        # print(f"YES")
         return "YES"
     else:
+        # print(f"NO")
         return "NO"
 
 
 def classification(state: GraphState) -> GraphState:
-    print(f"classification".center(60, '-'))
+    # print(f"classification".center(60, '-'))
     question = state["question"]
 
     if question == "":
@@ -343,7 +362,7 @@ type: NAME, query: 슈렉
         )
 
         # messages = chat_prompt.format_messages(question=question)
-        # print(messages)
+        # # print(messages)
         chain = chat_prompt | llm | StrOutputParser()
         response = chain.invoke({"question": question})
         output_dict = {}
@@ -352,12 +371,12 @@ type: NAME, query: 슈렉
             output_dict[key] = value
         state['type_'] = output_dict['type']
         state['query'] = output_dict['query']
-        state['id'] = get_movie_id(state['name'])['id']
+        state['id'] = get_tmdb_movie_id(state['name'])['id']
         return state
 
 
 def query_router(state: GraphState):
-    print(f"query_router".center(60, '-'))
+    # print(f"query_router".center(60, '-'))
     if state['type_'] == "GENRE":
         return "GENRE"
     if state['type_'] == "NAME":
@@ -389,108 +408,158 @@ def user_profile(state: GraphState):
     print(f"user_profile".center(60, '-'))
     history = '\n'.join(map(str, state['history']))
 
-    system_template = """
-다음은 {username}가 최근 본 영화 이력입니다. 아래의 내용을 참고하여 {username}님의 영화 취향만 한줄로 설명해주세요.
+    system_template = """###GOAL
+* You are a bot that analyzes user preferences based on their movie viewing history.
+* Check for patterns in the user's preferences based on the meta information (movie title, genre, keywords) of the movies in HISTORY.
+* Express the user's taste in one sentence based on the identified patterns.
+* The response must be generated in Korean. His/her name is {username}
 
-The history movies and their keywords and genres are:
-```json
+HISTORY:
 {{'movie': '남산의 부장들', 'genres': ['드라마', '스릴러'], 'keyword': ["assassination", "washington dc, usa", "paris, france", "based on novel or book", "politics", "dictator", "1970s", "hearing", "dictatorship", "based on true story", "military dictatorship", "assassination of president", "korea president", "park chung-hee", "south korea"]}}
 {{'movie': '1987', 'genres': ['드라마', '역사', '스릴러'], 'keyword': ["students' movement", "protest", "democracy", "military dictatorship", "historical event", "student protest", "communism", "1980s", "democratization movement", "south korea", "seoul, south korea"]}}
-```
 
-output: 역사적 배경을 바탕으로 한 영화들을 선호하시며, 특히 사회적, 정치적 이슈를 깊이 있게 다룬 작품들을 즐기시는 것 같습니다.
+OUTPUT:
+{username}님은 감정적으로 깊이 있는 드라마와 긴장감 넘치는 스릴러를 선호하며, 특히 실제 역사적 사건이나 정치적 음모, 권력 다툼 등을 다루는 영화를 좋아합니다. 1970년대와 1980년대의 한국 역사에 큰 관심을 가지고 있으며, 민주화 운동과 저항 같은 주제를 매우 흥미로워합니다. 또한, 한국을 배경으로 하는 영화뿐만 아니라 국제적 배경이 포함된 영화에도 관심이 있습니다.
 
 
-The history movies and their keywords and genres are:
-```json
+HISTORY:
 {history}
-```
 
-output:"""
+OUTPUT:"""
 
     chat_prompt = ChatPromptTemplate.from_messages(
         [
             SystemMessagePromptTemplate.from_template(system_template),
         ]
     )
-    # messages = chat_prompt.format_messages(username=state['user_id'], history=history)
-    # print(messages)
+    # messages = chat_prompt.format_messages(username=state['username'], history=history)
+    # print(f"messages : {messages}")
     chain = chat_prompt | llm | StrOutputParser()
-    response = chain.invoke({'history': history, 'username': state['user_id']})
+    response = chain.invoke({'history': history, 'username': state['username']})
     state['profile'] = response
+    print(f"User's Preference : {state['profile']}")
+
     return state
 
 
 def get_user_history(state: GraphState):
-    print(f"get_user_history".center(60, '-'))
-    user_id = state['user_id']
-    user_history = ['아바타', '알라딘', '승리호']
+    # print(f"get_user_history".center(60, '-'))
+    username = state['username']
+    user_logs_df = get_user_logs_df(username, None)
+    # print(user_logs_df)
+    # user_history = ['아바타', '알라딘', '승리호']
+    user_history = user_logs_df['titleKo'].tolist()
+    # print(f"user_history : {user_history}")
     history = []
     for h in user_history:
         dic_ = {}
-        movie_id = get_movie_id(h)
+        movie_id = get_tmdb_movie_id(h)
         dic_['movie'] = h
         dic_['genres'] = get_genre_by_movie_id(movie_id)
         dic_['keyword'] = get_keyword_by_movie_id(movie_id)
         history.append(dic_)
     state['history'] = history
+    # if state['history']:
+    #     print(f"state['history'] : ")
+    #     for wi, watched_movie in enumerate(state['history'], start=1):
+    #         print(f"{wi}. {watched_movie['movie']}")
+    #         print(f"genres : {', '.join(watched_movie['genres'])}")
+    #         print(f"keyword : {', '.join(watched_movie['keyword'][:5])}, ...")
+    #         print()
+
     return state
 
 
-def get_candidate_movie(state: GraphState):
-    print(f"get_candidate_movie".center(60, '-'))
-    movie_lists = [movie['metadata']['titleKo'] for movie in state['candidate']]
+def get_candidate_movie_info_from_tmdb(state: GraphState):
+    print(f"Get Self-Querying candidates' info".center(60, '-'))
     # recommend_movies = ['기생충', '더 킹', '남한산성', '더 서클', '히트맨', '살아있다', '범죄도시2']
     candidates = []
-    for r in movie_lists:
+    for candidate in state['candidate']:
+        title = candidate['metadata']['titleKo']
         dic_ = {}
-        movie_id = get_movie_id(r)
+        movie_id = get_tmdb_movie_id(title)
         if movie_id is None:
             continue
-        dic_['movie'] = r
+        dic_['movie'] = title
         dic_['genres'] = get_genre_by_movie_id(movie_id)
         dic_['keyword'] = get_keyword_by_movie_id(movie_id)
+        dic_['pseudorec_movie_id'] = candidate['metadata']['movieId']
         candidates.append(dic_)
 
     # TODO candidates가 없는 경우 처리
     state['candidate'] = candidates
+
+    if state['candidate']:
+        print(f"state['candidate'] : ")
+        for ci, candidate_movie in enumerate(state['candidate'], start=1):
+            print(f"{ci}. {candidate_movie['movie']}")
+            print(f"Genres : {', '.join(candidate_movie['genres'])}")
+            print(f"keyword : {', '.join(candidate_movie['keyword'][:5])}, ...")
+            print()
+
     return state
 
 
 def candidate_exist(state: GraphState):
-    print(f"candidate_exist".center(60, '-'))
+    # print(f"candidate_exist".center(60, '-'))
     if len(state['candidate']) == 0:
+        # print(f"YES")
         return "NO"
     else:
+        # print(f"YES")
         return "YES"
 
 
 def recommend_movie(state: GraphState):
-    print(f"recommend_movie".center(60, '-'))
-    candidates = '\n'.join(map(str, state['candidate']))
-    system_template = """
-너는 유능하고 친절한 영화 전문가이고 영화 추천에 탁월한 능력을 갖고 있어. 너의 작업은 :
-1. {username}님의 후보 영화들로부터 1가지 영화를 골라 추천해줘.
-2. 영화 취향을 분석해서 타당한 추천 근거를 들어줘. 장르, 스토리, 인기도, 감독, 배우 등을 분석하면 좋아.
-3. 후보 영화 중 에서 한가지 영화를 골라 답변을 해주세요.
+    # print(f"recommend_movie".center(60, '-'))
+    system_template = """### GOLE:
+* You are a bot that recommends movies based on user preferences.
+* Select and recommend movies from a pool of candidates that fit the user's "query" while considering their "preferences".
+* Follow the steps below to review and generate a response.
+* Please announce the username in the last output answer.
 
-```Example
-영화 취향: 역사 영화를 좋아합니다.
-후보: 
-{{'movie': '남산의 부장들', 'genres': ['드라마', '스릴러'], 'keyword': ["assassination", "washington dc, usa", "paris, france", "based on novel or book", "politics", "dictator", "1970s", "hearing", "dictatorship", "based on true story", "military dictatorship", "assassination of president", "korea president", "park chung-hee", "south korea"]}}
-{{'movie': '1987', 'genres': ['드라마', '역사', '스릴러'], 'keyword': ["students' movement", "protest", "democracy", "military dictatorship", "historical event", "student protest", "communism", "1980s", "democratization movement", "south korea", "seoul, south korea"]}}
+### PROCEDURE
+* Reference the user's PREFERENCE to extract one movie from CANDIDATE.
+* Then, recommend the best movie that matchs the QUERY.
+* Make reasons for each output repectively.
+* Answer kindly to USERNAME's QUERY.
 
-answer: {{
-    "titleKo": "기생충", 
-    "reason": "{username}님 안녕하세요! 지난 시청 이력을 분석한 결과, 밀정, 택시운전사, 1987과 같은 역사적 이슈를 다룬 영화를 선호하셨던 점을 고려하면 남산의 부장들을 강력히 추천드립니다! 기생충은 사회적 계층과 경제 격차를 주제로 한 작품으로, 봉준호 감독의 예술적 연출과 깊은 사회적 메시지로 관람객들에게 많은 호평을 받았습니다. 이 영화는 단순한 엔터테인먼트를 넘어서 사회적 문제에 대한 깊은 고찰을 제공하며, 관객들에게 강력한 메시지를 전달합니다. 또한, 기생충은 국제적으로도 매우 큰 인기를 얻어, 칸 영화제에서는 황금종려상을 수상하였고, 아카데미 시상식에서도 작품상과 감독상을 비롯한 여러 부문에서 수상하며 주목받은 작품입니다. 당신의 시청 이력을 바탕으로 한 이 추천은 밀정, 택시운전사, 1987과 같은 역사적 장르를 선호하시는 분들께 이 영화가 매우 맞을 것이라고 확신합니다. 기생충을 통해 새로운 시각과 깊은 감동을 경험해보세요! 😄"
-}}
-```
+### FORMAT
+* Output format has to be JSON format as same with origin. as like {{"pseudorec_movie_id", "movie": , "reasons": }}
+* Do not answer any other thing except for JSON context list 
 
-영화 취향: {profile}
-후보: 
+### EXAMPLE
+CANDIDATES:
+{{'movie': '남산의 부장들', 'pseudorec_movie_id' : 15875, genres': ['드라마', '스릴러'], 'keyword': ['assassination', 'washington dc, usa', 'paris, france', 'based on novel or book', 'politics', 'dictator', '1970s', 'hearing', 'dictatorship', 'based on true story', 'military dictatorship', 'assassination of president', 'korea president', 'park chung-hee', 'south korea']}}
+{{'movie': '밀정', 'pseudorec_movie_id' : 8921, 'genres': ['액션', '스릴러'], 'keyword': ['japan', 'shanghai, china', 'independence movement', '1920s', 'korean resistance', 'japanese occupation of korea', 'korea']}}
+{{'movie': '택시운전사',  'pseudorec_movie_id' : 38811, 'genres': ['액션', '드라마', '역사'], 'keyword': ['taxi', 'taxi driver', 'protest', 'based on true story', 'democracy', 'historical event', '1980s', 'gwangju uprising', 'gwangju', 'democratization movement', 'south korea']}}
+
+QUERY:
+나의 취향을 기반으로 영화를 추천해주세요.
+
+USERNAME:
+원티드
+
+USER PREFERENCE:
+{username}님은 1970년대 한국의 정치적 배경과 실제 사건을 중심으로 한 영화를 선호합니다. 특히, 군사 독재 시기의 정치적 음모와 권력 다툼을 다룬 드라마와 스릴러 장르를 좋아합니다. 역사적 인물과 사건을 생생하게 재현한 영화들에 큰 흥미를 느끼며, 긴장감 넘치는 서사와 실제 사건을 기반으로 한 깊이 있는 이야기를 즐깁니다. 정치적 사건과 사회적 이슈를 중심으로 한 영화들을 통해 역사적 이해와 몰입감을 경험하는 것을 좋아합니다.
+
+OUTPUT:
+{{"pseudorec_movie_id" : 15875, "movie": "남산의 부장들", "reason": "원티드님의 취향을 바탕으로, '남산의 부장들'을 추천드립니다. 이 영화는 1970년대 대한민국의 정치적 사건을 다루며, 중앙정보부 부장 김재규의 박정희 대통령 암살 사건을 중심으로 긴장감 넘치는 스토리를 전개합니다. 실제 사건을 바탕으로 한 이 영화는 당시의 정치적 배경과 인물들의 심리를 생생하게 재현하여, 깊이 있는 역사적 이해와 몰입감을 선사합니다.
+'남산의 부장들'을 통해 1970년대 대한민국의 격동의 역사를 재조명하며, 강렬한 드라마와 스릴러의 매력을 동시에 느껴보시길 바랍니다. 원티드님께 이 영화를 강력히 추천드립니다!"}}
+
+CANDIDATES:
 {candidates}
 
-answer:
+QUERY:
+{query}
+
+USERNAME:
+{username}
+
+USER PREFERENCE:
+{user_preference}
+
+OUTPUT:
 """
     chat_prompt = ChatPromptTemplate.from_messages(
         [
@@ -498,19 +567,35 @@ answer:
         ]
     )
     chain = chat_prompt | llm | StrOutputParser()
-    answer = chain.invoke({'profile': state['profile'], 'username': state['user_id'], 'candidates': candidates})
-    answer = json.loads(answer)
-    state['answer'] = answer['reason']
+    answer = chain.invoke(
+        {
+            'user_preference': state['profile'],
+            'username': state['username'],
+            'candidates': '\n'.join(map(str, state['candidate'])),
+            'query': state['query']
+        }
+    )
+    # print(f"answer : {answer}")
+    answer = answer.replace("```json", "").replace("```", "")
+    answer = answer.replace("reasons", "reason")
+    # print(f"answer : {answer}")
+    if isinstance(eval(answer), dict):
+        answer = json.loads(answer)
+    elif isinstance(eval(answer), list):
+        answer = eval(answer)[0]
+
+    state['answer'] = answer
     return state
 
 
 def relevance_check(state: GraphState):
-    print(f"relevance_check".center(60, '-'))
+    # print(f"relevance_check".center(60, '-'))
+    # print("YES")
     return 'YES'
 
 
-def get_movie_id(movie_name: str):
-    print(f"get_movie_id".center(60, '-'))
+def get_tmdb_movie_id(movie_name: str):
+    # # print(f"get_movie_id(movie_name={movie_name})".ljust(60, '+'))
     query = movie_name
     url = f'https://api.themoviedb.org/3/search/movie?query={query}&include_adult=false&language=ko-KR&page=1'
     headers = {
@@ -522,11 +607,12 @@ def get_movie_id(movie_name: str):
         movie_id = response['results'][0]['id']
     else:
         movie_id = None
+    # # print(f"movie_id : {movie_id}")
     return movie_id
 
 
 def get_genre_by_movie_id(movie_id: str) -> List:
-    print(f"get_genre_by_movie_id".center(60, '-'))
+    # # print(f"get_genre_by_movie_id(movie_id={movie_id})".ljust(60, '+'))
     """Search genre by movie_id"""
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?language=ko-KR"
     headers = {
@@ -535,11 +621,12 @@ def get_genre_by_movie_id(movie_id: str) -> List:
     }
     response = requests.get(url, headers=headers).json()
     genres = [genre['name'] for genre in response['genres']]
+    # # print(f"genres : {str(genres)[:30]}...")
     return genres
 
 
 def get_keyword_by_movie_id(movie_id: str) -> List:
-    print(f"get_keyword_by_movie_id".center(60, '-'))
+    # # print(f"get_keyword_by_movie_id(movie_id={movie_id})".ljust(60, '+'))
     """Search movies by movie keyword"""
     url = f'https://api.themoviedb.org/3/movie/{movie_id}/keywords'
     headers = {
@@ -549,11 +636,12 @@ def get_keyword_by_movie_id(movie_id: str) -> List:
     response = requests.get(url, headers=headers).json()
     # movie_id = response['id']
     keyword = [keyword['name'] for keyword in response['keywords']]
+    # # print(f"keyword : {str(keyword)[:30]}...")
     return keyword
 
 
 def get_movie_info_by_name(state: GraphState):
-    print(f"get_movie_info_by_name".center(60, '-'))
+    # print(f"get_movie_info_by_name".center(60, '-'))
     '''
     input: GraphState
     output: GraphState
@@ -574,6 +662,63 @@ def get_movie_info_by_name(state: GraphState):
     state['name'] = name
     return state
 
+def post_process_answer(state : GraphState):
+    # print(f"post_process_answer".center(60, '-'))
+    # print(f"state['answer'] : {state['answer']}")
+    # print(f"type(state['answer']) : {type(state['answer'])}")
+    recommended_mid = state['answer']['pseudorec_movie_id']
+
+    sql = f"""
+    SELECT dm.movieId,
+           dm.posterUrl,
+           dmsp.synopsis_prep
+    FROM daum_movies dm
+    LEFT JOIN daum_movies_synopsis_prep dmsp ON dm.movieId = dmsp.movieId
+    where dm.movieId = {recommended_mid}
+    """
+    df = pd.read_sql(sql, mysql.engine)
+    # print(f"df : {df}")
+    poster_url = df.iloc[0]['posterUrl']
+    synopsis_prep = df.iloc[0]['synopsis_prep']
+    synopsis_prep = synopsis_prep[:500] + '...' if len(synopsis_prep) > 500 else synopsis_prep
+
+    image = f"""
+    <img src="{poster_url}" alt="Daum Movie Image" style="width: 200px;">
+    """
+
+    final_answer = """
+    <div style="display: flex; flex-direction: row; align-items: flex-start;">
+        <div style="flex: 1; padding-right: 20px;">
+            <img src="{image}" alt="Movie Poster" style="width: 200px;">
+        </div>
+        <div>
+            <strong>시놉시스</strong>
+            <br>
+            <p class="synopsis-content">{synopsis}</p>
+        </div>
+    </div>
+    <div>
+        <br>
+        <strong>{username}님의 취향 분석</strong><br>
+        {profile}
+        <br><br>
+        <strong>{username}님을 위한 추천 영화</strong><br>
+        {reason}
+    </div>
+    """.format(
+        image=poster_url,
+        username=state['username'],
+        profile=state['profile'],
+        reason=state['answer']['reason'],
+        synopsis=synopsis_prep
+    )
+
+    state['final_answer'] = final_answer
+
+    return state
+
+
+
 
 workflow = StateGraph(GraphState)
 
@@ -582,11 +727,12 @@ workflow.add_node("ask_only_movie", ask_only_movie)
 workflow.add_node("get_user_history", get_user_history)
 workflow.add_node("user_profile", user_profile)
 # workflow.add_node("classification", classification)
-workflow.add_node("get_candidate_movie", get_candidate_movie)
+workflow.add_node("get_candidate_movie_info_from_tmdb", get_candidate_movie_info_from_tmdb)
 workflow.add_node("recommend_movie", recommend_movie)
 workflow.add_node("meta_detection", meta_detection)
 workflow.add_node("call_sasrec", call_sasrec)
 workflow.add_node("self_query_retrieval", self_query_retrieval)
+workflow.add_node("post_process_answer", post_process_answer)
 
 workflow.add_conditional_edges(
     'is_recommend',
@@ -607,32 +753,34 @@ workflow.add_conditional_edges(
         'NO': 'call_sasrec'
     }
 )
-workflow.add_edge('call_sasrec', 'get_candidate_movie')
+workflow.add_edge('call_sasrec', 'get_candidate_movie_info_from_tmdb')
 workflow.add_conditional_edges(
     'self_query_retrieval',
     self_query_retrieval_yes_or_no,
     {
-        'YES': 'get_candidate_movie',
+        'YES': 'get_candidate_movie_info_from_tmdb',
         'NO': END,
     }
 )
 workflow.add_conditional_edges(
-    'get_candidate_movie',
+    'get_candidate_movie_info_from_tmdb',
     candidate_exist,
     {
         "YES": 'recommend_movie',
         # "NO" : 'sorry' #TODO sorry node 만들어야함
     }
 )
-# workflow.add_edge("get_candidate_movie", "recommend_movie")
+# workflow.add_edge("get_candidate_movie_info_from_tmdb", "recommend_movie")
 workflow.add_conditional_edges(
     'recommend_movie',
     relevance_check,
     {
-        'YES': END,
+        'YES': 'post_process_answer',
         'NOT OK': 'recommend_movie'
     }
 )
+workflow.add_edge('post_process_answer', END)
+
 workflow.set_entry_point("is_recommend")
 app = workflow.compile()
 
@@ -642,8 +790,8 @@ app = workflow.compile()
 # app.invoke(inputs, config=config)
 # for output in app.stream(inputs, config=config):
 #     for key, value in output.items():
-#         print(f"Output from node '{key}':")
-#         print("---")
+#         # print(f"Output from node '{key}':")
+#         # print("---")
 #         print(value)
 #     print("\n---\n")
 #

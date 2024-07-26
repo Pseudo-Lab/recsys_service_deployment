@@ -375,9 +375,10 @@ def llmrec_kyeongchan(request):
         user_logs_df = get_user_logs_df(username, session_id)
         interacted_movie_d = get_interacted_movie_dicts(user_logs_df)
         context = {
-            'description1': "Kyeongchan & Byeongcheol LLMREC",
-            'description2': "Self-Querying을 이용한 RAG를 사용해 추천합니다!.",
-            'initial_message': f'{username}의 취향을 분석 중입니다..',
+            'description1': "깃잔심팀 - LLM 영화 개인화 추천",
+            # 'description2': "Self-Querying RAG 기법을 사용한 추천",
+            # 'initial_message': f'{username}의 취향을 분석 중입니다..',
+            'initial_message': '',
             'watched_movie': interacted_movie_d
         }
         return render(request, "llmrec_kyeongchan.html", context)
@@ -386,22 +387,22 @@ def llmrec_kyeongchan(request):
         message = data.get('message', '')['text']
         from langchain_core.runnables import RunnableConfig
         config = RunnableConfig(recursion_limit=10, configurable={"thread_id": "movie"})
-        inputs = GraphState(question=message, user_id=username)
+        inputs = GraphState(question=message, username=username)
         response_message = app.invoke(inputs, config=config)
-        return JsonResponse({'status': 'success', 'message': response_message['answer']})
+        return JsonResponse({'status': 'success', 'message': response_message['final_answer']})
 
 
 
-@csrf_exempt
-def get_initial_recommendation(request):
-    username, session_id = get_username_sid(request, _from='llmrec_kyeongchan')
-    user_logs_df = get_user_logs_df(username, session_id)
-    if len(user_logs_df):
-        answer = get_landing_page_recommendation(username, user_logs_df, kyeongchan_model)
-    else:
-        answer = ''
-    print(f"answer : {answer}")
-    return JsonResponse({'status': 'success', 'message': answer})
+# @csrf_exempt
+# def get_initial_recommendation(request):
+#     username, session_id = get_username_sid(request, _from='llmrec_kyeongchan')
+#     user_logs_df = get_user_logs_df(username, session_id)
+#     if len(user_logs_df):
+#         answer = get_landing_page_recommendation(username, user_logs_df, kyeongchan_model)
+#     else:
+#         answer = ''
+#     print(f"answer : {answer}")
+#     return JsonResponse({'status': 'success', 'message': answer})
 
 
 @csrf_exempt

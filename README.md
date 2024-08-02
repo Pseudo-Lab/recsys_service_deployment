@@ -12,14 +12,14 @@ AWS_REGION_NAME=${AWS_REGION_NAME}
 ```
 다음 명령어를 실행하면 Django를 실행시킵니다.
 ```shell
-docker-compose -f docker-compose.broker.yml up -d
+# docker-compose -f docker-compose.broker.yml up -d -> 현재 쓰지 않습니다.
 python manage.py runserver
 ```
 
 # docker
 다음 명령어를 실행하면 container로 실행시킵니다.
 ```shell
-docker-compose -f docker-compose.broker.yml up -d -> 현재 쓰지 않습니다.
+# docker-compose -f docker-compose.broker.yml up -d -> 현재 쓰지 않습니다.
 docker-compose up -d
 ```
 내리기 -> 현재  쓰지 않습니다.

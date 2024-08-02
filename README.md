@@ -19,21 +19,26 @@ python manage.py runserver
 # docker
 다음 명령어를 실행하면 container로 실행시킵니다.
 ```shell
-docker-compose -f docker-compose.broker.yml up -d
+docker-compose -f docker-compose.broker.yml up -d -> 현재 쓰지 않습니다.
 docker-compose up -d
 ```
-내리기
+내리기 -> 현재  쓰지 않습니다.
 ```shell
 docker-compose -f docker-compose.broker.yml down -v
 docker-compose down -v
 ```
-이미지/컨테이너/볼륨 삭제
+이미지/컨테이너/볼륨 삭제 -> 현재  쓰지 않습니다.
 ```shell
 docker system prune -a
 docker system prune --volumes --force
 ```
 
-# TMDB
+
+# 참고자료
+
+---
+
+## TMDB
 
 **movie > details**
 ```
@@ -44,13 +49,13 @@ https://developer.themoviedb.org/reference/movie-details
 https://developer.themoviedb.org/reference/search-movie
 ```
 
-# django 설치
+## django 설치
 ```
 pip install 'django<5'
 ```
 
 
-## Reference
+## Books
 - 인터랙티브 웹 페이지 만들기
 - 이한영의 Djagno 입문
 

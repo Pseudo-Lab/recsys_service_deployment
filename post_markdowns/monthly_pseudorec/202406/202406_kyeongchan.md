@@ -2,11 +2,12 @@
 
 ※ 수식이 깨져보이신다면 새로고침을 해주세요
 
-> 본 게시글은 ‘Mathematics of Machine Learning’ 책을 번역하였습니다. 복습 시 한 호흡에 읽히도록 필요한 부분만 개인적인 해석을 달아 적어 놓는 것이 이 글의 목적입니다.
+> 본 게시글은 <a href="https://product.kyobobook.co.kr/detail/S000003103258" target="_blank" style="text-decoration: underline;">**Mathematics of Machine Learning ↗**</a> 책을 번역하였습니다. 복습 시 한 호흡에 읽히도록 필요한 부분만 개인적인 해석을 달아 정리해 놓는 것이 이 글의 목적입니다.
 
 Collaborative Filtering(CF)는 가장 대표적인 추천시스템입니다. CF는 이웃 기반 방법과 Latent Factor 방식으로 나뉩니다.
 저는 ‘Mathematics of Machine Learning’ 책을 학교에서 배울 때 Matrix Decomposition이 추천시스템의 Latent Factor 부분에 대해 살짝 다룬다는 걸 알고 있었는데,
-이번 기회에 이론적 배경에 대해 정리해보려 합니다. 4챕터 Matrix Decomposition 부분을 번역합니다. 행렬 분해가 어떻게 유저의 선호도를 나타낼 수 있을까요?
+이번 기회에 Matrix Decomposition이 어떻게 추천시스템으로 쓰일 수 있는지에 대한 이론적 배경을 정리해보려 합니다. 4챕터 Matrix Decomposition 부분을 번역합니다.
+유저-평점 행렬을 분해하면 분해된 행렬은 어떻게 유저의 선호도를 나타낼 수 있을까요?
 
 이번에는 Determinant와 Eigenvalue, Eigenvector에 대해 먼저 번역하겠습니다.
 
@@ -22,7 +23,7 @@ Determinant는 오직 정방행렬에 대해서만 정의된다. 이 책에서�
 **정방행렬 $A$의 determinant란 $A$를 실수로 mapping하는 함수이다.** 
 determinant의 정의를 살펴보기 전에, 동기 부여를 위한 예시를 함께 보자!
 
-> Example 4.1 **행렬 Invertibility 확인하기**
+> **Example 4.1** 행렬 Invertibility 확인하기
 > 
 > 정방행렬 $A$가 Invertible인지 아닌지를 알아보자.
 > 가장 작은 행렬의 경우 우린 행렬이 invertible일 때를 알고 있다. 
@@ -68,7 +69,7 @@ Sarrus’ rule의 곱셈항을 기억하기 위해서는 행렬 안의 세 가�
 
 ![0](../../../static/img/monthly_pseudorec_202406/kyeongchan/4.8.png)
 
-> Example 4.2 **부피 측정 수단으로서의 determinants**
+> **Example** 4.2 부피 측정 수단으로서의 determinants
 > 
 > determinant의 개념을 보면, 우리는 이를 $\mathbb{R}^n$에서 어느 객체를 span하는 $n$개의 벡터들을 매핑하는 것으로 바라봐도 자연스럽다. 행렬 $A$의 determinant인 $det(A)$가 $A$의 column들로 형성되는 $n$차원의 평행 육면체의 부호를 가진 부피인 것이 알려져 있다. $n=2$일 때, 행렬의 각 column들은 평행사변형을 형성할 수 있다. Figure 4.2를 보자.
 
@@ -79,8 +80,7 @@ Sarrus’ rule의 곱셈항을 기억하기 위해서는 행렬 안의 세 가�
 두 벡터 $\boldsymbol{b}$, $\boldsymbol{g}$가 행렬 $A$의 column이라고 생각해보자. 
 $A=[\boldsymbol{b}, \boldsymbol{g}]$이다. 
 그럼 $A$의 determinant의 절댓값은 꼭지점 0, $\boldsymbol{b}$, $\boldsymbol{g}$, $\boldsymbol{b}+\boldsymbol{g}$로 이루어진 평행사변형의 넓이이다. 
-만약 $\boldsymbol{b}$와 $\boldsymbol{g}$가 linearly dependent이어서 $\boldsymbol{b}=\lambda \boldsymbol{g}$라면($\lambda \in \mathbb{R}$), 이들은 더 이상 2차원 평행사변형을 형성하지 않을 것이다. 
-그러므로 그때의 넓이는 0이다. 
+만약 $\boldsymbol{b}$와 $\boldsymbol{g}$가 linearly dependent이어서 $\boldsymbol{b}=\lambda \boldsymbol{g}$라면($\lambda \in \mathbb{R}$), 이들은 평행사변형을 형성하지 못 할 것인데, 그때의 넓이는 0이다. 
 반대로, 만약 $\boldsymbol{b}$, $\boldsymbol{g}$가 linearly independent이고 각각이 canonical basis 벡터 $\mathbf{e}_1$, $\mathbf{e}_2$의 배수라면, 이들은 다음과 같이 쓰여질 수 있다.
 
 $$\boldsymbol{b} = \begin{bmatrix}
@@ -130,14 +130,14 @@ $\mathbb{R}^3$에서는, 평행 육면체의 모서리를 span하는 세 가지 
 > 
 > 간단히 말해서, 두 벡터를 더한 후 매핑한 결과랑, 각각 매핑하고 더한 결과가 같으면 이 매핑은 linear mapping이다.
 > 
-> 내가 이해하기론 '선형 사상 = 행렬 곱' 이다.
+> 내가 이해하기론 '선형 사상한다 = 행렬 곱한다' 이다.
 
 모든 선형 사상은 ordered basis에 대해 고유한 변환 행렬(transformation matrix)를 갖는다.
 linear mapping과 이에 연관된 변환 행렬들은 "고유(eigen)" 분석을 하는 거라고 볼 수 있다.
-앞으로 살펴보겠지만, **고유벡터**(eigenvectors)라고 하는 특별한 벡터들이 선형 사상에 의해 어떻게 변형되는가를 **고유값**(eigenvalue)을 통해 알 수 있다.
+앞으로 살펴보겠지만, <u>**고유벡터**(eigenvectors)라고 하는 특별한 벡터들이 선형 사상에 의해 어떻게 변형되는가</u>를 **고유값**(eigenvalue)을 통해 알 수 있다.
 
 > **Definition 4.6.** $A \in \mathbb{R}^{n \times n}$를 정방행렬이라고 하자.
-> $A$가 $Ax=\lambda x$를 만족한다면, $\lambda \in \mathbb{R}$를 $A$의 고유값(eigenvalue)라고 부르고, $x \in \mathbb{R}^n \backslash \\left\\{ 0 \\right\\}$은 이에 상응하는 고유벡터(eigenvector)라고 부른다.
+> $A$가 $Ax=\lambda x$를 만족한다면, $\lambda \in \mathbb{R}$를 $A$의 고유값(eigenvalue)이라고 부르고, $x \in \mathbb{R}^n \backslash \\left\\{ 0 \\right\\}$은 이에 상응하는 고유벡터(eigenvector)라고 부른다.
 
 
 이를 고유값 방정식(eigenvalue equation)이라고 한다.
@@ -151,13 +151,13 @@ linear mapping과 이에 연관된 변환 행렬들은 "고유(eigen)" 분석을
 
 비고. 만약 $x$가 $A$의 고유벡터이고 $\lambda$가 고유값이라면, 어떠한 $c \in \mathbb{R} \backslash \\left\\{ 0 \\right\\}$에 대해서 $cx$는 A의 고유벡터이다.
 왜냐하면 $A(cx) = cAx = c \lambda x = c \lambda x = \lambda (cx)$, 즉 $A(cx) = \lambda (cx)$ (고유값 방정식 만족!)이기 때문이다.
-그러므로, x와 collinear 관계에 있는 모든 벡터들 또한 A의 고유벡터이다.
+그러므로, x와 collinear 관계에 있는 모든 벡터들 또한 $A$의 고유벡터이다.
 
-기하학적으로 0이 아닌 고유값에 대한 고유벡터는 선형 사상에 의해 고유값만큼 늘어난다(stretched). 그리고 고유벡터는 선형 사상 $\Phi$에 의해 방향이 변하지 않는 벡터이다. 
+기하학적으로 0이 아닌 고유값에 대한 고유벡터는 선형 사상에 의해 고유값만큼 늘어난다(stretched)고도 볼 수 있다. 그리고 고유벡터는 선형 사상 $\Phi$에 의해 방향이 변하지 않는 벡터이다. 
 
 행렬 $A$와 $A$의 전치행렬 $A^\top$는 같은 고유값을 갖는다. 하지만 반드시 같은 고유벡터를 갖지는 않는다!
 
-고유값, 고유벡터 계산를 계산해보자. 들어가기에 앞서, kernel(=null space)에 대한 정의 리마인드 해보자.
+고유값, 고유벡터 계산를 계산해보자.
 
 
 
@@ -188,7 +188,7 @@ linear mapping과 이에 연관된 변환 행렬들은 "고유(eigen)" 분석을
 > 즉, $\text{det}(A-\lambda I) = 0$ 식의 $\lambda$를 구하면 그 값이 고유값이다! 와우. 
 > 
 > 행렬 $A$의 특성 다항식은 $p_{A}(\lambda) := det(A - \lambda I)$로 정의된다. $\lambda$는 스칼라 값이다.
-> 특성다항식의 근은 행렬 $A$의 고유값이라는 것이다.
+> 즉, 특성다항식의 근은 행렬 $A$의 고유값이라는 것이다.
 > 
 > **Step 2: 고유값**
 > 
@@ -206,9 +206,12 @@ linear mapping과 이에 연관된 변환 행렬들은 "고유(eigen)" 분석을
 > 
 > $$\begin{bmatrix} 4 - 5 & 2 \\\\ 1 & 3 - 5 \end{bmatrix} \begin{bmatrix} x_1 \\\\ x_2 \end{bmatrix} = \begin{bmatrix} -1 & 2 \\\\ 1 & -2 \end{bmatrix} \begin{bmatrix} x_1 \\\\ x_2 \end{bmatrix} = \mathbf{0}$$
 > 
-> 이를 만족하는 $x$는 $x_1 = 2x_2$을 만족하는 $x = \begin{bmatrix} x_1 \\\\ x_2 \end{bmatrix}$라면, 예를 들면 $\begin{bmatrix} 2 \\\\ 1 \end{bmatrix}$같은 벡터가 모두 해가 된다. 
+> 이를 만족하는 $x$는 $x_1 = 2x_2$을 만족하는 $x = \begin{bmatrix} x_1 \\\\ x_2 \end{bmatrix}$라면, 예를 들면 $\begin{bmatrix} 2 \\\\ 1 \end{bmatrix}$, $\begin{bmatrix} 8 \\\\ 4 \end{bmatrix}$같은 벡터가 모두 해가 된다. 
 > 
 > $\lambda = 2$에 대해서도 똑같이 풀면, $x_1 = -x_2$을 만족하는 $x = \begin{bmatrix} x_1 \\\\ x_2 \end{bmatrix}$라면, 예를 들면 $\begin{bmatrix} 1 \\\\ -1 \end{bmatrix}$같은 벡터가 모두 해가 된다. 
 >
 > ![0](../../../static/img/monthly_pseudorec_202406/kyeongchan/compute_eigen.png)
+> 
+> 실제로 고유벡터를 행렬 $A$로 매핑하면, 길이만 $\lambda$만큼 변하는 것을 볼 수 있다.
+
 

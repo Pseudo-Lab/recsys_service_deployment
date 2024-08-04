@@ -12,6 +12,7 @@ from langchain.retrievers.contextual_compression import ContextualCompressionRet
 from langchain.retrievers.document_compressors import LLMChainFilter
 from langchain import hub
 from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.tools import DuckDuckGoSearchRun
 from langchain.memory import ConversationBufferWindowMemory
 from langchain_chroma import Chroma
@@ -20,15 +21,20 @@ from langchain.embeddings import OpenAIEmbeddings
 load_dotenv('.env.dev')
 openai_api_key = os.getenv('OPENAI_API_KEY')
 deepseek_api_key = os.getenv('DEEPSEEK_API_KEY')
+gemini_api_key = os.getenv('CHO_GOOGLE_API_KEY')
 # huggingface_api = os.getenv('HUGGINGFACE_CHO')
 
 # class 호출
-deepseek_llm = ChatOpenAI(
-    model='deepseek-chat',
-    openai_api_key=deepseek_api_key,
-    openai_api_base='https://api.deepseek.com/v1',
-    temperature=0.85,
-    max_tokens=800)
+# deepseek_llm = ChatOpenAI(
+#     model='deepseek-chat',
+#     openai_api_key=deepseek_api_key,
+#     openai_api_base='https://api.deepseek.com/v1',
+#     temperature=0.85,
+#     max_tokens=800)
+gemini_llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro-latest", 
+                                    api_key=gemini_api_key,
+                                    max_output_tokens=800,
+                                    temperature=0.85)
 search = DuckDuckGoSearchRun()
 memory = ConversationBufferWindowMemory(k=2,
                                         memory_key="chat_history",
@@ -36,6 +42,7 @@ memory = ConversationBufferWindowMemory(k=2,
 embed_model = OpenAIEmbeddings(model="text-embedding-ada-002")
 db = Chroma(persist_directory="llmrec/vector_dbs/gyungah", embedding_function=embed_model)
 retriever = db.as_retriever(search_kwargs={'k': 3})
+
 
 
 # 분류 봇
@@ -46,7 +53,7 @@ def classify_chain(question):
     classify_prompt = PromptTemplate.from_template(template_classify)
 
     try:
-        chain = classify_prompt | deepseek_llm | StrOutputParser()
+        chain = classify_prompt | gemini_llm | StrOutputParser()
         return chain.invoke({"question": question})
     except Exception as e:
         print(f"Error: {e}")
@@ -72,7 +79,7 @@ def chat_chain(question):
     ])
 
     try:
-        chain = RunnablePassthrough.assign(chat_history=load_memory) | chat_prompt | deepseek_llm
+        chain = RunnablePassthrough.assign(chat_history=load_memory) | chat_prompt | gemini_llm
         result = chain.invoke({"question": question})
         memory.save_context(
             {"input": question},
@@ -95,7 +102,7 @@ def react_search_chain(query):
     ]
 
     # 에이전트 생성
-    agent = create_react_agent(deepseek_llm, tools, react_prompt)
+    agent = create_react_agent(gemini_llm, tools, react_prompt)
 
     # executes the logical steps we created
     agent_executor = AgentExecutor(
@@ -103,7 +110,7 @@ def react_search_chain(query):
         tools=tools,
         verbose=True,
         handle_parsing_errors=True,
-        max_iterations=3  # useful when agent is stuck in a loop
+        max_iterations=1  # useful when agent is stuck in a loop
     )
 
     result = agent_executor.invoke({"input": query})
@@ -131,7 +138,7 @@ def search_chain(context, question):
     ])
 
     try:
-        chain = RunnablePassthrough.assign(chat_history=load_memory) | search_prompt | deepseek_llm
+        chain = RunnablePassthrough.assign(chat_history=load_memory) | search_prompt | gemini_llm
         result = chain.invoke({"question": question, "context": context})
         memory.save_context(
             {"input": question},
@@ -145,7 +152,7 @@ def search_chain(context, question):
 
 def contextual_compression_retriever(query):
     # LLM을 사용하여 LLMChainFilter 객체를 생성합니다.
-    _filter = LLMChainFilter.from_llm(deepseek_llm)
+    _filter = LLMChainFilter.from_llm(gemini_llm)
 
     compression_retriever = ContextualCompressionRetriever(
         # LLMChainFilter와 retriever를 사용하여 ContextualCompressionRetriever 객체를 생성합니다.
@@ -173,9 +180,9 @@ def react_agent_rag(query):
             description="영화 관련 추천 및 정보"
         )
     ]
-
+    
     # 에이전트 생성
-    agent = create_react_agent(deepseek_llm, tools, prompt)
+    agent = create_react_agent(gemini_llm, tools, prompt)
 
     # executes the logical steps we created
     agent_executor = AgentExecutor(
@@ -183,7 +190,7 @@ def react_agent_rag(query):
         tools=tools,
         verbose=True,
         handle_parsing_errors=True,
-        max_iterations=3  # useful when agent is stuck in a loop
+        max_iterations=1  # useful when agent is stuck in a loop
     )
 
     result = agent_executor.invoke({"input": query})
@@ -217,7 +224,7 @@ def rag_chain(context, question):
     ])
 
     try:
-        chain = RunnablePassthrough.assign(chat_history=load_memory) | search_prompt | deepseek_llm
+        chain = RunnablePassthrough.assign(chat_history=load_memory) | search_prompt | gemini_llm
         result = chain.invoke({"question": question, "context": context})
         memory.save_context(
             {"input": question},

@@ -377,8 +377,8 @@ def llmrec_kyeongchan(request):
         context = {
             'description1': "깃잔심팀 - LLM 영화 개인화 추천",
             # 'description2': "Self-Querying RAG 기법을 사용한 추천",
-            # 'initial_message': f'{username}의 취향을 분석 중입니다..',
-            'initial_message': '',
+            # 'initial_message': f'{username}의 취향을 분석 중입니다...',
+            'initial_message': "홈화면에서 좋아하는 영화 평점을 매긴 후, '봉준호 감독이 연출한 영화 추천해줘'와 같은 질문을 해보세요!<br>GEMINI API를 사용했습니다!",
             'watched_movie': interacted_movie_d
         }
         return render(request, "llmrec_kyeongchan.html", context)
@@ -489,6 +489,6 @@ def llmrec_gyungah(request):
     else:
         context = {
             'description1': "Gyungah's LLMREC",
-            'description2': "안녕하세요! 저는 PseudoRec에서 개발된 영화 추천 AI 장원영이에요!🎬✨ <br>귀엽고 긍정적인 말투로 여러분께 딱 맞는 영화를 추천해드릴게요! 🍿💖"
+            'description2': "안녕하세요! 저는 PseudoRec에서 개발된 영화 추천 AI 장원영이에요!🎬✨ <br>귀엽고 긍정적인 말투로 여러분께 딱 맞는 영화를 추천해드릴게요! 🍿💖<br>GEMINI API를 사용했습니다!"
         }
         return render(request, "llmrec.html", context)

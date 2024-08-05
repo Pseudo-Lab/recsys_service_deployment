@@ -3,6 +3,8 @@ import sys
 
 import pandas as pd
 
+from llmrec.utils.kyeongchan.utils import get_interacted_movie_ids, get_history_with_newline, get_sasrec_recomm_mids, \
+    get_recomm_movies_titles
 from movie.utils import get_user_logs_df
 
 sys.path.insert(0, '/Users/kyeongchanlee/PycharmProjects/recsys_service_deployment')
@@ -11,7 +13,6 @@ import os
 from typing import TypedDict, List
 import requests
 import json
-from langgraph.checkpoint import MemorySaver
 from langgraph.graph import END, StateGraph
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_openai import ChatOpenAI
@@ -19,17 +20,17 @@ from langchain_core.output_parsers import StrOutputParser
 
 from llmrec.utils.kyeongchan.search_engine import SearchManager
 from dotenv import load_dotenv
-
 from clients import MysqlClient
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 mysql = MysqlClient()
 
 load_dotenv('.env.dev')
 
-# os.environ["KC_TMDB_READ_ACCESS_TOKEN"] = ""
-# os.environ["OPENAI_API_KEY"] = ''
 
-llm = ChatOpenAI(model_name="gpt-4o")
+# llm = ChatOpenAI(model_name="gpt-4o")
+llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro-latest", api_key=os.getenv('KYEONGCHAN_GEMINI_API_KEY'))
+
 
 
 class GraphState(TypedDict):
@@ -108,7 +109,7 @@ def ask_only_movie(state: StateGraph):
 
 
 def meta_detection(state: GraphState) -> GraphState:
-    # print(f"Self-Querying".center(60, '-'))
+    print(f"Mete detection(self-querying)".center(60, '-'))
     question = state['question']
     system_template = """
 Your goal is to structure the user's query to match the request schema provided below.
@@ -278,6 +279,7 @@ Structured Request:
     chain = chat_prompt | llm | StrOutputParser()
     response = chain.invoke({"question": question})
     response = response.replace('```', '').replace('json', '')
+    print(f"response : {response}")
     response_dic = json.loads(response)
     state['query'] = response_dic['query']
     state['filter'] = response_dic['filter']
@@ -298,7 +300,7 @@ def self_query_retrieval_yes_or_no(state: GraphState):
 
 
 def self_query_retrieval(state: GraphState) -> GraphState:
-    # print(f"self_query_retrieval".center(60, '-'))
+    print(f"Self-Querying Retrieval".center(60, '-'))
     question = state['question']
     search_manager = SearchManager(
         api_key=os.getenv("OPENAI_API_KEY"),
@@ -309,19 +311,34 @@ def self_query_retrieval(state: GraphState) -> GraphState:
     search_manager.add_engine("self")
     context = search_manager.search_all(question)
     state['candidate'] = context['self']
-    # if state['candidate']:
-    #     print(f"state['candidate'] : ")
-    #     for ci, candidate_movie in enumerate(state['candidate'], start=1):
-    #         print(f"{ci}. {candidate_movie['metadata']['titleKo']}({candidate_movie['metadata']['titleEn']})")
-    #         print(f"Lead Roles : {', '.join(candidate_movie['metadata']['lead_role_etd_str'])}")
-    #         print(f"Director : {', '.join(candidate_movie['metadata']['director_etd_str'])}")
-    #         print()
+    if state['candidate']:
+        print(f"state['candidate'] : ")
+        for ci, candidate_movie in enumerate(state['candidate'], start=1):
+            print(f"{ci}. {candidate_movie['metadata']['titleKo']}({candidate_movie['metadata']['titleEn']})")
+            print(f"Lead Roles : {', '.join(candidate_movie['metadata']['lead_role_etd_str'])}")
+            print(f"Director : {', '.join(candidate_movie['metadata']['director_etd_str'])}")
+            print()
 
     return state
 
 
 def call_sasrec(state: GraphState):
-    pass
+    print(f"Get SASRec candidates' info".center(60, '-'))
+    user_logs_df = get_user_logs_df(state['username'], None)
+    history_mids = get_interacted_movie_ids(user_logs_df)
+
+    # SASRec 추천 결과
+    sasrec_recomm_mids = get_sasrec_recomm_mids(history_mids)
+    sasrec_recomm_mids = [mid for mid in sasrec_recomm_mids if mid not in [int(_) for _ in history_mids]]  # 봤던 영화 제거
+    candidates_lst = get_recomm_movies_titles(sasrec_recomm_mids)
+
+    print(f"sasrec_recomm_mids : {sasrec_recomm_mids}")
+    print(f"candidates_lst : {candidates_lst}")
+
+
+
+
+    return state
 
 
 def meta_detection_yes_or_no(state: GraphState):
@@ -427,16 +444,23 @@ HISTORY:
 
 OUTPUT:"""
 
+    # chat_prompt = ChatPromptTemplate.from_messages(
+    #     [
+    #         SystemMessagePromptTemplate.from_template(system_template),
+    #     ]
+    # )
+    # chain = chat_prompt | llm | StrOutputParser()
+    # response = chain.invoke({'history': history, 'username': state['username']})
+
     chat_prompt = ChatPromptTemplate.from_messages(
         [
             SystemMessagePromptTemplate.from_template(system_template),
         ]
     )
-    # messages = chat_prompt.format_messages(username=state['username'], history=history)
-    # print(f"messages : {messages}")
-    chain = chat_prompt | llm | StrOutputParser()
-    response = chain.invoke({'history': history, 'username': state['username']})
-    state['profile'] = response
+    formatted_prompt = chat_prompt.format(username=state['username'], history=history)
+    response = llm.invoke(formatted_prompt)
+
+    state['profile'] = response.content
     print(f"User's Preference : {state['profile']}")
 
     return state
@@ -471,7 +495,7 @@ def get_user_history(state: GraphState):
 
 
 def get_candidate_movie_info_from_tmdb(state: GraphState):
-    print(f"Get Self-Querying candidates' info".center(60, '-'))
+    print(f"Get candidate's movie info from TMDB".center(60, '-'))
     # recommend_movies = ['기생충', '더 킹', '남한산성', '더 서클', '히트맨', '살아있다', '범죄도시2']
     candidates = []
     for candidate in state['candidate']:
@@ -567,15 +591,27 @@ OUTPUT:
         ]
     )
     chain = chat_prompt | llm | StrOutputParser()
-    answer = chain.invoke(
-        {
-            'user_preference': state['profile'],
-            'username': state['username'],
-            'candidates': '\n'.join(map(str, state['candidate'])),
-            'query': state['query']
-        }
+    # answer = chain.invoke(
+    #     {
+    #         'user_preference': state['profile'],
+    #         'username': state['username'],
+    #         'candidates': '\n'.join(map(str, state['candidate'])),
+    #         'query': state['query']
+    #     }
+    # )
+    chat_prompt = ChatPromptTemplate.from_messages(
+        [
+            SystemMessagePromptTemplate.from_template(system_template),
+        ]
     )
-    # print(f"answer : {answer}")
+    formatted_prompt = chat_prompt.format(user_preference=state['profile'],
+                                          username=state['username'],
+                                          candidates='\n'.join(map(str, state['candidate'])),
+                                          query=state['query']
+                                          )
+    response = llm.invoke(formatted_prompt)
+    answer = response.content
+    print(f"answer : {answer}")
     answer = answer.replace("```json", "").replace("```", "")
     answer = answer.replace("reasons", "reason")
     # print(f"answer : {answer}")
@@ -662,7 +698,8 @@ def get_movie_info_by_name(state: GraphState):
     state['name'] = name
     return state
 
-def post_process_answer(state : GraphState):
+
+def post_process_answer(state: GraphState):
     # print(f"post_process_answer".center(60, '-'))
     # print(f"state['answer'] : {state['answer']}")
     # print(f"type(state['answer']) : {type(state['answer'])}")
@@ -716,8 +753,6 @@ def post_process_answer(state : GraphState):
     state['final_answer'] = final_answer
 
     return state
-
-
 
 
 workflow = StateGraph(GraphState)

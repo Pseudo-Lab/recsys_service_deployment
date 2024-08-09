@@ -23,11 +23,17 @@ main {
     margin-bottom: 20px;
 }
 
-.center-main-field li {
+/* ol 및 ul 바로 아래 있는 li 요소에 대해 각각 스타일 지정 */
+.center-main-field ol > li {
     margin-top: 10px;
     font-size: 18px;
-    list-style: disc;
+    list-style-type: decimal;
+}
 
+.center-main-field ul > li {
+    margin-top: 10px;
+    font-size: 18px;
+    list-style-type: disc;
 }
 
 

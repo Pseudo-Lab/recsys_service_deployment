@@ -485,7 +485,14 @@ def get_user_history(state: GraphState):
     user_logs_df = get_user_logs_df(username, None)
     # print(user_logs_df)
     # user_history = ['아바타', '알라딘', '승리호']
+
+    if not len(user_logs_df):
+        print(f"No histories")
+        state['history'] = None
+        return state
     user_history = user_logs_df['titleKo'].tolist()
+
+
     print(f"user_history : {user_history}")
     history = []
     for h in user_history:
@@ -783,6 +790,22 @@ def post_process_answer(state: GraphState):
 
     return state
 
+def out_no_history(state):
+    print(f"out_no_history".center(60, '-'))
+    response = llm.invoke(input=f"You are a Movie Curator. Say sorry mention to {state['username']} that his/her history interactions of movies are not found. Tell them that go to home and rate or click some movies and comeback to analyze his/her preference. No other mentions. Utter their name. Only speak in Korean.")
+    state['final_answer'] = (
+            response.content +
+            "<br><br>" +
+            "<a href='https://www.pseudorec.com/'><strong>홈화면 바로가기</strong></a>")
+    return state
+
+def exist_history(state):
+    if state['history'] is None:
+        return 'NO'
+    else:
+        return 'YES'
+
+
 
 workflow = StateGraph(GraphState)
 
@@ -797,6 +820,7 @@ workflow.add_node("meta_detection", meta_detection)
 workflow.add_node("call_sasrec", call_sasrec)
 workflow.add_node("self_query_retrieval", self_query_retrieval)
 workflow.add_node("post_process_answer", post_process_answer)
+workflow.add_node("out_no_history", out_no_history)
 
 workflow.add_conditional_edges(
     'is_recommend',
@@ -807,7 +831,18 @@ workflow.add_conditional_edges(
     }
 )
 workflow.add_edge("ask_only_movie", END)
-workflow.add_edge("get_user_history", "user_profile")
+# workflow.add_edge("get_user_history", "user_profile")
+workflow.add_conditional_edges(
+    'get_user_history',
+    exist_history,
+    {
+        'YES': 'user_profile',
+        'NO': 'out_no_history',
+    }
+)
+workflow.add_edge('out_no_history', END)
+
+
 workflow.add_edge("user_profile", "meta_detection")
 workflow.add_conditional_edges(
     'meta_detection',

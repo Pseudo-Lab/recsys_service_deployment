@@ -373,14 +373,26 @@ def llmrec_kyeongchan(request):
     if request.method == 'GET':
         log_tracking(request=request, view='kyeongchan')
         user_logs_df = get_user_logs_df(username, session_id)
-        interacted_movie_d = get_interacted_movie_dicts(user_logs_df)
-        context = {
-            'description1': "깃잔심팀 - LLM 영화 개인화 추천",
-            # 'description2': "Self-Querying RAG 기법을 사용한 추천",
-            # 'initial_message': f'{username}의 취향을 분석 중입니다...',
-            'initial_message': "홈화면에서 좋아하는 영화 평점을 매긴 후 질문을 해보세요! 최근에 별점을 매겼거나 클릭한 영화를 기반으로 개인화 추천을 합니다.<br>감독 또는 배우의 이름, 시놉시스를 언급해주시면 답변을 잘합니다!<br><br>예시) 봉준호 감독이 연출한 영화 추천해줘<br>예시) 레오나르도 디카프리오가 출연한 영화 추천해줘",
-            'watched_movie': interacted_movie_d
-        }
+        print(f"user_logs_df : \n{user_logs_df}")
+        if len(user_logs_df):
+            interacted_movie_d = get_interacted_movie_dicts(user_logs_df)
+            context = {
+                'description1': "깃잔심팀 - LLM 영화 개인화 추천",
+                # 'description2': "Self-Querying RAG 기법을 사용한 추천",
+                # 'initial_message': f'{username}의 취향을 분석 중입니다...',
+                'initial_message': "홈화면에서 좋아하는 영화 평점을 매긴 후 질문을 해보세요! 최근에 별점을 매겼거나 클릭한 영화를 기반으로 개인화 추천을 합니다.<br>감독 또는 배우의 이름, 시놉시스를 언급해주시면 답변을 잘합니다!<br><br>예시) 봉준호 감독이 연출한 영화 추천해줘<br>예시) 레오나르도 디카프리오가 출연한 영화 추천해줘",
+                'watched_movie': interacted_movie_d
+            }
+        else:
+            context = {
+                'description1': "깃잔심팀 - LLM 영화 개인화 추천",
+                # 'description2': "Self-Querying RAG 기법을 사용한 추천",
+                # 'initial_message': f'{username}의 취향을 분석 중입니다...',
+                'initial_message': "홈화면에서 좋아하는 영화 평점을 매긴 후 질문을 해보세요! 최근에 별점을 매겼거나 클릭한 영화를 기반으로 개인화 추천을 합니다.<br>감독 또는 배우의 이름, 시놉시스를 언급해주시면 답변을 잘합니다!<br><br>예시) 봉준호 감독이 연출한 영화 추천해줘<br>예시) 레오나르도 디카프리오가 출연한 영화 추천해줘",
+                'watched_movie': []
+            }
+
+
         return render(request, "llmrec_kyeongchan.html", context)
     else:
         data = json.loads(request.body.decode('utf-8'))

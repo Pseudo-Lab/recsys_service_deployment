@@ -28,8 +28,8 @@ mysql = MysqlClient()
 load_dotenv('.env.dev')
 
 
-# llm = ChatOpenAI(model_name="gpt-4o")
-llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro-latest", api_key=os.getenv('KYEONGCHAN_GEMINI_API_KEY'))
+llm = ChatOpenAI(model_name="gpt-4o-mini")
+# llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro-latest", api_key=os.getenv('KYEONGCHAN_GEMINI_API_KEY'))
 
 
 
@@ -280,7 +280,14 @@ Structured Request:
     response = chain.invoke({"question": question})
     response = response.replace('```', '').replace('json', '')
     print(f"response : {response}")
-    response_dic = json.loads(response)
+    try:
+        response_dic = json.loads(response)
+    except json.decoder.JSONDecodeError:
+        apostrophe_fixed_response = llm.invoke(input=f"""Fix this json's double quotation marks to apostrophe to be used for json.loads(). Use double quotation marks to keys, aphostrophe to value's inner, double quotation marks to value's outer. No other answers.\n\n{response}""").content
+        apostrophe_fixed_response = apostrophe_fixed_response.replace('```', '').replace('json', '')
+        print(f"apostrophe_fixed_response : {apostrophe_fixed_response}")
+        response_dic = json.loads(apostrophe_fixed_response)
+
     state['query'] = response_dic['query']
     state['filter'] = response_dic['filter']
     # print(f"state['query'] : {state['query']}")
@@ -436,7 +443,7 @@ HISTORY:
 {{'movie': '1987', 'genres': ['드라마', '역사', '스릴러'], 'keyword': ["students' movement", "protest", "democracy", "military dictatorship", "historical event", "student protest", "communism", "1980s", "democratization movement", "south korea", "seoul, south korea"]}}
 
 OUTPUT:
-{username}님은 감정적으로 깊이 있는 드라마와 긴장감 넘치는 스릴러를 선호하며, 특히 실제 역사적 사건이나 정치적 음모, 권력 다툼 등을 다루는 영화를 좋아합니다. 1970년대와 1980년대의 한국 역사에 큰 관심을 가지고 있으며, 민주화 운동과 저항 같은 주제를 매우 흥미로워합니다. 또한, 한국을 배경으로 하는 영화뿐만 아니라 국제적 배경이 포함된 영화에도 관심이 있습니다.
+{username}님의 최근 감상작들을 분석해 보았을 때, 감정적으로 깊이 있는 드라마와 긴장감 넘치는 스릴러를 선호하며, 특히 실제 역사적 사건이나 정치적 음모, 권력 다툼 등을 다루는 영화를 좋아합니다. 1970년대와 1980년대의 한국 역사에 큰 관심을 가지고 있으며, 민주화 운동과 저항 같은 주제를 매우 흥미로워합니다. 또한, 한국을 배경으로 하는 영화뿐만 아니라 국제적 배경이 포함된 영화에도 관심이 있습니다.
 
 
 HISTORY:
@@ -444,36 +451,42 @@ HISTORY:
 
 OUTPUT:"""
 
-    # chat_prompt = ChatPromptTemplate.from_messages(
-    #     [
-    #         SystemMessagePromptTemplate.from_template(system_template),
-    #     ]
-    # )
-    # chain = chat_prompt | llm | StrOutputParser()
-    # response = chain.invoke({'history': history, 'username': state['username']})
-
+    # OpenAI ####################################################################################
     chat_prompt = ChatPromptTemplate.from_messages(
         [
             SystemMessagePromptTemplate.from_template(system_template),
         ]
     )
-    formatted_prompt = chat_prompt.format(username=state['username'], history=history)
-    response = llm.invoke(formatted_prompt)
+    chain = chat_prompt | llm | StrOutputParser()
+    response = chain.invoke({'history': history, 'username': state['username']})
+    state['profile'] = response
+    # OpenAI ####################################################################################
 
-    state['profile'] = response.content
+    # GEMINI ####################################################################################
+    # chat_prompt = ChatPromptTemplate.from_messages(
+    #     [
+    #         SystemMessagePromptTemplate.from_template(system_template),
+    #     ]
+    # )
+    # formatted_prompt = chat_prompt.format(username=state['username'], history=history)
+    # response = llm.invoke(formatted_prompt)
+    # state['profile'] = response.content
+    # GEMINI ####################################################################################
+
+
     print(f"User's Preference : {state['profile']}")
 
     return state
 
 
 def get_user_history(state: GraphState):
-    # print(f"get_user_history".center(60, '-'))
+    print(f"get_user_history".center(60, '-'))
     username = state['username']
     user_logs_df = get_user_logs_df(username, None)
     # print(user_logs_df)
     # user_history = ['아바타', '알라딘', '승리호']
     user_history = user_logs_df['titleKo'].tolist()
-    # print(f"user_history : {user_history}")
+    print(f"user_history : {user_history}")
     history = []
     for h in user_history:
         dic_ = {}
@@ -483,13 +496,13 @@ def get_user_history(state: GraphState):
         dic_['keyword'] = get_keyword_by_movie_id(movie_id)
         history.append(dic_)
     state['history'] = history
-    # if state['history']:
-    #     print(f"state['history'] : ")
-    #     for wi, watched_movie in enumerate(state['history'], start=1):
-    #         print(f"{wi}. {watched_movie['movie']}")
-    #         print(f"genres : {', '.join(watched_movie['genres'])}")
-    #         print(f"keyword : {', '.join(watched_movie['keyword'][:5])}, ...")
-    #         print()
+    if state['history']:
+        print(f"state['history'] : ")
+        for wi, watched_movie in enumerate(state['history'], start=1):
+            print(f"{wi}. {watched_movie['movie']}")
+            print(f"genres : {', '.join(watched_movie['genres'])}")
+            print(f"keyword : {', '.join(watched_movie['keyword'][:5])}, ...")
+            print()
 
     return state
 
@@ -585,12 +598,26 @@ USER PREFERENCE:
 
 OUTPUT:
 """
+    # OpenAI ##############################################################################
     chat_prompt = ChatPromptTemplate.from_messages(
         [
             SystemMessagePromptTemplate.from_template(system_template),
         ]
     )
     chain = chat_prompt | llm | StrOutputParser()
+    answer = chain.invoke(
+        {
+            'user_preference': state['profile'],
+            'username': state['username'],
+            'candidates': '\n'.join(map(str, state['candidate'])),
+            'query': state['query']
+        }
+    )
+    answer = answer.replace("```json", "").replace("```", "")
+    answer = answer.replace("reasons", "reason")
+    # OpenAI ##############################################################################
+
+    # GEMINI ##############################################################################
     # answer = chain.invoke(
     #     {
     #         'user_preference': state['profile'],
@@ -599,18 +626,20 @@ OUTPUT:
     #         'query': state['query']
     #     }
     # )
-    chat_prompt = ChatPromptTemplate.from_messages(
-        [
-            SystemMessagePromptTemplate.from_template(system_template),
-        ]
-    )
-    formatted_prompt = chat_prompt.format(user_preference=state['profile'],
-                                          username=state['username'],
-                                          candidates='\n'.join(map(str, state['candidate'])),
-                                          query=state['query']
-                                          )
-    response = llm.invoke(formatted_prompt)
-    answer = response.content
+    # chat_prompt = ChatPromptTemplate.from_messages(
+    #     [
+    #         SystemMessagePromptTemplate.from_template(system_template),
+    #     ]
+    # )
+    # formatted_prompt = chat_prompt.format(user_preference=state['profile'],
+    #                                       username=state['username'],
+    #                                       candidates='\n'.join(map(str, state['candidate'])),
+    #                                       query=state['query']
+    #                                       )
+    # response = llm.invoke(formatted_prompt)
+    # answer = response.content
+    # GEMINI ##############################################################################
+
     print(f"answer : {answer}")
     answer = answer.replace("```json", "").replace("```", "")
     answer = answer.replace("reasons", "reason")

@@ -51,7 +51,7 @@ def download_vectordb():
         os.makedirs('pytorch_models/ngcf')
     print(f"Download soonhyeok's NGCF item embedding vector faiss db & files...")
     make_dir_n_download(s3=s3, bucket='pseudorec-data', key='soonhyeok/ngcf-item-embed.index',
-                        dir='pytorch_models/ngcf/ngcf-item-embed.index', filename='ngcf-item-embed.index')
+                        dir='pytorch_models/ngcf', filename='ngcf-item-embed.index')
 
 if __name__ == "__main__":
     print(os.getcwd())

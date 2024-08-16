@@ -13,6 +13,7 @@ from clients import MysqlClient
 from db_clients.dynamodb import DynamoDBClient
 from movie.models import DaumMovies
 from movie.predictors.mf_predictor import mf_predictor
+from movie.predictors.ngcf_predictor_embed import ngcf_predictor
 from movie.utils import add_past_rating, add_rank, get_username_sid, get_user_logs_df, \
     log_tracking, get_interacted_movie_dicts
 from utils.pop_movies import get_pop
@@ -120,42 +121,42 @@ def sasrec(request):
 
 def ngcf(request):
     print(f"movie/ngcf view".ljust(100, '>'))
-    # log_tracking(request=request, view='ngcf')
-    # username, session_id = get_username_sid(request, _from='movie/ngcf')
-    # user_logs_df = get_user_logs_df(username, session_id)
-    #
-    # if len(user_logs_df):  # 클릭로그 있을 때
-    #     interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
-    #     interacted_movie_obs = get_interacted_movie_obs(interacted_movie_ids)
-    #
-    #     ngcf_recomm_mids = ngcf_predictor.predict(interacted_items=interacted_movie_ids)
-    #     ngcf_recomm = list(DaumMovies.objects.filter(movieid__in=ngcf_recomm_mids).values())
-    #
-    #     # context 구성
-    #     context = {
-    #         'ngcf_on': True,
-    #         'movie_list': add_rank(add_past_rating(username=username,
-    #                                                session_id=session_id,
-    #                                                recomm_result=ngcf_recomm
-    #                                                )),
-    #         'watched_movie': interacted_movie_obs,
-    #         'description1': 'NGCF 추천 영화',
-    #         'description2': "NGCF 추천결과입니다"
-    #                         "<br>구현한 사람 : 박순혁"
-    #                         "<br><a href='https://www.pseudorec.com/archive/paper_review/2/'>논문리뷰 보러가기↗</a>"
-    #     }
-    #     return render(request, "home.html", context=context)
-    # else:
-    context = {
-        'movie_list': [],
-        'ngcf_on': True,
-        'description1': 'NGCF 추천 영화',
-        # 'description2': '기록이 없어 추천할 수 없습니다!'
-        #                 '<br>인기 영화에서 평점을 매기거나 포스터 클릭 기록을 남겨주세요!'
-        'description2': "배포 준비 중입니다. 🥹 추론 시간 최적화 작업 중입니다!"
-                        "<br>담당자 : 박순혁"
-                        "<br>🔗 <a href='https://www.pseudorec.com/archive/paper_review/2/' target='_blank'>NGCF 논문리뷰 ↗</a>"
-    }
+    log_tracking(request=request, view='ngcf')
+    username, session_id = get_username_sid(request, _from='movie/ngcf')
+    user_logs_df = get_user_logs_df(username, session_id)
+    
+    if len(user_logs_df):  # 클릭로그 있을 때
+        interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
+        interacted_movie_dicts = get_interacted_movie_dicts(user_logs_df)
+    
+        ngcf_recomm_mids = ngcf_predictor.predict(interacted_items=interacted_movie_ids)
+        ngcf_recomm = list(DaumMovies.objects.filter(movieid__in=ngcf_recomm_mids).values())
+    
+        # context 구성
+        context = {
+            'ngcf_on': True,
+            'movie_list': add_rank(add_past_rating(username=username,
+                                                   session_id=session_id,
+                                                   recomm_result=ngcf_recomm
+                                                   )),
+            'watched_movie': interacted_movie_dicts,
+            'description1': 'NGCF 추천 영화',
+            'description2': "NGCF 추천결과입니다"
+                            "<br>구현한 사람 : 박순혁"
+                            "<br><a href='https://www.pseudorec.com/archive/paper_review/2/'>논문리뷰 보러가기↗</a>"
+        }
+        return render(request, "home.html", context=context)
+    else:
+        context = {
+            'movie_list': [],
+            'ngcf_on': True,
+            'description1': 'NGCF 추천 영화',
+            # 'description2': '기록이 없어 추천할 수 없습니다!'
+            #                 '<br>인기 영화에서 평점을 매기거나 포스터 클릭 기록을 남겨주세요!'
+            'description2': "배포 준비 중입니다. 🥹 추론 시간 최적화 작업 중입니다!"
+                            "<br>담당자 : 박순혁"
+                            "<br>🔗 <a href='https://www.pseudorec.com/archive/paper_review/2/' target='_blank'>NGCF 논문리뷰 ↗</a>"
+        }
     return render(request, "home.html", context=context)
 
 

@@ -46,7 +46,12 @@ def download_vectordb():
     print(f"Download Gyungah's vector db & files...")
     make_dir_n_download(s3=s3, bucket='pseudorec-data', key='gyungah/chroma.sqlite3',
                         dir='llmrec/vector_dbs/gyungah', filename='chroma.sqlite3')
-
+    
+    if not os.path.exists('pytorch_models/ngcf'):
+        os.makedirs('pytorch_models/ngcf')
+    print(f"Download soonhyeok's NGCF item embedding vector faiss db & files...")
+    make_dir_n_download(s3=s3, bucket='pseudorec-data', key='soonhyeok/ngcf-item-embed.index',
+                        dir='pytorch_models/ngcf/ngcf-item-embed.index', filename='ngcf-item-embed.index')
 
 if __name__ == "__main__":
     print(os.getcwd())

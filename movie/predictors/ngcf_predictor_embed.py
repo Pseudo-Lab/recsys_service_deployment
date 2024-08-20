@@ -21,12 +21,15 @@ from pytorch_models.ngcf.utility.batch_test import *
 
 import pytorch_models.Data.daum.train_test_split as ts
 
+# import sys
+# sys.path.append("recsys_service_deployment/pytorch_models/ngcf")
+
 class NgcfPredictor:
     def __init__(self):
         self.args = parse_args()
         self.device = 'cpu'
         self.num_recommendations = 20
-        self.index_path = "/recsys_service_deployment/pytorch_models/ngcf/ngcf-item-embed.index"
+        self.index_path = "/pytorch_models/ngcf/ngcf-item-embed.index"
 
 
     def predict(self, interacted_items):
@@ -42,8 +45,9 @@ class NgcfPredictor:
         # 비회원 데이터 적재 X
 
 
-        user_id = len(ts.user_encoder)
-        item_num = len(ts.item_encoder)
+        user_id = len(ts.user_encoder) + 1
+        item_num = len(ts.item_encoder) + 1
+        print("user_id : ", user_id)
 
         # data_generator.train_items[user_id - 1] = interacted_items
 
@@ -70,9 +74,9 @@ class NgcfPredictor:
         item_embeddings_avg = item_embeddings.sum(dim=0)/len(item_embeddings)
         item_embeddings_avg = item_embeddings_avg.detach().numpy()
 
-        _, cand_item_embeddings, _ = model(
-            data_generator.g, "user", "item", [], candidate_items, []
-        )
+        # _, cand_item_embeddings, _ = model(
+        #     data_generator.g, "user", "item", [], candidate_items, []
+        # )
         
         # faiss vector db load
         index = faiss.read_index(self.index_path)

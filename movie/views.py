@@ -143,7 +143,7 @@ def ngcf(request):
             'description1': 'NGCF 추천 영화',
             'description2': "NGCF 추천결과입니다"
                             "<br>구현한 사람 : 박순혁"
-                            "<br><a href='https://www.pseudorec.com/archive/paper_review/2/'>논문리뷰 보러가기↗</a>"
+                            "<br>🔗 <a href='https://www.pseudorec.com/archive/paper_review/2/'>논문리뷰 보러가기↗</a>"
         }
         return render(request, "home.html", context=context)
     else:
@@ -151,9 +151,8 @@ def ngcf(request):
             'movie_list': [],
             'ngcf_on': True,
             'description1': 'NGCF 추천 영화',
-            # 'description2': '기록이 없어 추천할 수 없습니다!'
-            #                 '<br>인기 영화에서 평점을 매기거나 포스터 클릭 기록을 남겨주세요!'
-            'description2': "배포 준비 중입니다. 🥹 추론 시간 최적화 작업 중입니다!"
+            'description2': '기록이 없어 추천할 수 없습니다!'
+                            '<br>인기 영화에서 평점을 매기거나 포스터 클릭 기록을 남겨주세요!'
                             "<br>담당자 : 박순혁"
                             "<br>🔗 <a href='https://www.pseudorec.com/archive/paper_review/2/' target='_blank'>NGCF 논문리뷰 ↗</a>"
         }

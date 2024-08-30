@@ -4,6 +4,7 @@
 
 > 본 게시글은 <a href="https://product.kyobobook.co.kr/detail/S000003103258" target="_blank" style="text-decoration: underline;">**Mathematics of Machine Learning ↗**</a> 책을 번역하였습니다. 복습 시 한 호흡에 읽히도록 필요한 부분만 개인적인 해석을 달아 정리해 놓는 것이 이 글의 목적입니다.
 
+
 Collaborative Filtering(CF)는 가장 대표적인 추천시스템입니다. CF는 이웃 기반 방법과 Latent Factor 방식으로 나뉩니다.
 저는 ‘Mathematics of Machine Learning’ 책을 학교에서 배울 때 Matrix Decomposition이 추천시스템의 Latent Factor 부분에 대해 살짝 다룬다는 걸 알고 있었는데,
 이번 기회에 Matrix Decomposition이 어떻게 추천시스템으로 쓰일 수 있는지에 대한 이론적 배경을 정리해보려 합니다. 4챕터 Matrix Decomposition 부분을 번역합니다.
@@ -135,6 +136,7 @@ $\mathbb{R}^3$에서는, 평행 육면체의 모서리를 span하는 세 가지 
 모든 선형 사상은 ordered basis에 대해 고유한 변환 행렬(transformation matrix)를 갖는다.
 linear mapping과 이에 연관된 변환 행렬들은 "고유(eigen)" 분석을 하는 거라고 볼 수 있다.
 앞으로 살펴보겠지만, <u>**고유벡터**(eigenvectors)라고 하는 특별한 벡터들이 선형 사상에 의해 어떻게 변형되는가</u>를 **고유값**(eigenvalue)을 통해 알 수 있다.
+'Eigen'이라는 단어는 독일어로 '특징적인(characteristic)' 또는 '자기 자신의(self or own)'라는 뜻이라고 한다ㅏ.
 
 > **Definition 4.6.** $A \in \mathbb{R}^{n \times n}$를 정방행렬이라고 하자.
 > $A$가 $Ax=\lambda x$를 만족한다면, $\lambda \in \mathbb{R}$를 $A$의 고유값(eigenvalue)이라고 부르고, $x \in \mathbb{R}^n \backslash \\left\\{ 0 \\right\\}$은 이에 상응하는 고유벡터(eigenvector)라고 부른다.

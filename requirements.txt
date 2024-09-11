@@ -38,7 +38,6 @@ debugpy==1.8.5
 decorator==5.1.1
 defusedxml==0.7.1
 Deprecated==1.2.14
-dgl==2.2.1 --find-links https://data.dgl.ai/wheels/repo.html
 distro==1.9.0
 Django==5.1
 django-allauth==64.0.0

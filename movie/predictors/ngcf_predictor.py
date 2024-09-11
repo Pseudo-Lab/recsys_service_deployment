@@ -9,21 +9,32 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+import pickle
+
 from collections import OrderedDict
-import pytorch_models.ngcf.model
+
 from pytorch_models.ngcf.model import NGCF
 from pytorch_models.ngcf.utility.parser import parse_args
 
-import pytorch_models.ngcf.utility.metrics as metrics
-from pytorch_models.ngcf.utility.load_data import *
-from pytorch_models.ngcf.utility.batch_test import *
 
-import pytorch_models.Data.daum.train_test_split as ts
+#%% user, item enc, dec load
+with open("pytorch_models/ngcf/pickle/user_encoder.pickle","rb") as fd:
+    user_encoder = pickle.load(fd)
+    
+with open("pytorch_models/ngcf/pickle/user_decoder.pickle","rb") as f:
+    user_decoder = pickle.load(f)
+    
+with open("pytorch_models/ngcf/pickle/item_encoder.pickle","rb") as fs:
+    item_encoder = pickle.load(fs)
+    
+with open("pytorch_models/ngcf/pickle/item_decoder.pickle","rb") as fe:
+    item_decoder = pickle.load(fe)
 
+#%% predictor class
 class NgcfPredictor:
     def __init__(self):
         self.args = parse_args()
-        self.device = 'cpu'
+        self.device = 'cuda'
         self.num_recommendations = 30
         self.num_epochs = 10
 
@@ -74,13 +85,23 @@ class NgcfPredictor:
         user_id = new_num_user + 1
         print(user_id)
         """
-        interacted_items = [ts.item_encoder[i] for i in interacted_items]
+        # model_state_dict = torch.load("pytorch_models/ngcf/model/NGCF.pkl", map_location="cpu")
+        # print("model_state_dict : ", model_state_dict)
+        
+        # model.load_state_dict(model_state_dict)
+        
+        interacted_items = [item_encoder[i] for i in interacted_items]
         # 비회원 데이터 적재 X
-        user_id = len(ts.user_encoder) + 1
-        item_num = len(ts.item_encoder)
+        user_id = len(user_encoder) + 1
+        item_num = len(item_encoder)
 
-        data_generator.train_items[user_id - 1] = interacted_items
-
+        # data_generator.train_items[user_id - 1] = interacted_items
+        # with open("pytorch_models/ngcf/data_generator.pickle","rb") as f:
+        #     graph = pickle.load(f)
+        with open("pytorch_models/ngcf/pickle/user_item_dst.pickle","rb") as f:
+            user_item_dst = pickle.load(f)
+        with open("pytorch_models/ngcf/pickle/user_item_src.pickle","rb") as fd:
+            user_item_src = pickle.load(fd)
         new_user_item_dst = interacted_items
         new_user_item_src = [user_id - 1] * len(new_user_item_dst)
         user_selfs = list(range(user_id))
@@ -89,27 +110,29 @@ class NgcfPredictor:
             ("user", "user_self", "user"): (user_selfs, user_selfs),
             ("item", "item_self", "item"): (item_selfs, item_selfs),
             ("user", "ui", "item"): (
-                data_generator.user_item_src + new_user_item_src,
-                data_generator.user_item_dst + new_user_item_dst
+                user_item_src + new_user_item_src,
+                user_item_dst + new_user_item_dst
             ),
             ("item", "iu", "user"): (
-                data_generator.user_item_dst + new_user_item_dst,
-                data_generator.user_item_src + new_user_item_src
+                user_item_dst + new_user_item_dst,
+                user_item_src + new_user_item_src
             ),
         }
+    
         num_dict = {"user": user_id, "item": item_num}
 
-        data_generator.g = dgl.heterograph(data_dict, num_nodes_dict=num_dict)
-
+        graph = dgl.heterograph(data_dict, num_nodes_dict=num_dict)
+        graph = graph.to(torch.device(self.device))
+        
         model = NGCF(
-            data_generator.g, 64, [64, 64, 64], [0.1, 0.1, 0.1], 1e-5).to(self.device)
+            graph, 64, [64, 64, 64], [0.1, 0.1, 0.1], 1e-5).to(torch.device(self.device))
         optimizer = optim.Adam(model.parameters(), lr=self.args.lr)
 
         for epoch in range(self.num_epochs):
             loss, mf_loss, emb_loss = 0.0, 0.0, 0.0
             users, pos_items, neg_items = self.sample(new_user_item_src, new_user_item_dst)
             u_g_embeddings, pos_i_g_embeddings, neg_i_g_embeddings = model(
-                data_generator.g, "user", "item", users, pos_items, neg_items
+                graph, "user", "item", users, pos_items, neg_items
             )
             batch_loss, batch_mf_loss, batch_emb_loss = model.create_bpr_loss(
                 u_g_embeddings, pos_i_g_embeddings, neg_i_g_embeddings
@@ -126,9 +149,9 @@ class NgcfPredictor:
         rec_items = {}
 
         # all-item test
-        item = torch.tensor(list(set(item_selfs) - set(new_user_item_dst))).to(self.device)
+        item = torch.tensor(list(set(item_selfs) - set(new_user_item_dst))).to(torch.device(self.device))
         u_g_embeddings, pos_i_g_embeddings, _ = model(
-            data_generator.g, "user", "item", user_id - 1, item, []
+            graph, "user", "item", user_id - 1, item, []
         )
         rate_batch = (
             model.rating(u_g_embeddings, pos_i_g_embeddings).detach().cpu()
@@ -146,7 +169,7 @@ class NgcfPredictor:
         recomm_result = []
 
         for i in rec_list:
-            recomm_result.append(ts.item_decoder[i])
+            recomm_result.append(item_decoder[i])
 
         return recomm_result
 

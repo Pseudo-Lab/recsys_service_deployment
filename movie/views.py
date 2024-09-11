@@ -13,12 +13,7 @@ from clients import MysqlClient
 from db_clients.dynamodb import DynamoDBClient
 from movie.models import DaumMovies
 from movie.predictors.mf_predictor import mf_predictor
-from movie.predictors.ngcf_predictor import ngcf_predictor
-# from movie.predictors.ngcf_opt_predictor import ngcf_predictor
-
-from typing import List
-
-
+from movie.predictors.ngcf_predictor_embed import ngcf_predictor
 from movie.utils import add_past_rating, add_rank, get_username_sid, get_user_logs_df, \
     log_tracking, get_interacted_movie_dicts
 from utils.pop_movies import get_pop
@@ -134,20 +129,7 @@ def ngcf(request):
         interacted_movie_ids = [int(mid) for mid in user_logs_df['movieId'] if mid is not None and not pd.isna(mid)]
         interacted_movie_dicts = get_interacted_movie_dicts(user_logs_df)
     
-            # FastAPI 서버로 요청을 보내는 부분
-        url = "http://117.17.187.22:712/ngcf/recommend/"  # FastAPI 서버 주소
-        headers = {"Content-Type": "application/json"}
-        data = {"interacted_items": interacted_movie_ids}
-
-        try:
-            response = requests.post(url, headers=headers, json=data)
-            response_data = response.json()
-            ngcf_recomm_mids = response_data['recommendations']
-        except Exception as e:
-            print(f"Error calling FastAPI server: {e}")
-            ngcf_recomm_mids = []
-        
-
+        ngcf_recomm_mids = ngcf_predictor.predict(interacted_items=interacted_movie_ids)
         ngcf_recomm = list(DaumMovies.objects.filter(movieid__in=ngcf_recomm_mids).values())
     
         # context 구성

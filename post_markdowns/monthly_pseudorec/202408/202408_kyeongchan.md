@@ -211,7 +211,7 @@ $$
 AP=PD
 $$
 
-![Untitled](../../../static/img/monthly_pseudorec_202408/kyeongchan/ap_equals_pd.png)
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/9e200c32-ed54-48d0-b4c5-d2c225df611d/image.png)
 
 말은 복잡하지만, 결국 다음과 같이 표현만 바꾼 것이다.
 
@@ -248,7 +248,7 @@ Symmetric 행렬에 대하여, 우리는 고유값 분해에 대한 더욱 강�
 
 **Geometric Intuition for the Eigendecomposition**
 
-![Untitled](../../../static/img/monthly_pseudorec_202408/kyeongchan/geographic_intuition_for_the_eigendecomposition.png)
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/333f96cf-396d-45ff-8331-232d41bd4d55/c850cf96-e5bd-4e7d-9624-581519b603b1/image.png)
 
 행렬의 eigendecomposition을 다음과 같이 해석할 수 있다: $A$가 표준 기저 관점에서의 선형 매핑의 변환 행렬이라고 하자. $P^{-1}$는 eigenbasis → 표준 기저로의 기저 변환을 수행한다. 이는 고유벡터 $p_i$ (빨간색, 오렌지색 화살표)를 표준 기저 벡터 $e_i$로 대응시킨다. 그 후, 대각행렬 $D$는 고유값 $\lambda_i$만큼 축방향으로 벡터의 크기를 변환시킨다. 마지막으로, $P$는 이렇게 크기가 바뀐 벡터들을 다시 표준 좌표계로 되돌리며 $\lambda_iP_i$로 만든다.
 
@@ -258,8 +258,26 @@ $A = \begin{bmatrix}
 1 & 2
 \end{bmatrix}$의 eigendecomposition을 계산해보자.
 **Step1 : 고유값과 고유벡터를 계산하자.** $A$의 특성방정식은 다음과 같다.
->
-> $$ \begin{align} \det(A - \lambda I) &= \det \left( \begin{bmatrix} 2-\lambda & 1 \\\\ 1 & 2 - \lambda \end{bmatrix} \right) \\\\ &=(2-\lambda)^2 - 1 \\\\ &=\lambda^2 - 4\lambda + 3 \\\\ &=(\lambda-3)(\lambda -1)\end{align}$$
+> 
+> 
+> $$
+> \det(A - \lambda I) = \det \left( \begin{bmatrix}
+> 2-\lambda & 1 \\\\
+> 1 & 2 - \lambda
+> \end{bmatrix} \right)
+> 
+> \\\\
+> 
+> =(2-\lambda)^2 - 1
+> 
+> \\\\
+> 
+> =\lambda^2 - 4\lambda + 3
+> 
+> \\\\
+> 
+> =(\lambda-3)(\lambda -1)
+> $$
 > 
 > $A$의 고유값은 $\lambda_1=1$과 $\lambda_2=3$이 된다. 특성 방정식의 근이 곧 고유값이니 말이다. 그리고 고유값과 고유벡터의 정의를 이용해 다음을 계산하면,
 > 
@@ -275,7 +293,17 @@ $A = \begin{bmatrix}
 > 
 > 를 계산한 다음과 같이 고유벡터 $p_1$, $p_2$를 계산할 수있다.
 > 
-> $$ p_1=\frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\\\ -1 \end{bmatrix}, \;\;\; p_2=\frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\\\ 1 \end{bmatrix} $$
+> $$
+> p_1=\frac{1}{\sqrt{2}} \begin{bmatrix}
+> 1 \\\\
+> -1
+> \end{bmatrix}, \;\;\;
+> 
+> p_2=\frac{1}{\sqrt{2}} \begin{bmatrix}
+> 1 \\\\
+> 1
+> \end{bmatrix}
+> $$
 > 
 > **Step2 : Eigendecomposition 존재여부 판단.** 고유벡터 $p_1,$ $p_2$는 $\mathbb{R}^2$의 기저를 형성할 수 있다. 그러므로 $A$는 대각화 가능하다.
 > 
@@ -299,8 +327,27 @@ $A = \begin{bmatrix}
 > 
 > 동일하게, 다음을 얻는다. (이 때는 $P^{-1}=P^{\top}$이라는 것을 이용한다. 고유벡터 $p_1$과 $p_2$가 ONB를 구성하기 때문이다.)
 > 
-> $$ \underbrace{\begin{bmatrix} 2 & 1 \\\\ 1 & 2 \end{bmatrix}}\_{A} = \underbrace{\frac{1}{\sqrt{2}}\begin{bmatrix} 1 & 1 \\\\ -1 & 1 \end{bmatrix}}\_{P} \underbrace{\begin{bmatrix} 1 & 0 \\\\ 0 & 3 \end{bmatrix}}\_{D} \underbrace{\frac{1}{\sqrt{2}} \begin{bmatrix} 1 & 0 \\\\ 0 & 3 \end{bmatrix}}\_{P^{\top}} $$ 
-
+> $$
+> \underbrace{\begin{bmatrix}
+> 2 & 1 \\\\
+> 1 & 2
+> \end{bmatrix}}_{A}
+> =
+> \underbrace{\frac{1}{\sqrt{2}}\begin{bmatrix}
+> 1 & 1 \\\\
+> -1 & 1
+> \end{bmatrix}}_{P}
+> \underbrace{\begin{bmatrix}
+> 1 & 0 \\\\
+> 0 & 3
+> \end{bmatrix}}_{D}
+> \underbrace{\frac{1}{\sqrt{2}}
+> \begin{bmatrix}
+> 1 & 0 \\\\
+> 0 & 3
+> \end{bmatrix}}_{P^{\top}}
+> $$
+> 
 - 대각행렬 $D$의 제곱은 효율적으로 이루어진다. 그러므로, eigenvalue decomposition(만약 존재한다면)을 통해서 행렬 $A \in \mathbb{R}^{n \times n}$에 대한 행렬 제곱을 찾을 수 있다
     
     $$

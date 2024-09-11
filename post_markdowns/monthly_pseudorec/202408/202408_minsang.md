@@ -1,5 +1,3 @@
-작성 중입니다.
-
 # About
 
 최근 Amazon Science에서는 LLM을 활용한 추천시스템 연구를 여럿 발표하고 있습니다. 이번 월간슈도렉에서는 Amazon Science의 논문 하나를 소개하려고 합니다. 제목은 <Explainable and coherent complement recommendation based on large language models>로, LLM의 정보 이해와 자연어 생성 기능을 활용하여 함께 사면 좋은 상품을 추천해주는 연구입니다.

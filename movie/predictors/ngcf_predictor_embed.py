@@ -29,7 +29,7 @@ class NgcfPredictor:
         self.args = parse_args()
         self.device = 'cpu'
         self.num_recommendations = 20
-        self.index_path = "/pytorch_models/ngcf/ngcf-item-embed.index"
+        self.index_path = "pytorch_models/ngcf/ngcf-item-embed.index"
 
 
     def predict(self, interacted_items):

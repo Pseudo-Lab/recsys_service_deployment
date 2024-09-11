@@ -52,6 +52,18 @@ def download_vectordb():
     print(f"Download soonhyeok's NGCF item embedding vector faiss db & files...")
     make_dir_n_download(s3=s3, bucket='pseudorec-data', key='soonhyeok/ngcf-item-embed.index',
                         dir='pytorch_models/ngcf', filename='ngcf-item-embed.index')
+    make_dir_n_download(s3=s3, bucket='pseudorec-data', key='soonhyeok/item_decoder.pickle',
+                        dir='pytorch_models/ngcf/pickle', filename='item_decoder.pickle')
+    make_dir_n_download(s3=s3, bucket='pseudorec-data', key='soonhyeok/item_encoder.pickle',
+                        dir='pytorch_models/ngcf/pickle', filename='item_encoder.pickle')
+    make_dir_n_download(s3=s3, bucket='pseudorec-data', key='soonhyeok/user_decoder.pickle',
+                        dir='pytorch_models/ngcf/pickle', filename='user_decoder.pickle')
+    make_dir_n_download(s3=s3, bucket='pseudorec-data', key='soonhyeok/user_encoder.pickle',
+                        dir='pytorch_models/ngcf/pickle', filename='user_encoder.pickle')
+    make_dir_n_download(s3=s3, bucket='pseudorec-data', key='soonhyeok/user_item_dst.pickle',
+                        dir='pytorch_models/ngcf/pickle', filename='user_item_dst.pickle')
+    make_dir_n_download(s3=s3, bucket='pseudorec-data', key='soonhyeok/user_item_src.pickle',
+                        dir='pytorch_models/ngcf/pickle', filename='user_item_src.pickle')
 
 if __name__ == "__main__":
     print(os.getcwd())

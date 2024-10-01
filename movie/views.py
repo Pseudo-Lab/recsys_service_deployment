@@ -135,7 +135,7 @@ def ngcf(request):
         interacted_movie_dicts = get_interacted_movie_dicts(user_logs_df)
     
             # FastAPI 서버로 요청을 보내는 부분
-        url = "http://117.17.187.22:712/ngcf/recommend/"  # FastAPI 서버 주소
+        url = "http://34.71.71.79:7000/ngcf/recommend/"  # FastAPI 서버 주소
         headers = {"Content-Type": "application/json"}
         data = {"interacted_items": interacted_movie_ids}
 

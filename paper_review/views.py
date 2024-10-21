@@ -98,6 +98,7 @@ def single_post_page_monthly_pseudorec(request, pk):
         16: 'post_markdowns/monthly_pseudorec/202408/202408_hyeonwoo.md',
         17: 'post_markdowns/monthly_pseudorec/202408/202408_minsang.md',
         18: 'post_markdowns/monthly_pseudorec/202408/202408_gyungah.md',
+        19: 'post_markdowns/monthly_pseudorec/202409/202409_kyeongchan.md',
     }
     md_file_path = md_mapper[pk]
     log_tracking(request=request, view='/'.join(md_file_path.split('/')[1:]))

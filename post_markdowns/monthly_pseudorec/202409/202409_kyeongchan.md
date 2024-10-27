@@ -176,7 +176,7 @@ Example 4.13은 패스하자!
 
 - SVD와 eigendecomposition은 매우 관련있다.
     - $A$의 left-singular vector는 $AA^\top$의 고유벡터이다.
-    - $A$의 right-singular vector는 $A^\topA$의 고유벡터이다.
+    - $A$의 right-singular vector는 $A^\top     A$의 고유벡터이다.
     - $A$의 nonzero singular vaule는 $AA^\top$의 nonzero 고유값의 제곱근이며 $A^\top A$의 nonzero 고유값과 같다.
 
 - 대칭행렬에 대해서는 Spectral theorem 4.15에 따라 eigenvalue decomposition과 SVD는 고유하며 동일하다.

@@ -64,12 +64,17 @@ pip install 'django<5'
 바로가기 새창띄우기
 ![Untitled](../../../static/img/monthly_pseudorec_202404/hyeonwoo_metric_learning_loss.png)*출처 : <a href="https://nuguziii.github.io/survey/S-006/" target="_blank">https://nuguziii.github.io/survey/S-006/</a>*
 
+*출처 : <a href="" target="_blank">보여질 내용</a>*
 
 ## 논문 리뷰에서
 
 📄 paper :  <a href="https://arxiv.org/pdf/1905.08108.pdf" target="_blank" style="text-decoration: underline;">**Neural Graph Collaborative Filtering ↗**</a>
 
+📄 <a href="" target="_blank" style="text-decoration: underline;">** ↗**</a>
+
 🔗 <a href="https://www.pseudorec.com/archive/paper_review/1/" target="_blank">**KPRN 논문리뷰 - Paper Review ↗**</a>
+
+🔗 <a href="" target="_blank">** ↗**</a>
 
 🤗 
 

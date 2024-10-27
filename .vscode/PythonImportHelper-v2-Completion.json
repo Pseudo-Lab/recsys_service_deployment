@@ -3446,6 +3446,22 @@
         "documentation": {}
     },
     {
+        "label": "TableExtension",
+        "importPath": "markdown.extensions.tables",
+        "description": "markdown.extensions.tables",
+        "isExtraImport": true,
+        "detail": "markdown.extensions.tables",
+        "documentation": {}
+    },
+    {
+        "label": "ExtraExtension",
+        "importPath": "markdown.extensions.extra",
+        "description": "markdown.extensions.extra",
+        "isExtraImport": true,
+        "detail": "markdown.extensions.extra",
+        "documentation": {}
+    },
+    {
         "label": "highlight",
         "importPath": "pygments",
         "description": "pygments",
@@ -6632,7 +6648,7 @@
         "kind": 2,
         "importPath": "paper_review.views",
         "description": "paper_review.views",
-        "peekOfCode": "def single_post_page_monthly_pseudorec(request, pk):\n    post = PostMonthlyPseudorec.objects.get(pk=pk)\n    md_mapper = {\n        1: 'post_markdowns/monthly_pseudorec/202405/202404_kyungah.md',\n        2: 'post_markdowns/monthly_pseudorec/202405/202404_minsang.md',\n        3: 'post_markdowns/monthly_pseudorec/202405/202404_kyeongchan.md',\n        4: 'post_markdowns/monthly_pseudorec/202405/202404_hyunwoo.md',\n        5: 'post_markdowns/monthly_pseudorec/202405/202404_namjoon.md',\n        6: 'post_markdowns/monthly_pseudorec/202405/202404_soonhyeok.md',\n        7: 'post_markdowns/monthly_pseudorec/202406/202406_kyeongchan.md',",
+        "peekOfCode": "def single_post_page_monthly_pseudorec(request, pk):\n    post = PostMonthlyPseudorec.objects.get(pk=pk)\n    md_mapper = {\n        1: \"post_markdowns/monthly_pseudorec/202405/202404_kyungah.md\",\n        2: \"post_markdowns/monthly_pseudorec/202405/202404_minsang.md\",\n        3: \"post_markdowns/monthly_pseudorec/202405/202404_kyeongchan.md\",\n        4: \"post_markdowns/monthly_pseudorec/202405/202404_hyunwoo.md\",\n        5: \"post_markdowns/monthly_pseudorec/202405/202404_namjoon.md\",\n        6: \"post_markdowns/monthly_pseudorec/202405/202404_soonhyeok.md\",\n        7: \"post_markdowns/monthly_pseudorec/202406/202406_kyeongchan.md\",",
         "detail": "paper_review.views",
         "documentation": {}
     },

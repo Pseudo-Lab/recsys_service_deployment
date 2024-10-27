@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from markdownx.utils import markdown as mdx_markdown
+from markdown.extensions.tables import TableExtension
+from markdown.extensions.extra import ExtraExtension
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
@@ -65,7 +67,9 @@ def single_post_page_paper_review(request, pk):
             html_content += line + '\n'
 
     # Pygments 적용된 HTML을 Markdown으로 변환하여 템플릿에 전달
-    markdown_content_with_highlight = mdx_markdown(html_content)
+    markdown_content_with_highlight = mdx_markdown(
+        html_content, extensions=[TableExtension(), ExtraExtension()]
+    )
 
     return render(
         request=request,
@@ -80,28 +84,32 @@ def single_post_page_paper_review(request, pk):
 def single_post_page_monthly_pseudorec(request, pk):
     post = PostMonthlyPseudorec.objects.get(pk=pk)
     md_mapper = {
-        1: 'post_markdowns/monthly_pseudorec/202405/202404_kyungah.md',
-        2: 'post_markdowns/monthly_pseudorec/202405/202404_minsang.md',
-        3: 'post_markdowns/monthly_pseudorec/202405/202404_kyeongchan.md',
-        4: 'post_markdowns/monthly_pseudorec/202405/202404_hyunwoo.md',
-        5: 'post_markdowns/monthly_pseudorec/202405/202404_namjoon.md',
-        6: 'post_markdowns/monthly_pseudorec/202405/202404_soonhyeok.md',
-        7: 'post_markdowns/monthly_pseudorec/202406/202406_kyeongchan.md',
-        8: 'post_markdowns/monthly_pseudorec/202406/202406_soonhyeok.md',
-        9: 'post_markdowns/monthly_pseudorec/202406/202406_namjoon.md',
-        10: 'post_markdowns/monthly_pseudorec/202406/202406_hyeonwoo.md',
-        11: 'post_markdowns/monthly_pseudorec/202406/202406_minsang.md',
-        12: 'post_markdowns/monthly_pseudorec/202406/202406_gyungah.md',
-        13: 'post_markdowns/monthly_pseudorec/202408/202408_kyeongchan.md',
-        14: 'post_markdowns/monthly_pseudorec/202408/202408_soonhyeok.md',
-        15: 'post_markdowns/monthly_pseudorec/202408/202408_namjoon.md',
-        16: 'post_markdowns/monthly_pseudorec/202408/202408_hyeonwoo.md',
-        17: 'post_markdowns/monthly_pseudorec/202408/202408_minsang.md',
-        18: 'post_markdowns/monthly_pseudorec/202408/202408_gyungah.md',
-        19: 'post_markdowns/monthly_pseudorec/202409/202409_kyeongchan.md',
+        1: "post_markdowns/monthly_pseudorec/202405/202404_kyungah.md",
+        2: "post_markdowns/monthly_pseudorec/202405/202404_minsang.md",
+        3: "post_markdowns/monthly_pseudorec/202405/202404_kyeongchan.md",
+        4: "post_markdowns/monthly_pseudorec/202405/202404_hyunwoo.md",
+        5: "post_markdowns/monthly_pseudorec/202405/202404_namjoon.md",
+        6: "post_markdowns/monthly_pseudorec/202405/202404_soonhyeok.md",
+        7: "post_markdowns/monthly_pseudorec/202406/202406_kyeongchan.md",
+        8: "post_markdowns/monthly_pseudorec/202406/202406_soonhyeok.md",
+        9: "post_markdowns/monthly_pseudorec/202406/202406_namjoon.md",
+        10: "post_markdowns/monthly_pseudorec/202406/202406_hyeonwoo.md",
+        11: "post_markdowns/monthly_pseudorec/202406/202406_minsang.md",
+        12: "post_markdowns/monthly_pseudorec/202406/202406_gyungah.md",
+        13: "post_markdowns/monthly_pseudorec/202408/202408_kyeongchan.md",
+        14: "post_markdowns/monthly_pseudorec/202408/202408_soonhyeok.md",
+        15: "post_markdowns/monthly_pseudorec/202408/202408_namjoon.md",
+        16: "post_markdowns/monthly_pseudorec/202408/202408_hyeonwoo.md",
+        17: "post_markdowns/monthly_pseudorec/202408/202408_minsang.md",
+        18: "post_markdowns/monthly_pseudorec/202408/202408_gyungah.md",
+        19: "post_markdowns/monthly_pseudorec/202409/202409_kyeongchan.md",
+        20: "post_markdowns/monthly_pseudorec/202409/202409_sanghyeon.md",
+        21: "post_markdowns/monthly_pseudorec/202409/202409_minsang.md",
+        22: "post_markdowns/monthly_pseudorec/202409/202409_seonjin.md",
     }
     md_file_path = md_mapper[pk]
     log_tracking(request=request, view='/'.join(md_file_path.split('/')[1:]))
+    print(f"monthly pseudorec log test")
     post.set_content_from_md_file(md_file_path)
 
     # Markdown 내용을 읽어와서 파싱
@@ -127,7 +135,9 @@ def single_post_page_monthly_pseudorec(request, pk):
             html_content += line + '\n'
 
     # Pygments 적용된 HTML을 Markdown으로 변환하여 템플릿에 전달
-    markdown_content_with_highlight = mdx_markdown(html_content)
+    markdown_content_with_highlight = mdx_markdown(
+        html_content, extensions=[TableExtension(), ExtraExtension()]
+    )
 
     return render(
         request=request,

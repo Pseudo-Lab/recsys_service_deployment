@@ -2,6 +2,7 @@
 {% load paper_review_filter %}
 {% load static %}
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <title>Paper Review</title>
@@ -9,7 +10,7 @@
     <script async src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
     <!--    <link rel="stylesheet" href="{% static 'css/post_list.css' %}?v=2024011916">-->
@@ -27,62 +28,60 @@
 </head>
 
 <body>
-<header>
-    {% include 'navbar.html' %}
-</header>
-<main>
-    {% include 'left_col_post_list.html' %}
-    <div class="side-gutter"></div>
-    <div class="center-main-field">
-        <div class="paper-review-main">
-            <h1>{{ header }}</h1>
-            <p>{{description}}</p>
-            <hr/>
-            {% regroup posts by month as post_groups %}
-            {% for group in post_groups %}
-            <h2>{{ group.month }}</h2>
-            <div class="container">
-                <h2>{{ group.grouper }}</h2> <!-- Group by month -->
+    <header>
+        {% include 'navbar.html' %}
+    </header>
+    <main>
+        {% include 'left_col_post_list.html' %}
+        <div class="side-gutter"></div>
+        <div class="center-main-field">
+            <div class="paper-review-main">
+                <h1>{{ header }}</h1>
+                <p>{{description}}</p>
+                <hr />
+                {% regroup posts by month as post_groups %}
+                {% for group in post_groups %}
+                <h2>{{ group.month }}</h2>
                 <div class="container">
-                    {% for post in group.list %}
-                    <div class="card">
-                        <div class="card-header">
-                            {% if post.card_image %}
-                            <img src="{{ post.card_image.url }}" alt="Card Image">
-                            {% else %}
-                            <p>No image available</p>
-                            {% endif %}
-                        </div>
-                        <div class="card-body">
-                            <span class="tag tag-teal">{{post.tag1}}</span>
-                            <span class="tag tag-purple">{{post.tag2}}</span>
-                            <h4><a href="{{ post.get_absolute_url }}">{{post.title}}</a></h4>
-                            <p>{{post.subtitle}}</p>
-                            <div class="user">
-                                {% if post.author_image %}
-                                <img src={{post.author_image.url}} alt="user 2">
+                    <h2>{{ group.grouper }}</h2> <!-- Group by month -->
+                    <div class="container">
+                        {% for post in group.list %}
+                        <div class="card">
+                            <div class="card-header">
+                                {% if post.card_image %}
+                                <img src="{{ post.card_image.url }}" alt="Card Image">
                                 {% else %}
                                 <p>No image available</p>
                                 {% endif %}
-                                <div class="user-info">
-                                    <h5>{{post.author}}</h5>
-                                    <small>{{post.month}}</small>
+                            </div>
+                            <div class="card-body">
+                                <span class="tag tag-teal">{{post.tag1}}</span>
+                                <span class="tag tag-purple">{{post.tag2}}</span>
+                                <h4><a href="{{ post.get_absolute_url }}">{{post.title}}</a></h4>
+                                <p>{{post.subtitle}}</p>
+                                <div class="user">
+                                    {% if post.author_image %}
+                                    <img src={{post.author_image.url}} alt="user 2">
+                                    {% else %}
+                                    <p>No image available</p>
+                                    {% endif %}
+                                    <div class="user-info">
+                                        <h5>{{post.author}}</h5>
+                                        <small>{{post.month}}</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        {% endfor %}
                     </div>
                     {% endfor %}
+
                 </div>
-                {% endfor %}
+                </article>
 
             </div>
-            </article>
-
         </div>
-    </div>
-</main>
+    </main>
 </body>
+
 </html>
-
-
-

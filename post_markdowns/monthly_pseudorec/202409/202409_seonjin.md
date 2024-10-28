@@ -1,13 +1,15 @@
 <img width="851" alt="image" src="https://github.com/user-attachments/assets/30737f30-882c-4f23-be2f-6d4ae6c126c7">*📄 <a href="https://arxiv.org/abs/2305.19860" target="_blank" style="text-decoration: underline;">**https://arxiv.org/abs/2305.19860 ↗**</a>*
 
 
-# 들어가기에 앞서
+## 들어가기에 앞서
 ---
 안녕하세요! 처음 월간 슈도렉 컨텐츠을 고민하다가 최근 하고 있는 공모전과 시너지를 위해 LLM for rec, 다시 말해 추천을 위한 대형언어모델 연구를 전체적으로 리뷰해보려는 대형?! 프로젝트를 시작하려고 합니다. 메인 소스는 위에 언급한 서베이 논문을 두고, 핵심이 될 수 있는 논문를 추가적으로 리뷰하며 전체적인 연구 흐름을 이해해보려 합니다. 이번달에는 우선 서베이 논문에 대해서 개략적으로 살펴본 후 (개인적으로 논문 컨텐츠는 좋은데 논문 흐름이 매끄럽지 않은 느낌이 있어서 의역과 흐름을 제 나름대로 재구성했습니다!) 그리고 최근에 각광받고 있는 Generative LLM(GPT 계열)을 활용한 추천시스템 중 튜닝을 활용하지 않는 방법론에 대해 좀 더 이야기해보고자 합니다!
 
-💡 참고로 서베이 논문과 관련한 깃허브는 🔗 <a href="https://github.com/WLiK/LLM4Rec-Awesome-Papers" target="_blank">**https://github.com/WLiK/LLM4Rec-Awesome-Papers ↗**</a> 다음과 같습니다.
+💡 참고로 서베이 논문과 관련한 깃허브는 다음과 같습니다.
 
-# 초록 및 서론
+🔗 <a href="https://github.com/WLiK/LLM4Rec-Awesome-Papers" target="_blank">**https://github.com/WLiK/LLM4Rec-Awesome-Papers ↗**</a>
+
+## 초록 및 서론
 ---
 LLM은 추천 분야에 있어서도 주목을 받고 있습니다.
 
@@ -41,7 +43,7 @@ LLM 기반의 추천시스템 연구에 대한 이해를 돕기 위해, 이 논�
 ---
 서베이 논문에 대한 추가적인 설명은 다음 슈도렉 컨텐츠로 미루고, 논문에서 소개된 Generative LLM(GPT 계열)을 활용한 추천시스템 중 튜닝을 활용하지 않는 연구 두개를 간략하게 살펴보도록 합시다.
 
-(1) Is ChatGPT a Good Recommender? A Preliminary Study
+## (1) Is ChatGPT a Good Recommender? A Preliminary Study
 ![](https://velog.velcdn.com/images/passiona2z/post/054f3fed-5eec-4b29-9cee-b4a6d4a53103/image.png)
 
 알리바바에서 발표한 논문(CIKM, 2023)입니다. 이 논문의 접근방법은 아래 그림을 보면 바로 이해가 되실겁니다.  
@@ -61,7 +63,7 @@ LLM 기반의 추천시스템 연구에 대한 이해를 돕기 위해, 이 논�
 - 하지만 설명력에 있어서는 사람이 평가한(human evaluation) 관점으로 최신 추천모델을 능가했다고 합니다. 
 
 
-(2) Chat-REC: Towards Interactive and Explainable LLMs-Augmented Recommender System
+## (2) Chat-REC: Towards Interactive and Explainable LLMs-Augmented Recommender System
 ![](https://velog.velcdn.com/images/passiona2z/post/3a203a84-eef4-4285-ade2-bfe135bcf9d9/image.png)
 
 

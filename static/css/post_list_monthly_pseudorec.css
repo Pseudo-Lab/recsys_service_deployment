@@ -10,6 +10,9 @@ main {
 
 .center-main-field {
     width: 75%;
+    font-family: "IBM Plex Sans KR", sans-serif;
+    font-weight: 400;
+    font-style: normal;
 }
 
 .center-main-field h1, h2, h3 {
@@ -147,6 +150,11 @@ main {
     margin: 10px;
 }
 
+.card .card-body h4  a{
+    /* word-break: break-all; 알파벳 단위로 내려쓰기  */
+}
+
+
 .card .card-body p {
     font-size: 13px;
     margin: 0 0 30px;
@@ -168,6 +176,9 @@ main {
 
 .card .card-body .user .user-info h5 {
     margin: 0;
+    font-family: "IBM Plex Sans KR", sans-serif;
+    font-weight: 400;
+    font-style: normal;
 }
 
 .card .card-body .user .user-info small {

@@ -9,8 +9,8 @@
 # 4.5 Singular Value Decomposition
 SVD는 정방행렬뿐만 아니라 모든 행렬에 적용될 수 있기 때문에 선형대수학의 기본 정리라고도 불린다.
 
-#### **Theorem 4.22 (SVD Theorem).**
-$A^{m \times n}$을 rank $r \in [0, \min(m, n)]$인 직사각형 행렬(rectangular matrix)이라고 하자. $A$의 SVD는 아래와 같은 형태의 행렬분해이다.
+### **Theorem 4.22 (SVD Theorem).**
+\\(A^{m \times n}\\)을 rank \\(r \in [0, \min(m, n)]\\)인 직사각형 행렬(rectangular matrix)이라고 하자. \\(A\\)의 SVD는 아래와 같은 형태의 행렬분해이다.
 
 ![Untitled](../../../static/img/monthly_pseudorec_202409/kyeongchan/svd_shape.png)
 
@@ -18,7 +18,7 @@ $A^{m \times n}$을 rank $r \in [0, \min(m, n)]$인 직사각형 행렬(rectangu
 여기서 잠깐
 
 - 행렬의 rank(랭크)란? 행렬에서 서로 독립적인 행 또는 독립적인 열의 최대 개수를 의미한다. 예를 들어, 랭크가 1인 행렬은 모든 행이나 열이 하나의 벡터의 스칼라 배수로 나타날 수 있습니다. 즉, 이 행렬은 하나의 독립적인 벡터로 모든 행이나 열을 표현할 수 있다. **랭크가 m (행 개수) 또는 n (열 개수)**인 경우, 행렬의 행 또는 열이 모두 독립적이다. 이 경우 행렬은 그 자체로 최대한 많은 정보를 담고 있다.
-- 직교 행렬(orthogonal matrix)이란? $A^\top A=A A^\top=I$를 만족하는 정방 행렬이다. $A^{-1}=A^{\top}$이라는 뜻이 내포돼있다. 즉, 역행렬이 전치행렬과 같다는 뜻이다. 특징으로는 **직교 행렬 내의 행 벡터간 또는 열 벡터간의 내적이 항상 0이다.** 또한 각 벡터의 크기가 1이다.
+- 직교 행렬(orthogonal matrix)이란? \\(A^\top A=A A^\top=I\\)를 만족하는 정방 행렬이다. \\(A^{-1}=A^{\top}$이라는 뜻이 내포돼있다. 즉, 역행렬이 전치행렬과 같다는 뜻이다. 특징으로는 **직교 행렬 내의 행 벡터간 또는 열 벡터간의 내적이 항상 0이다.** 또한 각 벡터의 크기가 1이다.
 
 $A = U \Sigma V^\top$. 여기서 $U$는 직교행렬로, $U \in \mathbb{R}^{m \times m}$이며, 열벡터 $u_i, i=1, \cdots ,m$을 갖고있다. 마찬가지로 $V$는 직교 행렬로, $V \in \mathbb{R}^{n \times n}$이며, 열벡터 $v_i, i=1, \cdots ,n$를 갖고있다. 그리고 $\Sigma$는 $m \times n$ 행렬이자 대각성분 $\Sigma_{ii} = \sigma_i \geqslant$이며 비대각성분은 모두 0($\Sigma_{ij}=0, i\ne j$)이다.
 
@@ -181,7 +181,7 @@ Example 4.13은 패스하자!
 
 - 대칭행렬에 대해서는 Spectral theorem 4.15에 따라 eigenvalue decomposition과 SVD는 고유하며 동일하다.
 
-#### Example 4.14 (Finding Structure in Movie Rating and Consumers)
+### Example 4.14 (Finding Structure in Movie Rating and Consumers)
 
 드디어 영화 평점 예제까지 왔다!
 

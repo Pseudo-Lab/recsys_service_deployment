@@ -8,14 +8,18 @@ main {
     display: flex;
     justify-content: center;
     max-width: 1500px;
-    margin: 0 auto;
+    /* margin: 0 auto; */
     gap: 100px;
-    align-items : flex-start
+    align-items : flex-start;
+
 }
 
 main .center-main-field .paper-review-detail {
     flex: 1;
     max-width: 800px;
+        font-family: "IBM Plex Sans KR", sans-serif;
+            font-weight: 400;
+            font-style: normal;
 }
 
 main .center-main-field .paper-review-main .user {
@@ -43,7 +47,7 @@ main .center-main-field .paper-review-main .user-info {
 }
 
 .side-gutter {
-    width: 50px;
+    width: 150px;
     display: table-cell;
 }
 
@@ -227,6 +231,10 @@ div.toc ul li.level-2 {
 
 div.toc ul li.level-3 {
     margin-left: 40px;
+}
+
+div.toc ul li.level-4 {
+    margin-left: 60px;
 }
 
 

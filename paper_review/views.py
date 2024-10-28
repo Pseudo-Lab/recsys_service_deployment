@@ -35,11 +35,12 @@ def index_monthly_pseudorec(request):
 def single_post_page_paper_review(request, pk):
     post = Post.objects.get(pk=pk)
     md_mapper = {
-        1: 'post_markdowns/kprn review.md',
-        2: 'post_markdowns/ngcf review.md',
-        3: 'post_markdowns/sasrec review.md',
-        4: 'post_markdowns/srgnn review.md',
-        5: 'post_markdowns/bert4rec review.md'
+        1: "post_markdowns/paper_review/kprn review.md",
+        2: "post_markdowns/paper_review/ngcf review.md",
+        3: "post_markdowns/paper_review/sasrec review.md",
+        4: "post_markdowns/paper_review/srgnn review.md",
+        5: "post_markdowns/paper_review/bert4rec review.md",
+        6: "post_markdowns/paper_review/Large Language Models are Zero-Shot Rankers for Recommender Systems.md",
     }
     md_file_path = md_mapper[pk]
     post.set_content_from_md_file(md_file_path)

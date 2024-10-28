@@ -171,7 +171,11 @@ main {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    margin-right: 10px;
+        margin: 10px 10px 10px 10px;
+}
+
+.card .card-body .user .user-info {
+    margin: 10px 0px 10px 0px;
 }
 
 .card .card-body .user .user-info h5 {

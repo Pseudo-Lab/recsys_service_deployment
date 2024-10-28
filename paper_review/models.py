@@ -9,8 +9,10 @@ class Post(models.Model):
     title = models.CharField(max_length=100)
     # content = models.TextField()
     content = MarkdownxField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField()
     updated_at = models.DateTimeField(auto_now=True)
+    author = models.CharField(max_length=50, default="작성자추가")
+    author_image = models.ImageField("작성자 이미지", upload_to="paper_review/author_imgs", blank=True)
     # category = models.CharField(max_length=30, default=None, null=True)
 
     def __str__(self):
@@ -35,7 +37,7 @@ class PostMonthlyPseudorec(models.Model):
     month = models.CharField(max_length=10, default='203004')
     card_image = models.ImageField("카드 이미지", upload_to="paper_review/card_imgs", blank=True)
     content = MarkdownxField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField()
     updated_at = models.DateTimeField(auto_now=True)
     author = models.CharField(max_length=50, default='작성자추가')
     author_image = models.ImageField("작성자 이미지", upload_to="paper_review/author_imgs", blank=True)
@@ -62,7 +64,7 @@ class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField()
     modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):

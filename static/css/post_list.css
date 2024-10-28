@@ -9,13 +9,24 @@ main {
 }
 
 .center-main-field{
-    width: 75%;
+    width: 100%;
+    font-family: "IBM Plex Sans KR", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px 0;
 }
 
 .center-main-field h1, h2, h3{
 	font-weight: normal;
 	margin: 0;
 	margin-top: 20px;
+}
+
+.center-main-field .paper-review-main{
+    max-width: 960px;
 }
 
 .center-main-field p{
@@ -25,4 +36,33 @@ main {
 .side-gutter {
     width: 50px;
     display: table-cell;
+}
+
+div.user {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    margin-top: auto;
+}
+
+.center-main-field div.user img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 10px 10px 10px 10px;
+}
+
+.center-main-field div.user .user-info{
+    margin: 10px 0px 10px 0px;
+}
+
+.center-main-field div.user .user-info h5 {
+    margin: 0;
+    font-family: "IBM Plex Sans KR", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.center-main-field div.user .user-info small {
+    color: #888785;
 }

@@ -2355,6 +2355,38 @@
         "documentation": {}
     },
     {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
         "label": "models",
         "importPath": "django.db",
         "description": "django.db",
@@ -6554,6 +6586,24 @@
         "documentation": {}
     },
     {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "paper_review.migrations.0012_post_author_post_author_image",
+        "description": "paper_review.migrations.0012_post_author_post_author_image",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('paper_review', '0011_comment'),\n    ]\n    operations = [\n        migrations.AddField(\n            model_name='post',\n            name='author',\n            field=models.CharField(default='작성자추가', max_length=50),\n        ),",
+        "detail": "paper_review.migrations.0012_post_author_post_author_image",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "paper_review.migrations.0013_alter_post_created_at_and_more",
+        "description": "paper_review.migrations.0013_alter_post_created_at_and_more",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('paper_review', '0012_post_author_post_author_image'),\n    ]\n    operations = [\n        migrations.AlterField(\n            model_name='post',\n            name='created_at',\n            field=models.DateTimeField(),\n        ),",
+        "detail": "paper_review.migrations.0013_alter_post_created_at_and_more",
+        "documentation": {}
+    },
+    {
         "label": "mark",
         "kind": 2,
         "importPath": "paper_review.templatetags.paper_review_filter",
@@ -6585,7 +6635,7 @@
         "kind": 6,
         "importPath": "paper_review.models",
         "description": "paper_review.models",
-        "peekOfCode": "class Post(models.Model):\n    title = models.CharField(max_length=100)\n    # content = models.TextField()\n    content = MarkdownxField()\n    created_at = models.DateTimeField(auto_now_add=True)\n    updated_at = models.DateTimeField(auto_now=True)\n    # category = models.CharField(max_length=30, default=None, null=True)\n    def __str__(self):\n        return f\"[{self.pk}]{self.title}\"\n    def get_absolute_url(self):",
+        "peekOfCode": "class Post(models.Model):\n    title = models.CharField(max_length=100)\n    # content = models.TextField()\n    content = MarkdownxField()\n    created_at = models.DateTimeField()\n    updated_at = models.DateTimeField(auto_now=True)\n    author = models.CharField(max_length=50, default=\"작성자추가\")\n    author_image = models.ImageField(\"작성자 이미지\", upload_to=\"paper_review/author_imgs\", blank=True)\n    # category = models.CharField(max_length=30, default=None, null=True)\n    def __str__(self):",
         "detail": "paper_review.models",
         "documentation": {}
     },
@@ -6594,7 +6644,7 @@
         "kind": 6,
         "importPath": "paper_review.models",
         "description": "paper_review.models",
-        "peekOfCode": "class PostMonthlyPseudorec(models.Model):\n    title = models.CharField(max_length=100, default='제목 작성')\n    subtitle = models.CharField(max_length=100, default='부제 작성')\n    month = models.CharField(max_length=10, default='203004')\n    card_image = models.ImageField(\"카드 이미지\", upload_to=\"paper_review/card_imgs\", blank=True)\n    content = MarkdownxField()\n    created_at = models.DateTimeField(auto_now_add=True)\n    updated_at = models.DateTimeField(auto_now=True)\n    author = models.CharField(max_length=50, default='작성자추가')\n    author_image = models.ImageField(\"작성자 이미지\", upload_to=\"paper_review/author_imgs\", blank=True)",
+        "peekOfCode": "class PostMonthlyPseudorec(models.Model):\n    title = models.CharField(max_length=100, default='제목 작성')\n    subtitle = models.CharField(max_length=100, default='부제 작성')\n    month = models.CharField(max_length=10, default='203004')\n    card_image = models.ImageField(\"카드 이미지\", upload_to=\"paper_review/card_imgs\", blank=True)\n    content = MarkdownxField()\n    created_at = models.DateTimeField()\n    updated_at = models.DateTimeField(auto_now=True)\n    author = models.CharField(max_length=50, default='작성자추가')\n    author_image = models.ImageField(\"작성자 이미지\", upload_to=\"paper_review/author_imgs\", blank=True)",
         "detail": "paper_review.models",
         "documentation": {}
     },
@@ -6603,7 +6653,7 @@
         "kind": 6,
         "importPath": "paper_review.models",
         "description": "paper_review.models",
-        "peekOfCode": "class Comment(models.Model):\n    post = models.ForeignKey(Post, on_delete=models.CASCADE)\n    author = models.ForeignKey(User, on_delete=models.CASCADE)\n    content = models.TextField()\n    created_at = models.DateTimeField(auto_now_add=True)\n    modified_at = models.DateTimeField(auto_now=True)\n    def __str__(self):\n        return f\"{self.author}::{self.content}\"",
+        "peekOfCode": "class Comment(models.Model):\n    post = models.ForeignKey(Post, on_delete=models.CASCADE)\n    author = models.ForeignKey(User, on_delete=models.CASCADE)\n    content = models.TextField()\n    created_at = models.DateTimeField()\n    modified_at = models.DateTimeField(auto_now=True)\n    def __str__(self):\n        return f\"{self.author}::{self.content}\"",
         "detail": "paper_review.models",
         "documentation": {}
     },
@@ -6639,7 +6689,7 @@
         "kind": 2,
         "importPath": "paper_review.views",
         "description": "paper_review.views",
-        "peekOfCode": "def single_post_page_paper_review(request, pk):\n    post = Post.objects.get(pk=pk)\n    md_mapper = {\n        1: 'post_markdowns/kprn review.md',\n        2: 'post_markdowns/ngcf review.md',\n        3: 'post_markdowns/sasrec review.md',\n        4: 'post_markdowns/srgnn review.md',\n        5: 'post_markdowns/bert4rec review.md'\n    }\n    md_file_path = md_mapper[pk]",
+        "peekOfCode": "def single_post_page_paper_review(request, pk):\n    post = Post.objects.get(pk=pk)\n    md_mapper = {\n        1: \"post_markdowns/paper_review/kprn review.md\",\n        2: \"post_markdowns/paper_review/ngcf review.md\",\n        3: \"post_markdowns/paper_review/sasrec review.md\",\n        4: \"post_markdowns/paper_review/srgnn review.md\",\n        5: \"post_markdowns/paper_review/bert4rec review.md\",\n        6: \"post_markdowns/paper_review/Large Language Models are Zero-Shot Rankers for Recommender Systems.md\",\n    }",
         "detail": "paper_review.views",
         "documentation": {}
     },

@@ -34,35 +34,62 @@
     <header>
         {% include 'navbar.html' %}
     </header>
-    <main>
-        {% include 'left_col_post_list.html' %}
-        <div class="side-gutter"></div>
-        <div class="center-main-field">
-            <div class="paper-review-main">
-                <h1>{{ header }}</h1>
-                <p>{{description}}</p>
-                <hr />
-                {% for p in posts %}
-                <article>
-                    <h2><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></h2>
-                    <div class="user">
-                        {% if p.author_image %}
-                        <img src="{{ p.author_image.url }}" alt="{{ p.author }} 사진">
-                        {% else %}
-                        <img src="{% static 'img/member/for_monthly_pseudorec/default_user.png' %}" alt="기본 사용자 사진">
-                        {% endif %}
-                        <div class="user-info">
-                            <h5>{{ p.author }}</h5>
-                            <small>{{ p.created_at|date:"Y-m-d" }}</small>
+        <main>
+            {% include 'left_col_post_list.html' %}
+            <div class="side-gutter"></div>
+            <div class="center-main-field">
+                <div class="paper-review-main">
+                    <h1>{{ header }}</h1>
+                    <p>{{ description }}</p>
+                    <hr />
+                    {% for p in posts %}
+                    <article class="post-card">
+                        <div class="post-card-image">
+                            <!-- 왼쪽에 새로운 이미지를 추가합니다 -->
+                            {% if p.card_image %}
+                            <a href="{{ p.get_absolute_url }}">
+                                <img src="{{ p.card_image.url }}" alt="Card Image">
+                            </a>
+                            {% else %}
+                            <p>No image available</p>
+                            {% endif %}
                         </div>
-                    </div>
-                    <p>{{ p.content | truncatewords_html:45 | safe}}</p>
+                        <div class="post-card-content">
+                            <h2 class="post-title"><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></h2>
+                            <div class="user">
+                                {% if p.author_image %}
+                                <img src="{{ p.author_image.url }}" alt="{{ p.author }} 사진" class="author-image">
+                                {% else %}
+                                <img src="{% static 'img/member/for_monthly_pseudorec/default_user.png' %}" alt="기본 사용자 사진"
+                                    class="author-image">
+                                {% endif %}
+                                <div class="user-info">
+                                    <h5 class="author-name">{{ p.author }}</h5>
+                                    
+                                </div>
+                            
+                                {% if p.author_image2 %}
+                                <img src="{{ p.author_image2.url }}" alt="{{ p.author2 }} 사진" class="author-image author2-image">
+                                {% else %}
+                                
+                                {% endif %}
+                                {% if p.author2 and p.author2 != "작성자2추가" %}
+                                <div class="user-info author2-info">
+                                    <h5 class="author-name author2-name">{{ p.author2 }}</h5>
+                                </div>
+                                {% else %}
 
-                </article>
-                {% endfor %}
+                                {% endif %}
+                                
+                            </div>
+                            <small class="post-date">{{ p.created_at|date:"Y-m-d" }}</small>
+                            <p class="post-excerpt">{{ p.content | truncatewords_html:45 | safe }}</p>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
 </body>
 
 </html>

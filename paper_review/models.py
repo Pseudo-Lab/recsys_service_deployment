@@ -8,12 +8,14 @@ from users.models import User
 class Post(models.Model):
     title = models.CharField(max_length=100)
     # content = models.TextField()
+    card_image = models.ImageField("카드 이미지", upload_to="paper_review/card_imgs", blank=True)
     content = MarkdownxField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(auto_now=True)
     author = models.CharField(max_length=50, default="작성자추가")
     author_image = models.ImageField("작성자 이미지", upload_to="paper_review/author_imgs", blank=True)
-    # category = models.CharField(max_length=30, default=None, null=True)
+    author2 = models.CharField(max_length=50, default="작성자2추가")
+    author_image2 = models.ImageField("작성자2 이미지", upload_to="paper_review/author_imgs", blank=True)
 
     def __str__(self):
         return f"[{self.pk}]{self.title}"

@@ -220,7 +220,7 @@ KPRN이 좋으니까 논문이 나왔겠죠…?
 
 </aside>
 
-`Relation modeling의 역할`
+**Relation modeling의 역할**
 
 ![Untitled](../../../static/img/kprn review/relation modeling.png)
 
@@ -229,7 +229,7 @@ relation modeling을 하지 않는 KPRN-r 모델을 만들어 비교. (즉, inpu
 - 두 데이터셋 모두 KPRN-r의 성능이 KPRN보다 떨어짐
 - 성능이 떨어진 정도는 KKBox(0.70%)보다 MI(6.45%) 데이터셋에서 더 크다. density의 영향일 수 있음
 
-`Weighted pooling에서 $\gamma$의 영향`
+**Weighted pooling에서 $\gamma$의 영향**
 
 ![Untitled](../../../static/img/kprn review/gamma effect.png)
 

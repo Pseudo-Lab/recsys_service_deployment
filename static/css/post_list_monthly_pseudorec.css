@@ -1,11 +1,15 @@
-ul, ol, li {
+/* Reset some default styles for better control */
+ul,
+ol,
+li {
     list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 main {
     display: table;
     width: 100%;
-
 }
 
 .center-main-field {
@@ -13,16 +17,23 @@ main {
     font-family: "IBM Plex Sans KR", sans-serif;
     font-weight: 400;
     font-style: normal;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.center-main-field h1, h2, h3 {
+.center-main-field h1,
+h2,
+h3 {
     font-weight: normal;
     margin: 0;
     margin-top: 20px;
+    text-align: center;
 }
 
 .center-main-field p {
     margin-top: 5px;
+    text-align: center;
 }
 
 .side-gutter {
@@ -30,74 +41,47 @@ main {
     display: table-cell;
 }
 
-/*@import url("https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600;700;800&display=swap");*/
-
-
-/*body {*/
-/*  background: #f7f8fc;*/
-/*  font-family: 'Fira Sans', sans-serif;*/
-/*  display: -webkit-box;*/
-/*  display: -ms-flexbox;*/
-/*  display: flex;*/
-/*  -webkit-box-align: center;*/
-/*      -ms-flex-align: center;*/
-/*          align-items: center;*/
-/*  -webkit-box-pack: center;*/
-/*      -ms-flex-pack: center;*/
-/*          justify-content: center;*/
-/*  min-height: 100vh;*/
-/*}*/
-
-/* 기타 스타일들 유지 */
-
-.center-main-field {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* 수평 가운데 정렬 */
-    width: 100%;
-    padding: 20px 0; /* 상하 여백 추가 */
-}
-
 .container {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    max-width: 960px;
-    width: 100%;
-    padding: 20px; /* 여백을 추가하여 더 깔끔하게 */
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 25px;
+        /* 카드 간격을 조금 넓게 조정 */
+        max-width: 2100px;
+        width: 100%;
+        padding: 30px;
+        /* 여백을 추가하여 더 깔끔하게 */
 }
 
+/* Responsive card layout */
 .card {
-    flex: 0 1 calc(33.333% - 20px); /* 3개의 카드가 한 행에 들어가도록 설정 */
+    flex: 0 1 calc(33.333% - 20px);
     max-width: 300px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 @media only screen and (max-width: 992px) {
     .card {
-        flex: 0 1 calc(50% - 20px); /* 2개의 카드가 한 행에 들어가도록 설정 */
-        max-width: 300px;
+        flex: 0 1 calc(50% - 20px);
     }
 }
 
 @media only screen and (max-width: 768px) {
     .card {
-        flex: 0 1 100%; /* 1개의 카드가 한 행에 들어가도록 설정 */
-        max-width: 300px;
+        flex: 0 1 100%;
     }
 }
 
-
-
-.card {
-    background: #fff;
-    border-radius: 10px;
-    -webkit-box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-    width: 300px;
-}
-
+/* Card image */
 .card-header {
     padding: 0;
 }
@@ -105,23 +89,24 @@ main {
 .card .card-header img {
     height: 200px;
     width: 100%;
-    -o-object-fit: cover;
     object-fit: cover;
+    transition: transform 0.3s ease;
 }
 
+.card:hover .card-header img {
+    transform: scale(1.1);
+        /* 호버 시 이미지 살짝 확대 */
+        border-radius: 15px 15px 0 0;
+        /* 이미지 상단 모서리를 둥글게 */
+}
+
+/* Card body */
 .card .card-body {
-    display: -webkit-box;
-    display: -ms-flexbox;
+    padding: 15px 20px;
     display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -ms-flex-direction: column;
     flex-direction: column;
-    -webkit-box-align: start;
-    -ms-flex-align: start;
     align-items: start;
-    padding: 20px;
-    min-height: 200px;
+    min-height: 220px;
 }
 
 .card .card-body .tag {
@@ -129,9 +114,10 @@ main {
     border-radius: 50px;
     font-size: 12px;
     color: #fff;
-    margin: 0;
-    padding: 2px 10px;
+    padding: 5px 12px;
+    margin-right: 5px;
     text-transform: uppercase;
+    font-weight: 500;
 }
 
 .card .card-body .tag.tag-teal {
@@ -139,31 +125,37 @@ main {
 }
 
 .card .card-body .tag.tag-purple {
-    background-color: #3d1d94;
-}
-
-.card .card-body .tag.tag-green {
-    background-color: #43a047;
+    background-color: #6d4dd8;
 }
 
 .card .card-body h4 {
-    margin: 10px;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #333;
+    margin: 10px 0;
+    line-height: 1.2;
 }
 
-.card .card-body h4  a{
-    /* word-break: break-all; 알파벳 단위로 내려쓰기  */
+.card .card-body h4 a {
+    color: inherit;
+    text-decoration: none;
 }
 
+.card .card-body h4 a:hover {
+    text-decoration: underline;
+}
 
 .card .card-body p {
-    font-size: 13px;
-    margin: 0 0 30px;
+    font-size: 14px;
+    color: #666;
+    margin: 10px 0 15px;
+    line-height: 1.5;
 }
 
+/* User info section */
 .card .card-body .user {
-    display: -webkit-box;
-    display: -ms-flexbox;
     display: flex;
+    align-items: center;
     margin-top: auto;
 }
 
@@ -171,20 +163,85 @@ main {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-        margin: 10px 10px 10px 10px;
-}
-
-.card .card-body .user .user-info {
-    margin: 10px 0px 10px 0px;
+    margin-right: 10px;
+    border: 2px solid #ddd;
 }
 
 .card .card-body .user .user-info h5 {
-    margin: 0;
-    font-family: "IBM Plex Sans KR", sans-serif;
-    font-weight: 400;
-    font-style: normal;
+        font-size: 0.85em;
+            margin-top: 0.5rem;
+            margin-bottom: 0px;
 }
 
 .card .card-body .user .user-info small {
-    color: #888785;
+    color: #888;
+    font-size: 0.85em;
+}
+
+/* Responsive text sizing */
+@media only screen and (max-width: 768px) {
+    .card .card-body h4 {
+        font-size: 1.1em;
+    }
+
+    .card .card-body p {
+        font-size: 13px;
+    }
+}
+
+/* 토글 스위치 컨테이너 */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    font-family: "IBM Plex Sans KR", sans-serif;
+    font-size: 1em;
+}
+
+/* 스위치 스타일 */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 25px;
+    margin: 0 10px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 5px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: #4caf50;
+}
+
+input:checked+.slider:before {
+    transform: translateX(24px);
 }

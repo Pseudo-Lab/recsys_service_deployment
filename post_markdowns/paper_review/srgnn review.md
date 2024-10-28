@@ -1,4 +1,5 @@
-📄 paper :  <a href="https://ieeexplore.ieee.org/abstract/document/9892682" target="_blank" style="text-decoration: underline;">**SR-GNN: Spatial Relation-Aware Graph Neural Network for Fine-Grained Image Categorization ↗**</a>
+📄 paper :  <a href="https://arxiv.org/abs/1811.00855" target="_blank" style="text-decoration: underline;">**Session-based Recommendation with Graph Neural Networks
+ ↗**</a>
 
 ### Abstract
 

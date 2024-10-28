@@ -2387,6 +2387,38 @@
         "documentation": {}
     },
     {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
         "label": "models",
         "importPath": "django.db",
         "description": "django.db",
@@ -6604,6 +6636,24 @@
         "documentation": {}
     },
     {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "paper_review.migrations.0014_post_card_image_alter_comment_created_at",
+        "description": "paper_review.migrations.0014_post_card_image_alter_comment_created_at",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('paper_review', '0013_alter_post_created_at_and_more'),\n    ]\n    operations = [\n        migrations.AddField(\n            model_name='post',\n            name='card_image',\n            field=models.ImageField(blank=True, upload_to='paper_review/card_imgs', verbose_name='카드 이미지'),\n        ),",
+        "detail": "paper_review.migrations.0014_post_card_image_alter_comment_created_at",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "paper_review.migrations.0015_post_author2_post_author_image2",
+        "description": "paper_review.migrations.0015_post_author2_post_author_image2",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('paper_review', '0014_post_card_image_alter_comment_created_at'),\n    ]\n    operations = [\n        migrations.AddField(\n            model_name='post',\n            name='author2',\n            field=models.CharField(default='작성자2추가', max_length=50),\n        ),",
+        "detail": "paper_review.migrations.0015_post_author2_post_author_image2",
+        "documentation": {}
+    },
+    {
         "label": "mark",
         "kind": 2,
         "importPath": "paper_review.templatetags.paper_review_filter",
@@ -6622,6 +6672,15 @@
         "documentation": {}
     },
     {
+        "label": "PostAdmin",
+        "kind": 6,
+        "importPath": "paper_review.admin",
+        "description": "paper_review.admin",
+        "peekOfCode": "class PostAdmin(admin.ModelAdmin):\n    save_on_top = True\nadmin.site.register(Post, MarkdownxModelAdmin)\nadmin.site.register(PostMonthlyPseudorec, MarkdownxModelAdmin)\nadmin.site.register(Comment)",
+        "detail": "paper_review.admin",
+        "documentation": {}
+    },
+    {
         "label": "PaperReviewConfig",
         "kind": 6,
         "importPath": "paper_review.apps",
@@ -6635,7 +6694,7 @@
         "kind": 6,
         "importPath": "paper_review.models",
         "description": "paper_review.models",
-        "peekOfCode": "class Post(models.Model):\n    title = models.CharField(max_length=100)\n    # content = models.TextField()\n    content = MarkdownxField()\n    created_at = models.DateTimeField()\n    updated_at = models.DateTimeField(auto_now=True)\n    author = models.CharField(max_length=50, default=\"작성자추가\")\n    author_image = models.ImageField(\"작성자 이미지\", upload_to=\"paper_review/author_imgs\", blank=True)\n    # category = models.CharField(max_length=30, default=None, null=True)\n    def __str__(self):",
+        "peekOfCode": "class Post(models.Model):\n    title = models.CharField(max_length=100)\n    # content = models.TextField()\n    card_image = models.ImageField(\"카드 이미지\", upload_to=\"paper_review/card_imgs\", blank=True)\n    content = MarkdownxField()\n    created_at = models.DateTimeField()\n    updated_at = models.DateTimeField(auto_now=True)\n    author = models.CharField(max_length=50, default=\"작성자추가\")\n    author_image = models.ImageField(\"작성자 이미지\", upload_to=\"paper_review/author_imgs\", blank=True)\n    author2 = models.CharField(max_length=50, default=\"작성자2추가\")",
         "detail": "paper_review.models",
         "documentation": {}
     },
@@ -6689,7 +6748,7 @@
         "kind": 2,
         "importPath": "paper_review.views",
         "description": "paper_review.views",
-        "peekOfCode": "def single_post_page_paper_review(request, pk):\n    post = Post.objects.get(pk=pk)\n    md_mapper = {\n        1: \"post_markdowns/paper_review/kprn review.md\",\n        2: \"post_markdowns/paper_review/ngcf review.md\",\n        3: \"post_markdowns/paper_review/sasrec review.md\",\n        4: \"post_markdowns/paper_review/srgnn review.md\",\n        5: \"post_markdowns/paper_review/bert4rec review.md\",\n        6: \"post_markdowns/paper_review/Large Language Models are Zero-Shot Rankers for Recommender Systems.md\",\n    }",
+        "peekOfCode": "def single_post_page_paper_review(request, pk):\n    post = Post.objects.get(pk=pk)\n    md_mapper = {\n        1: \"post_markdowns/paper_review/kprn review.md\",\n        2: \"post_markdowns/paper_review/ngcf review.md\",\n        3: \"post_markdowns/paper_review/sasrec review.md\",\n        4: \"post_markdowns/paper_review/srgnn review.md\",\n        5: \"post_markdowns/paper_review/bert4rec review.md\",\n        6: \"post_markdowns/paper_review/Large Language Models are Zero-Shot Rankers for Recommender Systems.md\",\n        7: \"post_markdowns/paper_review/A Survey of Large Language Models for Graphs.md\",",
         "detail": "paper_review.views",
         "documentation": {}
     },

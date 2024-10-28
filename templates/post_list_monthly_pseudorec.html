@@ -52,7 +52,9 @@
                         <div class="card">
                             <div class="card-header">
                                 {% if post.card_image %}
-                                <img src="{{ post.card_image.url }}" alt="Card Image">
+                                <a href="{{ post.get_absolute_url }}">
+                                    <img src="{{ post.card_image.url }}" alt="Card Image">
+                                </a>
                                 {% else %}
                                 <p>No image available</p>
                                 {% endif %}

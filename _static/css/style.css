@@ -16,13 +16,13 @@ a {
 }
 
 body {
-    background: #efefef;
+    /*background: #efefef;*/
 }
 
 button {
     border: none;
     outline: none;
-    background: #fff;
+    background-color: rgba(0, 0, 0, 0);
     padding: 0;
 }
 
@@ -119,6 +119,10 @@ main div.watched_list {
 
 }
 
+main div.watched_list p.star {
+    color: #ffc107;
+}
+
 
 .listing-star {
     color: #ffc107;
@@ -212,7 +216,7 @@ main .left-float-field p.pseudorec {
 
 main .center-main-field .paper-review-main {
     /*position: absolute;*/
-    width: 100%;
+    /*width: 800px;*/
     margin-bottom: 10px;
     margin-right: 20px;
 
@@ -233,14 +237,42 @@ main .center-main-field .paper-review-main h2 a {
 
 }
 
+main .center-main-field .paper-review-main .custom-class {
+    background-color: #f0f0f0; /* 배경색 설정 */
+    padding: 10px 20px 20px 20px; /* 패딩 설정 */
+    border-radius: 20px; /* 테두리 둥글기 설정 */
+    border: 1px solid #ccc;
+    margin: 10px 0;
+}
+
+main .center-main-field .paper-review-main .custom-class p {
+    line-height: 1.5;
+    letter-spacing: normal;
+}
+
 main .center-main-field .paper-review-main p {
     color: black;
     margin-bottom: 0px;
     /*margin-top: 20px;*/
+    /*letter-spacing: 1px;*/
+    line-height: 2;
 }
 
 main .center-main-field .paper-review-main img {
-    width: 100%;
+    /*width: 100%;*/
+    max-width: 800px;
+    max-height: 500px;
+    height: auto;
+    border: 1px solid #ddd;
+    display: block; /* 블록 요소로 변경 */
+    margin: 0 auto; /* 중앙 정렬 */
+    cursor: pointer;
+}
+
+main .center-main-field .paper-review-main code {
+    background-color: beige;
+    border-radius: 5px; /* 테두리 모서리를 둥글게 만듦 */
+    font-size: 18px;
 }
 
 main .model-rec .description {
@@ -253,9 +285,14 @@ main .model-rec .model-rec-header .listing-group {
 }
 
 
+main .model-rec .description p {
+    color: #000;
+}
+
 main .model-rec .model-rec-header {
     display: flex;
     position: relative;
+    margin-top: 10px;
     /*justify-content: end;*/
     padding: 0 0 2em 0;
 }
@@ -526,6 +563,12 @@ main .model-rec section article > div:hover h2, p {
     }
 }
 
+@media (max-width: 1500px) {
+    div.left-float-field {
+        display: none;
+    }
+}
+
 /*@media screen and (max-width: 1199px) {*/
 /*header {*/
 /*    width: 100%;*/
@@ -613,6 +656,19 @@ main .model-rec section article > div:hover h2, p {
     /*    margin-right: 0%;*/
     /*}*/
     main .model-rec section article {
-        width: 100%;
+        width: 20%;
     }
+
+    body > main > div.inside > div.center-main-field > div > div.posters > section > article > div > p {
+        display: none;
+    }
+
+    .rating {
+        font-size: 1.1em;
+    }
+
+    div.right-field {
+        display: none;
+    }
+
 }

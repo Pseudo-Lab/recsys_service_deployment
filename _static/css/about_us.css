@@ -51,6 +51,7 @@ main {
 
 
 .center-main-field section {
+    max-width: 300px;
     width: 21%;
     /*height: 30vh;*/
     margin: 50px 10px;

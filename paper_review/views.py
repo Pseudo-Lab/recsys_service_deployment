@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from markdownx.utils import markdown as mdx_markdown
 from markdown.extensions.tables import TableExtension
 from markdown.extensions.extra import ExtraExtension
@@ -7,7 +7,14 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
 
 from movie.utils import log_tracking
-from paper_review.models import Post, PostMonthlyPseudorec
+from paper_review.models import Comment, Post, PostMonthlyPseudorec
+
+from paper_review.utils import codeblock
+from .forms import CommentForm
+from django.utils import timezone
+
+paper_review_base_dir = "post_markdowns/paper_review/"
+monthly_pseudorec_base_dir = "post_markdowns/monthly_pseudorec/"
 
 
 def index_paper_review(request):
@@ -35,52 +42,46 @@ def index_monthly_pseudorec(request):
 def single_post_page_paper_review(request, pk):
     post = Post.objects.get(pk=pk)
     md_mapper = {
-        1: "post_markdowns/paper_review/kprn review.md",
-        2: "post_markdowns/paper_review/ngcf review.md",
-        3: "post_markdowns/paper_review/sasrec review.md",
-        4: "post_markdowns/paper_review/srgnn review.md",
-        5: "post_markdowns/paper_review/bert4rec review.md",
-        6: "post_markdowns/paper_review/Large Language Models are Zero-Shot Rankers for Recommender Systems.md",
-        7: "post_markdowns/paper_review/A Survey of Large Language Models for Graphs.md",
-        8: "post_markdowns/paper_review/A Large Language Model Enhanced Conversational Recommender System.md",
-        9: "post_markdowns/paper_review/Seven Failure Points When Engineering a Retrieval Augmented Generation System.md",
+        1: paper_review_base_dir + "kprn review.md",
+        2: paper_review_base_dir + "ngcf review.md",
+        3: paper_review_base_dir + "sasrec review.md",
+        4: paper_review_base_dir + "srgnn review.md",
+        5: paper_review_base_dir + "bert4rec review.md",
+        6: paper_review_base_dir + "Large Language Models are Zero-Shot Rankers for Recommender Systems.md",
+        7: paper_review_base_dir + "A Survey of Large Language Models for Graphs.md",
+        8: paper_review_base_dir + "A Large Language Model Enhanced Conversational Recommender System.md",
+        9: paper_review_base_dir + "Seven Failure Points When Engineering a Retrieval Augmented Generation System.md",
     }
     md_file_path = md_mapper[pk]
     post.set_content_from_md_file(md_file_path)
-
-    # Markdown 내용을 읽어와서 파싱
-    markdown_content = post.content
-    html_content = ''
-    in_code_block = False
-    code_block = ''
-    for line in markdown_content.split('\n'):
-        if '```' in line:
-            if not in_code_block:
-                in_code_block = True
-                code_block = ''
-            else:
-                in_code_block = False
-                # 코드 블록에 Pygments 적용
-                lexer = get_lexer_by_name('python', stripall=True)
-                formatter = HtmlFormatter(cssclass="codehilite")
-                highlighted_code = highlight(code_block, lexer, formatter)
-                html_content += highlighted_code
-        elif in_code_block:
-            code_block += line + '\n'
-        else:
-            html_content += line + '\n'
-
+    html_content = codeblock(post)
     # Pygments 적용된 HTML을 Markdown으로 변환하여 템플릿에 전달
     markdown_content_with_highlight = mdx_markdown(
         html_content, extensions=[TableExtension(), ExtraExtension()]
     )
+
+    # 댓글 폼과 댓글 리스트 추가
+    comments = Comment.objects.filter(post=post).order_by("-created_at")
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.created_at = timezone.now()
+            comment.save()
+            return redirect("single_post_page_paper_review", pk=post.pk)
+    else:
+        form = CommentForm()
 
     return render(
         request=request,
         template_name='post_detail.html',
         context={
             'post': post,
-            'markdown_content_with_highlight': markdown_content_with_highlight
+            'markdown_content_with_highlight': markdown_content_with_highlight,
+            'comments': comments,
+            'form': form,
         }
     )
 
@@ -88,56 +89,34 @@ def single_post_page_paper_review(request, pk):
 def single_post_page_monthly_pseudorec(request, pk):
     post = PostMonthlyPseudorec.objects.get(pk=pk)
     md_mapper = {
-        1: "post_markdowns/monthly_pseudorec/202405/202404_kyungah.md",
-        2: "post_markdowns/monthly_pseudorec/202405/202404_minsang.md",
-        3: "post_markdowns/monthly_pseudorec/202405/202404_kyeongchan.md",
-        4: "post_markdowns/monthly_pseudorec/202405/202404_hyunwoo.md",
-        5: "post_markdowns/monthly_pseudorec/202405/202404_namjoon.md",
-        6: "post_markdowns/monthly_pseudorec/202405/202404_soonhyeok.md",
-        7: "post_markdowns/monthly_pseudorec/202406/202406_kyeongchan.md",
-        8: "post_markdowns/monthly_pseudorec/202406/202406_soonhyeok.md",
-        9: "post_markdowns/monthly_pseudorec/202406/202406_namjoon.md",
-        10: "post_markdowns/monthly_pseudorec/202406/202406_hyeonwoo.md",
-        11: "post_markdowns/monthly_pseudorec/202406/202406_minsang.md",
-        12: "post_markdowns/monthly_pseudorec/202406/202406_gyungah.md",
-        13: "post_markdowns/monthly_pseudorec/202408/202408_kyeongchan.md",
-        14: "post_markdowns/monthly_pseudorec/202408/202408_soonhyeok.md",
-        15: "post_markdowns/monthly_pseudorec/202408/202408_namjoon.md",
-        16: "post_markdowns/monthly_pseudorec/202408/202408_hyeonwoo.md",
-        17: "post_markdowns/monthly_pseudorec/202408/202408_minsang.md",
-        18: "post_markdowns/monthly_pseudorec/202408/202408_gyungah.md",
-        19: "post_markdowns/monthly_pseudorec/202409/202409_kyeongchan.md",
-        20: "post_markdowns/monthly_pseudorec/202409/202409_sanghyeon.md",
-        21: "post_markdowns/monthly_pseudorec/202409/202409_minsang.md",
-        22: "post_markdowns/monthly_pseudorec/202409/202409_seonjin.md",
+        1: monthly_pseudorec_base_dir + "202405/202404_kyungah.md",
+        2: monthly_pseudorec_base_dir + "202405/202404_minsang.md",
+        3: monthly_pseudorec_base_dir + "202405/202404_kyeongchan.md",
+        4: monthly_pseudorec_base_dir + "202405/202404_hyunwoo.md",
+        5: monthly_pseudorec_base_dir + "202405/202404_namjoon.md",
+        6: monthly_pseudorec_base_dir + "202405/202404_soonhyeok.md",
+        7: monthly_pseudorec_base_dir + "202406/202406_kyeongchan.md",
+        8: monthly_pseudorec_base_dir + "202406/202406_soonhyeok.md",
+        9: monthly_pseudorec_base_dir + "202406/202406_namjoon.md",
+        10: monthly_pseudorec_base_dir + "202406/202406_hyeonwoo.md",
+        11: monthly_pseudorec_base_dir + "202406/202406_minsang.md",
+        12: monthly_pseudorec_base_dir + "202406/202406_gyungah.md",
+        13: monthly_pseudorec_base_dir + "202408/202408_kyeongchan.md",
+        14: monthly_pseudorec_base_dir + "202408/202408_soonhyeok.md",
+        15: monthly_pseudorec_base_dir + "202408/202408_namjoon.md",
+        16: monthly_pseudorec_base_dir + "202408/202408_hyeonwoo.md",
+        17: monthly_pseudorec_base_dir + "202408/202408_minsang.md",
+        18: monthly_pseudorec_base_dir + "202408/202408_gyungah.md",
+        19: monthly_pseudorec_base_dir + "202409/202409_kyeongchan.md",
+        20: monthly_pseudorec_base_dir + "202409/202409_sanghyeon.md",
+        21: monthly_pseudorec_base_dir + "202409/202409_minsang.md",
+        22: monthly_pseudorec_base_dir + "202409/202409_seonjin.md",
     }
     md_file_path = md_mapper[pk]
     log_tracking(request=request, view='/'.join(md_file_path.split('/')[1:]))
     print(f"monthly pseudorec log test")
     post.set_content_from_md_file(md_file_path)
-
-    # Markdown 내용을 읽어와서 파싱
-    markdown_content = post.content
-    html_content = ''
-    in_code_block = False
-    code_block = ''
-    for line in markdown_content.split('\n'):
-        if '```' in line:
-            if not in_code_block:
-                in_code_block = True
-                code_block = ''
-            else:
-                in_code_block = False
-                # 코드 블록에 Pygments 적용
-                lexer = get_lexer_by_name('python', stripall=True)
-                formatter = HtmlFormatter(cssclass="codehilite")
-                highlighted_code = highlight(code_block, lexer, formatter)
-                html_content += highlighted_code
-        elif in_code_block:
-            code_block += line + '\n'
-        else:
-            html_content += line + '\n'
-
+    html_content = codeblock(post)
     # Pygments 적용된 HTML을 Markdown으로 변환하여 템플릿에 전달
     markdown_content_with_highlight = mdx_markdown(
         html_content, extensions=[TableExtension(), ExtraExtension()]
@@ -151,3 +130,32 @@ def single_post_page_monthly_pseudorec(request, pk):
             'markdown_content_with_highlight': markdown_content_with_highlight
         }
     )
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Comment
+from .forms import CommentForm
+
+
+@login_required
+def edit_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id, author=request.user)
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect("single_post_page_paper_review", pk=comment.post.pk)
+    else:
+        form = CommentForm(instance=comment)
+    return render(request, "edit_comment.html", {"form": form, "comment": comment})
+
+
+@login_required
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id, author=request.user)
+    if request.method == "POST":
+        post_pk = comment.post.pk
+        comment.delete()
+        return redirect("single_post_page_paper_review", pk=post_pk)
+    return render(request, "confirm_delete.html", {"comment": comment})

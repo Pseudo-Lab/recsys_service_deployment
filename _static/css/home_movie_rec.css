@@ -25,7 +25,7 @@ article {
     display: table-cell;
 }
 
-.center-main-field{
+.center-main-field {
     width: 75%;
 }
 
@@ -41,8 +41,31 @@ article {
     padding-top: 10px;
     padding-bottom: 10px;
     display: flex;
-
+    position: relative; /* 부모 요소로부터 상대적 위치 설정 */
 }
+
+.right-field .delete-icon {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    color: #8192a1;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1;
+    opacity: 0; /* 초기에는 숨겨진 상태 */
+    transition: opacity 0.3s ease; /* 부드러운 효과를 위한 transition 설정 */
+}
+
+.right-field .watched_movie:hover .delete-icon {
+    opacity: 1; /* 마우스 오버 시 표시됨 */
+}
+
 
 .right-field .poster {
     width: 25%;
@@ -54,6 +77,38 @@ article {
 
 .right-field .title p {
     width: 100%;
-    height: 100%;
+    /*height: 100%;*/
 }
 
+.right-field .title p.no-star {
+    color: #8192a1;
+    margin: 0;
+    padding: 0;
+    padding-left: 10px;
+}
+
+main div.watched_list p.star {
+    color: #ffc107;
+    margin: 0;
+    padding: 0;
+    padding-left: 10px;
+}
+
+    .button-container {
+        text-align: center; /* 가운데 정렬 */
+        margin-top: 20px; /* 원하는 만큼의 마진을 추가하여 위로 올립니다. */
+    }
+
+.right-field .btn-small {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    background-color: #f89494; /* 중간 회색 */
+    color: white;
+}
+
+.right-field .btn-small:hover {
+    background-color: #a81e1e; /* 약간 더 어두운 회색 */
+}

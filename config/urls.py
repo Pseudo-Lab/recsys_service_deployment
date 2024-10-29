@@ -37,7 +37,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     # path('sasrec/', include('movie.urls')),
     path('ngcf/', include("movie.urls")),
-    path('movie_recommendation/', include("movie.urls"))
+    path('movie_recommendation/', include("movie.urls")),
 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

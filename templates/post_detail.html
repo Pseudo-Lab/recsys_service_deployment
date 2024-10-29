@@ -99,6 +99,49 @@
         </div>
 
     </main>
+    <div id="comments-section">
+        <h3>Leave a Comment:</h3>
+        <form id="commentForm" method="post">
+            {% csrf_token %}
+            <textarea id="commentInput" name="content" placeholder="Write your comment here..." required></textarea>
+            <div class="comment-form-actions">
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+
+        <h3>Comments:</h3>
+        <div id="comments-list">
+            {% for comment in comments %}
+            <div class="comment-item">
+                {% if comment.author.profile_image %}
+                <div class="comment-avatar">
+                    <img src="{{ comment.author.profile_image }}" alt="avatar">
+                </div>
+                {% else %}
+                <div class="comment-avatar">
+                    <img src="{% static 'img/member/for_monthly_pseudorec/default_user.png' %}" alt="avatar">
+                </div>
+                {% endif %}
+                <div class="comment-content">
+                    <div class="comment-author">{{ comment.author }}</div>
+                    <p class="comment-text">{{ comment.content }}</p>
+                    <span class="comment-date">{{ comment.created_at|date:"Y년 m월 d일 P" }}</span>
+                    <!-- 수정 및 삭제 버튼 -->
+                    {% if comment.author == request.user %}
+                    <div class="comment-actions">
+                        <a href="{% url 'edit_comment' comment.id %}" class="edit-button">Edit</a>
+                        <a href="{% url 'delete_comment' comment.id %}" class="delete-button">Delete</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p>No comments yet. Be the first to comment!</p>
+            {% endfor %}
+        </div>
+    </div>
+
+
 </body>
 {{ form.media }}
 

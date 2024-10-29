@@ -1,0 +1,28 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Comment</title>
+    <link rel="stylesheet" href="{% static 'css/edit_comment.css' %}">
+</head>
+
+<body>
+    <div class="edit-container">
+        <h3>Edit Comment:</h3>
+        <form method="post" id="edit-comment-form">
+            {% csrf_token %}
+            <label for="commentInput">Content:</label>
+            {{ form.content }}
+            <div class="form-actions">
+                <button type="submit" class="save-button">Save changes</button>
+                <a href="{% url 'single_post_page_paper_review' comment.post.pk %}" class="cancel-link">Cancel</a>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

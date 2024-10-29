@@ -2651,7 +2651,39 @@
         "documentation": {}
     },
     {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
         "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_object_or_404",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
         "importPath": "django.shortcuts",
         "description": "django.shortcuts",
         "isExtraImport": true,
@@ -3454,6 +3486,14 @@
         "documentation": {}
     },
     {
+        "label": "forms",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
         "label": "mark_safe",
         "importPath": "django.utils.safestring",
         "description": "django.utils.safestring",
@@ -3510,6 +3550,54 @@
         "documentation": {}
     },
     {
+        "label": "get_lexer_by_name",
+        "importPath": "pygments.lexers",
+        "description": "pygments.lexers",
+        "isExtraImport": true,
+        "detail": "pygments.lexers",
+        "documentation": {}
+    },
+    {
+        "label": "get_lexer_by_name",
+        "importPath": "pygments.lexers",
+        "description": "pygments.lexers",
+        "isExtraImport": true,
+        "detail": "pygments.lexers",
+        "documentation": {}
+    },
+    {
+        "label": "HtmlFormatter",
+        "importPath": "pygments.formatters",
+        "description": "pygments.formatters",
+        "isExtraImport": true,
+        "detail": "pygments.formatters",
+        "documentation": {}
+    },
+    {
+        "label": "HtmlFormatter",
+        "importPath": "pygments.formatters",
+        "description": "pygments.formatters",
+        "isExtraImport": true,
+        "detail": "pygments.formatters",
+        "documentation": {}
+    },
+    {
+        "label": "highlight",
+        "importPath": "pygments",
+        "description": "pygments",
+        "isExtraImport": true,
+        "detail": "pygments",
+        "documentation": {}
+    },
+    {
+        "label": "highlight",
+        "importPath": "pygments",
+        "description": "pygments",
+        "isExtraImport": true,
+        "detail": "pygments",
+        "documentation": {}
+    },
+    {
         "label": "TableExtension",
         "importPath": "markdown.extensions.tables",
         "description": "markdown.extensions.tables",
@@ -3526,27 +3614,11 @@
         "documentation": {}
     },
     {
-        "label": "highlight",
-        "importPath": "pygments",
-        "description": "pygments",
+        "label": "Comment",
+        "importPath": "paper_review.models",
+        "description": "paper_review.models",
         "isExtraImport": true,
-        "detail": "pygments",
-        "documentation": {}
-    },
-    {
-        "label": "HtmlFormatter",
-        "importPath": "pygments.formatters",
-        "description": "pygments.formatters",
-        "isExtraImport": true,
-        "detail": "pygments.formatters",
-        "documentation": {}
-    },
-    {
-        "label": "get_lexer_by_name",
-        "importPath": "pygments.lexers",
-        "description": "pygments.lexers",
-        "isExtraImport": true,
-        "detail": "pygments.lexers",
+        "detail": "paper_review.models",
         "documentation": {}
     },
     {
@@ -3563,6 +3635,30 @@
         "description": "paper_review.models",
         "isExtraImport": true,
         "detail": "paper_review.models",
+        "documentation": {}
+    },
+    {
+        "label": "codeblock",
+        "importPath": "paper_review.utils",
+        "description": "paper_review.utils",
+        "isExtraImport": true,
+        "detail": "paper_review.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.decorators",
         "documentation": {}
     },
     {
@@ -6690,6 +6786,15 @@
         "documentation": {}
     },
     {
+        "label": "CommentForm",
+        "kind": 6,
+        "importPath": "paper_review.forms",
+        "description": "paper_review.forms",
+        "peekOfCode": "class CommentForm(forms.ModelForm):\n    class Meta:\n        model = Comment\n        fields = [\"content\"]",
+        "detail": "paper_review.forms",
+        "documentation": {}
+    },
+    {
         "label": "Post",
         "kind": 6,
         "importPath": "paper_review.models",
@@ -6721,8 +6826,17 @@
         "kind": 5,
         "importPath": "paper_review.urls",
         "description": "paper_review.urls",
-        "peekOfCode": "urlpatterns = [\n    # path('<int:pk>/', views.PostDetail.as_view()),\n    # path('', views.PostList.as_view()),\n    path('paper_review/<int:pk>/', views.single_post_page_paper_review),\n    path('paper_review/', views.index_paper_review),\n    path('monthly_pseudorec/', views.index_monthly_pseudorec),\n    path('monthly_pseudorec/<int:pk>/', views.single_post_page_monthly_pseudorec)\n]",
+        "peekOfCode": "urlpatterns = [\n    # path('<int:pk>/', views.PostDetail.as_view()),\n    # path('', views.PostList.as_view()),\n    path(\n        \"paper_review/<int:pk>/\",\n        views.single_post_page_paper_review,\n        name=\"single_post_page_paper_review\",\n    ),\n    path(\"paper_review/\", views.index_paper_review),\n    path(\"monthly_pseudorec/\", views.index_monthly_pseudorec),",
         "detail": "paper_review.urls",
+        "documentation": {}
+    },
+    {
+        "label": "codeblock",
+        "kind": 2,
+        "importPath": "paper_review.utils",
+        "description": "paper_review.utils",
+        "peekOfCode": "def codeblock(post):\n    # Markdown 내용을 읽어와서 파싱\n    markdown_content = post.content\n    html_content = ''\n    in_code_block = False\n    code_block = ''\n    for line in markdown_content.split('\\n'):\n        if '```' in line:\n            if not in_code_block:\n                in_code_block = True",
+        "detail": "paper_review.utils",
         "documentation": {}
     },
     {
@@ -6748,7 +6862,7 @@
         "kind": 2,
         "importPath": "paper_review.views",
         "description": "paper_review.views",
-        "peekOfCode": "def single_post_page_paper_review(request, pk):\n    post = Post.objects.get(pk=pk)\n    md_mapper = {\n        1: \"post_markdowns/paper_review/kprn review.md\",\n        2: \"post_markdowns/paper_review/ngcf review.md\",\n        3: \"post_markdowns/paper_review/sasrec review.md\",\n        4: \"post_markdowns/paper_review/srgnn review.md\",\n        5: \"post_markdowns/paper_review/bert4rec review.md\",\n        6: \"post_markdowns/paper_review/Large Language Models are Zero-Shot Rankers for Recommender Systems.md\",\n        7: \"post_markdowns/paper_review/A Survey of Large Language Models for Graphs.md\",",
+        "peekOfCode": "def single_post_page_paper_review(request, pk):\n    post = Post.objects.get(pk=pk)\n    md_mapper = {\n        1: paper_review_base_dir + \"kprn review.md\",\n        2: paper_review_base_dir + \"ngcf review.md\",\n        3: paper_review_base_dir + \"sasrec review.md\",\n        4: paper_review_base_dir + \"srgnn review.md\",\n        5: paper_review_base_dir + \"bert4rec review.md\",\n        6: paper_review_base_dir + \"Large Language Models are Zero-Shot Rankers for Recommender Systems.md\",\n        7: paper_review_base_dir + \"A Survey of Large Language Models for Graphs.md\",",
         "detail": "paper_review.views",
         "documentation": {}
     },
@@ -6757,7 +6871,43 @@
         "kind": 2,
         "importPath": "paper_review.views",
         "description": "paper_review.views",
-        "peekOfCode": "def single_post_page_monthly_pseudorec(request, pk):\n    post = PostMonthlyPseudorec.objects.get(pk=pk)\n    md_mapper = {\n        1: \"post_markdowns/monthly_pseudorec/202405/202404_kyungah.md\",\n        2: \"post_markdowns/monthly_pseudorec/202405/202404_minsang.md\",\n        3: \"post_markdowns/monthly_pseudorec/202405/202404_kyeongchan.md\",\n        4: \"post_markdowns/monthly_pseudorec/202405/202404_hyunwoo.md\",\n        5: \"post_markdowns/monthly_pseudorec/202405/202404_namjoon.md\",\n        6: \"post_markdowns/monthly_pseudorec/202405/202404_soonhyeok.md\",\n        7: \"post_markdowns/monthly_pseudorec/202406/202406_kyeongchan.md\",",
+        "peekOfCode": "def single_post_page_monthly_pseudorec(request, pk):\n    post = PostMonthlyPseudorec.objects.get(pk=pk)\n    md_mapper = {\n        1: monthly_pseudorec_base_dir + \"202405/202404_kyungah.md\",\n        2: monthly_pseudorec_base_dir + \"202405/202404_minsang.md\",\n        3: monthly_pseudorec_base_dir + \"202405/202404_kyeongchan.md\",\n        4: monthly_pseudorec_base_dir + \"202405/202404_hyunwoo.md\",\n        5: monthly_pseudorec_base_dir + \"202405/202404_namjoon.md\",\n        6: monthly_pseudorec_base_dir + \"202405/202404_soonhyeok.md\",\n        7: monthly_pseudorec_base_dir + \"202406/202406_kyeongchan.md\",",
+        "detail": "paper_review.views",
+        "documentation": {}
+    },
+    {
+        "label": "edit_comment",
+        "kind": 2,
+        "importPath": "paper_review.views",
+        "description": "paper_review.views",
+        "peekOfCode": "def edit_comment(request, comment_id):\n    comment = get_object_or_404(Comment, id=comment_id, author=request.user)\n    if request.method == \"POST\":\n        form = CommentForm(request.POST, instance=comment)\n        if form.is_valid():\n            form.save()\n            return redirect(\"single_post_page_paper_review\", pk=comment.post.pk)\n    else:\n        form = CommentForm(instance=comment)\n    return render(request, \"edit_comment.html\", {\"form\": form, \"comment\": comment})",
+        "detail": "paper_review.views",
+        "documentation": {}
+    },
+    {
+        "label": "delete_comment",
+        "kind": 2,
+        "importPath": "paper_review.views",
+        "description": "paper_review.views",
+        "peekOfCode": "def delete_comment(request, comment_id):\n    comment = get_object_or_404(Comment, id=comment_id, author=request.user)\n    if request.method == \"POST\":\n        post_pk = comment.post.pk\n        comment.delete()\n        return redirect(\"single_post_page_paper_review\", pk=post_pk)\n    return render(request, \"confirm_delete.html\", {\"comment\": comment})",
+        "detail": "paper_review.views",
+        "documentation": {}
+    },
+    {
+        "label": "paper_review_base_dir",
+        "kind": 5,
+        "importPath": "paper_review.views",
+        "description": "paper_review.views",
+        "peekOfCode": "paper_review_base_dir = \"post_markdowns/paper_review/\"\nmonthly_pseudorec_base_dir = \"post_markdowns/monthly_pseudorec/\"\ndef index_paper_review(request):\n    print(request)\n    posts = Post.objects.all().order_by('-pk')\n    return render(request=request,\n                  template_name='post_list.html',\n                  context={\n                      'posts': posts,\n                      'header': 'Paper Review'",
+        "detail": "paper_review.views",
+        "documentation": {}
+    },
+    {
+        "label": "monthly_pseudorec_base_dir",
+        "kind": 5,
+        "importPath": "paper_review.views",
+        "description": "paper_review.views",
+        "peekOfCode": "monthly_pseudorec_base_dir = \"post_markdowns/monthly_pseudorec/\"\ndef index_paper_review(request):\n    print(request)\n    posts = Post.objects.all().order_by('-pk')\n    return render(request=request,\n                  template_name='post_list.html',\n                  context={\n                      'posts': posts,\n                      'header': 'Paper Review'\n                  })",
         "detail": "paper_review.views",
         "documentation": {}
     },

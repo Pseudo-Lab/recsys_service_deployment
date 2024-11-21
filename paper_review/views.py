@@ -111,6 +111,8 @@ def single_post_page_monthly_pseudorec(request, pk):
         20: monthly_pseudorec_base_dir + "202409/202409_sanghyeon.md",
         21: monthly_pseudorec_base_dir + "202409/202409_minsang.md",
         22: monthly_pseudorec_base_dir + "202409/202409_seonjin.md",
+        23: monthly_pseudorec_base_dir + "202410/202410_soonhyeok.md",
+        24: monthly_pseudorec_base_dir + "202410/202410_seonjin.md",
     }
     md_file_path = md_mapper[pk]
     log_tracking(request=request, view='/'.join(md_file_path.split('/')[1:]))

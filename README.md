@@ -10,6 +10,18 @@ AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
 AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} 
 AWS_REGION_NAME=${AWS_REGION_NAME} 
 ```
+
+로컬에서 실행하기 위해 사전에 다음을 실행하여 설치하세요(Mac)
+```
+brew install mysql@8.4
+```
+```
+pip install dgl -f https://data.dgl.ai/wheels/repo.html
+```
+```
+pip install -r requirements.txt
+```
+
 다음 명령어를 실행하면 Django를 실행시킵니다.
 ```shell
 # docker-compose -f docker-compose.broker.yml up -d -> 현재 쓰지 않습니다.

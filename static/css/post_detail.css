@@ -303,9 +303,9 @@ table caption {
         display: none;
     }
 
-    .left-float-field {
+    /* .left-float-field {
         display: none;
-    }
+    } */
 }
 
 #comments-section {

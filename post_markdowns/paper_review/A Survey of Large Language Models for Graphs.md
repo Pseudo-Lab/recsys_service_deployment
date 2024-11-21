@@ -1,7 +1,6 @@
 - 주발표자 : 박순혁(2. PRELIMINARIES AND TAXONOMY ~ 3. LARGE LANGUAGE MODELS FOR GRAPHS)
 - 부발표자 : 황선진(ABSTRACT ~ 1. INTRODUCTION)
-- 논문 : 📄 <a href="https://arxiv.org/pdf/2405.08011" target="_blank" style="text-decoration: underline;">**A Survey of Large Language Models for Graphs
- ↗**</a>
+- 논문 : 📄 <a href="https://arxiv.org/pdf/2405.08011" target="_blank" style="text-decoration: underline;">**A Survey of Large Language Models for Graphs ↗**</a>
 
 
 

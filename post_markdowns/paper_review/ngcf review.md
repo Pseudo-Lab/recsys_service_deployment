@@ -1,9 +1,6 @@
 
 
-
 📄 paper :  <a href="https://arxiv.org/abs/1905.08108" target="_blank" style="text-decoration: underline;">**Neural graph collaborative filtering ↗**</a>
-
-
 
 ---
 

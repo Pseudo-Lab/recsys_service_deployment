@@ -51,6 +51,9 @@ def single_post_page_paper_review(request, pk):
         7: paper_review_base_dir + "A Survey of Large Language Models for Graphs.md",
         8: paper_review_base_dir + "A Large Language Model Enhanced Conversational Recommender System.md",
         9: paper_review_base_dir + "Seven Failure Points When Engineering a Retrieval Augmented Generation System.md",
+        10: paper_review_base_dir + "HalluMeasure: Fine-grained Hallucination Measurement Using Chain-of-Thought Reasoning.md",
+        11: paper_review_base_dir + "Addressing Confounding Feature Issue for Causal Recommendation.md",
+        12: paper_review_base_dir + "ONCE: Boosting Content-based Recommendation with Both Open- and Closed-source Large Language Models.md",
     }
     md_file_path = md_mapper[pk]
     post.set_content_from_md_file(md_file_path)

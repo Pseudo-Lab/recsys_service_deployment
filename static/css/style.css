@@ -37,73 +37,6 @@ ion-icon {
 }
 
 
-/*header {*/
-/*    width: 400px;*/
-/*    height: 100%;*/
-/*    background: linear-gradient(45deg, #000000, royalblue);*/
-/*    position: fixed;*/
-/*    top: 0px;*/
-/*    left: 0px;*/
-/*    transition: 0.5s;*/
-/*}*/
-
-/*header h1 {*/
-/*    font: bold 50px/1 'orbitron';*/
-/*    color: #fff;*/
-/*    letter-spacing: 6px;*/
-/*    position: absolute;*/
-/*    left: 50px;*/
-/*    top: 5%;*/
-/*    !*transform: translateY(-150%);*!*/
-/*}*/
-
-/*header h1::after {*/
-/*    content: '';*/
-/*    display: block;*/
-/*    width: 150px;*/
-/*    height: 2px;*/
-/*    background: #fff;*/
-/*    margin-top: 20px;*/
-/*}*/
-
-/*header h1::before {*/
-/*    content: none;*/
-/*    display: block;*/
-/*    font: 14px/1 'orbitron';*/
-/*    color: #fff;*/
-/*    letter-spacing: 2px;*/
-/*    position: absolute;*/
-/*    left: 0px;*/
-/*    top: 140px;*/
-/*    opacity: 0.8;*/
-/*}*/
-
-/*header h2 {*/
-/*    font: bold 50px/1 'orbitron';*/
-/*    color: #fff;*/
-/*    letter-spacing: 1px;*/
-/*    position: absolute;*/
-/*    left: 50px;*/
-/*    top: 30%;*/
-/*    transform: translateY(-150%);*/
-/*}*/
-
-/*header div.clicked_movies {*/
-/*    font: 20px/1 'obitron';*/
-/*    color: #fff;*/
-/*    !* display:inline-block; *!*/
-
-/*    position: absolute;*/
-/*    !*left: 50px;*!*/
-/*    top: 20%;*/
-/*    width: 100%;*/
-/*    !* transform:translateY(300%); *!*/
-/*    padding: 20px;*/
-/*    text-align: center;*/
-/*    box-sizing: border-box;*/
-
-/*}*/
-
 main div.watched_list {
     font: bold 18px/1 'orbitron';
     color: #fff;
@@ -128,41 +61,6 @@ main div.watched_list p.star {
     color: #ffc107;
 }
 
-/* header div{
-  font: 30px/1 'obitron';
-  color:#fff;
-  display:inline-block;
-  opacity:0.7;
-  position:absolute;
-  left:300px;
-  top:50%;
-} */
-
-
-/*header ul {*/
-/*    position: absolute;*/
-/*    left: 40px;*/
-/*    bottom: 50px;*/
-/*}*/
-
-/*header ul li {*/
-/*    float: left;*/
-/*    margin-right: 10px;*/
-/*}*/
-
-/*header ul li a {*/
-/*    font-size: 20px;*/
-/*    color: #fff;*/
-/*}*/
-
-
-/*header ul li a span {*/
-/*    display: inline-block;*/
-/*    font-weight: bold;*/
-/*    opacity: 0.7;*/
-/*    transform: scale(0.7) translateX(-10px);*/
-/*}*/
-
 main {
     width: 100%;
     box-sizing: border-box;
@@ -178,12 +76,16 @@ main::after {
 }
 
 main .left-float-field {
-    /*position: absolute;*/
-    /*width: 250px;*/
-    height: 800px;
-    /*float: left;*/
-    /*border: 1px solid #000000;*/
-    box-sizing: border-box;
+    /* position: fixed; */
+    left: 0;
+    top: 0;
+    width: 300px;
+    height: 100vh;
+    /* background-color: #f8f9fa; */
+    /* box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); */
+
+    transition: transform 0.3s ease; /* 애니메이션 추가 */
+    z-index: 1000;
 }
 
 main .left-float-field img {
@@ -196,23 +98,35 @@ main .left-float-field p.pseudorec {
     color: black;
     text-align: center;
     letter-spacing: 0.05em;
-
-
 }
 
+/* 사이드 바가 활성화된 경우 */
+.left-float-field.open {
+    transform: translateX(0); /* 화면 안으로 이동 */
+}
 
-/*main .right-content-field {*/
-/*    !*float: left;*!*/
-/*    !*border: 2px solid #ff797b;*!*/
-/*    !* display: flex;*!*/
-/*  align-items: center;*/
-/*  justify-content: center;*/
-/*}*/
+.hamburger-menu {
+    display: none;
+}
 
-/*.model-rec ul, ol, li {*/
-/*    list-style: none;*/
-/*}*/
+.hamburger-menu div {
+    width: 25px;
+    height: 3px;
+    background-color: #333;
+    transition: all 0.3s ease;
+}
 
+.hamburger-menu.open div:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+
+.hamburger-menu.open div:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-menu.open div:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
 
 main .center-main-field .paper-review-main {
     /*position: absolute;*/
@@ -550,111 +464,50 @@ main .model-rec section article > div:hover h2, p {
     }
 }
 
-
 @media screen and (max-width: 1100px) {
-    /*header {*/
-    /*    width: 100%;*/
-    /*}*/
-    /*main {*/
-    /*    margin-left: 350px;*/
-    /*}*/
     main .model-rec section article {
         width: 33%;
     }
 }
 
 @media (max-width: 1500px) {
-    div.left-float-field {
-        display: none;
+    .center-main-field {
+        width: 100%;
     }
+
+    div.left-float-field {
+        /* transform: translateX(-100%); 기본적으로 숨김 상태 */
+        transform: translateX(-100%); /* 기본적으로 화면 밖으로 밀어냄 */
+        position: fixed; /* 고정 위치 설정 */
+        height: 100vh; /* 화면 높이로 확장 */
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        background: white;
+    }
+
+    .hamburger-menu {
+        position: absolute;
+        top: 20px;
+        right: -55px;
+        z-index: 1100;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 30px;
+    }
+
 }
 
-/*@media screen and (max-width: 1199px) {*/
-/*header {*/
-/*    width: 100%;*/
-/*    height: 80px;*/
-/*    position: relative;*/
-/*}*/
-
-/*header h1 {*/
-/*    font: bold 24px/1 'orbitron';*/
-/*    transform: translateY(80%);*/
-/*}*/
-
-/*header h1::before, header h1::after {*/
-/*    display: none;*/
-/*}*/
-
-/*header div.clicked_movies {*/
-/*    display: none;*/
-/*}*/
-
-/*header div.watched_list {*/
-/*    display: none;*/
-/*}*/
-
-/*header ul {*/
-/*    left: 83%;*/
-/*    bottom: 25px;*/
-/*}*/
-
-/*header ul li {*/
-/*    margin-right: 20px;*/
-/*}*/
-
-/*header ul li a {*/
-/*    font-size: 20px;*/
-/*}*/
-
-/*header ul li a span {*/
-/*    display: none;*/
-/*}*/
-
-/*main {*/
-/*    width: 100%;*/
-/*    margin-left: 0px;*/
-/*}*/
-
-/*    main .model-rec section article {*/
-/*        width: 25%;*/
-/*    }*/
-/*}*/
-
-/*@media screen and (max-width: 899px) {*/
-/*    !*header ul {*!*/
-/*    !*    left: 80%;*!*/
-/*    !*}*!*/
-
-/*    main .model-rec section article {*/
-/*        width: 33.333%;*/
-/*    }*/
-/*}*/
-
 @media screen and (max-width: 679px) {
-    /*header ul {*/
-    /*    left: 70%;*/
-    /*}*/
     main .model-rec section article {
         width: 50%;
     }
 }
 
 @media screen and (max-width: 539px) {
-    /*header ul {*/
-    /*    display: none;*/
-    /*}*/
-    /*main ul {*/
-    /*    margin-right: 0px;*/
-    /*    box-sizing: border-box;*/
-    /*    padding: 0px 13px;*/
-    /*}*/
-    /*main ul li {*/
-    /*    margin-right: 2%;*/
-    /*    width: 32%;*/
-    /*}*/
-    /*main ul li:nth-of-type(1) {*/
-    /*    margin-right: 0%;*/
-    /*}*/
     main .model-rec section article {
         width: 20%;
     }

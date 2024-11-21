@@ -1,4 +1,5 @@
 {% load static %}
+
 <div class="left-float-field">
     <a href="/" class="logo">
         <img src="{% static 'img/pseudorec logo tight.png' %}" alt="Logo">
@@ -26,6 +27,11 @@
             </li>
         </ul>
     </div>
+    <button class="hamburger-menu" aria-label="Toggle navigation">
+        <div></div>
+        <div></div>
+        <div></div>
+    </button>
 </div>
 
 <script>
@@ -38,4 +44,20 @@
             arrowParent.classList.toggle('showMenu');
         });
     }
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const hamburgerMenu = document.querySelector(".hamburger-menu");
+        const sidebar = document.querySelector(".left-float-field");
+        const mainContent = document.querySelector("main");
+
+        hamburgerMenu.addEventListener("click", function () {
+            console.log('click')
+            hamburgerMenu.classList.toggle("open");
+            sidebar.classList.toggle("open");
+            mainContent.classList.toggle("shift");
+        });
+    });
+
+
 </script>

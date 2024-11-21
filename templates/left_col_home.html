@@ -35,10 +35,15 @@
             <li>
         </ul>
     </div>
+    <button class="hamburger-menu" aria-label="Toggle navigation">
+        <div></div>
+        <div></div>
+        <div></div>
+    </button>
 </div>
 
 <script>
-        let arrow = document.querySelectorAll('.arrow');
+    let arrow = document.querySelectorAll('.arrow');
     console.log(arrow);
     for (var i = 0; i < arrow.length; i++) {
         arrow[i].addEventListener('click', (e) => {
@@ -47,4 +52,18 @@
             arrowParent.classList.toggle('showMenu');
         });
     }
+
+    // 햄버거 메뉴
+    document.addEventListener("DOMContentLoaded", function () {
+        const hamburgerMenu = document.querySelector(".hamburger-menu");
+        const sidebar = document.querySelector(".left-float-field");
+        const mainContent = document.querySelector("main");
+
+        hamburgerMenu.addEventListener("click", function () {
+            console.log('click')
+            hamburgerMenu.classList.toggle("open");
+            sidebar.classList.toggle("open");
+            mainContent.classList.toggle("shift");
+        });
+    });
 </script>

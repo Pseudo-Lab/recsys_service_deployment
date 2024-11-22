@@ -189,6 +189,12 @@ h3 {
     }
 }
 
+@media (max-width: 1500px) {
+    .center-main-field {
+        width: 100%;
+    }
+}
+
 /* 토글 스위치 컨테이너 */
 .toggle-container {
     display: flex;

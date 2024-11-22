@@ -27,7 +27,9 @@
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Sans+KR&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Sans+KR&display=swap"
+        rel="stylesheet">
+    <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
 
 </head>
 
@@ -44,45 +46,56 @@
                     <div class="paper-review-main">
                         <h1>{{ post.title }}</h1>
                         {% if not post.author2 %}
+                        <!-- 작성자가 한 명일 때 -->
                         <div class="user">
-                            {% if post.author_image %}
-                            <img src={{post.author_image.url}} alt="">
-                            {% else %}
-                            <p>No image available</p>
-                            {% endif %}
-                            <div class="user-info">
-                                <h5>{{post.author}}</h5>
-                                <small>{{post.month}}</small>
+                            <div class="user-info-wrapper">
+                                {% if post.author_image %}
+                                <img src={{post.author_image.url}} alt="">
+                                {% else %}
+                                <p>No image available</p>
+                                {% endif %}
+                                <div class="user-info">
+                                    <h5>{{post.author}}</h5>
+                                    <small>{{post.month}}</small>
+                                </div>
+                            </div>
+                            <div class="post-view">
+                                <p><i class="fa-regular fa-eye"></i> {{ post.view_count }}</p>
                             </div>
                         </div>
                         {% else %}
+                        <!-- 작성자가 두 명일 때 -->
                         <div class="user">
-                            {% if post.author_image %}
-                            <img src={{post.author_image.url}} alt="">
-                            {% else %}
-                            <p>No image available</p>
-                            {% endif %}
-                            <div class="user-info">
-                                <h5>{{post.author}}</h5>
+                            <div class="user-info-wrapper">
+                                {% if post.author_image %}
+                                <img src={{post.author_image.url}} alt="">
+                                {% else %}
+                                <p>No image available</p>
+                                {% endif %}
+                                <div class="user-info">
+                                    <h5>{{post.author}}</h5>
+                                </div>
+                                {% if post.author_image2 %}
+                                <img src="{{ post.author_image2.url }}" alt="{{ post.author2 }} 사진"
+                                    class="author-image author2-image">
+                                {% else %}
+                                {% endif %}
+
+                                {% if post.author2 and post.author2 != "작성자2추가" %}
+                                <div class="user-info author2-info">
+                                    <h5 class="author-name author2-name">{{ post.author2 }}</h5>
+                                </div>
+                                {% else %}
+
+                                {% endif %}
                             </div>
-
-                            {% if post.author_image2 %}
-                            <img src="{{ post.author_image2.url }}" alt="{{ post.author2 }} 사진" class="author-image author2-image">
-                            {% else %}
-                            
-                            {% endif %}
-
-                            {% if post.author2 and post.author2 != "작성자2추가" %}
-                            <div class="user-info author2-info">
-                                <h5 class="author-name author2-name">{{ post.author2 }}</h5>
+                            <div class="post-view">
+                                <p><i class="fa-regular fa-eye"></i> {{ post.view_count }}</p>
                             </div>
-                            {% else %}
-                            
-                            {% endif %}
-
                         </div>
                         <p class="post-date">{{ post.created_at|date:"Y-m-d" }}</p>
                         {% endif %}
+
                         <!-- Pygments가 적용된 코드 블록을 출력 -->
                         <p>{{ markdown_content_with_highlight|safe }}</p>
                         <hr />
@@ -211,7 +224,7 @@
             } else if (header.tagName === 'H4') {
                 li.classList.add('level-4');
             }
-            
+
 
             li.appendChild(a);
             tocList.appendChild(li);

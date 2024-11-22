@@ -28,6 +28,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Sans+KR&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -65,14 +66,13 @@
                                 {% endif %}
                                 <div class="user-info">
                                     <h5 class="author-name">{{ p.author }}</h5>
-                                    
                                 </div>
-                            
                                 {% if p.author_image2 %}
                                 <img src="{{ p.author_image2.url }}" alt="{{ p.author2 }} 사진" class="author-image author2-image">
                                 {% else %}
                                 
                                 {% endif %}
+
                                 {% if p.author2 and p.author2 != "작성자2추가" %}
                                 <div class="user-info author2-info">
                                     <h5 class="author-name author2-name">{{ p.author2 }}</h5>
@@ -80,7 +80,9 @@
                                 {% else %}
 
                                 {% endif %}
-                                
+                                <div class="view-info">
+                                    <i class="fa-regular fa-eye"></i> {{ p.view_count }}
+                                </div>
                             </div>
                             <small class="post-date">{{ p.created_at|date:"Y-m-d" }}</small>
                             <p class="post-excerpt">{{ p.content | truncatewords_html:45 | safe }}</p>

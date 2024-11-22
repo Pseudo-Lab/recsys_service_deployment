@@ -1,17 +1,20 @@
-from django.shortcuts import redirect, render
-from markdownx.utils import markdown as mdx_markdown
-from markdown.extensions.tables import TableExtension
+from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from markdown.extensions.extra import ExtraExtension
+from markdown.extensions.tables import TableExtension
+from markdownx.utils import markdown as mdx_markdown
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
 
 from movie.utils import log_tracking
 from paper_review.models import Comment, Post, PostMonthlyPseudorec
-
 from paper_review.utils import codeblock
+
 from .forms import CommentForm
-from django.utils import timezone
+from .models import Comment
 
 paper_review_base_dir = "post_markdowns/paper_review/"
 monthly_pseudorec_base_dir = "post_markdowns/monthly_pseudorec/"
@@ -19,24 +22,25 @@ monthly_pseudorec_base_dir = "post_markdowns/monthly_pseudorec/"
 
 def index_paper_review(request):
     print(request)
-    posts = Post.objects.all().order_by('-pk')
-    return render(request=request,
-                  template_name='post_list.html',
-                  context={
-                      'posts': posts,
-                      'header': 'Paper Review'
-                  })
+    posts = Post.objects.all().order_by("-pk")
+    return render(
+        request=request,
+        template_name="post_list.html",
+        context={"posts": posts, "header": "Paper Review"},
+    )
 
 
 def index_monthly_pseudorec(request):
-    posts = PostMonthlyPseudorec.objects.all().order_by('-pk')
-    return render(request=request,
-                  template_name='post_list_monthly_pseudorec.html',
-                  context={
-                      'posts': posts,
-                      'header': '월간슈도렉',
-                      'description': '추천시스템 트렌드 팔로업 월간지'
-                  })
+    posts = PostMonthlyPseudorec.objects.all().order_by("-pk")
+    return render(
+        request=request,
+        template_name="post_list_monthly_pseudorec.html",
+        context={
+            "posts": posts,
+            "header": "월간슈도렉",
+            "description": "추천시스템 트렌드 팔로업 월간지",
+        },
+    )
 
 
 def single_post_page_paper_review(request, pk):
@@ -47,15 +51,23 @@ def single_post_page_paper_review(request, pk):
         3: paper_review_base_dir + "sasrec review.md",
         4: paper_review_base_dir + "srgnn review.md",
         5: paper_review_base_dir + "bert4rec review.md",
-        6: paper_review_base_dir + "Large Language Models are Zero-Shot Rankers for Recommender Systems.md",
+        6: paper_review_base_dir
+        + "Large Language Models are Zero-Shot Rankers for Recommender Systems.md",
         7: paper_review_base_dir + "A Survey of Large Language Models for Graphs.md",
-        8: paper_review_base_dir + "A Large Language Model Enhanced Conversational Recommender System.md",
-        9: paper_review_base_dir + "Seven Failure Points When Engineering a Retrieval Augmented Generation System.md",
-        10: paper_review_base_dir + "HalluMeasure: Fine-grained Hallucination Measurement Using Chain-of-Thought Reasoning.md",
-        11: paper_review_base_dir + "Addressing Confounding Feature Issue for Causal Recommendation.md",
-        12: paper_review_base_dir + "ONCE: Boosting Content-based Recommendation with Both Open- and Closed-source Large Language Models.md",
+        8: paper_review_base_dir
+        + "A Large Language Model Enhanced Conversational Recommender System.md",
+        9: paper_review_base_dir
+        + "Seven Failure Points When Engineering a Retrieval Augmented Generation System.md",
+        10: paper_review_base_dir
+        + "HalluMeasure: Fine-grained Hallucination Measurement Using Chain-of-Thought Reasoning.md",
+        11: paper_review_base_dir
+        + "Addressing Confounding Feature Issue for Causal Recommendation.md",
+        12: paper_review_base_dir
+        + "ONCE: Boosting Content-based Recommendation with Both Open- and Closed-source Large Language Models.md",
     }
     md_file_path = md_mapper[pk]
+    view_count(request, pk, post)
+    log_tracking(request=request, view="/".join(md_file_path.split("/")[1:]))
     post.set_content_from_md_file(md_file_path)
     html_content = codeblock(post)
     # Pygments 적용된 HTML을 Markdown으로 변환하여 템플릿에 전달
@@ -79,13 +91,13 @@ def single_post_page_paper_review(request, pk):
 
     return render(
         request=request,
-        template_name='post_detail.html',
+        template_name="post_detail.html",
         context={
-            'post': post,
-            'markdown_content_with_highlight': markdown_content_with_highlight,
-            'comments': comments,
-            'form': form,
-        }
+            "post": post,
+            "markdown_content_with_highlight": markdown_content_with_highlight,
+            "comments": comments,
+            "form": form,
+        },
     )
 
 
@@ -118,8 +130,8 @@ def single_post_page_monthly_pseudorec(request, pk):
         24: monthly_pseudorec_base_dir + "202410/202410_seonjin.md",
     }
     md_file_path = md_mapper[pk]
-    log_tracking(request=request, view='/'.join(md_file_path.split('/')[1:]))
-    print(f"monthly pseudorec log test")
+    view_count(request, pk, post)
+    log_tracking(request=request, view="/".join(md_file_path.split("/")[1:]))
     post.set_content_from_md_file(md_file_path)
     html_content = codeblock(post)
     # Pygments 적용된 HTML을 Markdown으로 변환하여 템플릿에 전달
@@ -129,18 +141,12 @@ def single_post_page_monthly_pseudorec(request, pk):
 
     return render(
         request=request,
-        template_name='post_detail.html',
+        template_name="post_detail.html",
         context={
-            'post': post,
-            'markdown_content_with_highlight': markdown_content_with_highlight
-        }
+            "post": post,
+            "markdown_content_with_highlight": markdown_content_with_highlight,
+        },
     )
-
-
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from .models import Comment
-from .forms import CommentForm
 
 
 @login_required
@@ -164,3 +170,22 @@ def delete_comment(request, comment_id):
         comment.delete()
         return redirect("single_post_page_paper_review", pk=post_pk)
     return render(request, "confirm_delete.html", {"comment": comment})
+
+
+def view_count(request, pk, post):
+    print(f"View Count".ljust(60, '='))
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0]
+    else:
+        ip = request.META.get("REMOTE_ADDR")
+
+    cache_key = f"viewed_post_{pk}_{ip}"
+    print(f"\tL {'cache_key':20} : {cache_key}")
+    print(f"\tL {'cache.get(cache_key)':20} : {cache.get(cache_key)}")
+    if not cache.get(cache_key):
+        post.view_count += 1
+        post.save(update_fields=["view_count"])
+        cache.set(cache_key, True, timeout=600)  # 10분 동안 캐싱
+        print(f"\tL {'post.view_count':20} : {post.view_count}")
+    print(f"".ljust(60, '='))

@@ -16,6 +16,7 @@ class Post(models.Model):
     author_image = models.ImageField("작성자 이미지", upload_to="paper_review/author_imgs", blank=True)
     author2 = models.CharField(max_length=50, default="작성자2추가")
     author_image2 = models.ImageField("작성자2 이미지", upload_to="paper_review/author_imgs", blank=True)
+    view_count = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"[{self.pk}]{self.title}"
@@ -45,6 +46,7 @@ class PostMonthlyPseudorec(models.Model):
     author_image = models.ImageField("작성자 이미지", upload_to="paper_review/author_imgs", blank=True)
     tag1 = models.CharField(max_length=50, default='Recommendation Model')
     tag2 = models.CharField(max_length=50, default='Tech')
+    view_count = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"[{self.pk}]{self.title}"

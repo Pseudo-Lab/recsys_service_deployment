@@ -2,252 +2,280 @@
 ul,
 ol,
 li {
-    list-style: none;
-    /* padding: 0;
+  list-style: none;
+  /* padding: 0;
     margin: 0; */
 }
 
 main {
-    display: table;
-    width: 100%;
+  display: table;
+  width: 100%;
 }
 
 .center-main-field {
-    width: 75%;
-    font-family: "IBM Plex Sans KR", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  width: 75%;
+  font-family: "IBM Plex Sans KR", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .center-main-field h1,
 h2,
 h3 {
-    font-weight: normal;
-    margin: 0;
-    margin-top: 20px;
-    text-align: center;
+  font-weight: normal;
+  margin: 0;
+  margin-top: 20px;
+  text-align: center;
 }
 
 .center-main-field p {
-    margin-top: 5px;
-    text-align: center;
+  margin-top: 5px;
+  text-align: center;
 }
 
 .side-gutter {
-    width: 50px;
-    display: table-cell;
+  width: 50px;
+  display: table-cell;
 }
 
 .container {
-    display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 25px;
-        /* 카드 간격을 조금 넓게 조정 */
-        max-width: 2100px;
-        width: 100%;
-        padding: 30px;
-        /* 여백을 추가하여 더 깔끔하게 */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+  /* 카드 간격을 조금 넓게 조정 */
+  max-width: 2100px;
+  width: 100%;
+  padding: 30px;
+  /* 여백을 추가하여 더 깔끔하게 */
 }
 
 /* Responsive card layout */
 .card {
-    flex: 0 1 calc(33.333% - 20px);
-    max-width: 300px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex: 0 1 calc(33.333% - 20px);
+  max-width: 300px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 @media only screen and (max-width: 992px) {
-    .card {
-        flex: 0 1 calc(50% - 20px);
-    }
+  .card {
+    flex: 0 1 calc(50% - 20px);
+  }
 }
 
 @media only screen and (max-width: 768px) {
-    .card {
-        flex: 0 1 100%;
-    }
+  .card {
+    flex: 0 1 100%;
+  }
 }
 
 /* Card image */
 .card-header {
-    padding: 0;
+  padding: 0;
 }
 
 .card .card-header img {
-    height: 200px;
-    width: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
+  height: 200px;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
 .card:hover .card-header img {
-    transform: scale(1.1);
-        /* 호버 시 이미지 살짝 확대 */
-        border-radius: 15px 15px 0 0;
-        /* 이미지 상단 모서리를 둥글게 */
+  transform: scale(1.1);
+  /* 호버 시 이미지 살짝 확대 */
+  border-radius: 15px 15px 0 0;
+  /* 이미지 상단 모서리를 둥글게 */
 }
 
 /* Card body */
 .card .card-body {
-    padding: 15px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    min-height: 220px;
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  min-height: 220px;
 }
 
 .card .card-body .tag {
-    background: #777;
-    border-radius: 50px;
-    font-size: 12px;
-    color: #fff;
-    padding: 5px 12px;
-    margin-right: 5px;
-    text-transform: uppercase;
-    font-weight: 500;
+  background: #777;
+  border-radius: 50px;
+  font-size: 12px;
+  color: #fff;
+  padding: 5px 12px;
+  margin-right: 5px;
+  text-transform: uppercase;
+  font-weight: 500;
 }
 
 .card .card-body .tag.tag-teal {
-    background-color: #92d4e4;
+  background-color: #92d4e4;
 }
 
 .card .card-body .tag.tag-purple {
-    background-color: #6d4dd8;
+  background-color: #6d4dd8;
 }
 
 .card .card-body h4 {
-    font-size: 1.2em;
-    font-weight: 600;
-    color: #333;
-    margin: 10px 0;
-    line-height: 1.2;
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #333;
+  margin: 10px 0;
+  line-height: 1.2;
 }
 
 .card .card-body h4 a {
-    color: inherit;
-    text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 
 .card .card-body h4 a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .card .card-body p {
-    font-size: 14px;
-    color: #666;
-    margin: 10px 0 15px;
-    line-height: 1.5;
+  font-size: 14px;
+  color: #666;
+  margin: 10px 0 15px;
+  line-height: 1.5;
 }
 
 /* User info section */
 .card .card-body .user {
-    display: flex;
-    align-items: center;
-    margin-top: auto;
+  display: flex;
+  justify-content: space-between; /* 양쪽 정렬 */
+  align-items: center;
+  margin-top: auto;
+  gap: 10px;
+  width: 100%;
+}
+
+.card .card-body .user-info-wrapper {
+  display: flex;
+  align-items: center;
 }
 
 .card .card-body .user img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-    border: 2px solid #ddd;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  border: 2px solid #ddd;
+}
+
+.card .card-body .user .user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 작성자 정보를 왼쪽 정렬 */
 }
 
 .card .card-body .user .user-info h5 {
-        font-size: 0.85em;
-            margin-top: 0.5rem;
-            margin-bottom: 0px;
+  font-size: 0.85em;
+  margin-top: 0.5rem;
+  margin-bottom: 0px;
 }
 
 .card .card-body .user .user-info small {
-    color: #888;
-    font-size: 0.85em;
+  color: #888;
+  font-size: 0.85em;
+}
+
+.card .card-body .user .view-info {
+  margin-left: auto !important; /* Push view-info to the far right */
+  display: flex;
+  align-items: center;
+  font-size: 0.9em;
+  color: #555;
+  gap: 5px; /* 아이콘과 숫자 간격 */
+}
+
+.card .card-body .user .view-info i {
+  color: #424242; /* 아이콘 색상 */
+  font-size: 1.2em; /* 아이콘 크기 */
 }
 
 /* Responsive text sizing */
 @media only screen and (max-width: 768px) {
-    .card .card-body h4 {
-        font-size: 1.1em;
-    }
+  .card .card-body h4 {
+    font-size: 1.1em;
+  }
 
-    .card .card-body p {
-        font-size: 13px;
-    }
+  .card .card-body p {
+    font-size: 13px;
+  }
 }
 
 @media (max-width: 1500px) {
-    .center-main-field {
-        width: 100%;
-    }
+  .center-main-field {
+    width: 100%;
+  }
 }
 
 /* 토글 스위치 컨테이너 */
 .toggle-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 20px 0;
-    font-family: "IBM Plex Sans KR", sans-serif;
-    font-size: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+  font-family: "IBM Plex Sans KR", sans-serif;
+  font-size: 1em;
 }
 
 /* 스위치 스타일 */
 .switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 25px;
-    margin: 0 10px;
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 25px;
+  margin: 0 10px;
 }
 
 .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
 .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.4s;
-    border-radius: 34px;
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
 }
 
 .slider:before {
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    left: 5px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.4s;
-    border-radius: 50%;
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 5px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
 }
 
-input:checked+.slider {
-    background-color: #4caf50;
+input:checked + .slider {
+  background-color: #4caf50;
 }
 
-input:checked+.slider:before {
-    transform: translateX(24px);
+input:checked + .slider:before {
+  transform: translateX(24px);
 }

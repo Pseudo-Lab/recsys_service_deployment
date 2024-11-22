@@ -1,176 +1,185 @@
-ul, ol, li {
-    list-style: none;
+ul,
+ol,
+li {
+  list-style: none;
 }
 
 main {
-    display: table;
-    width: 100%;
-
+  display: table;
+  width: 100%;
 }
 
-.center-main-field{
-    width: 100%;
-    font-family: "IBM Plex Sans KR", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    padding: 20px 0;
+.center-main-field {
+  width: 100%;
+  font-family: "IBM Plex Sans KR", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 20px 0;
 }
 
-.center-main-field h2, h3{
-	font-weight: normal;
-	margin: 0;
+.center-main-field h2,
+h3 {
+  font-weight: normal;
+  margin: 0;
 }
 
 /* 추가로 더 가독성 좋은 색상 */
 .center-main-field h1 {
-    color: #222831;
-    font-size: 1.8em;
-    font-weight: 700;
-    margin-bottom: 15px;
-    letter-spacing: -0.5px;
+  color: #222831;
+  font-size: 1.8em;
+  font-weight: 700;
+  margin-bottom: 15px;
+  letter-spacing: -0.5px;
 }
 
-.center-main-field .paper-review-main{
-    max-width: 1200px;
+.center-main-field .paper-review-main {
+  max-width: 1200px;
 }
-
 
 .center-main-field .paper-review-main .post-card {
-    display: flex;
-    align-items: center;
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    overflow: hidden;
-    /* 카드 모서리를 둥글게 */
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    margin: 20px 0;
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  /* 카드 모서리를 둥글게 */
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin: 20px 0;
 }
 
 .center-main-field .paper-review-main .post-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
 }
 
-
-
 .center-main-field .paper-review-main .post-card .post-card-image {
-    width: 35%;
-    /* 왼쪽 영역을 35%로 설정 */
-    height: 100%;
-    /* 카드의 전체 높이를 채웁니다 */
-    overflow: hidden;
-    /* 이미지가 영역을 넘어갈 경우 잘리게 설정 */
-    display: flex;
-    align-items: center;
-
+  width: 35%;
+  /* 왼쪽 영역을 35%로 설정 */
+  height: 100%;
+  /* 카드의 전체 높이를 채웁니다 */
+  overflow: hidden;
+  /* 이미지가 영역을 넘어갈 경우 잘리게 설정 */
+  display: flex;
+  align-items: center;
 }
 
 .center-main-field .paper-review-main .post-card .post-card-image img {
-        width: auto;
-    max-height: 250px;
-    /* 이미지가 카드 크기에 맞춰 잘림 */
-    border: none;
-    max-width: fit-content;
+  width: auto;
+  max-height: 250px;
+  /* 이미지가 카드 크기에 맞춰 잘림 */
+  border: none;
+  max-width: fit-content;
 }
 
 /* 오른쪽 텍스트 영역 */
 .center-main-field .paper-review-main .post-card .post-card-content {
-    width: 65%;
-    /* 오른쪽 영역을 65%로 설정 */
-    padding: 20px;
-    /* 텍스트와 카드 경계 사이에 여백 추가 */
+  width: 65%;
+  /* 오른쪽 영역을 65%로 설정 */
+  padding: 20px;
+  /* 텍스트와 카드 경계 사이에 여백 추가 */
 }
 
 .center-main-field .paper-review-main .post-title {
-    font-size: 1.4em;
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: #333;
+  font-size: 1.4em;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
 }
 
 .center-main-field .paper-review-main .post-title a {
-    color: inherit;
-    text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 
 .center-main-field .paper-review-main .post-title a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
-.center-main-field p{
-	margin-top: 5px;
+.center-main-field p {
+  margin-top: 5px;
 }
 
 .side-gutter {
-    width: 50px;
-    display: table-cell;
+  width: 50px;
+  display: table-cell;
 }
 
 .center-main-field div.user {
-
-    display: flex;
-    margin-top: auto;
+  display: flex;
+  margin-top: auto;
+  align-items: center;
+  justify-content: space-between; /* 왼쪽과 오른쪽 요소 분리 */
+  width: 100%; /* 부모 컨테이너 너비를 유지 */
 }
 
 .center-main-field div.user img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin: 10px 10px 10px 0px;
-    border: 2px solid #ddd;
-        /* 이미지 테두리 */
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin: 10px 10px 10px 0px;
+  border: 2px solid #ddd;
+  /* 이미지 테두리 */
 }
-
 
 .center-main-field div.user img.author2-image {
-    margin-left: 20px;
+  margin-left: 20px;
 }
-        
 
 .center-main-field div.user .user-info {
-    margin: 10px 0px 10px 0px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
+  margin: 10px 0px 10px 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-
 .center-main-field div.user .user-info .author-name {
-    font-weight: 500;
-    color: #555;
-    margin: 0;
+  font-weight: 500;
+  color: #555;
+  margin: 0;
 }
 
 .center-main-field div.user .user-info h5 {
-    margin: 0;
-    font-family: "IBM Plex Sans KR", sans-serif;
-    font-weight: 400;
-    font-style: normal;
+  margin: 0;
+  font-family: "IBM Plex Sans KR", sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .center-main-field div.user .user-info small {
-    color: #888785;
+  color: #888785;
+}
+
+.center-main-field div.user .view-info {
+  display: flex;
+  align-items: center;
+  font-size: 0.9em;
+  color: #555;
+  margin-left: auto; /* 뷰 수를 오른쪽 끝으로 이동 */
+  gap: 5px; /* 아이콘과 숫자 간격 */
+}
+
+.center-main-field div.user .view-info i {
+  color: #424242; /* 아이콘 색상 */
+  font-size: 1.2em; /* 아이콘 크기 */
 }
 
 /* 본문 요약 스타일 */
 .center-main-field .paper-review-main .post-card .post-excerpt {
-    font-size: 1em;
-    line-height: 1.4;
-    color: #555555;
-    margin-top: 10px;
-    max-height: 70px;
-    overflow: hidden;
-    }
+  font-size: 1em;
+  line-height: 1.4;
+  color: #555555;
+  margin-top: 10px;
+  max-height: 70px;
+  overflow: hidden;
+}
 
 /* 세부 조정 */
 .center-main-field .paper-review-main .post-card:last-child {
-    margin-bottom: 40px;
-    /* 마지막 카드의 아래쪽 간격 */
+  margin-bottom: 40px;
+  /* 마지막 카드의 아래쪽 간격 */
 }
-

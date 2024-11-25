@@ -11,6 +11,7 @@ AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 AWS_REGION_NAME=${AWS_REGION_NAME} 
 ```
 
+
 로컬에서 실행하기 위해 사전에 다음을 실행하여 설치하세요(Mac)
 ```
 brew install mysql@8.4

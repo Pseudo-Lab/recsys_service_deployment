@@ -286,7 +286,7 @@ def llmrec_soonhyeok(request):
     else:
         context = {
             'description1': "Soonhyeok's LLMREC",
-            'description2': "GrpahRAG을 기반으로 유사한 영화를 찾아 추천합니다. 최신 기술을 접목한 추천 챗봇을 사용해보세요!",
+            'description2': "GrpahRAG을 기반으로 영화를 찾아 추천합니다. 최신 기술을 접목한 추천 챗봇을 사용해보세요!(샤라웃 경찬님👏)",
         }
         return render(request, "llmrec_soonhyeok.html", context)
 
@@ -365,9 +365,9 @@ def llmrec_soonhyeok_Lite(request):
     else:
         context = {
             'description1': "Soonhyeok's LLMREC",
-            'description2': "GrpahRAG을 기반으로 유사한 영화를 찾아 추천합니다. 최신 기술을 접목한 추천 챗봇을 사용해보세요!",
+            'description2': "Tavily 웹 검색을 기반으로 영화를 찾아 추천합니다. 최신 기술을 접목한 추천 챗봇을 사용해보세요!",
         }
-        return render(request, "llmrec_soonhyeok.html", context)
+        return render(request, "llmrec_soonhyeok_lite.html", context)
 
 
 

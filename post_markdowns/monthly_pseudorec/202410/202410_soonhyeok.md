@@ -342,17 +342,25 @@ LLORMA, I-AutoRec, CF-NADE 등 다양한 최신 모델과 비교했으며, GLoca
 
 ### 4.1 Overall Performance
 
+![image](https://github.com/user-attachments/assets/957d6da3-26d5-4f77-a1db-0a5be05b5282)
+
 GLocal-K는 세 가지 데이터셋에서 모든 비교 모델보다 우수한 RMSE 성능을 보였습니다. 특히, side information 없이도 성능이 향상된 점을 강조합니다.
 
 ### 4.2 Cold-start Recommendation
+
+![image](https://github.com/user-attachments/assets/1f36e7f5-46dc-44b0-af42-7b956f3454bd)
 
 모델은 훈련 비율에 따라 성능 변화를 관찰하였고, GLocal-K가 SparseFC 모델보다 우수한 성능을 유지함을 보여줍니다. 이는 글로벌 커널이 희소 데이터에 잘 대처함을 나타냅니다.
 
 ### 4.3 Effect of Pre-training
 
+![image](https://github.com/user-attachments/assets/8a8e7e27-8ca6-4c9e-b3e6-c9df1bb862da)
+
 사전 훈련의 최적 에포크 수에 대한 연구가 진행되었으며, 각 데이터셋에서 성능이 어떻게 변화하는지를 분석했습니다.
 
 ### 4.4 Effect of Global Convolution Kernel
+
+![image](https://github.com/user-attachments/assets/9e0bcd1f-14f7-4203-bbea-8e05bfd895db)
 
 글로벌 커널의 효과를 분석하기 위해 다양한 커널 크기와 컨볼루션 층 수를 실험하였고, 결과적으로 3x3 커널이 가장 우수한 성능을 보였습니다.
 

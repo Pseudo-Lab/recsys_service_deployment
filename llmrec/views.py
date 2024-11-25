@@ -14,8 +14,12 @@ from llmrec.utils.gyungah.load_chain import get_chain as g_get_chain
 from llmrec.utils.hyeonwoo.load_chain import router
 from llmrec.utils.kyeongchan.get_model import kyeongchan_model
 from llmrec.utils.kyeongchan.langgraph_test import GraphState, app
+from llmrec.utils.soonhyeok.GraphRAG_V2.langgraph.langgraph_app import app, GraphState
+from llmrec.utils.soonhyeok.GraphRAG_Lite.langgraph.langgraph_app import lite_app, Lite_GraphState
 from llmrec.utils.kyeongchan.search_engine import SearchManager
 from llmrec.utils.kyeongchan.utils import get_landing_page_recommendation
+from llmrec.utils.soonhyeok.GraphRAG_V2.app import get_results
+from llmrec.utils.soonhyeok.GraphRAG_Lite.Lite_app import get_lite_results
 from llmrec.utils.log_questions import log_llm
 from llmrec.utils.soonhyeok.GraphRAG import get_results
 from movie.utils import (get_interacted_movie_dicts, get_user_logs_df,
@@ -207,37 +211,164 @@ def llmrec_minsang(request):
         return render(request, "llmrec.html", context)
 
 
+
 @csrf_exempt
 def llmrec_soonhyeok(request):
-    log_tracking(request=request, view="soonhyeok")
-    if request.method == "POST":
+    log_tracking(request=request, view='soonhyeok')
+    username, session_id = get_username_sid(request, _from='llmrec/llmrec_soonhyeok GET')
+    if request.method == 'POST':
         try:
-            data = json.loads(request.body.decode("utf-8"))
-            message = data.get("message", "")
-            question = message.get("text")
-            log_llm(request=request, question=question, model_name="soonhyeok")
+            data = json.loads(request.body.decode('utf-8'))
+            message = data.get('message', '')
+            print("message : ", message)
+            query = message.get('text')
+            print("query : ", query)
+            log_llm(request=request, question=query, model_name='soonhyeok')
 
-            # 여기서 message를 원하는 대로 처리
-            # TODO : 캐시로 히스토리 갖고있다가 multi-turn? 모델도 히스토리 모델이 필요하다. 한글, 챗, 히스토리 사용 가능한 모델이어야함.
-            # TODO : 히스토리 어디 어떻게 저장?
-            print(
-                f"[{message.get('timestamp')}]{message.get('sender')} : {message.get('text')}"
-            )
+            # GraphState 생성 및 LangGraph 호출
+            from langchain_core.runnables import RunnableConfig
+            config = RunnableConfig(recursion_limit=10, configurable={"thread_id": "movie"})
+            graph_state = GraphState(query=query)
+            response_message = app.invoke(graph_state, config=config)
+            print("response_message : ", response_message)
+            log_llm(request=request, answer=response_message, model_name='soonhyeok')
 
-            response_message = get_results(question)
-            log_llm(request=request, answer=response_message, model_name="soonhyeok")
+            # LangGraph 결과를 JSON 응답으로 반환
+            if response_message.get("final_answer"):
+                if response_message["query_type"] == 'general' :
+                    return JsonResponse({
+                        'status': 'success',
+                        'query_type' : response_message['query_type'],
+                        'message' : response_message["final_answer"],
+                        'url' : '/llmrec/soonhyeok/'
+                    })
+                else :
+                    # 영화 데이터를 가공하여 전달
+                    movie_list = []
+                    for movie in response_message["final_answer"]:
+                        rating = movie.get('평점', {})
+                        imdb_rating = rating.get('imdb', None)  # imdb 평점 가져오기
+                        rotten_rating = rating.get('rotten tomatoes', None)  # Rotten Tomatoes 평점 가져오기
 
-            # 클라이언트에게 성공적인 응답을 보냅니다.
-            return JsonResponse({"status": "success", "message": response_message})
+                        # 평점이 있는 경우만 추가
+                        rating_info = []
+                        if imdb_rating:
+                            rating_info.append(f"IMDb {imdb_rating}")
+                        if rotten_rating:
+                            rating_info.append(f"Rotten {rotten_rating}")
+                            
+                        rating_text = ', '.join(rating_info) if rating_info else 'N/A'
+                        
+                        movie_list.append({
+                            'title': movie.get('영화명', ''),
+                            'poster': movie.get('poster', 'https://via.placeholder.com/150'),
+                            'summary': movie.get('Synopsis Summary', ''),
+                            'rating': rating_text,
+                            'director': ', '.join(movie.get('감독', [])),
+                            'actors': movie.get('출연 배우', ''),
+                            'genre': movie.get('장르', ''),
+                            'recommendation_reason': movie.get('추천 이유', ''),
+                            'link': movie.get('movie_url', ['#']) if movie.get('movie_url') else {},
+                        })
+                    print("movie_list : ", movie_list)
+
+                    return JsonResponse({
+                        'status': 'success',
+                        'movies': movie_list,
+                        'query_type' : response_message['query_type'],
+                        'url' : '/llmrec/soonhyeok/'
+                    })
+            else:
+                return JsonResponse({'status': 'error', 'message': "결과를 생성하지 못했습니다."})
+
         except json.JSONDecodeError as e:
-            # JSON 디코딩 오류가 발생한 경우 에러 응답을 보냅니다.
-            return JsonResponse({"status": "error", "message": str(e)})
+            return JsonResponse({'status': 'error', 'message': str(e)})
     else:
         context = {
-            "description1": "Soonhyeok's LLMREC",
-            "description2": "GrpahRAG을 기반으로 유사한 영화를 찾아 추천합니다. 최신 기술을 접목한 추천 챗봇을 사용해보세요!",
+            'description1': "Soonhyeok's LLMREC",
+            'description2': "GrpahRAG을 기반으로 유사한 영화를 찾아 추천합니다. 최신 기술을 접목한 추천 챗봇을 사용해보세요!",
         }
-        return render(request, "llmrec.html", context)
+        return render(request, "llmrec_soonhyeok.html", context)
+
+
+@csrf_exempt
+def llmrec_soonhyeok_Lite(request):
+    log_tracking(request=request, view='soonhyeok_Lite')
+    username, session_id = get_username_sid(request, _from='llmrec/llmrec_soonhyeok_Lite GET')
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            message = data.get('message', '')
+            print("message : ", message)
+            query = message.get('text')
+            print("query : ", query)
+            log_llm(request=request, question=query, model_name='soonhyeok_Lite')
+
+            # GraphState 생성 및 LangGraph 호출
+            from langchain_core.runnables import RunnableConfig
+            config = RunnableConfig(recursion_limit=10, configurable={"thread_id": "movie"})
+            graph_state = GraphState(query=query)
+            response_message = lite_app.invoke(graph_state, config=config)
+            print("response_message : ", response_message)
+            log_llm(request=request, answer=response_message, model_name='soonhyeok_Lite')
+
+            # LangGraph 결과를 JSON 응답으로 반환
+            if response_message.get("final_answer"):
+                if response_message["query_type"] == 'general' :
+                    return JsonResponse({
+                        'status': 'success',
+                        'query_type' : response_message['query_type'],
+                        'message' : response_message["final_answer"],
+                        'url' : '/llmrec/soonhyeok_Lite/'
+                    })
+                else :
+                    # 영화 데이터를 가공하여 전달
+                    movie_list = []
+                    for movie in response_message["final_answer"]:
+                        rating = movie.get('평점', {})
+                        imdb_rating = rating.get('imdb', None)  # imdb 평점 가져오기
+                        rotten_rating = rating.get('rotten tomatoes', None)  # Rotten Tomatoes 평점 가져오기
+
+                        # 평점이 있는 경우만 추가
+                        rating_info = []
+                        if imdb_rating:
+                            rating_info.append(f"IMDb {imdb_rating}")
+                        if rotten_rating:
+                            rating_info.append(f"Rotten {rotten_rating}")
+                            
+                        rating_text = ', '.join(rating_info) if rating_info else 'N/A'
+                        
+                        movie_list.append({
+                            'title': movie.get('영화명', ''),
+                            'poster': movie.get('poster', 'https://via.placeholder.com/150'),
+                            'summary': movie.get('Synopsis Summary', ''),
+                            'rating': rating_text,
+                            'director': ', '.join(movie.get('감독', [])),
+                            'actors': movie.get('출연 배우', ''),
+                            'genre': movie.get('장르', ''),
+                            'recommendation_reason': movie.get('추천 이유', ''),
+                            'link': movie.get('movie_url', ['#']) if movie.get('movie_url') else {},
+                        })
+                    print("movie_list : ", movie_list)
+
+                    return JsonResponse({
+                        'status': 'success',
+                        'movies': movie_list,
+                        'query_type' : response_message['query_type'],
+                        'url' : '/llmrec/soonhyeok_Lite/'
+                    })
+            else:
+                return JsonResponse({'status': 'error', 'message': "결과를 생성하지 못했습니다."})
+
+        except json.JSONDecodeError as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    else:
+        context = {
+            'description1': "Soonhyeok's LLMREC",
+            'description2': "GrpahRAG을 기반으로 유사한 영화를 찾아 추천합니다. 최신 기술을 접목한 추천 챗봇을 사용해보세요!",
+        }
+        return render(request, "llmrec_soonhyeok.html", context)
+
 
 
 @csrf_exempt

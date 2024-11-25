@@ -43,7 +43,7 @@ Django==5.1
 django-allauth==64.0.0
 django-extensions==3.2.3
 django-markdownx==4.0.7
-duckduckgo_search==6.2.6
+duckduckgo_search==6.3.6
 exceptiongroup==1.2.2
 executing==2.0.1
 faiss-cpu==1.8.0.post1
@@ -215,6 +215,7 @@ sqlparse==0.5.1
 stack-data==0.6.3
 starlette==0.37.2
 sympy==1.13.1
+tavily-python==0.5.0
 tenacity==8.5.0
 terminado==0.18.1
 threadpoolctl==3.5.0

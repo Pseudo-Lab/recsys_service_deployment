@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ko">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+<head>
+    <meta charset="UTF-8">
+    <title>PseudoRec</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/llmrec_soonhyeok.css' %}?v=2024011916">
+    {% comment %} <script defer src="{% static 'js/llmrec.js' %}"></script> {% endcomment %}
+    <script defer src="{% static 'js/llmrec_soonhyeok.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!--    iconicons-->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+
+<header>
+    {% include 'navbar.html' %}
+</header>
+
+{% comment %} <main class="container mt-4">
+    <div class="text-center">
+        <h1>Soonhyeok's LLMREC</h1>
+        <p>GraphRAG을 기반으로 유사한 영화를 찾아 추천합니다. 최신 기술을 접목한 추천 챗봇을 사용해보세요!</p>
+    </div>
+
+    <!-- 추천 결과 영역 -->
+    <div id="movie-list" class="d-flex flex-wrap justify-content-center mt-4"></div>
+
+    <!-- 질문 입력 필드 -->
+    <div class="input-group mt-4">
+        <input id="query-input" type="text" class="form-control" placeholder="영화 관련 질문을 입력하세요">
+        <button id="submit-btn" class="btn btn-primary">Send</button>
+    </div> {% endcomment %}
+<main>
+    {% include 'left_col_home.html' %}
+    <div class="side-gutter"></div>
+    <div class="inside">
+        <div class="model-rec">
+            <div class="description">
+                <h1>{{description1}}</h1>
+                <p>{{description2|safe}}</p>
+            </div>
+            <div class="center-main-field">
+                <div class="chat-container">
+                    <div class="chat-messages">
+                        <div class="message gray-bg">
+                            <div class="message-sender"></div>
+                            <div class="message-text">{{initial_message|safe}}</div>
+                        <!-- 추천 결과 영역 -->
+                    <div id="movie-list" class="d-flex flex-wrap justify-content-center mt-4"></div>
+                        </div>
+                    </div>
+                    <form class="chat-input-form" method="POST" style="width: 100%;">
+                        <input id="query-input" type="text" class="chat-input" required placeholder="영화 관련 질문을 입력하세요"/>
+                        <button type="submit" class="button send-button">Send</button>
+                    </form>
+<!--                    <button class="button clear-chat-button">Clear Chat</button>-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</main>
+
+
+<style>
+    .movie-card {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 10px;
+        max-width: 300px;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .movie-card img {
+        width: 100%;
+        height: auto;
+        border-radius: 5px;
+    }
+
+    .input-group {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+</style>
+</body>
+</html>

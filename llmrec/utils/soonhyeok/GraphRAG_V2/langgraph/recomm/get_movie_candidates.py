@@ -22,7 +22,7 @@ def get_movie_candidates(llm, graphdb_driver, movie_retriever_syn_emb, state:Soo
     intent = state['intent']
     print("get_movie_candidates by state['query'] : ", state['query'])
 
-    print("Env.neo4j_url : ", Env.neo4j_url)
+    # print("Env.neo4j_url : ", Env.neo4j_url)
     state['tavily_search_num']=3
     
     if state['query_type']=='Text2Cypher' :

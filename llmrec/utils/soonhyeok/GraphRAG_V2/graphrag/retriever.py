@@ -4,7 +4,7 @@ from langchain_community.vectorstores.neo4j_vector import Neo4jVector
 from langchain_openai import OpenAIEmbeddings
 
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small",api_key=Env.openai_key)
-print("embeddings : ", embeddings)
+
 retrievalQuery = """
     MATCH (node)<-[:HAS_SYNOPSIS]-(movie)
     MATCH (movie)-[:DIRECTED_BY]->(director:Director)
@@ -55,7 +55,7 @@ retrievalQuery_V3 = """
 
     ORDER BY score DESC LIMIT 12
 """
-print("Env.neo4j_url : ", Env.neo4j_url)
+# print("Env.neo4j_url : ", Env.neo4j_url)
 def get_neo4j_vector(index_name='queryVector'):
     neo4jvector = Neo4jVector.from_existing_index(
         embedding=embeddings,  # Using the custom embedding function

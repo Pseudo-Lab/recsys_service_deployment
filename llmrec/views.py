@@ -18,10 +18,8 @@ from llmrec.utils.soonhyeok.GraphRAG_V2.langgraph.langgraph_app import soonhyeok
 from llmrec.utils.soonhyeok.GraphRAG_Lite.langgraph.langgraph_app import lite_app, Lite_GraphState
 from llmrec.utils.kyeongchan.search_engine import SearchManager
 from llmrec.utils.kyeongchan.utils import get_landing_page_recommendation
-from llmrec.utils.soonhyeok.GraphRAG_V2.app import get_results
-from llmrec.utils.soonhyeok.GraphRAG_Lite.Lite_app import get_lite_results
 from llmrec.utils.log_questions import log_llm
-# from llmrec.utils.soonhyeok.GraphRAG import get_results
+
 from movie.utils import (get_interacted_movie_dicts, get_user_logs_df,
                          get_username_sid, log_tracking)
 
@@ -227,8 +225,8 @@ def llmrec_soonhyeok(request):
 
             # GraphState 생성 및 LangGraph 호출
             from langchain_core.runnables import RunnableConfig
-            config = RunnableConfig(recursion_limit=10, configurable={"thread_id": "movie"})
-            graph_state = GraphState(query=query)
+            config = RunnableConfig(recursion_limit=10, configurable={"thread_id": session_id})
+            graph_state = Soonhyeok_GraphState(query=query)
             response_message = soonhyeok_app.invoke(graph_state, config=config)
             print("response_message : ", response_message)
             log_llm(request=request, answer=response_message, model_name='soonhyeok')
@@ -307,8 +305,8 @@ def llmrec_soonhyeok_Lite(request):
 
             # GraphState 생성 및 LangGraph 호출
             from langchain_core.runnables import RunnableConfig
-            config = RunnableConfig(recursion_limit=10, configurable={"thread_id": "movie"})
-            graph_state = GraphState(query=query)
+            config = RunnableConfig(recursion_limit=10, configurable={"thread_id": session_id})
+            graph_state = Lite_GraphState(query=query)
             response_message = lite_app.invoke(graph_state, config=config)
             print("response_message : ", response_message)
             log_llm(request=request, answer=response_message, model_name='soonhyeok_Lite')

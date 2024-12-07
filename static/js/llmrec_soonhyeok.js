@@ -50,7 +50,7 @@ const renderMovieResults = (movies) => {
                     <p>감독: ${movie.director}</p>
                     <p>배우: ${movie.actors}</p>
                     <p>장르: ${movie.genre}</p>
-                    <p>추천 이유: ${movie.recommendation_reason}</p>
+                    <p>줄거리 요약: ${movie.summary}</p>
                     ${ottHtml ? `<div class="ott-links">${ottHtml}</div>` : ''} <!-- OTT 로고들 -->
                 </div>
             </div>
@@ -70,7 +70,7 @@ const sendMessageToServer = (message) => {
             if (response.status === 'success') {
                 if (response.movies) {
                     const serverMessage = {
-                        sender: senderName,
+                        sender: response.intent,
                         timestamp: new Date().toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }),
                         url: response.url  // 서버 응답에서 URL 추출
                     };

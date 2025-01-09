@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+
+<head>
+    <title> PseudoRec </title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/first_page_pick.css' %}?v=2024011916">
+    <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/isotope.pkgd.min.js' %}"></script>
+    <script defer src="{% static 'js/main.js' %}"></script>
+    <script defer src="{% static 'js/star_logger.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/click_logger.js' %}"></script>
+    <script src="{% static 'js/delete_history.js' %}"></script>
+    <!--    iconicons-->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+</head>
+
+<body>
+
+    <header>
+        {% include 'navbar.html' %}
+    </header>
+
+    <main>
+        <div id="welcome-message">Loading welcome message...</div>
+
+        <div class="posters">
+            <section>
+                {% for r in movie_list %}
+                <article>
+                    <div class="movie" dbid="{{ r.movieid }}" rank="{{ r.rank }}">
+                        <a href="/movie/{{ r.movieid }}">
+                            <img src="{{ r.posterurl }}" alt="">
+                        </a>
+                        <h2>{{ r.titleen }}</h2>
+                        <!-- <p>{{ r.synopsis|slice:":100" }}{% if r.synopsis|length > 100 %}...{% endif %}</p> -->
+                        <div class="rating_box">
+                            <div class="rating">
+                                ★★★★★
+                                <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>
+                                <input type="range" value="0" step="1" min="0" max="10">
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </section>
+        </div>
+
+
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+    <script>
+    function markdownToHTML(markdown) {
+        const lines = markdown.split('<br>');
+        let html = '';
+
+        lines.forEach(line => {
+            if (line.startsWith('# ')) {
+                html += `<h1>${line.substring(2).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</h1>`;
+            } else if (line.startsWith('## ')) {
+                html += `<h2>${line.substring(3).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</h2>`;
+            } else if (line.startsWith('### ')) {
+                html += `<h3>${line.substring(4).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</h3>`;
+            } else if (line.startsWith('- ')) {
+                if (!html.endsWith('</ul>')) html += '<ul>';
+                html += `<li>${line.substring(2).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`;
+            } else if (line.trim() === '') {
+                html += '<br>';
+            } else {
+                // 모든 텍스트 라인에서 볼드 변환을 적용
+                const boldedText = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                html += `<p>${boldedText}</p>`;
+            }
+        });
+
+        if (html.includes('<ul>') && !html.endsWith('</ul>')) html += '</ul>';
+
+        return html.trim();
+    }
+        document.addEventListener("DOMContentLoaded", function () {
+            const welcomeMessageDiv = document.getElementById("welcome-message");
+            const eventSource = new EventSource("/movie/stream-welcome-message/");
+            let messageBuffer = "";  // 전체 메시지를 누적할 변수
+
+            eventSource.onmessage = function (event) {
+                // 수신된 메시지를 누적
+                messageBuffer += event.data;
+
+                // 누적된 전체 메시지를 마크다운에서 HTML로 변환 후 표시
+                const formattedMessage = markdownToHTML(messageBuffer);
+                welcomeMessageDiv.innerHTML = `${formattedMessage}`;
+            };
+
+            eventSource.onerror = function () {
+                eventSource.close();
+            };
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+                const articles = document.querySelectorAll(".posters article");
+
+                // 포스터들이 하나씩 순차적으로 나타나도록 설정
+                articles.forEach((article, index) => {
+                    setTimeout(() => {
+                        article.classList.add("loaded");
+                    }, index * 100); // 각 포스터에 지연시간을 두어 순차적으로 나타나게 함
+                });
+            });
+
+    </script>
+</body>
+
+</html>

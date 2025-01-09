@@ -161,6 +161,14 @@
         "documentation": {}
     },
     {
+        "label": "load_dotenv",
+        "importPath": "dotenv",
+        "description": "dotenv",
+        "isExtraImport": true,
+        "detail": "dotenv",
+        "documentation": {}
+    },
+    {
         "label": "settings",
         "importPath": "django.conf",
         "description": "django.conf",
@@ -632,6 +640,14 @@
         "description": "langchain",
         "isExtraImport": true,
         "detail": "langchain",
+        "documentation": {}
+    },
+    {
+        "label": "ChatOpenAI",
+        "importPath": "langchain_openai",
+        "description": "langchain_openai",
+        "isExtraImport": true,
+        "detail": "langchain_openai",
         "documentation": {}
     },
     {
@@ -2792,6 +2808,14 @@
         "description": "llmrec.utils.soonhyeok.GraphRAG",
         "isExtraImport": true,
         "detail": "llmrec.utils.soonhyeok.GraphRAG",
+        "documentation": {}
+    },
+    {
+        "label": "OpenAI",
+        "importPath": "openai",
+        "description": "openai",
+        "isExtraImport": true,
+        "detail": "openai",
         "documentation": {}
     },
     {
@@ -5973,6 +5997,15 @@
         "description": "llmrec.views",
         "peekOfCode": "table_clicklog = DynamoDBClient(table_name='clicklog')\n@csrf_exempt\ndef pplrec(request):\n    log_tracking(request=request, view='pplrec')\n    username, session_id = get_username_sid(request, _from='llmrec/pplrec GET')\n    if request.method == 'POST':\n        try:\n            data = json.loads(request.body.decode('utf-8'))\n            message = data.get('message', '')\n            # 여기서 message를 원하는 대로 처리",
         "detail": "llmrec.views",
+        "documentation": {}
+    },
+    {
+        "label": "FirstPageAgent",
+        "kind": 6,
+        "importPath": "movie.llm.first_page_agent",
+        "description": "movie.llm.first_page_agent",
+        "peekOfCode": "class FirstPageAgent:\n    def __init__(self):\n        load_dotenv(\".env.dev\")\n        self.llm = ChatOpenAI(model_name=\"gpt-4o-mini\")\n    def welcome_message(self):\n        \"\"\"\n        Stream an openai completion back to the client.\n        Docs: https://platform.openai.com/docs/api-reference/streaming\n        \"\"\"\n        openai_client = OpenAI()",
+        "detail": "movie.llm.first_page_agent",
         "documentation": {}
     },
     {

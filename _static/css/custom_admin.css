@@ -1,0 +1,12 @@
+.custom-layout {
+    display: flex;
+}
+.main-form {
+    flex: 2;
+    padding-right: 20px;
+}
+.preview {
+    flex: 1;
+    border-left: 1px solid #ccc;
+    padding-left: 20px;
+}

@@ -8,7 +8,6 @@ def codeblock(post):
     html_content = ''
     in_code_block = False
     code_block = ''
-
     for line in markdown_content.split('\n'):
         if '```' in line:
             if not in_code_block:

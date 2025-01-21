@@ -1,0 +1,58 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block content %}
+<div class="custom-layout">
+    <div class="main-form">
+        {{ block.super }}
+    </div>
+    <div class="preview" style="float: right; width: 35%; border-left: 1px solid #ccc; padding-left: 10px;">
+        <h3>미리보기</h3>
+        <div id="markdown-preview" style="overflow-y: auto; max-height: 600px; border: 1px solid #ddd; padding: 10px;">
+            <p>미리보기가 여기에 표시됩니다...</p>
+        </div>
+    </div>
+</div>
+<div style="clear: both;"></div>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="{% static 'js/custom_admin.js' %}"></script>
+<script>
+    // Django Admin의 JavaScript가 로드된 이후 미리보기 초기화
+    document.addEventListener('DOMContentLoaded', function () {
+        const textarea = document.querySelector("textarea[name='content']"); // 'content' 필드 대상
+        const preview = document.getElementById("markdown-preview");
+
+        if (textarea && preview) {
+            let timeout = null;
+
+            textarea.addEventListener("input", function () {
+                clearTimeout(timeout); // 이전 타이머를 취소
+                timeout = setTimeout(() => { // 300ms 디바운스
+                    const content = textarea.value;
+
+                    fetch("/archive/post_preview/", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ content: content }),
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data.html) {
+                                preview.innerHTML = data.html; // 미리보기 업데이트
+                            } else {
+                                preview.innerHTML = `<p>Error rendering preview.</p>`;
+                            }
+                        })
+                        .catch((error) => {
+                            console.error("Error fetching preview:", error);
+                            preview.innerHTML = `<p>Error fetching preview.</p>`;
+                        });
+                }, 300);
+            });
+        }
+    });
+</script>
+{% endblock %}

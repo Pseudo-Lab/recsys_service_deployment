@@ -25,11 +25,16 @@ main .center-main-field .paper-review-detail {
 
 main .center-main-field .paper-review-main .user {
     display: flex;
+    justify-content: space-between; /* 왼쪽: 작성자 정보, 오른쪽: 조회수 */
     align-items: center;
-    /* 자식 요소들이 수직 가운데 정렬되도록 설정 */
     gap: 10px;
-    /* 이미지와 텍스트 사이에 간격 추가 */
     margin-top: 10px;
+}
+
+main .center-main-field .paper-review-main .user-info-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 이미지와 텍스트 간격 */
 }
 
 main .center-main-field .paper-review-main .user img {
@@ -45,6 +50,21 @@ main .center-main-field .paper-review-main .user-info {
     flex-direction: column;
     align-items: flex-start;
     /* 텍스트를 왼쪽으로 정렬 */
+}
+
+main .center-main-field .paper-review-main .post-view {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 1em;
+    color: #555;
+    font-family: 'IBM Plex Sans KR', sans-serif;
+}
+
+main .center-main-field .paper-review-main .post-view i {
+    margin-right: 5px; /* 아이콘과 텍스트 사이 여백 */
+    color: #444444;
+    font-size: 1.2em;
 }
 
 .side-gutter {

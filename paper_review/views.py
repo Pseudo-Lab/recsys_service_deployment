@@ -189,3 +189,44 @@ def view_count(request, pk, post):
         cache.set(cache_key, True, timeout=600)  # 10분 동안 캐싱
         print(f"\tL {'post.view_count':20} : {post.view_count}")
     print(f"".ljust(60, '='))
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import render_to_string
+
+
+@csrf_exempt
+def post_preview(request):
+    if request.method == "POST":
+        from .models import PostMonthlyPseudorec
+        import json
+        try:
+            data = json.loads(request.body)
+            content = data.get("content", "")
+            title = data.get("title", "미리보기 제목")
+            print(f"content : {content[:500]}")
+            print(f"title : {title}")
+
+            markdown_html = mdx_markdown(
+                content, extensions=[TableExtension(), ExtraExtension()]
+            )
+            print(f'markdown_html : {markdown_html[:100]}')
+            # 템플릿 렌더링
+            context = {
+                "post": {
+                    "title": title,
+                    "content": markdown_html,
+                    "author": "미리보기 작성자",
+                    "view_count": 0,
+                    "created_at": timezone.now(),
+                },
+                "markdown_content_with_highlight": markdown_html,
+            }
+            rendered_html = render_to_string("post_detail.html", context)
+            # 렌더링 결과를 JSON으로 반환
+            return JsonResponse({"html": rendered_html})
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Invalid request"}, status=400)

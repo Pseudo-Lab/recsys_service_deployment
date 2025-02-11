@@ -1,5 +1,5 @@
 
-## 논문 정보
+# 논문 정보
 | 키워드 | HCI, AI Agent, Autonomous AI, LLM, Reinforcement Learning |
 | --- | --- |
 | 출판 | Arxiv |
@@ -7,7 +7,7 @@
 | 작성일 | 2025.02.01 |
 | 작성자 | @Sanghyeon Lee (lifelsh1116@gmail.com) |
 
-## Review Motivation
+# Review Motivation
 
 고성능 LLM의 등장으로 **에이전트 기술**에 대한 연구와 실용적 활용이 빠르게 확산되고 있습니다. 이번 리뷰에서는 여러 에이전트가 피드백과 논의를 통해 특정 주제에 대한 연구를 자율적으로 수행하고, 결과를 리포트하는 **Agent Laboratory** 시스템을 소개하는 논문을 다룹니다. 해당 기술은 연구 환경에서 활용되었지만, 자동화된 분석 및 보고 기능을 바탕으로 다양한 서비스에 적용될 가능성도 높습니다. 본 리뷰에서는 기술 분석, 실험, 프롬프트/코드 리뷰를 통해 해당 기술의 동작 원리를 깊이 이해하고, 서비스에서의 활용 가능성과 개선 방향을 함께 탐색해 보겠습니다.
 
@@ -17,7 +17,7 @@
 
 이 시스템은 연구자의 **창의성을 대체하지 않고 보완하는 역할**을 합니다. 연구자는 아이디어 구상과 비판적 사고에 집중할 수 있으며, **코딩이나 문서화 같은 반복적이고 시간 소모적인 작업은 자동화**됩니다. 또한 컴퓨팅 자원과 인간의 개입을 유연하게 조절할 수 있어, 연구 효율성을 높이고 과학적 발견을 가속화할 수 있습니다.
 
-## Overview
+# Overview
 
 - **Paper Review**
     - 논문의 주요 방법론과 기여 및 한계를 정리
@@ -30,9 +30,9 @@
 
 ---
 
-## Paper Review
+# Paper Review
 
-### **1. 연구 배경 및 목표**
+## **1. 연구 배경 및 목표**
 
 과학적 발견은 시간과 비용이 많이 드는 과정이다. 이를 가속화하고 연구 비용을 절감하며 연구 품질을 향상하기 위해 **Agent Laboratory**라는 LLM 기반 자동화 프레임워크를 소개한다.
 
@@ -40,7 +40,7 @@ Agent Laboratory는 인간 연구자의 아이디어를 바탕으로 **문헌 �
 
 이 연구에서는 **Agent Laboratory의 성능을 평가**하고, 인간 연구자의 피드백이 연구 품질에 미치는 영향을 분석한다.
 
-### **2. 주요 기여점**
+## **2. 주요 기여점**
 
 1. **Agent Laboratory 소개**: 오픈소스 LLM 에이전트 프레임워크로 연구를 가속화하며, 사용자별 컴퓨팅 자원 (CPU, GPU, 메모리) 활용 가능.
 2. **평가 결과**:
@@ -52,23 +52,23 @@ Agent Laboratory는 인간 연구자의 아이디어를 바탕으로 **문헌 �
     - 완전 자동 모드 (Autonomous Mode)
     - 인간과 협력하는 보조 모드 (Co-Pilot Mode)
 
-### **3. Agent Laboratory 개요**
+## **3. Agent Laboratory 개요**
 
 Agent Laboratory는 **세 가지 주요 단계**로 구성된다.
 
-#### **1) 문헌 조사 (Literature Review)**
+### **1) 문헌 조사 (Literature Review)**
 
 - **PhD 에이전트**가 arXiv API를 활용해 관련 논문 검색.
 - 요약, 전문 검색, 논문 추가 기능을 수행하며, 인간 연구자의 피드백을 반영 가능.
 
-#### **2) 실험 (Experimentation)**
+### **2) 실험 (Experimentation)**
 
 - **계획 수립 (Plan Formulation)**: PhD 및 Postdoc 에이전트가 연구 목표 달성을 위한 실험 계획 수립.
 - **데이터 준비 (Data Preparation)**: ML 엔지니어 에이전트가 데이터를 준비하고 오류를 수정함.
 - **실험 수행 (Running Experiments)**: **mle-solver** 모듈을 활용해 실험 코드 생성, 실행, 최적화.
 - **결과 해석 (Results Interpretation)**: 실험 결과를 PhD 및 Postdoc 에이전트가 논의하여 연구 보고서 작성 준비.
 
-#### **3) 연구 보고서 작성 (Report Writing)**
+### **3) 연구 보고서 작성 (Report Writing)**
 
 - **paper-solver** 모듈을 활용해 논문 초안 생성 및 편집.
 - LaTeX 기반의 논문 초안을 생성하고, 자동 리뷰 시스템을 활용해 평가 및 수정.
@@ -78,30 +78,30 @@ Agent Laboratory는 **세 가지 주요 단계**로 구성된다.
 
 ![alt text](../../../static/img/monthly_pseudorec_202501/sanghyeon/pipeline.png)
 
-### **4. 평가 결과**
+## **4. 평가 결과**
 
-#### **1) 논문 품질 평가**
+### **1) 논문 품질 평가**
 
 - 인간 연구자들이 연구 보고서를 평가한 결과, **o1-mini 모델이 실험 품질이 가장 높았고, o1-preview 모델이 가장 유용**하다고 평가됨.
 - **자동 리뷰 시스템은 인간 평가보다 연구 품질을 과대평가**하는 경향이 있음.
 
-#### **2) 보조 모드(Co-Pilot Mode) 평가**
+### **2) 보조 모드(Co-Pilot Mode) 평가**
 
 - 인간 연구자가 피드백을 제공하는 보조 모드(Co-Pilot Mode)에서 연구 품질이 향상됨.
 - 그러나 사용자가 원하는 연구 방향을 정확히 반영하는 것이 어려운 경우가 있었음.
 - 논문 품질이 자율 모드(Autonomous Mode)보다 높은 점수를 기록했지만, **NeurIPS 2024 평균 논문 점수(5.85)보다 낮음 (4.38점).**
 
-#### **3) 비용 및 실행 시간 분석**
+### **3) 비용 및 실행 시간 분석**
 
 - **gpt-4o 모델이 가장 빠르고 저렴하게 연구 수행** ($2.33 / 논문).
 - **o1-mini, o1-preview 모델은 성능이 좋지만 실행 비용이 높음** (최대 $13.10).
 
-#### **4) 머신러닝 벤치마크 (MLE-Bench) 성능 분석**
+### **4) 머신러닝 벤치마크 (MLE-Bench) 성능 분석**
 
 - **mle-solver**가 Kaggle 머신러닝 문제 해결에서 다른 자동 연구 시스템보다 높은 성과를 기록함.
 - OpenHands, AIDE, MLAB과 비교해 더 많은 금메달과 은메달을 획득.
 
-### **5. 한계점 및 개선 방향**
+## **5. 한계점 및 개선 방향**
 
 1. **자기 평가(Self-evaluation) 한계**:
     - 자동 리뷰 시스템이 연구 품질을 과대평가하는 경향이 있음.
@@ -120,7 +120,7 @@ Agent Laboratory는 **세 가지 주요 단계**로 구성된다.
     - 사이버 보안, 환경 연구 등에서 악용될 위험 존재.
     - 자동 생성 논문이 학계의 신뢰성을 해칠 가능성.
 
-### **6. 결론**
+## **6. 결론**
 
 Agent Laboratory는 LLM을 활용해 연구 과정을 자동화하는 강력한 도구로, 연구자들이 **저수준의 코드 작성 및 논문 작성 부담을 줄이고 창의적인 연구에 집중**할 수 있도록 돕는다.
 
@@ -128,13 +128,13 @@ Agent Laboratory는 LLM을 활용해 연구 과정을 자동화하는 강력한 
 
 ---
 
-## **Code/Prompt Review (프로그램 분석)**
+# **Code/Prompt Review (프로그램 분석)**
 
 source code: 🔗 <a href="https://github.com/SamuelSchmidgall/AgentLaboratory" target="_blank">**https://github.com/SamuelSchmidgall/AgentLaboratory ↗**</a>
 
-### 코드 개요
+## 코드 개요
 
-#### 1. `ai_lab_repo.py`
+### 1. `ai_lab_repo.py`
 
 이 파일은 프로그램의 진입점으로, 전체 워크플로우를 제어합니다. 주요 기능은 다음과 같습니다:
 
@@ -142,7 +142,7 @@ source code: 🔗 <a href="https://github.com/SamuelSchmidgall/AgentLaboratory" 
 - **에이전트 초기화 및 실행**: 문헌 조사, 실험 계획 수립, 데이터 준비, 실험 실행, 결과 해석, 보고서 작성 등의 단계를 순차적으로 수행합니다.
 - **상태 저장 및 로드**: 각 단계의 상태를 저장하고, 필요에 따라 이전 상태를 로드하여 작업을 재개할 수 있습니다.
 
-#### 2. `agents.py`
+### 2. `agents.py`
 
 이 파일은 다양한 연구 단계를 수행하는 에이전트들의 클래스를 정의합니다. 주요 클래스는 다음과 같습니다:
 
@@ -182,7 +182,7 @@ model_resp = query_model(model_str=self.model, system_prompt=sys_prompt, prompt=
 
 각 에이전트는 LLM을 활용하여 해당 작업을 수행하며, 필요에 따라 인간 연구자의 피드백을 반영할 수 있습니다.
 
-#### 3. `mlesolver.py`
+### 3. `mlesolver.py`
 
 이 모듈은 머신러닝 문제를 해결하기 위한 코드 생성 및 최적화를 담당합니다. 주요 기능은 다음과 같습니다:
 
@@ -192,7 +192,7 @@ model_resp = query_model(model_str=self.model, system_prompt=sys_prompt, prompt=
 
 이를 통해 최적의 실험 코드를 자동으로 생성하고 개선할 수 있습니다.
 
-#### 4. `papersolver.py`
+### 4. `papersolver.py`
 
 이 모듈은 실험 결과를 바탕으로 학술 보고서를 자동으로 생성합니다. 주요 기능은 다음과 같습니다:
 
@@ -202,7 +202,7 @@ model_resp = query_model(model_str=self.model, system_prompt=sys_prompt, prompt=
 
 이를 통해 완성도 높은 연구 보고서를 자동으로 작성할 수 있습니다.
 
-#### 5. `common_imports.py`
+### 5. `common_imports.py`
 
 이 파일은 프로젝트 전반에서 공통으로 사용되는 라이브러리와 모듈을 임포트합니다. 주요 라이브러리는 다음과 같습니다:
 
@@ -214,7 +214,7 @@ model_resp = query_model(model_str=self.model, system_prompt=sys_prompt, prompt=
 
 이를 통해 각 모듈에서 필요한 라이브러리를 일관되게 사용할 수 있습니다.
 
-#### 6. `tools.py` 및 `utils.py`
+### 6. `tools.py` 및 `utils.py`
 
 이 파일들은 에이전트의 작업을 지원하는 다양한 도구와 유틸리티 함수들을 제공합니다. 주요 기능은 다음과 같습니다:
 
@@ -224,7 +224,7 @@ model_resp = query_model(model_str=self.model, system_prompt=sys_prompt, prompt=
 - **모델 로딩 및 저장**: 머신러닝 모델의 저장 및 로드 기능
 - **기타 유틸리티**: 로그 설정, 시간 측정 등
 
-### 프로그램 분석
+## 프로그램 분석
 
 1.  연구 주제 입력 (ai_lab_repo.py)
     
@@ -293,7 +293,7 @@ model_resp = query_model(model_str=self.model, system_prompt=sys_prompt, prompt=
 
 ---
 
-## **Experiment (Hands-on)**
+# **Experiment (Hands-on)**
 
 코드의 수행 과정 확인 및 추천시스템의 인기도 편향 영향도를 확인하기 위한 실험을 진행
 
@@ -313,9 +313,9 @@ model_resp = query_model(model_str=self.model, system_prompt=sys_prompt, prompt=
 → research topic 내용: 추천 시스템에서 인기 편향(popularity bias)을 줄여 추천의 다양성과 공정성을 향상시키면서도 정확도를 유지하는 방법을 분석하고, MovieLens-Small 데이터셋(943명의 사용자가 1,682개의 영화에 대해 100,000개의 평가를 남긴 데이터)을 사용하여 추천 과정에서 인기 아이템에 대한 패널티를 적용하는 방식의 영향을 평가하며, 사용자 상호작용 데이터를 기반으로 아이템의 인기도를 계산하고 높은 인기도를 가진 아이템의 영향을 줄이도록 추천 순위를 조정한 후 기존 추천 결과와 편향이 감소된 추천 결과를 비교하고, 정확도(precision, recall, NDCG) 및 다양성과 공정성(coverage) 등의 지표를 활용하여 정확도와 다양성 간의 트레이드오프를 분석하라.
     
 
-### 실험 결과 (출력 로그, 코드, 리포트)
+## 실험 결과 (출력 로그, 코드, 리포트)
 
-#### Literature review
+### Literature review
 
 ```python
 2025-01-28 01:28:31.240235: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
@@ -645,7 +645,7 @@ Subtask 'literature review' completed in 942.70 seconds.
 
 → 요약
 
-#### **대표 논문 요약**
+### **대표 논문 요약**
 
 1. **"A Survey on the Fairness of Recommender Systems" (arXiv:2206.03761v2)**
     - 추천 시스템에서 공정성을 정의하고 다양한 접근 방식(데이터 기반, 랭킹 조정, 후처리 방법 등)을 분석.
@@ -673,7 +673,7 @@ Subtask 'literature review' completed in 942.70 seconds.
 - 검색을 해보니 서베이 논문에서 나온 내용을 논문으로 요약에 추가하는 과정에서 할루시네이션이 발생하는 것으로 보임
 - 논문 리뷰 너무 많이 해서 api 호출 건수가 증가함
 
-#### Plan formulation
+### Plan formulation
 
 ```python
 **************************************************
@@ -1005,7 +1005,7 @@ Are you happy with the presented content? Respond Y or N: Subtask 'plan formulat
 - Postdoc Agent와 PhD Agent가 상호간의 피드백을 거처 실험을 설계
 - Plan formulation 단계에서 human in loop를 true로 활성화 하여 사람의 검토를 받음 (Y)를 입력해 바로 통과
 
-#### Experimentation
+### Experimentation
 
 ```python
 **************************************************
@@ -1727,7 +1727,7 @@ print("\nAll experiments completed successfully. Figures saved as Figure_1.png a
 - figure 저장이 가끔 실패함
 - 코드 부분의 trial 횟수를 늘려야 할 것 같음
 
-#### Results interpretation
+### Results interpretation
 
 ```python
 **************************************************
@@ -2347,13 +2347,13 @@ Reviewer #3:
 
 ---
 
-## **Result**
+# **Result**
 
-#### **1. 개선 사항**
+### **1. 개선 사항**
 
 현재 Multi-Agent 추론 구조에서 개선되어야 할 사항이 확인됨.
 
-#### **(1) 문헌 조사 시 할루시네이션 발생**
+### **(1) 문헌 조사 시 할루시네이션 발생**
 
 - 논문 및 문헌 조사 과정에서 존재하지 않는 개념을 만들어내는 경우가 빈번함.
 - 문헌 조사 정확도가 낮아, 신뢰할 수 없는 정보를 기반으로 연구가 진행됨.
@@ -2361,22 +2361,22 @@ Reviewer #3:
     - 현재 ArXiv search를 통해 PhDAgent가 생성한 키워드로 summary 검색을 하는데, arxiv 검색 시스템의 문제인건지 단순한 키워드에도 검색이 안되는 경우가 많음.
     - FullText도 관계 없는 논문을 검색해 오는 경우가 많아 token 낭비가 발생함
 
-#### **(2) 문헌 조사와 플랜, 코드 간 불일치**
+### **(2) 문헌 조사와 플랜, 코드 간 불일치**
 
 - 에이전트가 문헌을 조사하고 플랜을 세우지만, 플랜과 코드 구현이 일관되지 않음.
 - 연구 플랜과 코드 실행 결과가 따로 노는 경우가 많아, 목표한 연구로 이어지기 어려움.
 
-#### **(3) Long-context로 인한 목표 상실**
+### **(3) Long-context로 인한 목표 상실**
 
 - 에이전트가 초기에 설정한 목표를 잊거나, 엉뚱한 방향으로 진행하는 문제 발생. → 장기적인 문맥을 유지하는 것이 어려보임 (task 상태, history를 모두 가지고 있어야 함)
 - 프롬프트 최적화 기능이 필요해 보임
 
-#### **(4) 최신 기술 코드 구현 부족**
+### **(4) 최신 기술 코드 구현 부족**
 
 - 최신 논문을 읽고 요약할 수는 있지만, 논문에 나오는 기술을 코드로 구현하는 데 어려움을 겪음.
 - 예: RAG & CAG 비교 실험을 수행했으나 실패 → 논문의 로직을 설명했음에도 제대로 된 최신 기술 적용 불가.
 
-#### **(5) 최종 연구 목표 달성 실패**
+### **(5) 최종 연구 목표 달성 실패**
 
 - PoC 목표: **추천 시스템에서 인기도 편향을 줄였을 때의 효과 실험**→ 그러나 결국 **단순 CF vs LLM 기반 추천 모델의 fairness 비교**로 축소됨.
 - 목표에 맞는 실험 설계 및 재설정 필요.
@@ -2387,16 +2387,16 @@ Reviewer #3:
 
 ---
 
-### **2. Multi-Agent System의 활용 가능성**
+## **2. Multi-Agent System의 활용 가능성**
 
 기술적인 한계에도 불구하고, Multi-Agent 기반 연구 프로세스에서 발견한 **유용한 활용 방식**이 존재함.
 
-#### **(1) 에이전트 간 논의를 통한 Subtask 구조 활용 가능**
+### **(1) 에이전트 간 논의를 통한 Subtask 구조 활용 가능**
 
 - 개별 에이전트가 논의를 통해 결론을 도출하고, 이를 바탕으로 다음 Subtask를 설정하는 구조는 유용함.
 - 이 방식을 다른 도메인(예: 소프트웨어 엔지니어링, 비즈니스 전략 수립)에 활용할 가능성이 있음.
 
-#### **(2) 단순화된 Task에 적용 가능**
+### **(2) 단순화된 Task에 적용 가능**
 
 - 현재 실습에서는 **연구 과제**처럼 복잡한 Task를 다루기에는 어려움이 있었음.
 - 대신 더 단순한 Task(가벼운 프로젝트 진행)에 활용하면 효과적일 가능성이 있음.
@@ -2453,7 +2453,7 @@ Reviewer #3:
 
             
 
-#### **(3) 사람 개입 방식 개선 필요**
+### **(3) 사람 개입 방식 개선 필요**
 
 - 현재는 사람 개입을 강조하는 방식이 단순히 프롬프트 Note 추가 수준에 머물러 있음.
 - 보다 적극적인 방식으로 사람이 개입할 수 있도록 시스템 설계 변경 필요.
@@ -2467,7 +2467,7 @@ Multi-Agent 기반 연구는 완전히 자동화되기 어렵지만, **가벼운
 
 ---
 
-### **3. Multi-Agent System 연구 자료로서의 가치**
+## **3. Multi-Agent System 연구 자료로서의 가치**
 
 - **Multi-Agent System을 학습하고 실험하기에 좋은 자료**.
 - 실제 협업형 AI 시스템이 어떻게 작동하는지 확인할 수 있으며, 다양한 도메인에 적용 가능.
@@ -2475,16 +2475,16 @@ Multi-Agent 기반 연구는 완전히 자동화되기 어렵지만, **가벼운
 
 ---
 
-### **4. 비용 문제**
+## **4. 비용 문제**
 
 Multi-Agent 시스템의 최대 단점 중 하나는 **비용 문제**임.
 
-#### **(1) 에이전트 간 호출 수가 너무 많음**
+### **(1) 에이전트 간 호출 수가 너무 많음**
 
 - 에이전트들이 상호 협의하는 방식이기 때문에 **불필요한 API 호출이 많아 비용이 급격히 증가**함.
 - 단순한 Task에도 너무 많은 에이전트 간 대화가 발생하는 경우가 많음.
 
-#### **(2) Open LLM 활용 필요**
+### **(2) Open LLM 활용 필요**
 
 - OpenAI API 비용 부담을 줄이기 위해 **Open LLM을 활용한 실험이 필요**.
 - 예: `DeepSeek-R1` 등 대체 모델 테스트 필요.
@@ -2495,7 +2495,7 @@ Multi-Agent 시스템의 최대 단점 중 하나는 **비용 문제**임.
 
 ---
 
-### **최종 결론**
+## **최종 결론**
 
 - **현재 기술로 Multi-Agent 기반 연구를 진행하기에는 한계가 크다.**
     - 문헌 조사 → 실험 플랜 → 코드 구현 간 연결이 원활하지 않음.

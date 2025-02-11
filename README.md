@@ -105,14 +105,7 @@ pip install 'django<5'
 
 ## box에 넣고싶을 때
 
-<div class="custom-class">
-<p>
-💡 In many real-world applications, users’ current interests are intrinsically <strong>dynamic</strong> and **evolving**, influenced by their **historical behaviors**.
-</p>
-<p>
-사용자의 관심사는 과거 행동에 영향을 받아 동적으로 변합니다.
-</p>
-</div>
+
 
 ## img 태그로 사이즈 조정하고 싶을 때
 <img alt="Untitled" src="../../../static/img/paper_review/ngcf_review/optimization.png" width="500px">

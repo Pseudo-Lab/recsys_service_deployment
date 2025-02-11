@@ -29,8 +29,6 @@ class PostAdmin(MarkdownxModelAdmin):
         ('기타 정보', {
             'fields': (
                 'view_count',
-                'created_at',
-                'updated_at',
             ),
         }),
     )

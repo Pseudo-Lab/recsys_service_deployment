@@ -213,10 +213,19 @@ img {
 /* TOC 스타일 */
 div.toc {
     max-width: 500px;
+    max-height: 800px;
     right: 40px;
     top: 100px;
-    position: sticky
-    /*width: 200px;*/
+    position: sticky;
+    overflow-y: auto;
+}
+
+div.toc h2 {
+    position: sticky;
+    top: 0; /* 최상단에 고정 */
+    background: white; /* 배경색을 추가하여 가독성 유지 */
+    z-index: 10; /* 다른 요소 위에 표시 */
+    padding: 10px 0;
 }
 
 div.toc ul {

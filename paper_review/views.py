@@ -131,6 +131,7 @@ def single_post_page_monthly_pseudorec(request, pk):
         25: monthly_pseudorec_base_dir + "202501/202501_kyeongchan.md",
         26: monthly_pseudorec_base_dir + "202501/202501_sanghyeon.md",
         27: monthly_pseudorec_base_dir + "202501/202501_namjoon.md",
+        28: monthly_pseudorec_base_dir + "202501/202501_hyeonwoo.md",
     }
     md_file_path = md_mapper[pk]
     view_count(request, pk, post)

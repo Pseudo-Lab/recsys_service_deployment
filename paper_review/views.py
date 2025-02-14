@@ -10,23 +10,36 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
 
 from movie.utils import log_tracking
-from paper_review.models import Comment, Post, PostMonthlyPseudorec, PaperTalkPost
+from paper_review.models import Comment, PaperTalkComment, Post, PostMonthlyPseudorec, PaperTalkPost
 from paper_review.utils import codeblock
 
 from .forms import CommentForm
+from django.db.models import Count
 
 paper_review_base_dir = "post_markdowns/paper_review/"
 monthly_pseudorec_base_dir = "post_markdowns/monthly_pseudorec/"
 
 
 def index_paper_talk(request):
-    print(request)
-    posts = PaperTalkPost.objects.all().order_by('-created_at')  # 최신순 정렬
+    posts = PaperTalkPost.objects.annotate(comment_count=Count("comments")).order_by('-created_at')
     return render(
         request=request,
         template_name="paper_talk_list.html",
         context={"posts": posts, "header": "Paper Talk"},
     )
+    
+
+
+@login_required
+def add_paper_talk_comment(request, post_id):
+    post = get_object_or_404(PaperTalkPost, id=post_id)
+    if request.method == "POST":
+        content = request.POST.get("content")
+        if content:
+            PaperTalkComment.objects.create(post=post, author=request.user, content=content)
+    return redirect("/archive/paper_talk/")
+
+
 
 def index_paper_review(request):
     print(request)

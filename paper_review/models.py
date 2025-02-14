@@ -77,10 +77,26 @@ class Comment(models.Model):
 
 class PaperTalkPost(models.Model):
     title = models.CharField(max_length=100)
-    # content = models.TextField()
-    content = MarkdownxField()
-    created_at = models.DateTimeField()
+    content = models.TextField(blank=True)  # 선택적으로 본문 내용 포함 가능
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     author = models.CharField(max_length=50, default="작성자추가")
     author_image = models.ImageField("작성자 이미지", upload_to="paper_review/author_imgs", blank=True)
     view_count = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"[{self.pk}] {self.title}"
+
+    def get_absolute_url(self):
+        return f"{self.pk}"
+    
+    
+class PaperTalkComment(models.Model):
+    post = models.ForeignKey(PaperTalkPost, on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.author.username}: {self.content[:30]}"  # 30글자까지만 표시

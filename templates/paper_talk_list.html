@@ -48,21 +48,57 @@
                     {% for p in posts %}
                     <li class="paper-talk-item">
                         <h2 class="post-title">
-                            <a href="{{ p.get_absolute_url }}">{{ p.title }}</a>
+                            <a href="javascript:void(0);" onclick="toggleComments({{ p.pk }})">{{ p.title }}</a>
                         </h2>
                         <small class="post-date">{{ p.created_at|date:"Y-m-d" }}</small>
-                        <span class="view-count">
-                            <i class="fa-regular fa-eye"></i> {{ p.view_count }}
+
+                        <!-- 댓글 개수 아이콘 -->
+                        <span class="comment-count">
+                            <i class="fa-regular fa-comment-dots"></i> {{ p.comment_count }}
                         </span>
+                        
+
+                        <!-- 댓글 섹션 -->
+                        <div id="comments-{{ p.pk }}" class="comment-section" style="display: none;">
+                            <div class="comment-list">
+                                {% for comment in p.comments.all %}
+                                <div class="comment-item">
+                                    <strong>{{ comment.author.username }}</strong>: {{ comment.content }}
+                                    <small>({{ comment.created_at|date:"Y-m-d H:i" }})</small>
+                                </div>
+                                {% empty %}
+                                <p>아직 댓글이 없습니다.</p>
+                                {% endfor %}
+                            </div>
+
+                            <!-- 댓글 입력 폼 -->
+                            <form method="POST" action="{% url 'add_paper_talk_comment' p.pk %}">
+                                {% csrf_token %}
+                                <textarea name="content" placeholder="댓글을 입력하세요..." required></textarea>
+                                <button type="submit">댓글 작성</button>
+                            </form>
+                        </div>
                     </li>
                     {% empty %}
                     <p>No papers found.</p>
                     {% endfor %}
                 </ul>
+
             </div>
         </div>
 
     </main>
 </body>
+
+<script>
+    function toggleComments(postId) {
+        let commentSection = document.getElementById(`comments-${postId}`);
+        if (commentSection.style.display === "none" || commentSection.style.display === "") {
+            commentSection.style.display = "block";
+        } else {
+            commentSection.style.display = "none";
+        }
+    }
+</script>
 
 </html>

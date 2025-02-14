@@ -104,7 +104,14 @@ pip install 'django<5'
 ↗
 
 ## box에 넣고싶을 때
-
+<div class="custom-class">
+    <p>
+    💡 피드백 일부 발췌 
+    </p>
+    <p>
+    사용자의 관심사는 과거 행동에 영향을 받아 동적으로 변합니다.
+    </p>
+</div>
 
 
 ## img 태그로 사이즈 조정하고 싶을 때

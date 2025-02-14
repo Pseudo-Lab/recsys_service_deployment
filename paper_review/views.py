@@ -10,7 +10,13 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
 
 from movie.utils import log_tracking
-from paper_review.models import Comment, PaperTalkComment, Post, PostMonthlyPseudorec, PaperTalkPost
+from paper_review.models import (
+    Comment,
+    PaperTalkComment,
+    Post,
+    PostMonthlyPseudorec,
+    PaperTalkPost,
+)
 from paper_review.utils import codeblock
 
 from .forms import CommentForm
@@ -21,13 +27,14 @@ monthly_pseudorec_base_dir = "post_markdowns/monthly_pseudorec/"
 
 
 def index_paper_talk(request):
-    posts = PaperTalkPost.objects.annotate(comment_count=Count("comments")).order_by('-created_at')
+    posts = PaperTalkPost.objects.annotate(comment_count=Count("comments")).order_by(
+        "-created_at"
+    )
     return render(
         request=request,
         template_name="paper_talk_list.html",
         context={"posts": posts, "header": "Paper Talk"},
     )
-    
 
 
 @login_required
@@ -36,7 +43,9 @@ def add_paper_talk_comment(request, post_id):
     if request.method == "POST":
         content = request.POST.get("content")
         if content:
-            PaperTalkComment.objects.create(post=post, author=request.user, content=content)
+            PaperTalkComment.objects.create(
+                post=post, author=request.user, content=content
+            )
     return redirect("/archive/paper_talk/")
 
 
@@ -50,7 +59,10 @@ def edit_paper_talk_comment(request, comment_id):
             return redirect("index_paper_talk")  # 댓글 수정 후 리스트 페이지로 이동
     else:
         form = CommentForm(instance=comment)
-    return render(request, "edit_paper_talk_comment.html", {"form": form, "comment": comment})
+    return render(
+        request, "edit_paper_talk_comment.html", {"form": form, "comment": comment}
+    )
+
 
 @login_required
 def delete_paper_talk_comment(request, comment_id):
@@ -59,6 +71,7 @@ def delete_paper_talk_comment(request, comment_id):
         comment.delete()
         return redirect("index_paper_talk")  # 삭제 후 다시 목록으로
     return render(request, "delete_paper_talk_comment.html", {"comment": comment})
+
 
 def index_paper_review(request):
     print(request)
@@ -172,6 +185,7 @@ def single_post_page_monthly_pseudorec(request, pk):
         26: monthly_pseudorec_base_dir + "202501/202501_sanghyeon.md",
         27: monthly_pseudorec_base_dir + "202501/202501_namjoon.md",
         28: monthly_pseudorec_base_dir + "202501/202501_hyeonwoo.md",
+        29: monthly_pseudorec_base_dir + "202501/202501_gyungah.md",
     }
     md_file_path = md_mapper[pk]
     view_count(request, pk, post)
@@ -217,7 +231,7 @@ def delete_comment(request, comment_id):
 
 
 def view_count(request, pk, post):
-    print(f"View Count".ljust(60, '='))
+    print(f"View Count".ljust(60, "="))
     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
     if x_forwarded_for:
         ip = x_forwarded_for.split(",")[0]
@@ -232,7 +246,7 @@ def view_count(request, pk, post):
         post.save(update_fields=["view_count"])
         cache.set(cache_key, True, timeout=600)  # 10분 동안 캐싱
         print(f"\tL {'post.view_count':20} : {post.view_count}")
-    print(f"".ljust(60, '='))
+    print(f"".ljust(60, "="))
 
 
 from django.http import JsonResponse
@@ -245,6 +259,7 @@ def post_preview(request):
     if request.method == "POST":
         from .models import PostMonthlyPseudorec
         import json
+
         try:
             data = json.loads(request.body)
             content = data.get("content", "")
@@ -255,7 +270,7 @@ def post_preview(request):
             markdown_html = mdx_markdown(
                 content, extensions=[TableExtension(), ExtraExtension()]
             )
-            print(f'markdown_html : {markdown_html[:100]}')
+            print(f"markdown_html : {markdown_html[:100]}")
             # 템플릿 렌더링
             context = {
                 "post": {

@@ -9,6 +9,7 @@ urlpatterns = [
         views.single_post_page_paper_review,
         name="single_post_page_paper_review",
     ),
+    path("paper_talk/", views.index_paper_talk),
     path("paper_review/", views.index_paper_review),
     path("monthly_pseudorec/", views.index_monthly_pseudorec),
     path("monthly_pseudorec/<int:pk>/", views.single_post_page_monthly_pseudorec),

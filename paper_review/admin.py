@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, PostMonthlyPseudorec, Comment
+from .models import Post, PostMonthlyPseudorec, Comment, PaperTalkPost
 from markdownx.admin import MarkdownxModelAdmin
 
 
@@ -86,3 +86,10 @@ admin.site.register(Post, PostAdmin)
 admin.site.register(PostMonthlyPseudorec, PostMonthlyPseudorecAdmin)
 admin.site.register(Comment)
 
+
+@admin.register(PaperTalkPost)
+class PaperTalkPostAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'created_at', 'view_count')
+    search_fields = ('title', 'author')
+    list_filter = ('created_at',)
+    ordering = ('-created_at',)

@@ -1,0 +1,29 @@
+main {
+    display: table;
+    width: 100%;
+  }
+
+.paper-talk-list {
+    list-style: none;
+    padding: 0;
+}
+
+.paper-talk-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.paper-talk-item .post-title {
+    font-size: 1.2rem;
+}
+
+.paper-talk-item .post-date {
+    color: gray;
+    font-size: 0.9rem;
+}
+
+.view-count {
+    margin-left: 10px;
+    color: gray;
+    font-size: 0.9rem;
+}

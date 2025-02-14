@@ -10,15 +10,23 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
 
 from movie.utils import log_tracking
-from paper_review.models import Comment, Post, PostMonthlyPseudorec
+from paper_review.models import Comment, Post, PostMonthlyPseudorec, PaperTalkPost
 from paper_review.utils import codeblock
 
 from .forms import CommentForm
-from .models import Comment
 
 paper_review_base_dir = "post_markdowns/paper_review/"
 monthly_pseudorec_base_dir = "post_markdowns/monthly_pseudorec/"
 
+
+def index_paper_talk(request):
+    print(request)
+    posts = PaperTalkPost.objects.all().order_by('-created_at')  # 최신순 정렬
+    return render(
+        request=request,
+        template_name="paper_talk_list.html",
+        context={"posts": posts, "header": "Paper Talk"},
+    )
 
 def index_paper_review(request):
     print(request)

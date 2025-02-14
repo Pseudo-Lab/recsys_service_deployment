@@ -73,3 +73,14 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.author}::{self.content}"
+
+
+class PaperTalkPost(models.Model):
+    title = models.CharField(max_length=100)
+    # content = models.TextField()
+    content = MarkdownxField()
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField(auto_now=True)
+    author = models.CharField(max_length=50, default="작성자추가")
+    author_image = models.ImageField("작성자 이미지", upload_to="paper_review/author_imgs", blank=True)
+    view_count = models.PositiveIntegerField(default=0)

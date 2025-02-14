@@ -39,11 +39,28 @@ main {
 .comment-list {
     margin-bottom: 10px;
 }
-
 .comment-item {
-    padding: 5px;
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
     border-bottom: 1px solid #ddd;
 }
+
+.comment-author {
+    margin-right: 10px;
+}
+
+.comment-profile {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-content {
+    flex-grow: 1;
+}
+
 
 .comment-item strong {
     color: #333;

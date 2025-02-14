@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>댓글 삭제</title>
+</head>
+<body>
+    <h2>댓글 삭제</h2>
+    <p>정말로 삭제하시겠습니까?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">삭제</button>
+    </form>
+    <a href="{% url 'index_paper_talk' %}">취소</a>
+</body>
+</html>

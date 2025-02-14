@@ -63,13 +63,35 @@
                             <div class="comment-list">
                                 {% for comment in p.comments.all %}
                                 <div class="comment-item">
-                                    <strong>{{ comment.author.username }}</strong>: {{ comment.content }}
-                                    <small>({{ comment.created_at|date:"Y-m-d H:i" }})</small>
+                                    <!-- 프로필 이미지 추가 -->
+                                    <div class="comment-author">
+                                        {% if comment.author.profile_image %}
+                                            <img src="{{ comment.author.profile_image.url }}" alt="{{ comment.author.username }}" class="comment-profile">
+                                        {% else %}
+                                            <img src="{% static 'img/default_profile.png' %}" alt="기본 프로필" class="comment-profile">
+                                        {% endif %}
+                                    </div>
+                            
+                                    <div class="comment-content">
+                                        <strong>{{ comment.author.username }}</strong>: {{ comment.content }}
+                                        <small>({{ comment.created_at|date:"Y-m-d H:i" }})</small>
+                            
+                                        {% if comment.author == request.user %}
+                                        <span class="comment-actions">
+                                            <a href="{% url 'edit_paper_talk_comment' comment.id %}" class="edit-btn">✏️ 수정</a>
+                                            <form method="POST" action="{% url 'delete_paper_talk_comment' comment.id %}" style="display:inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="delete-btn">🗑️ 삭제</button>
+                                            </form>
+                                        </span>
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 {% empty %}
                                 <p>아직 댓글이 없습니다.</p>
                                 {% endfor %}
                             </div>
+                            
 
                             <!-- 댓글 입력 폼 -->
                             <form method="POST" action="{% url 'add_paper_talk_comment' p.pk %}">

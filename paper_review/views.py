@@ -40,6 +40,25 @@ def add_paper_talk_comment(request, post_id):
     return redirect("/archive/paper_talk/")
 
 
+@login_required
+def edit_paper_talk_comment(request, comment_id):
+    comment = get_object_or_404(PaperTalkComment, id=comment_id, author=request.user)
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect("index_paper_talk")  # 댓글 수정 후 리스트 페이지로 이동
+    else:
+        form = CommentForm(instance=comment)
+    return render(request, "edit_paper_talk_comment.html", {"form": form, "comment": comment})
+
+@login_required
+def delete_paper_talk_comment(request, comment_id):
+    comment = get_object_or_404(PaperTalkComment, id=comment_id, author=request.user)
+    if request.method == "POST":
+        comment.delete()
+        return redirect("index_paper_talk")  # 삭제 후 다시 목록으로
+    return render(request, "delete_paper_talk_comment.html", {"comment": comment})
 
 def index_paper_review(request):
     print(request)

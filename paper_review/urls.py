@@ -12,6 +12,8 @@ urlpatterns = [
     path("paper_review/", views.index_paper_review),
     path("paper_talk/", views.index_paper_talk, name='index_paper_talk'),
     path('paper_talk/<int:post_id>/add_comment/', views.add_paper_talk_comment, name='add_paper_talk_comment'),
+    path('paper_talk/comment/<int:comment_id>/edit/', views.edit_paper_talk_comment, name='edit_paper_talk_comment'),
+    path('paper_talk/comment/<int:comment_id>/delete/', views.delete_paper_talk_comment, name='delete_paper_talk_comment'),
     path("monthly_pseudorec/", views.index_monthly_pseudorec),
     path("monthly_pseudorec/<int:pk>/", views.single_post_page_monthly_pseudorec),
     path("comment/edit/<int:comment_id>/", views.edit_comment, name="edit_comment"),

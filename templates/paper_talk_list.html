@@ -12,9 +12,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/left_aside.css' %}">
     <!--    <link rel="stylesheet" href="{% static 'css/post_list.css' %}?v=2024011916">-->
-    <link rel="stylesheet" href="{% static 'css/paper_talk_list.css' %}?v=2024011916">
+
     <script>
         MathJax = {
             tex: {
@@ -30,6 +30,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Sans+KR&display=swap"
         rel="stylesheet">
     <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'css/paper_talk_list.css' %}">
 </head>
 
 <body>
@@ -56,7 +57,19 @@
                         <span class="comment-count">
                             <i class="fa-regular fa-comment-dots"></i> {{ p.comment_count }}
                         </span>
-                        
+
+                        <!-- 논문 링크 추가 -->
+                        <div class="paper-links">
+                            {% if p.link1 %}
+                            <a href="{{ p.link1 }}" target="_blank" class="paper-link">📄 Link 1</a>
+                            {% endif %}
+                            {% if p.link2 %}
+                            <a href="{{ p.link2 }}" target="_blank" class="paper-link">📄 Link 2</a>
+                            {% endif %}
+                            {% if p.link3 %}
+                            <a href="{{ p.link3 }}" target="_blank" class="paper-link">📄 Link 3</a>
+                            {% endif %}
+                        </div>
 
                         <!-- 댓글 섹션 -->
                         <div id="comments-{{ p.pk }}" class="comment-section" style="display: none;">
@@ -66,20 +79,25 @@
                                     <!-- 프로필 이미지 추가 -->
                                     <div class="comment-author">
                                         {% if comment.author.profile_image %}
-                                            <img src="{{ comment.author.profile_image.url }}" alt="{{ comment.author.username }}" class="comment-profile">
+                                        <img src="{{ comment.author.profile_image.url }}"
+                                            alt="{{ comment.author.username }}" class="comment-profile">
                                         {% else %}
-                                            <img src="{% static 'img/default_profile.png' %}" alt="기본 프로필" class="comment-profile">
+                                        <img src="{% static 'img/default_profile.png' %}" alt="기본 프로필"
+                                            class="comment-profile">
                                         {% endif %}
                                     </div>
-                            
+
                                     <div class="comment-content">
                                         <strong>{{ comment.author.username }}</strong>: {{ comment.content }}
                                         <small>({{ comment.created_at|date:"Y-m-d H:i" }})</small>
-                            
+
                                         {% if comment.author == request.user %}
                                         <span class="comment-actions">
-                                            <a href="{% url 'edit_paper_talk_comment' comment.id %}" class="edit-btn">✏️ 수정</a>
-                                            <form method="POST" action="{% url 'delete_paper_talk_comment' comment.id %}" style="display:inline;">
+                                            <a href="{% url 'edit_paper_talk_comment' comment.id %}" class="edit-btn">✏️
+                                                수정</a>
+                                            <form method="POST"
+                                                action="{% url 'delete_paper_talk_comment' comment.id %}"
+                                                style="display:inline;">
                                                 {% csrf_token %}
                                                 <button type="submit" class="delete-btn">🗑️ 삭제</button>
                                             </form>
@@ -91,7 +109,7 @@
                                 <p>아직 댓글이 없습니다.</p>
                                 {% endfor %}
                             </div>
-                            
+
 
                             <!-- 댓글 입력 폼 -->
                             <form method="POST" action="{% url 'add_paper_talk_comment' p.pk %}">

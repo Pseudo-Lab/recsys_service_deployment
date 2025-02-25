@@ -114,9 +114,9 @@
     </main>
     <div id="comments-section">
         <h3>Leave a Comment:</h3>
-        <form id="commentForm" method="post">
+        <form id="commentForm" method="POST">
             {% csrf_token %}
-            <textarea id="commentInput" name="content" placeholder="Write your comment here..." required></textarea>
+            <textarea id="commentInput" name="content" placeholder="댓글을 입력하세요..." required></textarea>
             <div class="comment-form-actions">
                 <button type="submit">Submit</button>
             </div>
@@ -153,7 +153,6 @@
             {% endfor %}
         </div>
     </div>
-
 
 </body>
 {{ form.media }}

@@ -197,12 +197,30 @@ def single_post_page_monthly_pseudorec(request, pk):
         html_content, extensions=[TableExtension(), ExtraExtension()]
     )
 
+    # 📌 댓글 리스트 가져오기
+    comments = Comment.objects.filter(monthly_post=post).order_by("-created_at")
+
+    # 📌 댓글 저장 처리
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.monthly_post = post  # 해당 게시글과 연결
+            comment.author = request.user  # 로그인한 유저가 작성자
+            comment.created_at = timezone.now()  # 작성 시간 저장
+            comment.save()
+            return redirect("single_post_page_monthly_pseudorec", pk=post.pk)
+    else:
+        form = CommentForm()
+
     return render(
         request=request,
         template_name="post_detail.html",
         context={
             "post": post,
             "markdown_content_with_highlight": markdown_content_with_highlight,
+            "comments": comments,  # 댓글 리스트 추가
+            "form": form,  # 댓글 입력 폼 추가
         },
     )
 
@@ -210,24 +228,55 @@ def single_post_page_monthly_pseudorec(request, pk):
 @login_required
 def edit_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id, author=request.user)
+
     if request.method == "POST":
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
             form.save()
-            return redirect("single_post_page_paper_review", pk=comment.post.pk)
+            
+            # 댓글이 Post에 연결된 경우
+            if comment.post:
+                return redirect("single_post_page_paper_review", pk=comment.post.pk)
+            # 댓글이 PostMonthlyPseudorec에 연결된 경우
+            elif comment.monthly_post:
+                return redirect("single_post_page_monthly_pseudorec", pk=comment.monthly_post.pk)
+            
+            # 예외적으로 둘 다 None이면 기본 리스트 페이지로 이동
+            return redirect("index_paper_review")
+
     else:
         form = CommentForm(instance=comment)
+
     return render(request, "edit_comment.html", {"form": form, "comment": comment})
 
 
 @login_required
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id, author=request.user)
+
     if request.method == "POST":
-        post_pk = comment.post.pk
+        post_pk = None  # 초기화
+        redirect_url = "index_paper_review"  # 기본 리디렉션 (혹시 모를 예외 대비)
+
+        # 댓글이 Post에 연결된 경우
+        if comment.post:
+            post_pk = comment.post.pk
+            redirect_url = "single_post_page_paper_review"
+
+        # 댓글이 PostMonthlyPseudorec에 연결된 경우
+        elif comment.monthly_post:
+            post_pk = comment.monthly_post.pk
+            redirect_url = "single_post_page_monthly_pseudorec"
+
         comment.delete()
-        return redirect("single_post_page_paper_review", pk=post_pk)
+
+        if post_pk:  # 정상적인 post_pk가 있을 때만 리디렉션
+            return redirect(redirect_url, pk=post_pk)
+
+        return redirect("index_paper_review")  # 예외적으로 post_pk가 없으면 기본 리스트로 이동
+
     return render(request, "confirm_delete.html", {"comment": comment})
+
 
 
 def view_count(request, pk, post):

@@ -10,7 +10,7 @@ main {
     /* max-width: 1500px; */
     /* margin: 0 auto; */
     gap: 100px;
-    align-items : flex-start;
+    align-items: flex-start;
     font-family: Arial, sans-serif;
 
 }
@@ -25,7 +25,8 @@ main .center-main-field .paper-review-detail {
 
 main .center-main-field .paper-review-main .user {
     display: flex;
-    justify-content: space-between; /* 왼쪽: 작성자 정보, 오른쪽: 조회수 */
+    justify-content: space-between;
+    /* 왼쪽: 작성자 정보, 오른쪽: 조회수 */
     align-items: center;
     gap: 10px;
     margin-top: 10px;
@@ -34,7 +35,8 @@ main .center-main-field .paper-review-main .user {
 main .center-main-field .paper-review-main .user-info-wrapper {
     display: flex;
     align-items: center;
-    gap: 10px; /* 이미지와 텍스트 간격 */
+    gap: 10px;
+    /* 이미지와 텍스트 간격 */
 }
 
 main .center-main-field .paper-review-main .user img {
@@ -62,7 +64,8 @@ main .center-main-field .paper-review-main .post-view {
 }
 
 main .center-main-field .paper-review-main .post-view i {
-    margin-right: 5px; /* 아이콘과 텍스트 사이 여백 */
+    margin-right: 5px;
+    /* 아이콘과 텍스트 사이 여백 */
     color: #444444;
     font-size: 1.2em;
 }
@@ -143,9 +146,7 @@ h3 {
     /* 중앙 정렬 */
 }
 
-body {
-    
-}
+body {}
 
 
 img {
@@ -222,9 +223,12 @@ div.toc {
 
 div.toc h2 {
     position: sticky;
-    top: 0; /* 최상단에 고정 */
-    background: white; /* 배경색을 추가하여 가독성 유지 */
-    z-index: 10; /* 다른 요소 위에 표시 */
+    top: 0;
+    /* 최상단에 고정 */
+    background: white;
+    /* 배경색을 추가하여 가독성 유지 */
+    z-index: 10;
+    /* 다른 요소 위에 표시 */
     padding: 10px 0;
 }
 
@@ -338,7 +342,7 @@ table caption {
 }
 
 #comments-section {
-    max-width: 700px;
+    max-width: 800px;
     margin: 20px auto;
     padding: 20px;
     font-family: Arial, sans-serif;

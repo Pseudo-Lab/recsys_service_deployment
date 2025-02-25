@@ -13,12 +13,19 @@
 
 <body>
     <div class="delete-container">
-        <h3>Are you sure you want to delete this comment?</h3>
+        <h3>정말 삭제하시겠습니까`?</h3>
         <p class="comment-content">{{ comment.content }}</p>
         <form method="post" class="delete-form">
             {% csrf_token %}
             <button type="submit" class="delete-button">Yes, delete</button>
+            {% if comment.post %}
             <a href="{% url 'single_post_page_paper_review' comment.post.pk %}" class="cancel-link">Cancel</a>
+            {% elif comment.monthly_post %}
+            <a href="{% url 'single_post_page_monthly_pseudorec' comment.monthly_post.pk %}"
+                class="cancel-link">Cancel</a>
+            {% else %}
+            <a href="{% url 'index_paper_review' %}" class="cancel-link">Cancel</a>
+            {% endif %}
         </form>
     </div>
 </body>

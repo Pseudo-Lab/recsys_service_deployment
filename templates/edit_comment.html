@@ -19,7 +19,16 @@
             {{ form.content }}
             <div class="form-actions">
                 <button type="submit" class="save-button">Save changes</button>
+
+                {% if comment.post %}
                 <a href="{% url 'single_post_page_paper_review' comment.post.pk %}" class="cancel-link">Cancel</a>
+                {% elif comment.monthly_post %}
+                <a href="{% url 'single_post_page_monthly_pseudorec' comment.monthly_post.pk %}"
+                    class="cancel-link">Cancel</a>
+                {% else %}
+                <a href="{% url 'index_paper_review' %}" class="cancel-link">Cancel</a>
+                {% endif %}
+
             </div>
         </form>
     </div>

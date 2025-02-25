@@ -79,8 +79,12 @@
                                         </div>
                                     </div>
                                     <div class="view-info">
+                                        {% if post.comment_count and post.comment_count > 0 %}
+                                        <i class="fa-regular fa-comment"></i> {{ post.comment_count }}
+                                        {% endif %}
                                         <i class="fa-regular fa-eye"></i> {{ post.view_count }}
                                     </div>
+
                                 </div>
                             </div>
                         </div>

@@ -84,7 +84,7 @@ def index_paper_review(request):
 
 
 def index_monthly_pseudorec(request):
-    posts = PostMonthlyPseudorec.objects.all().order_by("-pk")
+    posts = PostMonthlyPseudorec.objects.annotate(comment_count=Count("comment")).order_by("-pk")
     return render(
         request=request,
         template_name="post_list_monthly_pseudorec.html",

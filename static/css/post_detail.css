@@ -494,3 +494,41 @@ body div#comments-section div.disabled-comment-box {
     font-size: 18px;
     color: #666;
 }
+
+.paper-review-detail .right-field .paper-review-main .post-view {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    /* 아이콘 간격 조정 */
+}
+
+.paper-review-detail .right-field .paper-review-main .post-view .comment-count {
+    color: #555;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.paper-review-detail .right-field .paper-review-main .post-view .comment-count i{
+font-size: 1.2em;
+text-decoration: none !important;
+/* 아이콘과 숫자에 밑줄 없애기 */
+}
+
+.paper-review-detail .right-field .paper-review-main .post-view .comment-count span {
+    font-size: 1.2em;
+    text-decoration: underline !important;
+    /* 아이콘과 숫자에 밑줄 없애기 */
+    }
+
+.paper-review-detail .right-field .paper-review-main .post-view .comment-count:hover {
+    color: #007bff !important;
+}
+
+.paper-review-detail .right-field .paper-review-main .post-view .comment-count:hover span {
+    text-decoration: underline !important;
+    /* 숫자만 밑줄 유지 */
+}

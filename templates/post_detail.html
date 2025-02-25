@@ -60,8 +60,13 @@
                                 </div>
                             </div>
                             <div class="post-view">
+                                <p class="comment-count" id="comment-count-btn">
+                                    <i class="fa-regular fa-comment"></i> 
+                                    <span>{{ comments|length }}</span> <!-- 숫자를 span으로 감싸기 -->
+                                </p>
                                 <p><i class="fa-regular fa-eye"></i> {{ post.view_count }}</p>
                             </div>
+                            
                         </div>
                         {% else %}
                         <!-- 작성자가 두 명일 때 -->
@@ -235,6 +240,17 @@
             li.appendChild(a);
             tocList.appendChild(li);
         });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const commentCountBtn = document.getElementById("comment-count-btn");
+        const commentSection = document.getElementById("comments-section");
+
+        if (commentCountBtn && commentSection) {
+            commentCountBtn.addEventListener("click", function () {
+                commentSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+        }
     });
 
 </script>

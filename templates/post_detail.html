@@ -114,6 +114,7 @@
     </main>
     <div id="comments-section">
         <h3>Leave a Comment:</h3>
+        {% if user.is_authenticated %}
         <form id="commentForm" method="POST">
             {% csrf_token %}
             <textarea id="commentInput" name="content" placeholder="댓글을 입력하세요..." required></textarea>
@@ -121,6 +122,12 @@
                 <button type="submit">Submit</button>
             </div>
         </form>
+        {% else %}
+        <!-- 🚀 비로그인 상태일 때 표시 -->
+        <div class="disabled-comment-box">
+            <p>로그인 후 댓글을 작성할 수 있습니다.</p>
+        </div>
+        {% endif %}
 
         <h3>Comments:</h3>
         <div id="comments-list">
@@ -229,6 +236,5 @@
             tocList.appendChild(li);
         });
     });
-
 
 </script>

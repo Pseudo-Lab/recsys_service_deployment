@@ -28,14 +28,6 @@ main {
     font-size: 0.9rem;
 }
 
-.comment-section {
-    margin-top: 10px;
-    padding: 10px;
-    background: #f9f9f9;
-    border-radius: 5px;
-    display: none;
-}
-
 .comment-list {
     margin-bottom: 10px;
 }
@@ -217,4 +209,29 @@ button:hover {
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+/* 📌 기본적으로 숨김 상태 */
+main .center-main-field .paper-review-main .post-content {
+    display: none;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 5px;
+    margin-top: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+main .center-main-field .paper-review-main .post-content p{
+    background: #ffffff;
+    padding: 10px;
+    border: 1px solid #ddd; /* 연한 그레이색 테두리 */
+    border-radius: 8px; /* 모서리 둥글게 */
+}
+
+/* 📌 댓글 입력창 스타일 */
+.comment-section {
+    margin-top: 10px;
+    padding: 10px;
+    background: #ffffff;
+    border-radius: 5px;
 }

@@ -77,23 +77,22 @@
                     </div>
                 </div>
                 {% endif %}
-
-                <!-- ✅ Paper Talk 리스트 -->
                 <ul class="paper-talk-list">
                     {% for p in posts %}
                     <li class="paper-talk-item">
+                        <!-- 📌 제목 클릭 시 드롭다운 -->
                         <h2 class="post-title">
-                            <a href="javascript:void(0);" onclick="toggleComments({{ p.pk }})">{{ p.title }}</a>
+                            <a href="javascript:void(0);" onclick="togglePost({{ p.pk }})">{{ p.title }}</a>
                         </h2>
+                
+                        <!-- 📌 날짜, 댓글 수, 링크 (같은 줄에 배치) -->
                         <div class="paper-talk-meta">
                             <small class="post-date">{{ p.created_at|date:"Y-m-d" }}</small>
-                        
-                            <!-- 댓글 개수 -->
+                
                             <span class="comment-count">
                                 <i class="fa-regular fa-comment-dots"></i> {{ p.comment_count }}
                             </span>
-                        
-                            <!-- 논문 링크 (같은 줄로 배치) -->
+                
                             <div class="paper-links">
                                 {% if p.link1 %}
                                 <a href="{{ p.link1 }}" target="_blank" class="paper-link">📄 Link 1</a>
@@ -106,60 +105,48 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
-
-                        <!-- 댓글 섹션 -->
-                        <div id="comments-{{ p.pk }}" class="comment-section" style="display: none;">
-                            <div class="comment-list">
-                                {% for comment in p.comments.all %}
-                                <div class="comment-item">
-                                    <!-- 프로필 이미지 추가 -->
-                                    <div class="comment-author">
-                                        {% if comment.author.profile_image %}
-                                        <img src="{{ comment.author.profile_image.url }}"
-                                            alt="{{ comment.author.username }}" class="comment-profile">
-                                        {% else %}
-                                        <img src="{% static 'img/default_profile.png' %}" alt="기본 프로필"
-                                            class="comment-profile">
-                                        {% endif %}
+                
+                        <!-- 📌 드롭다운 (논문 내용 + 댓글 포함) -->
+                        <div id="post-{{ p.pk }}" class="post-content hidden">
+                            <p>{{ p.content }}</p> <!-- ✅ 논문 내용 -->
+                
+                            <!-- 📌 댓글 섹션 -->
+                            <div class="comment-section">
+                                <div class="comment-list">
+                                    {% for comment in p.comments.all %}
+                                    <div class="comment-item">
+                                        <div class="comment-author">
+                                            {% if comment.author.profile_image %}
+                                            <img src="{{ comment.author.profile_image.url }}" alt="{{ comment.author.username }}" class="comment-profile">
+                                            {% else %}
+                                            <img src="{% static 'img/default_profile.png' %}" alt="기본 프로필" class="comment-profile">
+                                            {% endif %}
+                                        </div>
+                
+                                        <div class="comment-content">
+                                            <strong>{{ comment.author.username }}</strong>: {{ comment.content }}
+                                            <small>({{ comment.created_at|date:"Y-m-d H:i" }})</small>
+                                        </div>
                                     </div>
-
-                                    <div class="comment-content">
-                                        <strong>{{ comment.author.username }}</strong>: {{ comment.content }}
-                                        <small>({{ comment.created_at|date:"Y-m-d H:i" }})</small>
-
-                                        {% if comment.author == request.user %}
-                                        <span class="comment-actions">
-                                            <a href="{% url 'edit_paper_talk_comment' comment.id %}" class="edit-btn">✏️
-                                                수정</a>
-                                            <form method="POST"
-                                                action="{% url 'delete_paper_talk_comment' comment.id %}"
-                                                style="display:inline;">
-                                                {% csrf_token %}
-                                                <button type="submit" class="delete-btn">🗑️ 삭제</button>
-                                            </form>
-                                        </span>
-                                        {% endif %}
-                                    </div>
+                                    {% empty %}
+                                    <p>아직 댓글이 없습니다.</p>
+                                    {% endfor %}
                                 </div>
-                                {% empty %}
-                                <p>아직 댓글이 없습니다.</p>
-                                {% endfor %}
+                
+                                <!-- 📌 댓글 입력 폼 -->
+                                <form method="POST" action="{% url 'add_paper_talk_comment' p.pk %}">
+                                    {% csrf_token %}
+                                    <textarea name="content" placeholder="댓글을 입력하세요..." required></textarea>
+                                    <button type="submit">댓글 작성</button>
+                                </form>
                             </div>
-
-
-                            <!-- 댓글 입력 폼 -->
-                            <form method="POST" action="{% url 'add_paper_talk_comment' p.pk %}">
-                                {% csrf_token %}
-                                <textarea name="content" placeholder="댓글을 입력하세요..." required></textarea>
-                                <button type="submit">댓글 작성</button>
-                            </form>
                         </div>
                     </li>
                     {% empty %}
                     <p>No papers found.</p>
                     {% endfor %}
                 </ul>
+                
 
             </div>
         </div>
@@ -192,6 +179,19 @@
             paperTalkForm.classList.add("hidden");
         });
     });
+
+    function togglePost(postId) {
+    let postContent = document.getElementById(`post-${postId}`);
+
+    // 드롭다운 표시/숨김 토글
+    if (postContent.style.display === "none" || postContent.style.display === "") {
+        postContent.style.display = "block";
+    } else {
+        postContent.style.display = "none";
+    }
+}
+
+
 
 </script>
 

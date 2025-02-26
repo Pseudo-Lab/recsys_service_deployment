@@ -82,18 +82,39 @@ def is_staff_user(user):
 def add_paper_talk_post(request):
     if request.method == "POST":
         title = request.POST.get("title")
-        content = request.POST.get("content")
-        link1 = request.POST.get("link1")
-        link2 = request.POST.get("link2")
-        link3 = request.POST.get("link3")
+        author = request.POST.get("author")
+        conference = request.POST.get("conference")
+        publication_year = request.POST.get("publication_year")
+        publication_month = request.POST.get("publication_month")
+        citation_count = request.POST.get("citation_count")
+        content = request.POST.get("content", "")  # 기본값 빈 문자열
+        link1 = request.POST.get("link1", "")
+        link2 = request.POST.get("link2", "")
+        link3 = request.POST.get("link3", "")
+
+        # 숫자 필드 변환 (예외처리 포함)
+        try:
+            publication_year = int(publication_year)
+            publication_month = int(publication_month)
+            citation_count = int(citation_count)
+        except ValueError:
+            publication_year, publication_month, citation_count = (
+                2000,
+                1,
+                0,
+            )  # 기본값으로 설정
 
         PaperTalkPost.objects.create(
             title=title,
+            author=author,
+            conference=conference,
+            publication_year=publication_year,
+            publication_month=publication_month,
+            citation_count=citation_count,
             content=content,
             link1=link1,
             link2=link2,
             link3=link3,
-            author=request.user,  # 작성자 정보 저장
             created_at=timezone.now(),
         )
         return redirect("index_paper_talk")  # 글 작성 후 리스트 페이지로 이동

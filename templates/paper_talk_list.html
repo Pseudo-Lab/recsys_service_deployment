@@ -54,13 +54,32 @@
                     <!-- ✅ 글 작성 폼 (처음에는 숨김 상태) -->
                     <div id="paper-talk-form" class="paper-talk-form hidden">
                         <h2>📝 새로운 글 작성</h2>
-                        <form method="POST" action="{% url 'add_paper_talk_post' %}">
+                        <form method="POST" action="{% url 'add_paper_talk_post' %}" onsubmit="return validateForm()">
                             {% csrf_token %}
-                            <label for="title">논문명:</label>
+
+                            <label for="title">논문명 <span class="required">*</span>:</label>
                             <input type="text" id="title" name="title" required placeholder="제목을 입력하세요">
 
-                            <label for="content">내용:</label>
-                            <textarea id="content" name="content" required placeholder="내용을 입력하세요..."></textarea>
+                            <label for="author">저자 <span class="required">*</span>:</label>
+                            <input type="text" id="author" name="author" required placeholder="저자 입력">
+
+                            <label for="conference">학회 <span class="required">*</span>:</label>
+                            <input type="text" id="conference" name="conference" required placeholder="학회명 입력">
+
+                            <label for="publication_year">출판 연도 <span class="required">*</span>:</label>
+                            <input type="number" id="publication_year" name="publication_year" required min="1900"
+                                max="2100" placeholder="출판 연도">
+
+                            <label for="publication_month">출판 월 <span class="required">*</span>:</label>
+                            <input type="number" id="publication_month" name="publication_month" required min="1"
+                                max="12" placeholder="출판 월">
+
+                            <label for="citation_count">인용 수 <span class="required">*</span>:</label>
+                            <input type="number" id="citation_count" name="citation_count" required min="0"
+                                placeholder="인용 수">
+
+                            <label for="content">논문 요약 (선택):</label>
+                            <textarea id="content" name="content" placeholder="논문 내용을 간략히 입력하세요..."></textarea>
 
                             <label for="link1">논문 링크 1 (선택):</label>
                             <input type="url" id="link1" name="link1" placeholder="https://example.com">
@@ -73,7 +92,14 @@
 
                             <button type="submit" class="btn btn-success">🚀 작성 완료</button>
                             <button type="button" id="cancel-form-btn" class="btn btn-secondary">❌ 취소</button>
+
+                            <!-- 🚀 필수 입력 경고 메시지 -->
+                            <p id="error-message" class="error-message" style="display: none; color: red;">
+                                * 필수 입력 항목을 모두 채워주세요.
+                            </p>
                         </form>
+
+
                     </div>
                 </div>
                 {% endif %}
@@ -84,15 +110,15 @@
                         <h2 class="post-title">
                             <a href="javascript:void(0);" onclick="togglePost({{ p.pk }})">{{ p.title }}</a>
                         </h2>
-                
+
                         <!-- 📌 날짜, 댓글 수, 링크 (같은 줄에 배치) -->
                         <div class="paper-talk-meta">
                             <small class="post-date">{{ p.created_at|date:"Y-m-d" }}</small>
-                
+
                             <span class="comment-count">
                                 <i class="fa-regular fa-comment-dots"></i> {{ p.comment_count }}
                             </span>
-                
+
                             <div class="paper-links">
                                 {% if p.link1 %}
                                 <a href="{{ p.link1 }}" target="_blank" class="paper-link">📄 Link 1</a>
@@ -105,11 +131,11 @@
                                 {% endif %}
                             </div>
                         </div>
-                
+
                         <!-- 📌 드롭다운 (논문 내용 + 댓글 포함) -->
                         <div id="post-{{ p.pk }}" class="post-content hidden">
                             <p>{{ p.content }}</p> <!-- ✅ 논문 내용 -->
-                
+
                             <!-- 📌 댓글 섹션 -->
                             <div class="comment-section">
                                 <div class="comment-list">
@@ -117,12 +143,14 @@
                                     <div class="comment-item">
                                         <div class="comment-author">
                                             {% if comment.author.profile_image %}
-                                            <img src="{{ comment.author.profile_image.url }}" alt="{{ comment.author.username }}" class="comment-profile">
+                                            <img src="{{ comment.author.profile_image.url }}"
+                                                alt="{{ comment.author.username }}" class="comment-profile">
                                             {% else %}
-                                            <img src="{% static 'img/default_profile.png' %}" alt="기본 프로필" class="comment-profile">
+                                            <img src="{% static 'img/default_profile.png' %}" alt="기본 프로필"
+                                                class="comment-profile">
                                             {% endif %}
                                         </div>
-                
+
                                         <div class="comment-content">
                                             <strong>{{ comment.author.username }}</strong>: {{ comment.content }}
                                             <small>({{ comment.created_at|date:"Y-m-d H:i" }})</small>
@@ -132,7 +160,7 @@
                                     <p>아직 댓글이 없습니다.</p>
                                     {% endfor %}
                                 </div>
-                
+
                                 <!-- 📌 댓글 입력 폼 -->
                                 <form method="POST" action="{% url 'add_paper_talk_comment' p.pk %}">
                                     {% csrf_token %}
@@ -146,7 +174,7 @@
                     <p>No papers found.</p>
                     {% endfor %}
                 </ul>
-                
+
 
             </div>
         </div>
@@ -181,15 +209,15 @@
     });
 
     function togglePost(postId) {
-    let postContent = document.getElementById(`post-${postId}`);
+        let postContent = document.getElementById(`post-${postId}`);
 
-    // 드롭다운 표시/숨김 토글
-    if (postContent.style.display === "none" || postContent.style.display === "") {
-        postContent.style.display = "block";
-    } else {
-        postContent.style.display = "none";
+        // 드롭다운 표시/숨김 토글
+        if (postContent.style.display === "none" || postContent.style.display === "") {
+            postContent.style.display = "block";
+        } else {
+            postContent.style.display = "none";
+        }
     }
-}
 
 
 

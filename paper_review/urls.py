@@ -11,6 +11,7 @@ urlpatterns = [
     ),
     path("paper_review/", views.index_paper_review),
     path("paper_talk/", views.index_paper_talk, name='index_paper_talk'),
+    path("paper_talk/add/", views.add_paper_talk_post, name="add_paper_talk_post"),
     path('paper_talk/<int:post_id>/add_comment/', views.add_paper_talk_comment, name='add_paper_talk_comment'),
     path('paper_talk/comment/<int:comment_id>/edit/', views.edit_paper_talk_comment, name='edit_paper_talk_comment'),
     path('paper_talk/comment/<int:comment_id>/delete/', views.delete_paper_talk_comment, name='delete_paper_talk_comment'),

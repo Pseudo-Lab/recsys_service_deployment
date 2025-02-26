@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -73,6 +73,34 @@ def delete_paper_talk_comment(request, comment_id):
     return render(request, "delete_paper_talk_comment.html", {"comment": comment})
 
 
+def is_staff_user(user):
+    return user.is_authenticated and user.is_staff  # 관리 권한이 있는 유저만 작성 가능
+
+
+@login_required
+@user_passes_test(is_staff_user)
+def add_paper_talk_post(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        content = request.POST.get("content")
+        link1 = request.POST.get("link1")
+        link2 = request.POST.get("link2")
+        link3 = request.POST.get("link3")
+
+        PaperTalkPost.objects.create(
+            title=title,
+            content=content,
+            link1=link1,
+            link2=link2,
+            link3=link3,
+            author=request.user,  # 작성자 정보 저장
+            created_at=timezone.now(),
+        )
+        return redirect("index_paper_talk")  # 글 작성 후 리스트 페이지로 이동
+
+    return redirect("index_paper_talk")  # GET 요청일 경우 다시 리스트 페이지로
+
+
 def index_paper_review(request):
     print(request)
     posts = Post.objects.all().order_by("-pk")
@@ -84,7 +112,9 @@ def index_paper_review(request):
 
 
 def index_monthly_pseudorec(request):
-    posts = PostMonthlyPseudorec.objects.annotate(comment_count=Count("comment")).order_by("-pk")
+    posts = PostMonthlyPseudorec.objects.annotate(
+        comment_count=Count("comment")
+    ).order_by("-pk")
     return render(
         request=request,
         template_name="post_list_monthly_pseudorec.html",
@@ -233,14 +263,16 @@ def edit_comment(request, comment_id):
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
             form.save()
-            
+
             # 댓글이 Post에 연결된 경우
             if comment.post:
                 return redirect("single_post_page_paper_review", pk=comment.post.pk)
             # 댓글이 PostMonthlyPseudorec에 연결된 경우
             elif comment.monthly_post:
-                return redirect("single_post_page_monthly_pseudorec", pk=comment.monthly_post.pk)
-            
+                return redirect(
+                    "single_post_page_monthly_pseudorec", pk=comment.monthly_post.pk
+                )
+
             # 예외적으로 둘 다 None이면 기본 리스트 페이지로 이동
             return redirect("index_paper_review")
 
@@ -273,10 +305,11 @@ def delete_comment(request, comment_id):
         if post_pk:  # 정상적인 post_pk가 있을 때만 리디렉션
             return redirect(redirect_url, pk=post_pk)
 
-        return redirect("index_paper_review")  # 예외적으로 post_pk가 없으면 기본 리스트로 이동
+        return redirect(
+            "index_paper_review"
+        )  # 예외적으로 post_pk가 없으면 기본 리스트로 이동
 
     return render(request, "confirm_delete.html", {"comment": comment})
-
 
 
 def view_count(request, pk, post):

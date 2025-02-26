@@ -1,7 +1,7 @@
 main {
     display: table;
     width: 100%;
-  }
+}
 
 .paper-talk-list {
     list-style: none;
@@ -39,6 +39,7 @@ main {
 .comment-list {
     margin-bottom: 10px;
 }
+
 .comment-item {
     display: flex;
     align-items: center;
@@ -96,11 +97,16 @@ button:hover {
     margin-left: 10px;
     color: gray;
     font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
 }
 
 .comment-count i {
     margin-right: 3px;
-    color: #007bff;  /* 댓글 아이콘을 파란색으로 */
+    color: #007bff;
+    /* 댓글 아이콘을 파란색으로 */
 }
 
 .paper-links {
@@ -117,4 +123,98 @@ button:hover {
 
 .paper-link:hover {
     text-decoration: underline;
+}
+
+.paper-talk-form-container {
+    margin-bottom: 20px;
+    text-align: right;
+}
+
+#toggle-form-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#toggle-form-btn:hover {
+    background-color: #0056b3;
+}
+
+/* ✅ 폼 기본적으로 숨김 처리 */
+.paper-talk-form.hidden {
+    display: none;
+}
+
+/* ✅ 폼 스타일 */
+.paper-talk-form {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+}
+
+.paper-talk-form label {
+    display: block;
+    /* 레이블을 블록 요소로 만들어 위로 정렬 */
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.paper-talk-form input,
+.paper-talk-form textarea {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.paper-talk-form button {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.paper-talk-meta {
+    display: flex;
+    align-items: center;
+    /* 세로 정렬 맞추기 */
+    gap: 15px;
+    /* 요소 간 간격 조절 */
+    font-size: 0.9rem;
+    color: gray;
+}
+
+
+
+.paper-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }

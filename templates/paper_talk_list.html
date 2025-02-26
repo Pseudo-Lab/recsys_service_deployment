@@ -45,31 +45,68 @@
                 <h1>{{ header }}</h1>
                 <p>{{ description }}</p>
                 <hr />
+
+                <!-- ✅ 글 작성 버튼 추가 -->
+                {% if user.is_authenticated and user.is_staff %}
+                <div class="paper-talk-form-container">
+                    <button id="toggle-form-btn" class="btn btn-primary">📝 글 작성</button>
+
+                    <!-- ✅ 글 작성 폼 (처음에는 숨김 상태) -->
+                    <div id="paper-talk-form" class="paper-talk-form hidden">
+                        <h2>📝 새로운 글 작성</h2>
+                        <form method="POST" action="{% url 'add_paper_talk_post' %}">
+                            {% csrf_token %}
+                            <label for="title">논문명:</label>
+                            <input type="text" id="title" name="title" required placeholder="제목을 입력하세요">
+
+                            <label for="content">내용:</label>
+                            <textarea id="content" name="content" required placeholder="내용을 입력하세요..."></textarea>
+
+                            <label for="link1">논문 링크 1 (선택):</label>
+                            <input type="url" id="link1" name="link1" placeholder="https://example.com">
+
+                            <label for="link2">논문 링크 2 (선택):</label>
+                            <input type="url" id="link2" name="link2" placeholder="https://example.com">
+
+                            <label for="link3">논문 링크 3 (선택):</label>
+                            <input type="url" id="link3" name="link3" placeholder="https://example.com">
+
+                            <button type="submit" class="btn btn-success">🚀 작성 완료</button>
+                            <button type="button" id="cancel-form-btn" class="btn btn-secondary">❌ 취소</button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ✅ Paper Talk 리스트 -->
                 <ul class="paper-talk-list">
                     {% for p in posts %}
                     <li class="paper-talk-item">
                         <h2 class="post-title">
                             <a href="javascript:void(0);" onclick="toggleComments({{ p.pk }})">{{ p.title }}</a>
                         </h2>
-                        <small class="post-date">{{ p.created_at|date:"Y-m-d" }}</small>
-
-                        <!-- 댓글 개수 아이콘 -->
-                        <span class="comment-count">
-                            <i class="fa-regular fa-comment-dots"></i> {{ p.comment_count }}
-                        </span>
-
-                        <!-- 논문 링크 추가 -->
-                        <div class="paper-links">
-                            {% if p.link1 %}
-                            <a href="{{ p.link1 }}" target="_blank" class="paper-link">📄 Link 1</a>
-                            {% endif %}
-                            {% if p.link2 %}
-                            <a href="{{ p.link2 }}" target="_blank" class="paper-link">📄 Link 2</a>
-                            {% endif %}
-                            {% if p.link3 %}
-                            <a href="{{ p.link3 }}" target="_blank" class="paper-link">📄 Link 3</a>
-                            {% endif %}
+                        <div class="paper-talk-meta">
+                            <small class="post-date">{{ p.created_at|date:"Y-m-d" }}</small>
+                        
+                            <!-- 댓글 개수 -->
+                            <span class="comment-count">
+                                <i class="fa-regular fa-comment-dots"></i> {{ p.comment_count }}
+                            </span>
+                        
+                            <!-- 논문 링크 (같은 줄로 배치) -->
+                            <div class="paper-links">
+                                {% if p.link1 %}
+                                <a href="{{ p.link1 }}" target="_blank" class="paper-link">📄 Link 1</a>
+                                {% endif %}
+                                {% if p.link2 %}
+                                <a href="{{ p.link2 }}" target="_blank" class="paper-link">📄 Link 2</a>
+                                {% endif %}
+                                {% if p.link3 %}
+                                <a href="{{ p.link3 }}" target="_blank" class="paper-link">📄 Link 3</a>
+                                {% endif %}
+                            </div>
                         </div>
+                        
 
                         <!-- 댓글 섹션 -->
                         <div id="comments-{{ p.pk }}" class="comment-section" style="display: none;">
@@ -139,6 +176,23 @@
             commentSection.style.display = "none";
         }
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleFormBtn = document.getElementById("toggle-form-btn");
+        const paperTalkForm = document.getElementById("paper-talk-form");
+        const cancelFormBtn = document.getElementById("cancel-form-btn");
+
+        // ✅ 버튼 클릭 시 폼 표시/숨김
+        toggleFormBtn.addEventListener("click", function () {
+            paperTalkForm.classList.toggle("hidden");
+        });
+
+        // ✅ 취소 버튼 클릭 시 폼 숨김
+        cancelFormBtn.addEventListener("click", function () {
+            paperTalkForm.classList.add("hidden");
+        });
+    });
+
 </script>
 
 </html>

@@ -149,7 +149,7 @@
                 {% endif %}
                 <div class="comment-content">
                     <div class="comment-author">{{ comment.author }}</div>
-                    <p class="comment-text">{{ comment.content }}</p>
+                    <p class="comment-text">{{ comment.content|linebreaksbr }}</p>
                     <span class="comment-date">{{ comment.created_at|date:"Y년 m월 d일 P" }}</span>
                     <!-- 수정 및 삭제 버튼 -->
                     {% if comment.author == request.user %}

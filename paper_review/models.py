@@ -97,16 +97,14 @@ class PaperTalkPost(models.Model):
     content = models.TextField(blank=True)  # 선택적으로 본문 내용 포함 가능
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    author = models.CharField(max_length=50, default="저자 미상")
+    author = models.CharField(max_length=200, default="저자 미상")
     view_count = models.PositiveIntegerField(default=0)
 
-    # 추가한 필드들
     conference = models.CharField("학회", max_length=100, default="Unknown Conference")
     publication_year = models.PositiveIntegerField("출판 연도", default=2000)
     publication_month = models.PositiveIntegerField("출판 월", default=1)
     citation_count = models.PositiveIntegerField("인용 수", default=0)
 
-    # 추가할 링크 필드 (최대 3개)
     link1 = models.URLField("링크 1", blank=True, null=True)
     link2 = models.URLField("링크 2", blank=True, null=True)
     link3 = models.URLField("링크 3", blank=True, null=True)

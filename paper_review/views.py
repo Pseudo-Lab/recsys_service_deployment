@@ -122,6 +122,29 @@ def add_paper_talk_post(request):
     return redirect("index_paper_talk")  # GET 요청일 경우 다시 리스트 페이지로
 
 
+@login_required
+@user_passes_test(lambda u: u.is_staff)  # 관리자만 수정 가능
+def edit_paper_talk_post(request, post_id):
+    post = get_object_or_404(PaperTalkPost, id=post_id)
+
+    if request.method == "POST":
+        post.title = request.POST.get("title")
+        post.author = request.POST.get("author")
+        post.conference = request.POST.get("conference")
+        post.publication_year = request.POST.get("publication_year")
+        post.publication_month = request.POST.get("publication_month")
+        post.citation_count = request.POST.get("citation_count")
+        post.content = request.POST.get("content")
+        post.link1 = request.POST.get("link1")
+        post.link2 = request.POST.get("link2")
+        post.link3 = request.POST.get("link3")
+        post.save()
+
+        return redirect("index_paper_talk")  # 수정 후 다시 리스트로
+
+    return render(request, "edit_paper_talk_post.html", {"post": post})
+
+
 def index_paper_review(request):
     print(request)
     posts = Post.objects.all().order_by("-pk")

@@ -105,20 +105,31 @@
                 {% endif %}
                 <ul class="paper-talk-list">
                     {% for p in posts %}
-                    <li class="paper-talk-item">
+                    <li class="paper-talk-item" id="paper-item-{{ p.pk }}" onmouseenter="showEditButton({{ p.pk }})"
+                        onmouseleave="hideEditButton({{ p.pk }})">
                         <!-- 📌 제목 클릭 시 드롭다운 -->
                         <h2 class="post-title">
                             <a href="javascript:void(0);" onclick="togglePost({{ p.pk }})">{{ p.title }}</a>
+
+                            <!-- 📋 복사 버튼 추가 -->
+                            <button class="copy-btn" onclick="copyTitle('{{ p.title }}')">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
                         </h2>
 
-                        <!-- 📌 날짜, 댓글 수, 링크 (같은 줄에 배치) -->
+
+                        <!-- 📌 Edit 버튼 (Hover 시 표시) -->
+                        {% if user.is_authenticated and user.is_staff %}
+                        <button id="edit-btn-{{ p.pk }}" class="edit-btn hidden" onclick="toggleEditForm({{ p.pk }})">✏️
+                            Edit</button>
+                        {% endif %}
+
+                        <!-- 📌 논문 정보 -->
                         <div class="paper-talk-meta">
-                            <small class="post-date">{{ p.created_at|date:"Y-m-d" }}</small>
-
-                            <span class="comment-count">
-                                <i class="fa-regular fa-comment-dots"></i> {{ p.comment_count }}
-                            </span>
-
+                            <small class="post-date">🗓️ {{ p.publication_year }}년 {{ p.publication_month }}월</small>
+                            <span class="conference">📖 {{ p.conference }}</span>
+                            <span class="author">✍️ {{ p.author }}</span>
+                            <span class="citation-count">📑 인용수: {{ p.citation_count }}</span>
                             <div class="paper-links">
                                 {% if p.link1 %}
                                 <a href="{{ p.link1 }}" target="_blank" class="paper-link">📄 Link 1</a>
@@ -131,11 +142,54 @@
                                 {% endif %}
                             </div>
                         </div>
+                        <!-- 📌 수정 폼 (초기 숨김 상태) -->
+                        <div id="edit-form-{{ p.pk }}" class="edit-form hidden">
+                            <h3>📝 논문 수정</h3>
+                            <form method="POST" action="{% url 'edit_paper_talk_post' p.pk %}">
+                                {% csrf_token %}
 
+                                <label for="title-{{ p.pk }}">논문명:</label>
+                                <input type="text" id="title-{{ p.pk }}" name="title" value="{{ p.title }}" required>
+
+                                <label for="author-{{ p.pk }}">저자:</label>
+                                <input type="text" id="author-{{ p.pk }}" name="author" value="{{ p.author }}" required>
+
+                                <label for="conference-{{ p.pk }}">학회:</label>
+                                <input type="text" id="conference-{{ p.pk }}" name="conference"
+                                    value="{{ p.conference }}" required>
+
+                                <label for="publication_year-{{ p.pk }}">출판 연도:</label>
+                                <input type="number" id="publication_year-{{ p.pk }}" name="publication_year"
+                                    value="{{ p.publication_year }}" required>
+
+                                <label for="publication_month-{{ p.pk }}">출판 월:</label>
+                                <input type="number" id="publication_month-{{ p.pk }}" name="publication_month"
+                                    value="{{ p.publication_month }}" required>
+
+                                <label for="citation_count-{{ p.pk }}">인용 수:</label>
+                                <input type="number" id="citation_count-{{ p.pk }}" name="citation_count"
+                                    value="{{ p.citation_count }}" required>
+
+                                <label for="content-{{ p.pk }}">논문 요약:</label>
+                                <textarea id="content-{{ p.pk }}" name="content">{{ p.content }}</textarea>
+
+                                <label for="link1-{{ p.pk }}">논문 링크 1:</label>
+                                <input type="url" id="link1-{{ p.pk }}" name="link1" value="{{ p.link1 }}">
+
+                                <label for="link2-{{ p.pk }}">논문 링크 2:</label>
+                                <input type="url" id="link2-{{ p.pk }}" name="link2" value="{{ p.link2 }}">
+
+                                <label for="link3-{{ p.pk }}">논문 링크 3:</label>
+                                <input type="url" id="link3-{{ p.pk }}" name="link3" value="{{ p.link3 }}">
+
+                                <button type="submit" class="btn btn-success">✅ 수정 완료</button>
+                                <button type="button" onclick="toggleEditForm({{ p.pk }})" class="btn btn-secondary">❌
+                                    취소</button>
+                            </form>
+                        </div>
                         <!-- 📌 드롭다운 (논문 내용 + 댓글 포함) -->
                         <div id="post-{{ p.pk }}" class="post-content hidden">
                             <p>{{ p.content }}</p> <!-- ✅ 논문 내용 -->
-
                             <!-- 📌 댓글 섹션 -->
                             <div class="comment-section">
                                 <div class="comment-list">
@@ -217,6 +271,51 @@
         } else {
             postContent.style.display = "none";
         }
+    }
+
+    function showEditButton(postId) {
+        let editButton = document.getElementById(`edit-btn-${postId}`);
+        if (editButton) {
+            editButton.classList.remove("hidden");
+            editButton.style.display = "block";  // ✅ 버튼을 보이게 설정
+        }
+    }
+
+    function hideEditButton(postId) {
+        let editButton = document.getElementById(`edit-btn-${postId}`);
+        if (editButton) {
+            editButton.classList.add("hidden");
+            editButton.style.display = "none";  // ✅ 다시 숨김 처리
+        }
+    }
+
+    function toggleEditForm(postId) {
+        let editForm = document.getElementById(`edit-form-${postId}`);
+        if (editForm.style.display === "none" || editForm.style.display === "") {
+            editForm.style.display = "block";
+        } else {
+            editForm.style.display = "none";
+        }
+    }
+
+    function copyTitle(title) {
+        // 텍스트를 클립보드에 복사하는 임시 요소 생성
+        let tempInput = document.createElement("input");
+        tempInput.value = title;
+        document.body.appendChild(tempInput);
+
+        // 텍스트 선택 후 복사
+        tempInput.select();
+        tempInput.setSelectionRange(0, 99999);  // 모바일 호환
+
+        // 클립보드에 복사
+        document.execCommand("copy");
+
+        // 임시 요소 제거
+        document.body.removeChild(tempInput);
+
+        // 알림 메시지 표시
+        alert("📋 논문 제목이 복사되었습니다: " + title);
     }
 
 

@@ -140,7 +140,7 @@
             <div class="comment-item">
                 {% if comment.author.profile_image %}
                 <div class="comment-avatar">
-                    <img src="{{ comment.author.profile_image }}" alt="avatar">
+                    <img src="{{ comment.author.profile_image.url }}" alt="avatar">
                 </div>
                 {% else %}
                 <div class="comment-avatar">

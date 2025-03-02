@@ -208,6 +208,13 @@
                                         <div class="comment-content">
                                             <strong>{{ comment.author.username }}</strong>: {{ comment.content }}
                                             <small>({{ comment.created_at|date:"Y-m-d H:i" }})</small>
+                                            {% if request.user == comment.author %}
+                                            <a href="{% url 'edit_paper_talk_comment' comment.id %}"
+                                                class="edit-link">✏️ Edit</a>
+                                            <a href="{% url 'delete_paper_talk_comment' comment.id %}"
+                                                class="delete-link" onclick="return confirm('정말 삭제하시겠습니까?');">❌
+                                                Delete</a>
+                                            {% endif %}
                                         </div>
                                     </div>
                                     {% empty %}

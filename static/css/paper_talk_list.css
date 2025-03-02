@@ -13,9 +13,16 @@ main {
     border-bottom: 1px solid #ddd;
 }
 
-.paper-talk-item .post-title {
-    font-size: 1.2rem;
+main .center-main-field .paper-review-main .paper-talk-item .post-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem; /* 글자 크기 조정 */
+    font-weight: bold;
+    padding: 0; /* 패딩 제거 */
+    line-height: 1.2; /* 줄 간격 줄이기 */
 }
+
 
 .paper-talk-item .post-date {
     color: gray;
@@ -272,7 +279,7 @@ main .center-main-field .paper-review-main .post-content p {
 
 .paper-talk-item {
     position: relative;
-    padding: 15px;
+    padding: 0px 0px 0px 15px;
     border: 1px solid #ddd;
     border-radius: 10px;
     margin-bottom: 10px;

@@ -108,14 +108,21 @@
                     <li class="paper-talk-item" id="paper-item-{{ p.pk }}" onmouseenter="showEditButton({{ p.pk }})"
                         onmouseleave="hideEditButton({{ p.pk }})">
                         <!-- 📌 제목 클릭 시 드롭다운 -->
-                        <h2 class="post-title">
+                        <p class="post-title">
                             <a href="javascript:void(0);" onclick="togglePost({{ p.pk }})">{{ p.title }}</a>
-
-                            <!-- 📋 복사 버튼 추가 -->
+                        
+                            <!-- 📋 복사 버튼 -->
                             <button class="copy-btn" onclick="copyTitle('{{ p.title }}')">
                                 <i class="fa-regular fa-copy"></i>
                             </button>
-                        </h2>
+                        
+                            <!-- 🗨️ 댓글 수 -->
+                            <span class="comment-count">
+                                💬 {{ p.comments.all|length }}
+                            </span>
+                        </p>
+                        
+
 
 
                         <!-- 📌 Edit 버튼 (Hover 시 표시) -->

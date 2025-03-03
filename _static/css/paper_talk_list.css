@@ -1,0 +1,383 @@
+main {
+    display: table;
+    width: 100%;
+}
+
+.paper-talk-list {
+    list-style: none;
+    padding: 0;
+}
+
+.paper-talk-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+main .center-main-field .paper-review-main .paper-talk-item .post-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem; /* 글자 크기 조정 */
+    font-weight: bold;
+    padding: 0; /* 패딩 제거 */
+    line-height: 1.2; /* 줄 간격 줄이기 */
+}
+
+
+.paper-talk-item .post-date {
+    color: gray;
+    font-size: 0.9rem;
+}
+
+.view-count {
+    margin-left: 10px;
+    color: gray;
+    font-size: 0.9rem;
+}
+
+.comment-list {
+    margin-bottom: 10px;
+}
+
+.comment-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.comment-author {
+    margin-right: 10px;
+}
+
+main .center-main-field .paper-review-main .comment-profile {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-content {
+    flex-grow: 1;
+}
+
+
+.comment-item strong {
+    color: #333;
+}
+
+.comment-item small {
+    color: gray;
+    font-size: 0.8rem;
+}
+
+textarea {
+    width: 100%;
+    height: 50px;
+    margin-top: 5px;
+    padding: 5px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.comment-count {
+    margin-left: 10px;
+    color: gray;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.comment-count i {
+    margin-right: 3px;
+    color: #007bff;
+    /* 댓글 아이콘을 파란색으로 */
+}
+
+.paper-links {
+    margin-top: 5px;
+    display: flex;
+    gap: 10px;
+}
+
+.paper-link {
+    text-decoration: none;
+    color: #007bff;
+    font-size: 14px;
+}
+
+.paper-link:hover {
+    text-decoration: underline;
+}
+
+.paper-talk-form-container {
+    margin-bottom: 20px;
+    text-align: right;
+}
+
+#toggle-form-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#toggle-form-btn:hover {
+    background-color: #0056b3;
+}
+
+/* ✅ 폼 기본적으로 숨김 처리 */
+.paper-talk-form.hidden {
+    display: none;
+}
+
+/* ✅ 폼 스타일 */
+.paper-talk-form {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+}
+
+.paper-talk-form label {
+    display: block;
+    /* 레이블을 블록 요소로 만들어 위로 정렬 */
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.paper-talk-form input,
+.paper-talk-form textarea {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.paper-talk-form button {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.paper-talk-meta {
+    display: flex;
+    align-items: center;
+    /* 세로 정렬 맞추기 */
+    gap: 15px;
+    /* 요소 간 간격 조절 */
+    font-size: 0.9rem;
+    color: gray;
+}
+
+
+
+.paper-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 📌 기본적으로 숨김 상태 */
+main .center-main-field .paper-review-main .post-content {
+    display: none;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 5px;
+    margin-top: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+main .center-main-field .paper-review-main .post-content p {
+    background: #ffffff;
+    padding: 10px;
+    border: 1px solid #ddd;
+    /* 연한 그레이색 테두리 */
+    border-radius: 8px;
+    /* 모서리 둥글게 */
+}
+
+/* 📌 댓글 입력창 스타일 */
+.comment-section {
+    margin-top: 10px;
+    padding: 10px;
+    background: #ffffff;
+    border-radius: 5px;
+}
+
+.paper-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 0.9rem;
+    color: gray;
+    margin-top: 5px;
+}
+
+.paper-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* 논문 링크 스타일 */
+.paper-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.paper-link {
+    text-decoration: none;
+    color: #007bff;
+    font-size: 14px;
+}
+
+.paper-link:hover {
+    text-decoration: underline;
+}
+
+.paper-talk-item {
+    position: relative;
+    padding: 0px 0px 0px 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: #fff;
+    transition: 0.3s;
+}
+
+.paper-talk-item:hover {
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ✏️ Edit 버튼 */
+/* Edit 버튼 기본적으로 숨김 */
+.edit-btn {
+    /* display: none; */
+    /* ✅ 기본적으로 안 보이게 설정 */
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    color: rgb(135, 135, 135);
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.edit-btn:hover {
+    background: #616161;
+    color: rgb(255, 255, 255);
+}
+
+
+/* 🚀 수정 폼 */
+.edit-form {
+    display: none;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.edit-form label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+}
+
+.edit-form input,
+.edit-form textarea {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.edit-form button {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* ✅ 수정 완료 버튼 */
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+/* ❌ 취소 버튼 */
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* 📋 복사 버튼 스타일 */
+.copy-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-left: 8px;
+    color: #000000;
+}
+
+.copy-btn:hover {
+    background: none;
+    color: #0056b3;
+}

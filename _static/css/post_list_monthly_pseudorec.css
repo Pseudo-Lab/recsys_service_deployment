@@ -49,7 +49,7 @@ h3 {
   /* 카드 간격을 조금 넓게 조정 */
   max-width: 2100px;
   width: 100%;
-  padding: 30px;
+  /* padding: 30px; */
   /* 여백을 추가하여 더 깔끔하게 */
 }
 

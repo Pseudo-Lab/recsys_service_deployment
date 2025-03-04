@@ -44,6 +44,11 @@
                 <h1>{{ header }}</h1>
                 <p>{{description}}</p>
                 <hr />
+                {% if user.is_staff %} <!-- 스태프만 글 작성 가능 -->
+                <a href="{% url 'add_monthly_pseudorec_post' %}" class="btn btn-primary">
+                    + 새 글 작성
+                </a>
+                {% endif %}
                 {% regroup posts by month as post_groups %}
                 {% for group in post_groups %}
                 <h2>{{ group.month }}</h2>

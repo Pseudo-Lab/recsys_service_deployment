@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% load paper_review_filter %}
 {% load static %}
+{% load custom_filters %}
 <html lang="ko">
 
 <head>
@@ -41,6 +42,16 @@
         {% include 'left_col_post_list.html' %}
         <div class="side-gutter"></div>
         <div class="center-main-field">
+            {% if post|instanceof:PostMonthlyPseudorec and user.is_staff or user.is_superuser %}
+            <div class="post-actions">
+                <a href="{% url 'edit_monthly_pseudorec_post' post.pk %}" class="btn btn-primary">✏️ 편집</a>
+                <form method="POST" action="{% url 'delete_monthly_pseudorec_post' post.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">🗑 삭제</button>
+                </form>
+            </div>
+            {% endif %}
+
             <div class="paper-review-detail">
                 <div class="right-field">
                     <div class="paper-review-main">
@@ -61,12 +72,12 @@
                             </div>
                             <div class="post-view">
                                 <p class="comment-count" id="comment-count-btn">
-                                    <i class="fa-regular fa-comment"></i> 
+                                    <i class="fa-regular fa-comment"></i>
                                     <span>{{ comments|length }}</span> <!-- 숫자를 span으로 감싸기 -->
                                 </p>
                                 <p><i class="fa-regular fa-eye"></i> {{ post.view_count }}</p>
                             </div>
-                            
+
                         </div>
                         {% else %}
                         <!-- 작성자가 두 명일 때 -->

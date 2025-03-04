@@ -66,6 +66,10 @@ https://developer.themoviedb.org/reference/search-movie
 pip install 'django<5'
 ```
 
+# 이미지 안나올때
+```
+python manage.py collectstatic --noinput --clear
+```
 
 ## Books
 - 인터랙티브 웹 페이지 만들기

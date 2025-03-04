@@ -16,8 +16,16 @@ urlpatterns = [
     path('paper_talk/<int:post_id>/add_comment/', views.add_paper_talk_comment, name='add_paper_talk_comment'),
     path('paper_talk/comment/<int:comment_id>/edit/', views.edit_paper_talk_comment, name='edit_paper_talk_comment'),
     path('paper_talk/comment/<int:comment_id>/delete/', views.delete_paper_talk_comment, name='delete_paper_talk_comment'),
-    path("monthly_pseudorec/", views.index_monthly_pseudorec),
-    path("monthly_pseudorec/<int:pk>/", views.single_post_page_monthly_pseudorec, name="single_post_page_monthly_pseudorec"),  # ✅ name 추가
+    
+    # ✅ 월간슈도렉 관련 URL
+    path("monthly_pseudorec/", views.index_monthly_pseudorec, name="index_monthly_pseudorec"),
+    path("monthly_pseudorec/<int:pk>/", views.single_post_page_monthly_pseudorec, name="single_post_page_monthly_pseudorec"),
+    path("monthly_pseudorec/add/", views.add_monthly_pseudorec_post, name="add_monthly_pseudorec_post"),
+    path("monthly_pseudorec/<int:pk>/edit/", views.edit_monthly_pseudorec_post, name="edit_monthly_pseudorec_post"),
+    path("monthly_pseudorec/<int:pk>/delete/", views.delete_monthly_pseudorec_post, name="delete_monthly_pseudorec_post"),
+
+
+    
     path("comment/edit/<int:comment_id>/", views.edit_comment, name="edit_comment"),
     path("comment/delete/<int:comment_id>/", views.delete_comment, name="delete_comment"),
     path("post_preview/", views.post_preview, name="post_preview"),

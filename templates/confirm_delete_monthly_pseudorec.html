@@ -1,0 +1,9 @@
+<h2>정말 삭제하시겠습니까?</h2>
+<p>제목: {{ post.title }}</p>
+
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit">삭제</button>
+</form>
+
+<a href="{% url 'single_post_page_monthly_pseudorec' post.pk %}">취소</a>

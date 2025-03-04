@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404, redirect, render
@@ -21,6 +23,10 @@ from paper_review.utils import codeblock
 
 from .forms import CommentForm
 from django.db.models import Count
+
+import boto3
+from django.conf import settings
+from django.core.files.storage import default_storage
 
 paper_review_base_dir = "post_markdowns/paper_review/"
 monthly_pseudorec_base_dir = "post_markdowns/monthly_pseudorec/"
@@ -228,6 +234,35 @@ def single_post_page_paper_review(request, pk):
     )
 
 
+
+def load_md_file(md_file_path):
+    """
+    로컬에서 .md 파일을 읽고 없으면 S3에서 가져오는 함수
+    """
+    print(f"md_file_path : {md_file_path}")
+    # 1️⃣ 로컬에서 먼저 .md 파일 찾기
+    if os.path.exists(md_file_path):
+        with open(md_file_path, "r", encoding="utf-8") as file:
+            return file.read()
+
+    # 2️⃣ 로컬에 없으면 S3에서 파일 가져오기
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+    )
+
+    bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+    s3_key = md_file_path.replace(settings.BASE_DIR + "/", "")  # S3 키 변환
+
+    try:
+        obj = s3.get_object(Bucket=bucket_name, Key=s3_key)
+        content = obj["Body"].read().decode("utf-8")
+        return content
+    except s3.exceptions.NoSuchKey:
+        return None  # S3에도 없으면 None 반환
+
+
 def single_post_page_monthly_pseudorec(request, pk):
     post = PostMonthlyPseudorec.objects.get(pk=pk)
     md_mapper = {
@@ -261,10 +296,14 @@ def single_post_page_monthly_pseudorec(request, pk):
         28: monthly_pseudorec_base_dir + "202501/202501_hyeonwoo.md",
         29: monthly_pseudorec_base_dir + "202501/202501_gyungah.md",
     }
-    md_file_path = md_mapper[pk]
-    view_count(request, pk, post)
-    log_tracking(request=request, view="/".join(md_file_path.split("/")[1:]))
-    post.set_content_from_md_file(md_file_path)
+    md_file_path = md_mapper.get(pk)
+
+    if md_file_path is not None:
+        post.content = load_md_file(md_file_path)  # 불러온 Markdown 내용을 모델에 적용
+        post.save()
+        view_count(request, pk, post)
+        log_tracking(request=request, view="/".join(md_file_path.split("/")[1:]))
+    # post.set_content_from_md_file(md_file_path)
     html_content = codeblock(post)
     # Pygments 적용된 HTML을 Markdown으로 변환하여 템플릿에 전달
     markdown_content_with_highlight = mdx_markdown(
@@ -297,6 +336,93 @@ def single_post_page_monthly_pseudorec(request, pk):
             "form": form,  # 댓글 입력 폼 추가
         },
     )
+
+# 🔹 S3에 파일 업로드 함수
+def upload_to_s3(file, folder="uploads"):
+    """파일을 S3에 업로드하고 URL 반환"""
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+    )
+    
+    file_name = f"{folder}/{file.name}"  # 경로 포함 파일명
+    s3.upload_fileobj(file, settings.AWS_STORAGE_BUCKET_NAME, file_name)
+    
+    return f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_name}"
+
+@login_required
+@user_passes_test(is_staff_user)
+def add_monthly_pseudorec_post(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        subtitle = request.POST.get("subtitle", "")
+        month = request.POST.get("month")
+        content = request.POST.get("content", "")
+        tag1 = request.POST.get("tag1", "Recommendation Model")
+        tag2 = request.POST.get("tag2", "Tech")
+        author = request.POST.get("author", request.user.username)
+        
+        # 🔹 이미지 업로드 처리
+        card_image = request.FILES.get("card_image")
+        author_image = request.FILES.get("author_image")
+
+        card_image_url = upload_to_s3(card_image) if card_image else None
+        author_image_url = upload_to_s3(author_image) if author_image else None
+
+        post = PostMonthlyPseudorec.objects.create(
+            title=title,
+            subtitle=subtitle,
+            month=month,
+            content=content,
+            tag1=tag1,
+            tag2=tag2,
+            author=author,
+            card_image=card_image_url,
+            author_image=author_image_url,
+            created_at=timezone.now(),
+        )
+
+        return redirect("index_monthly_pseudorec")
+
+    return render(request, "add_monthly_pseudorec.html")
+
+@login_required
+@user_passes_test(is_staff_user)
+def edit_monthly_pseudorec_post(request, post_id):
+    post = PostMonthlyPseudorec.objects.get(id=post_id)
+    s3_images = get_s3_images()  # 🔹 S3 이미지 리스트 가져오기
+
+    if request.method == "POST":
+        post.title = request.POST.get("title")
+        post.subtitle = request.POST.get("subtitle")
+        post.month = request.POST.get("month")
+        post.content = request.POST.get("content")
+        post.tag1 = request.POST.get("tag1", "Recommendation Model")
+        post.tag2 = request.POST.get("tag2", "Tech")
+
+        # 🔹 기존 이미지 또는 새 이미지 선택
+        new_card_image = request.FILES.get("card_image")
+        selected_card_image = request.POST.get("selected_card_image")  # 선택한 기존 이미지
+
+        post.card_image = upload_to_s3(new_card_image) if new_card_image else selected_card_image
+
+        post.save()
+        return redirect("single_post_page_monthly_pseudorec", pk=post.id)
+
+    return render(request, "edit_monthly_pseudorec.html", {"post": post, "s3_images": s3_images})
+
+
+@login_required
+@user_passes_test(is_staff_user)
+def delete_monthly_pseudorec_post(request, pk):
+    post = get_object_or_404(PostMonthlyPseudorec, pk=pk)
+
+    if request.method == "POST":
+        post.delete()
+        return redirect("index_monthly_pseudorec")  # 삭제 후 목록으로 이동
+
+    return render(request, "confirm_delete_monthly_pseudorec.html", {"post": post})
 
 
 @login_required

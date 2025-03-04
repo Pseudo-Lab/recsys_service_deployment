@@ -1,0 +1,47 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/monthly_pseudorec_add_edit.css' %}">
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <label for="id_title">제목:</label>
+    <input type="text" name="title" value="{{ post.title }}" required>
+
+    <label for="id_subtitle">부제목:</label>
+    <input type="text" name="subtitle" value="{{ post.subtitle }}">
+
+    <label for="id_month">발행 월:</label>
+    <input type="text" name="month" value="{{ post.month }}" required>
+
+    <label for="id_content">내용:</label>
+    <textarea name="content" rows="10">{{ post.content }}</textarea>
+    
+    <label for="id_card_image">새 카드 이미지 업로드:</label>
+    <input type="file" name="card_image">
+    
+    <label for="id_existing_card_image">기존 이미지 선택:</label>
+    <select name="selected_card_image">
+        <option value="{{ post.card_image }}" selected>현재 이미지 유지</option>
+        {% for image_url in s3_images %}
+        <option value="{{ image_url }}">{{ image_url }}</option>
+        {% endfor %}
+    </select>
+    
+
+    <label for="id_author">작성자:</label>
+    <input type="text" name="author" value="{{ post.author }}" required>
+
+    <label for="id_author_image">작성자 이미지 업로드:</label>
+    <input type="file" name="author_image">
+
+    <label for="id_tag1">태그 1:</label>
+    <input type="text" name="tag1" value="{{ post.tag1 }}">
+
+    <label for="id_tag2">태그 2:</label>
+    <input type="text" name="tag2" value="{{ post.tag2 }}">
+
+    <label for="id_created_at">작성일:</label>
+    <input type="datetime-local" name="created_at" value="{{ post.created_at|date:'Y-m-d\TH:i' }}">
+
+    <button type="submit">수정 완료</button>
+</form>

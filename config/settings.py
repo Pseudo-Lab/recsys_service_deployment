@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'users',  # 로그인 인증 시스템 앱
     'movie',  # daum movie 영화 추천 앱
     'paper_review',  # 논문 리뷰 포스팅 페이지
+    'paper_review.templatetags',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -200,3 +201,13 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 SECURE_SSL_REDIRECT = False
 
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1", "https://pseudorec.com", "https://www.pseudorec.com"]
+
+
+# AWS S3 스토리지 (월슈 이미지파일 등)
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = "posting-files"
+AWS_S3_REGION_NAME = "ap-northeast-2"  # 서울 리전
+AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"

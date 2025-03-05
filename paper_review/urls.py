@@ -24,8 +24,7 @@ urlpatterns = [
     path("monthly_pseudorec/<int:pk>/edit/", views.edit_monthly_pseudorec_post, name="edit_monthly_pseudorec_post"),
     path("monthly_pseudorec/<int:pk>/delete/", views.delete_monthly_pseudorec_post, name="delete_monthly_pseudorec_post"),
 
-
-    
+    # ✅ Paper Talk 관련 URL
     path("comment/edit/<int:comment_id>/", views.edit_comment, name="edit_comment"),
     path("comment/delete/<int:comment_id>/", views.delete_comment, name="delete_comment"),
     path("post_preview/", views.post_preview, name="post_preview"),

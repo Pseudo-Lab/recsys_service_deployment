@@ -20,6 +20,7 @@ from paper_review.models import (
     PaperTalkPost,
 )
 from paper_review.utils import codeblock
+from utils.s3_images import get_s3_images
 
 from .forms import CommentForm
 from django.db.models import Count
@@ -234,7 +235,6 @@ def single_post_page_paper_review(request, pk):
     )
 
 
-
 def load_md_file(md_file_path):
     """
     로컬에서 .md 파일을 읽고 없으면 S3에서 가져오는 함수
@@ -337,6 +337,7 @@ def single_post_page_monthly_pseudorec(request, pk):
         },
     )
 
+
 # 🔹 S3에 파일 업로드 함수
 def upload_to_s3(file, folder="uploads"):
     """파일을 S3에 업로드하고 URL 반환"""
@@ -345,11 +346,12 @@ def upload_to_s3(file, folder="uploads"):
         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
     )
-    
+
     file_name = f"{folder}/{file.name}"  # 경로 포함 파일명
     s3.upload_fileobj(file, settings.AWS_STORAGE_BUCKET_NAME, file_name)
-    
+
     return f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_name}"
+
 
 @login_required
 @user_passes_test(is_staff_user)
@@ -362,7 +364,7 @@ def add_monthly_pseudorec_post(request):
         tag1 = request.POST.get("tag1", "Recommendation Model")
         tag2 = request.POST.get("tag2", "Tech")
         author = request.POST.get("author", request.user.username)
-        
+
         # 🔹 이미지 업로드 처리
         card_image = request.FILES.get("card_image")
         author_image = request.FILES.get("author_image")
@@ -387,10 +389,11 @@ def add_monthly_pseudorec_post(request):
 
     return render(request, "add_monthly_pseudorec.html")
 
+
 @login_required
 @user_passes_test(is_staff_user)
-def edit_monthly_pseudorec_post(request, post_id):
-    post = PostMonthlyPseudorec.objects.get(id=post_id)
+def edit_monthly_pseudorec_post(request, pk):
+    post = PostMonthlyPseudorec.objects.get(id=pk)
     s3_images = get_s3_images()  # 🔹 S3 이미지 리스트 가져오기
 
     if request.method == "POST":
@@ -403,14 +406,20 @@ def edit_monthly_pseudorec_post(request, post_id):
 
         # 🔹 기존 이미지 또는 새 이미지 선택
         new_card_image = request.FILES.get("card_image")
-        selected_card_image = request.POST.get("selected_card_image")  # 선택한 기존 이미지
+        selected_card_image = request.POST.get(
+            "selected_card_image"
+        )  # 선택한 기존 이미지
 
-        post.card_image = upload_to_s3(new_card_image) if new_card_image else selected_card_image
+        post.card_image = (
+            upload_to_s3(new_card_image) if new_card_image else selected_card_image
+        )
 
         post.save()
         return redirect("single_post_page_monthly_pseudorec", pk=post.id)
 
-    return render(request, "edit_monthly_pseudorec.html", {"post": post, "s3_images": s3_images})
+    return render(
+        request, "edit_monthly_pseudorec.html", {"post": post, "s3_images": s3_images}
+    )
 
 
 @login_required

@@ -42,17 +42,19 @@
         {% include 'left_col_post_list.html' %}
         <div class="side-gutter"></div>
         <div class="center-main-field">
-            {% if post|instanceof:PostMonthlyPseudorec and user.is_staff or user.is_superuser %}
-            <div class="post-actions">
-                <a href="{% url 'edit_monthly_pseudorec_post' post.pk %}" class="btn btn-primary">✏️ 편집</a>
-                <form method="POST" action="{% url 'delete_monthly_pseudorec_post' post.pk %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">🗑 삭제</button>
-                </form>
-            </div>
-            {% endif %}
+
 
             <div class="paper-review-detail">
+                {% if post|instanceof:PostMonthlyPseudorec and user.is_staff or user.is_superuser %}
+                <div class="post-actions">
+                    <a href="{% url 'edit_monthly_pseudorec_post' post.pk %}" class="btn btn-primary">✏️ 편집</a>
+                    <form method="POST" action="{% url 'delete_monthly_pseudorec_post' post.pk %}"
+                        style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">🗑 삭제</button>
+                    </form>
+                </div>
+                {% endif %}
                 <div class="right-field">
                     <div class="paper-review-main">
                         <h1>{{ post.title }}</h1>

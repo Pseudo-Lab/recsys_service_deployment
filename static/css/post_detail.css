@@ -15,6 +15,72 @@ main {
 
 }
 
+main .center-main-field .post-actions {
+    top: 20px;
+    /* 제목 위 여백 */
+    right: 30px;
+    /* 오른쪽 정렬 */
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
+
+main .center-main-field .post-actions a,
+.post-actions button {
+    background: rgba(0, 0, 0, 0.1);
+    /* 은은한 반투명 배경 */
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+main .center-main-field .post-actions a {
+    background: rgba(100, 149, 237, 0.2);
+    /* 편집 버튼은 은은한 파란색 */
+    color: #4169E1;
+}
+
+main .center-main-field .post-actions button {
+    background: rgba(255, 0, 0, 0.2);
+    /* 삭제 버튼은 은은한 빨간색 */
+    color: #B22222;
+}
+
+main .center-main-field .post-actions a:hover {
+    background: rgba(100, 149, 237, 0.5);
+    color: white;
+}
+
+main .center-main-field .post-actions button:hover {
+    background: rgba(255, 0, 0, 0.5);
+    color: white;
+}
+
+/* 반응형 조정 */
+@media (max-width: 768px) {
+    main .center-main-field .post-actions {
+        top: 10px;
+        right: 15px;
+        gap: 5px;
+    }
+
+    main .center-main-field .post-actions a,
+    .post-actions button {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}
+
+
 main .center-main-field .paper-review-detail {
     flex: 1;
     max-width: 800px;
@@ -513,17 +579,17 @@ body div#comments-section div.disabled-comment-box {
     cursor: pointer;
 }
 
-.paper-review-detail .right-field .paper-review-main .post-view .comment-count i{
-font-size: 1.2em;
-text-decoration: none !important;
-/* 아이콘과 숫자에 밑줄 없애기 */
+.paper-review-detail .right-field .paper-review-main .post-view .comment-count i {
+    font-size: 1.2em;
+    text-decoration: none !important;
+    /* 아이콘과 숫자에 밑줄 없애기 */
 }
 
 .paper-review-detail .right-field .paper-review-main .post-view .comment-count span {
     font-size: 1.2em;
     text-decoration: underline !important;
     /* 아이콘과 숫자에 밑줄 없애기 */
-    }
+}
 
 .paper-review-detail .right-field .paper-review-main .post-view .comment-count:hover {
     color: #007bff !important;

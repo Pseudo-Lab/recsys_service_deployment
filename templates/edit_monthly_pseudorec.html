@@ -15,18 +15,29 @@
 
     <label for="id_content">내용:</label>
     <textarea name="content" rows="10">{{ post.content }}</textarea>
-    
-    <label for="id_card_image">새 카드 이미지 업로드:</label>
-    <input type="file" name="card_image">
-    
-    <label for="id_existing_card_image">기존 이미지 선택:</label>
-    <select name="selected_card_image">
-        <option value="{{ post.card_image }}" selected>현재 이미지 유지</option>
-        {% for image_url in s3_images %}
-        <option value="{{ image_url }}">{{ image_url }}</option>
+
+    <label for="upload_card_image">카드 이미지:</label>
+    <div class="card_image_select">
+        <span>새로운 이미지 업로드</span>
+        <input type="file" id="upload_card_image" accept="image/*">
+        <button type="button" id="upload_btn">업로드</button>
+        <div id="preview_container">
+            <img id="upload_preview" src="#" alt="미리보기" style="display:none; width:200px; margin-top:10px;" />
+        </div>
+    </div>
+
+    <label>기존 이미지 선택:</label>
+    <div id="image_gallery" style="display: flex; flex-wrap: wrap; gap: 10px;">
+        {% for image in s3_images %}
+        <img src="{{ image }}" onclick="selectImage('{{ image }}', this)"
+            style="width: 100px; height: auto; cursor: pointer; border: 2px solid transparent;">
         {% endfor %}
-    </select>
-    
+    </div>
+
+    <input type="hidden" name="selected_card_image" id="selected_card_image_hidden">
+    <img id="selected_image_preview" src="{% if post.card_image %}{{ post.card_image }}{% endif %}"
+        alt="이미지 미리보기"
+        style="max-width: 300px; display: {% if post.card_image %}block{% else %}none{% endif %}; margin-top: 10px;">
 
     <label for="id_author">작성자:</label>
     <input type="text" name="author" value="{{ post.author }}" required>
@@ -45,3 +56,74 @@
 
     <button type="submit">수정 완료</button>
 </form>
+
+<script>
+    // 🔹 새로 업로드한 이미지 미리보기
+    document.getElementById("upload_card_image").addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById("upload_preview").src = e.target.result;
+                document.getElementById("upload_preview").style.display = "block";
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // 🔹 S3에 이미지 업로드
+    document.getElementById("upload_btn").addEventListener("click", function () {
+        const fileInput = document.getElementById("upload_card_image");
+        if (fileInput.files.length === 0) {
+            alert("파일을 선택해주세요.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("image", fileInput.files[0]);
+
+        fetch("{% url 'upload_image_ajax' %}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.image_url) {
+                alert("업로드 완료!");
+
+                // 새 이미지 갤러리에 추가
+                const gallery = document.getElementById("image_gallery");
+                const newImg = document.createElement("img");
+                newImg.src = data.image_url;
+                newImg.style = "width: 100px; height: auto; cursor: pointer; border: 2px solid transparent;";
+                newImg.onclick = function () { selectImage(data.image_url, newImg); };
+                gallery.appendChild(newImg);
+
+                // 선택한 이미지로 업데이트
+                selectImage(data.image_url, newImg);
+            } else {
+                alert("업로드 실패: " + data.error);
+            }
+        })
+        .catch(error => {
+            console.error("Error uploading image:", error);
+            alert("업로드 중 오류 발생");
+        });
+    });
+
+    // 🔹 기존 이미지 선택
+    function selectImage(imageUrl, imgElement) {
+        document.getElementById("selected_card_image_hidden").value = imageUrl;
+        document.getElementById("selected_image_preview").src = imageUrl;
+        document.getElementById("selected_image_preview").style.display = "block";
+
+        // 모든 이미지 테두리 초기화
+        document.querySelectorAll("#image_gallery img").forEach(img => img.style.border = "2px solid transparent");
+
+        // 선택된 이미지 강조
+        imgElement.style.border = "2px solid blue";
+    }
+</script>

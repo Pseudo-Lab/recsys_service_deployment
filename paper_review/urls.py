@@ -22,6 +22,7 @@ urlpatterns = [
     path("monthly_pseudorec/<int:pk>/", views.single_post_page_monthly_pseudorec, name="single_post_page_monthly_pseudorec"),
     path("monthly_pseudorec/add/", views.add_monthly_pseudorec_post, name="add_monthly_pseudorec_post"),
     path("monthly_pseudorec/<int:pk>/edit/", views.edit_monthly_pseudorec_post, name="edit_monthly_pseudorec_post"),
+    path("upload_image_ajax/", views.upload_image_ajax, name="upload_image_ajax"),
     path("monthly_pseudorec/<int:pk>/delete/", views.delete_monthly_pseudorec_post, name="delete_monthly_pseudorec_post"),
 
     # ✅ Paper Talk 관련 URL

@@ -19,6 +19,8 @@ from paper_review.models import (
     PostMonthlyPseudorec,
     PaperTalkPost,
 )
+
+import uuid
 from paper_review.utils import codeblock
 from utils.s3_images import get_s3_images
 
@@ -28,6 +30,10 @@ from django.db.models import Count
 import boto3
 from django.conf import settings
 from django.core.files.storage import default_storage
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import render_to_string
 
 paper_review_base_dir = "post_markdowns/paper_review/"
 monthly_pseudorec_base_dir = "post_markdowns/monthly_pseudorec/"
@@ -340,21 +346,15 @@ def single_post_page_monthly_pseudorec(request, pk):
 
 # 🔹 S3에 파일 업로드 함수
 def upload_to_s3(file, folder="uploads"):
-    """파일을 S3에 업로드하고 퍼블릭 URL 반환"""
+    """파일을 S3에 업로드하고 URL 반환"""
     s3 = boto3.client(
         "s3",
         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
     )
 
-    file_name = f"{folder}/{file.name}"
-
-    s3.upload_fileobj(
-        file,
-        settings.AWS_STORAGE_BUCKET_NAME,
-        file_name,
-        ExtraArgs={"ACL": "public-read"},  # 🔥 이 부분이 중요!
-    )
+    file_name = f"{folder}/{file.name}"  # 경로 포함 파일명
+    s3.upload_fileobj(file, settings.AWS_STORAGE_BUCKET_NAME, file_name)  # ✅ ACL 제거
 
     return f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_name}"
 
@@ -398,6 +398,39 @@ def add_monthly_pseudorec_post(request):
 
 @login_required
 @user_passes_test(is_staff_user)
+def upload_image_ajax(request):
+    """AJAX 요청을 받아 S3에 이미지를 업로드하고 URL을 반환"""
+    if request.method == "POST" and request.FILES.get("image"):
+        image = request.FILES["image"]
+        file_extension = image.name.split(".")[-1]
+        unique_filename = (
+            f"uploads/{uuid.uuid4()}.{file_extension}"  # 랜덤한 파일명 생성
+        )
+
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        )
+
+        s3.upload_fileobj(image, settings.AWS_STORAGE_BUCKET_NAME, unique_filename)
+
+        image_url = f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{unique_filename}"
+        return JsonResponse({"image_url": image_url})
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+@login_required
+@csrf_exempt
+def get_s3_image_list(request):
+    """AJAX 요청을 받아 S3 이미지 리스트를 JSON으로 반환"""
+    images = get_s3_images()
+    return JsonResponse({"images": images})
+
+
+@login_required
+@user_passes_test(is_staff_user)
 def edit_monthly_pseudorec_post(request, pk):
     post = PostMonthlyPseudorec.objects.get(id=pk)
     s3_images = get_s3_images()  # 🔹 S3 이미지 리스트 가져오기
@@ -416,9 +449,14 @@ def edit_monthly_pseudorec_post(request, pk):
             "selected_card_image"
         )  # 선택한 기존 이미지
 
-        post.card_image = (
-            upload_to_s3(new_card_image) if new_card_image else selected_card_image
-        )
+        if new_card_image:
+            new_card_image_url = upload_to_s3(new_card_image)  # S3에 업로드
+            s3_images.append(
+                new_card_image_url
+            )  # 새로 업로드한 이미지를 기존 리스트에 추가
+            post.card_image = new_card_image_url  # 새 이미지로 변경
+        else:
+            post.card_image = selected_card_image  # 기존 이미지 유지
 
         post.save()
         return redirect("single_post_page_monthly_pseudorec", pk=post.id)
@@ -514,11 +552,6 @@ def view_count(request, pk, post):
         cache.set(cache_key, True, timeout=600)  # 10분 동안 캐싱
         print(f"\tL {'post.view_count':20} : {post.view_count}")
     print(f"".ljust(60, "="))
-
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.template.loader import render_to_string
 
 
 @csrf_exempt

@@ -1,3 +1,4 @@
+/* 기본 폼 스타일 */
 form {
     max-width: 600px;
     margin: 0 auto;
@@ -35,4 +36,81 @@ button {
 
 button:hover {
     background: #0056b3;
+}
+
+/* 📌 카드 이미지 업로드 섹션 스타일 */
+.card_image_select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #f1f1f1;
+    margin-top: 10px;
+}
+
+.card_image_select span {
+    font-size: 14px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+/* 🔹 새 이미지 업로드 스타일 */
+#upload_card_image {
+    display: block;
+    width: 100%;
+    padding: 6px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+}
+
+#upload_btn {
+    width: auto;
+    padding: 8px 15px;
+    background: #28a745;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+    display: block;
+}
+
+#upload_btn:hover {
+    background: #218838;
+}
+
+/* 🔹 기존 이미지 선택 갤러리 스타일 */
+#image_gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 0;
+}
+
+#image_gallery img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, border 0.2s ease-in-out;
+}
+
+#image_gallery img:hover {
+    transform: scale(1.05);
+}
+
+#image_gallery img.selected {
+    border: 3px solid #007bff;
+}
+
+/* 🔹 미리보기 이미지 스타일 */
+#selected_image_preview, #upload_preview {
+    max-width: 100%;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    display: block;
+    margin-top: 10px;
 }

@@ -340,15 +340,21 @@ def single_post_page_monthly_pseudorec(request, pk):
 
 # 🔹 S3에 파일 업로드 함수
 def upload_to_s3(file, folder="uploads"):
-    """파일을 S3에 업로드하고 URL 반환"""
+    """파일을 S3에 업로드하고 퍼블릭 URL 반환"""
     s3 = boto3.client(
         "s3",
         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
     )
 
-    file_name = f"{folder}/{file.name}"  # 경로 포함 파일명
-    s3.upload_fileobj(file, settings.AWS_STORAGE_BUCKET_NAME, file_name)
+    file_name = f"{folder}/{file.name}"
+
+    s3.upload_fileobj(
+        file,
+        settings.AWS_STORAGE_BUCKET_NAME,
+        file_name,
+        ExtraArgs={"ACL": "public-read"},  # 🔥 이 부분이 중요!
+    )
 
     return f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/{file_name}"
 

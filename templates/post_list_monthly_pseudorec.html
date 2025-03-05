@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% load paper_review_filter %}
 {% load static %}
+{% load custom_filters %}
 <html lang="ko">
 
 <head>
@@ -60,7 +61,8 @@
                             <div class="card-header">
                                 {% if post.card_image %}
                                 <a href="{{ post.get_absolute_url }}">
-                                    <img src="{{ post.card_image.url }}" alt="Card Image">
+                                    <img src="{% if post.card_image|is_absolute_url %}{{ post.card_image }}{% else %}{{ post.card_image.url }}{% endif %}"
+                                        alt="Card Image">
                                 </a>
                                 {% else %}
                                 <p>No image available</p>

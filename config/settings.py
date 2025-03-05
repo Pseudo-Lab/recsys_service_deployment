@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'movie',  # daum movie 영화 추천 앱
     'paper_review',  # 논문 리뷰 포스팅 페이지
     'paper_review.templatetags',
+    'utils',  # utils/custom_filters.py가 있는 앱 등록
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

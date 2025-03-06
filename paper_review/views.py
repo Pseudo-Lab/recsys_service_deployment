@@ -307,8 +307,10 @@ def single_post_page_monthly_pseudorec(request, pk):
     if md_file_path is not None:
         post.content = load_md_file(md_file_path)  # 불러온 Markdown 내용을 모델에 적용
         post.save()
-        view_count(request, pk, post)
         log_tracking(request=request, view="/".join(md_file_path.split("/")[1:]))
+    else:
+        log_tracking(request=request, view=post.title)
+    view_count(request, pk, post)
     # post.set_content_from_md_file(md_file_path)
     html_content = codeblock(post)
     # Pygments 적용된 HTML을 Markdown으로 변환하여 템플릿에 전달

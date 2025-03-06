@@ -16,16 +16,6 @@
     <label for="id_content">내용:</label>
     <textarea id="content_editor" name="content" rows="10">{{ post.content }}</textarea>
 
-    <!-- 🔹 이미지 업로드 및 삽입 -->
-    <label for="upload_content_image">본문 이미지 업로드:</label>
-    <div class="image_upload_section">
-        <input type="file" id="upload_content_image" accept="image/*">
-        <button type="button" id="upload_content_btn">업로드</button>
-        <div id="content_image_preview_container">
-            <img id="content_upload_preview" src="#" alt="미리보기" style="display:none; width:200px; margin-top:10px;" />
-        </div>
-    </div>
-
     <label>본문 삽입 가능한 기존 이미지:</label>
     <div id="content_image_gallery" style="display: flex; flex-wrap: wrap; gap: 10px;">
         {% for image in s3_images %}
@@ -76,29 +66,24 @@
 </form>
 
 <script>
-    // 🔹 본문 이미지 업로드 미리보기
-    document.getElementById("upload_content_image").addEventListener("change", function (event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                document.getElementById("content_upload_preview").src = e.target.result;
-                document.getElementById("content_upload_preview").style.display = "block";
-            };
-            reader.readAsDataURL(file);
+    // 🔹 본문에 붙여넣기한 이미지 자동 업로드 및 삽입
+    document.getElementById("content_editor").addEventListener("paste", function (event) {
+        const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+        
+        for (let item of items) {
+            if (item.kind === "file") {
+                const file = item.getAsFile();
+                if (file.type.startsWith("image/")) {
+                    event.preventDefault(); // 기본 붙여넣기 방지
+                    uploadAndInsertImage(file);
+                }
+            }
         }
     });
 
-    // 🔹 본문 이미지 S3 업로드
-    document.getElementById("upload_content_btn").addEventListener("click", function () {
-        const fileInput = document.getElementById("upload_content_image");
-        if (fileInput.files.length === 0) {
-            alert("파일을 선택해주세요.");
-            return;
-        }
-
+    function uploadAndInsertImage(file) {
         const formData = new FormData();
-        formData.append("image", fileInput.files[0]);
+        formData.append("image", file);
 
         fetch("{% url 'upload_image_ajax' %}", {
             method: "POST",
@@ -110,24 +95,16 @@
         .then(response => response.json())
         .then(data => {
             if (data.image_url) {
-                alert("업로드 완료!");
-
-                // 본문 삽입 가능한 이미지 목록에 추가
-                const gallery = document.getElementById("content_image_gallery");
-                const newImg = document.createElement("img");
-                newImg.src = data.image_url;
-                newImg.style = "width: 100px; height: auto; cursor: pointer; border: 2px solid transparent;";
-                newImg.onclick = function () { insertImage(data.image_url); };
-                gallery.appendChild(newImg);
+                insertImage(data.image_url);
             } else {
-                alert("업로드 실패: " + data.error);
+                alert("이미지 업로드 실패: " + data.error);
             }
         })
         .catch(error => {
             console.error("Error uploading image:", error);
             alert("업로드 중 오류 발생");
         });
-    });
+    }
 
     // 🔹 본문에 이미지 삽입
     function insertImage(imageUrl) {

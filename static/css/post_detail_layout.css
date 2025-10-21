@@ -1,0 +1,64 @@
+/* post_detail 페이지 레이아웃 조정 */
+
+/* main을 flexbox로 변경 - 스크롤 완전 제거 */
+main {
+    display: flex !important;
+    width: 100% !important;
+    height: calc(100vh - 60px) !important;
+    overflow: hidden !important;
+}
+
+/* center-main-field 스크롤만 유지 */
+.center-main-field {
+    flex: 1 !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 0 !important;
+    display: block !important;
+}
+
+/* side-gutter 조정 */
+.side-gutter {
+    flex-shrink: 0;
+    width: 30px;
+}
+
+/* paper-review-detail를 중앙 배치하고 padding 추가 */
+.paper-review-detail {
+    max-width: 900px;
+    margin: 0 auto !important;
+    padding: 30px 20px !important;
+}
+
+/* paper-review-main 첫 번째 요소 여백 제거 */
+.paper-review-main > h1:first-child {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* paper-review-main이 중앙에 배치되지만 내부는 왼쪽 정렬 */
+.paper-review-main {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left !important;
+}
+
+/* paper-review-main 내부의 모든 텍스트 요소들 왼쪽 정렬 강제 */
+.paper-review-main h1,
+.paper-review-main h2,
+.paper-review-main h3,
+.paper-review-main h4,
+.paper-review-main h5,
+.paper-review-main h6,
+.paper-review-main p,
+.paper-review-main li,
+.paper-review-main div,
+.paper-review-main blockquote {
+    text-align: left !important;
+}
+
+/* em 태그는 이탤릭체만 유지하고 중앙정렬 제거 */
+.paper-review-main p em {
+    text-align: left !important;
+}

@@ -1,0 +1,31 @@
+{% load static %}
+
+<div class="post-list-sidebar" id="postListSidebar">
+    <div class="resize-handle" id="resizeHandle"></div>
+    <button class="sidebar-header" id="toggleViewBtn" title="카드 뷰로 전환">
+        <i class="fa-solid fa-table-cells"></i>
+        <h3>글 목록</h3>
+        <span class="post-count">{{ posts|length }}개</span>
+    </button>
+    <div class="sidebar-posts">
+        {% regroup posts by month as posts_by_month %}
+        {% for month_group in posts_by_month %}
+        <div class="month-group">
+            <div class="month-divider">{{ month_group.grouper }}</div>
+            {% for post in month_group.list %}
+            <a href="/archive/monthly_pseudorec/{{ post.pk }}/" class="post-item">
+                <div class="post-title">{{ post.title }}</div>
+                <div class="post-meta">
+                    <span class="post-author">
+                        <i class="fa-regular fa-user"></i> {{ post.author }}
+                    </span>
+                    <span class="post-views">
+                        <i class="fa-regular fa-eye"></i> {{ post.view_count }}
+                    </span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</div>

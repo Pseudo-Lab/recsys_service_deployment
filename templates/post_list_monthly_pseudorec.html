@@ -39,6 +39,7 @@
     </header>
     <main>
         {% include 'left_col_post_list.html' %}
+        {% include 'post_list_sidebar.html' %}
         <div class="side-gutter"></div>
         <div class="center-main-field">
             <div class="paper-review-main">
@@ -50,10 +51,41 @@
                     + 새 글 작성
                 </a>
                 {% endif %}
+
+                <!-- 목록 뷰 -->
+                <div class="list-view" id="listView" style="display: none;">
+                    {% regroup posts by month as post_groups %}
+                    {% for group in post_groups %}
+                    <div class="list-month-section">
+                        <h2 class="list-month-title">{{ group.grouper }}</h2>
+                        <div class="list-posts">
+                            {% for post in group.list %}
+                            <a href="{{ post.get_absolute_url }}" class="list-post-item">
+                                <div class="list-post-main">
+                                    <h3 class="list-post-title">{{ post.title }}</h3>
+                                    <p class="list-post-subtitle">{{ post.subtitle }}</p>
+                                </div>
+                                <div class="list-post-meta">
+                                    {% if post.author_image %}
+                                    <img src="{{ post.author_image.url }}" alt="{{ post.author }}" class="list-author-image">
+                                    {% endif %}
+                                    <span class="list-post-author">{{ post.author }}</span>
+                                    <span class="list-post-views">
+                                        <i class="fa-regular fa-eye"></i> {{ post.view_count }}
+                                    </span>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- 카드 뷰 -->
                 {% regroup posts by month as post_groups %}
                 {% for group in post_groups %}
                 <h2>{{ group.month }}</h2>
-                <div class="container">
+                <div class="container" id="cardView">
                     <h2>{{ group.grouper }}</h2> <!-- Group by month -->
                     <div class="container">
                         {% for post in group.list %}
@@ -103,6 +135,84 @@
             </div>
         </div>
     </main>
+
+    <script>
+        // 뷰 전환 기능
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleBtn = document.getElementById('toggleViewBtn');
+            const listView = document.getElementById('listView');
+            const cardViews = document.querySelectorAll('.container');
+            const monthTitles = document.querySelectorAll('.paper-review-main > h2');
+            let isCardView = true;
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    const postCount = toggleBtn.querySelector('.post-count').textContent;
+
+                    if (isCardView) {
+                        // 카드 뷰 -> 목록 뷰
+                        cardViews.forEach(container => container.style.display = 'none');
+                        monthTitles.forEach(title => title.style.display = 'none');
+                        listView.style.display = 'block';
+                        toggleBtn.innerHTML = '<i class="fa-solid fa-list"></i><h3>글 목록</h3><span class="post-count">' + postCount + '</span>';
+                        toggleBtn.title = '카드 뷰로 전환';
+                        isCardView = false;
+                    } else {
+                        // 목록 뷰 -> 카드 뷰
+                        cardViews.forEach(container => container.style.display = 'flex');
+                        monthTitles.forEach(title => title.style.display = 'block');
+                        listView.style.display = 'none';
+                        toggleBtn.innerHTML = '<i class="fa-solid fa-table-cells"></i><h3>글 목록</h3><span class="post-count">' + postCount + '</span>';
+                        toggleBtn.title = '목록 뷰로 전환';
+                        isCardView = true;
+                    }
+                });
+            }
+        });
+
+        // 사이드바 리사이즈 기능
+        (function() {
+            const sidebar = document.getElementById('postListSidebar');
+            const handle = document.getElementById('resizeHandle');
+
+            if (!sidebar || !handle) return;
+
+            let isResizing = false;
+            let startX = 0;
+            let startWidth = 0;
+
+            handle.addEventListener('mousedown', function(e) {
+                isResizing = true;
+                startX = e.clientX;
+                startWidth = sidebar.offsetWidth;
+                handle.classList.add('resizing');
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isResizing) return;
+
+                const diff = e.clientX - startX;
+                const newWidth = startWidth + diff;
+
+                // 최소/최대 너비 제한
+                if (newWidth >= 200 && newWidth <= 500) {
+                    sidebar.style.width = newWidth + 'px';
+                }
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (isResizing) {
+                    isResizing = false;
+                    handle.classList.remove('resizing');
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                }
+            });
+        })();
+    </script>
 </body>
 
 </html>

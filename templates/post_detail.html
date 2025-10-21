@@ -12,7 +12,9 @@
         integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/post_list_monthly_pseudorec.css' %}">
     <link rel="stylesheet" href="{% static 'css/post_detail.css' %}">
+    <link rel="stylesheet" href="{% static 'css/post_detail_layout.css' %}">
     <link rel="stylesheet" href="{% static 'css/code_styles.css' %}">
     <script async src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -40,6 +42,7 @@
     </header>
     <main>
         {% include 'left_col_post_list.html' %}
+        {% include 'post_list_sidebar.html' %}
         <div class="side-gutter"></div>
         <div class="center-main-field">
 
@@ -55,77 +58,69 @@
                     </form>
                 </div>
                 {% endif %}
-                <div class="right-field">
-                    <div class="paper-review-main">
-                        <h1>{{ post.title }}</h1>
-                        {% if not post.author2 %}
-                        <!-- 작성자가 한 명일 때 -->
-                        <div class="user">
-                            <div class="user-info-wrapper">
-                                {% if post.author_image %}
-                                <img src={{post.author_image.url}} alt="">
-                                {% else %}
-                                <p>No image available</p>
-                                {% endif %}
-                                <div class="user-info">
-                                    <h5>{{post.author}}</h5>
-                                    <small>{{post.month}}</small>
-                                </div>
-                            </div>
-                            <div class="post-view">
-                                <p class="comment-count" id="comment-count-btn">
-                                    <i class="fa-regular fa-comment"></i>
-                                    <span>{{ comments|length }}</span> <!-- 숫자를 span으로 감싸기 -->
-                                </p>
-                                <p><i class="fa-regular fa-eye"></i> {{ post.view_count }}</p>
-                            </div>
-
-                        </div>
-                        {% else %}
-                        <!-- 작성자가 두 명일 때 -->
-                        <div class="user">
-                            <div class="user-info-wrapper">
-                                {% if post.author_image %}
-                                <img src={{post.author_image.url}} alt="">
-                                {% else %}
-                                <p>No image available</p>
-                                {% endif %}
-                                <div class="user-info">
-                                    <h5>{{post.author}}</h5>
-                                </div>
-                                {% if post.author_image2 %}
-                                <img src="{{ post.author_image2.url }}" alt="{{ post.author2 }} 사진"
-                                    class="author-image author2-image">
-                                {% else %}
-                                {% endif %}
-
-                                {% if post.author2 and post.author2 != "작성자2추가" %}
-                                <div class="user-info author2-info">
-                                    <h5 class="author-name author2-name">{{ post.author2 }}</h5>
-                                </div>
-                                {% else %}
-
-                                {% endif %}
-                            </div>
-                            <div class="post-view">
-                                <p><i class="fa-regular fa-eye"></i> {{ post.view_count }}</p>
+                <div class="paper-review-main">
+                    <h1>{{ post.title }}</h1>
+                    {% if not post.author2 %}
+                    <!-- 작성자가 한 명일 때 -->
+                    <div class="user">
+                        <div class="user-info-wrapper">
+                            {% if post.author_image %}
+                            <img src={{post.author_image.url}} alt="">
+                            {% else %}
+                            <p>No image available</p>
+                            {% endif %}
+                            <div class="user-info">
+                                <h5>{{post.author}}</h5>
+                                <small>{{post.month}}</small>
                             </div>
                         </div>
-                        <p class="post-date">{{ post.created_at|date:"Y-m-d" }}</p>
-                        {% endif %}
+                        <div class="post-view">
+                            <p class="comment-count" id="comment-count-btn">
+                                <i class="fa-regular fa-comment"></i>
+                                <span>{{ comments|length }}</span> <!-- 숫자를 span으로 감싸기 -->
+                            </p>
+                            <p><i class="fa-regular fa-eye"></i> {{ post.view_count }}</p>
+                        </div>
 
-                        <!-- Pygments가 적용된 코드 블록을 출력 -->
-                        <p>{{ markdown_content_with_highlight|safe }}</p>
-                        <hr />
-                        <!--                    <h3>여기 댓글이 들어올 수 있겠죠?</h3>-->
                     </div>
+                    {% else %}
+                    <!-- 작성자가 두 명일 때 -->
+                    <div class="user">
+                        <div class="user-info-wrapper">
+                            {% if post.author_image %}
+                            <img src={{post.author_image.url}} alt="">
+                            {% else %}
+                            <p>No image available</p>
+                            {% endif %}
+                            <div class="user-info">
+                                <h5>{{post.author}}</h5>
+                            </div>
+                            {% if post.author_image2 %}
+                            <img src="{{ post.author_image2.url }}" alt="{{ post.author2 }} 사진"
+                                class="author-image author2-image">
+                            {% else %}
+                            {% endif %}
+
+                            {% if post.author2 and post.author2 != "작성자2추가" %}
+                            <div class="user-info author2-info">
+                                <h5 class="author-name author2-name">{{ post.author2 }}</h5>
+                            </div>
+                            {% else %}
+
+                            {% endif %}
+                        </div>
+                        <div class="post-view">
+                            <p><i class="fa-regular fa-eye"></i> {{ post.view_count }}</p>
+                        </div>
+                    </div>
+                    <p class="post-date">{{ post.created_at|date:"Y-m-d" }}</p>
+                    {% endif %}
+
+                    <!-- Pygments가 적용된 코드 블록을 출력 -->
+                    <p>{{ markdown_content_with_highlight|safe }}</p>
+                    <hr />
+                    <!--                    <h3>여기 댓글이 들어올 수 있겠죠?</h3>-->
                 </div>
-            </div>
-            <div class="toc">
-                <h2>Table of Contents</h2>
-                <ul id="toc-list">
-                    <!-- 여기에 JavaScript로 TOC 항목이 추가됩니다. -->
-                </ul>
             </div>
         </div>
 
@@ -225,35 +220,6 @@
         });
     });
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const tocList = document.getElementById('toc-list');
-        const headers = document.querySelectorAll('.paper-review-main h1, .paper-review-main h2, .paper-review-main h3, .paper-review-main h4');
-
-        headers.forEach((header, index) => {
-            const id = `section-${index}`;
-            header.id = id;
-
-            const li = document.createElement('li');
-            const a = document.createElement('a');
-            a.href = `#${id}`;
-            a.textContent = header.textContent;
-
-            // 헤드라인 수준에 따라 클래스 추가
-            if (header.tagName === 'H1') {
-                li.classList.add('level-1');
-            } else if (header.tagName === 'H2') {
-                li.classList.add('level-2');
-            } else if (header.tagName === 'H3') {
-                li.classList.add('level-3');
-            } else if (header.tagName === 'H4') {
-                li.classList.add('level-4');
-            }
-
-
-            li.appendChild(a);
-            tocList.appendChild(li);
-        });
-    });
 
     document.addEventListener("DOMContentLoaded", function () {
         const commentCountBtn = document.getElementById("comment-count-btn");
@@ -265,5 +231,48 @@
             });
         }
     });
+
+    // 사이드바 리사이즈 기능
+    (function() {
+        const sidebar = document.getElementById('postListSidebar');
+        const handle = document.getElementById('resizeHandle');
+
+        if (!sidebar || !handle) return;
+
+        let isResizing = false;
+        let startX = 0;
+        let startWidth = 0;
+
+        handle.addEventListener('mousedown', function(e) {
+            isResizing = true;
+            startX = e.clientX;
+            startWidth = sidebar.offsetWidth;
+            handle.classList.add('resizing');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isResizing) return;
+
+            const diff = e.clientX - startX;
+            const newWidth = startWidth + diff;
+
+            // 최소/최대 너비 제한
+            if (newWidth >= 200 && newWidth <= 500) {
+                sidebar.style.width = newWidth + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isResizing) {
+                isResizing = false;
+                handle.classList.remove('resizing');
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            }
+        });
+    })();
 
 </script>

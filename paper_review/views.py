@@ -334,6 +334,9 @@ def single_post_page_monthly_pseudorec(request, pk):
     else:
         form = CommentForm()
 
+    # 사이드바용 글 목록 가져오기
+    posts = PostMonthlyPseudorec.objects.all().order_by("-pk")
+
     return render(
         request=request,
         template_name="post_detail.html",
@@ -342,6 +345,7 @@ def single_post_page_monthly_pseudorec(request, pk):
             "markdown_content_with_highlight": markdown_content_with_highlight,
             "comments": comments,  # 댓글 리스트 추가
             "form": form,  # 댓글 입력 폼 추가
+            "posts": posts,  # 사이드바용 글 목록 추가
         },
     )
 

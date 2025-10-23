@@ -122,57 +122,59 @@
                     <!--                    <h3>여기 댓글이 들어올 수 있겠죠?</h3>-->
                 </div>
             </div>
+
+            <!-- Comments Section을 center-main-field 안으로 이동 -->
+            <div id="comments-section">
+                <h3>Leave a Comment:</h3>
+                {% if user.is_authenticated %}
+                <form id="commentForm" method="POST">
+                    {% csrf_token %}
+                    <textarea id="commentInput" name="content" placeholder="댓글을 입력하세요..." required></textarea>
+                    <div class="comment-form-actions">
+                        <button type="submit">Submit</button>
+                    </div>
+                </form>
+                {% else %}
+                <!-- 🚀 비로그인 상태일 때 표시 -->
+                <div class="disabled-comment-box">
+                    <p>로그인 후 댓글을 작성할 수 있습니다.</p>
+                </div>
+                {% endif %}
+
+                <h3>Comments:</h3>
+                <div id="comments-list">
+                    {% for comment in comments %}
+                    <div class="comment-item">
+                        {% if comment.author.profile_image %}
+                        <div class="comment-avatar">
+                            <img src="{{ comment.author.profile_image.url }}" alt="avatar">
+                        </div>
+                        {% else %}
+                        <div class="comment-avatar">
+                            <img src="{% static 'img/member/for_monthly_pseudorec/default_user.png' %}" alt="avatar">
+                        </div>
+                        {% endif %}
+                        <div class="comment-content">
+                            <div class="comment-author">{{ comment.author }}</div>
+                            <p class="comment-text">{{ comment.content|linebreaksbr }}</p>
+                            <span class="comment-date">{{ comment.created_at|date:"Y년 m월 d일 P" }}</span>
+                            <!-- 수정 및 삭제 버튼 -->
+                            {% if comment.author == request.user %}
+                            <div class="comment-actions">
+                                <a href="{% url 'edit_comment' comment.id %}" class="edit-button">Edit</a>
+                                <a href="{% url 'delete_comment' comment.id %}" class="delete-button">Delete</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No comments yet. Be the first to comment!</p>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
 
     </main>
-    <div id="comments-section">
-        <h3>Leave a Comment:</h3>
-        {% if user.is_authenticated %}
-        <form id="commentForm" method="POST">
-            {% csrf_token %}
-            <textarea id="commentInput" name="content" placeholder="댓글을 입력하세요..." required></textarea>
-            <div class="comment-form-actions">
-                <button type="submit">Submit</button>
-            </div>
-        </form>
-        {% else %}
-        <!-- 🚀 비로그인 상태일 때 표시 -->
-        <div class="disabled-comment-box">
-            <p>로그인 후 댓글을 작성할 수 있습니다.</p>
-        </div>
-        {% endif %}
-
-        <h3>Comments:</h3>
-        <div id="comments-list">
-            {% for comment in comments %}
-            <div class="comment-item">
-                {% if comment.author.profile_image %}
-                <div class="comment-avatar">
-                    <img src="{{ comment.author.profile_image.url }}" alt="avatar">
-                </div>
-                {% else %}
-                <div class="comment-avatar">
-                    <img src="{% static 'img/member/for_monthly_pseudorec/default_user.png' %}" alt="avatar">
-                </div>
-                {% endif %}
-                <div class="comment-content">
-                    <div class="comment-author">{{ comment.author }}</div>
-                    <p class="comment-text">{{ comment.content|linebreaksbr }}</p>
-                    <span class="comment-date">{{ comment.created_at|date:"Y년 m월 d일 P" }}</span>
-                    <!-- 수정 및 삭제 버튼 -->
-                    {% if comment.author == request.user %}
-                    <div class="comment-actions">
-                        <a href="{% url 'edit_comment' comment.id %}" class="edit-button">Edit</a>
-                        <a href="{% url 'delete_comment' comment.id %}" class="delete-button">Delete</a>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% empty %}
-            <p>No comments yet. Be the first to comment!</p>
-            {% endfor %}
-        </div>
-    </div>
 
 </body>
 {{ form.media }}

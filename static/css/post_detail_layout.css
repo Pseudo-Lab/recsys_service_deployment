@@ -1,5 +1,11 @@
 /* post_detail 페이지 레이아웃 조정 */
 
+/* html, body의 스크롤 제거 */
+html, body {
+    overflow: hidden !important;
+    height: 100% !important;
+}
+
 /* main을 flexbox로 변경 - 스크롤 완전 제거 */
 main {
     display: flex !important;
@@ -61,4 +67,11 @@ main {
 /* em 태그는 이탤릭체만 유지하고 중앙정렬 제거 */
 .paper-review-main p em {
     text-align: left !important;
+}
+
+/* comments-section을 paper-review-detail 내부에 맞게 조정 */
+#comments-section {
+    max-width: 100% !important;
+    margin: 40px 0 0 0 !important;
+    padding: 0 !important;
 }

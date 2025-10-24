@@ -28,10 +28,29 @@ main div.watched_list p {
 
 
 .left-float-field {
-    display: table-cell;
-    vertical-align: top;
+    flex-shrink: 0;
     width: 200px;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
 
+/* 왼쪽 메뉴 스크롤바 스타일 */
+.left-float-field::-webkit-scrollbar {
+    width: 6px;
+}
+
+.left-float-field::-webkit-scrollbar-track {
+    background: #f5f5f5;
+}
+
+.left-float-field::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.left-float-field::-webkit-scrollbar-thumb:hover {
+    background: #999;
 }
 
 .left-float-field .nav-links {

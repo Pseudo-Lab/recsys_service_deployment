@@ -17,7 +17,14 @@ from ..utils.general import general_for_recomm
 
 llm = get_llm_model()
 
-movie_retriever_syn_emb = get_neo4j_vector().as_retriever(search_kwargs={"k": Env.movie_retriever_syn_emb_k})
+# Lazy initialization - only connect to Neo4j when actually needed
+movie_retriever_syn_emb = None
+
+def get_movie_retriever():
+    global movie_retriever_syn_emb
+    if movie_retriever_syn_emb is None:
+        movie_retriever_syn_emb = get_neo4j_vector().as_retriever(search_kwargs={"k": Env.movie_retriever_syn_emb_k})
+    return movie_retriever_syn_emb
 
 workflow = StateGraph(Soonhyeok_GraphState)
 
@@ -26,7 +33,7 @@ workflow = StateGraph(Soonhyeok_GraphState)
 workflow.add_node("route_and_intent_analysis", lambda state: route_and_intent_analysis(llm, state))
 
 ## Recomm query nodes
-workflow.add_node("get_movie_candidates", lambda state: get_movie_candidates(llm, graphdb_driver, movie_retriever_syn_emb, state))
+workflow.add_node("get_movie_candidates", lambda state: get_movie_candidates(llm, graphdb_driver, get_movie_retriever(), state))
 workflow.add_node("selecting_for_recomm", lambda state: selecting_for_recomm(llm, state))
 workflow.add_node("tavily_for_recomm", lambda state: tavily_for_recomm(llm, state))
 workflow.add_node("final_selecting_for_recomm", lambda state: final_selecting_for_recomm(llm, state))

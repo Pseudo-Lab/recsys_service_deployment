@@ -14,7 +14,15 @@ from llmrec.utils.gyungah.load_chain import get_chain as g_get_chain
 from llmrec.utils.hyeonwoo.load_chain import router
 from llmrec.utils.kyeongchan.get_model import kyeongchan_model
 from llmrec.utils.kyeongchan.langgraph_test import GraphState, app
-from llmrec.utils.soonhyeok.GraphRAG_V2.langgraph.langgraph_app import soonhyeok_app, Soonhyeok_GraphState
+# Conditional import for Neo4j-dependent GraphRAG_V2
+try:
+    from llmrec.utils.soonhyeok.GraphRAG_V2.langgraph.langgraph_app import soonhyeok_app, Soonhyeok_GraphState
+    NEO4J_GRAPHRAG_V2_AVAILABLE = True
+except Exception as e:
+    print(f"GraphRAG_V2 (Neo4j) not available: {e}")
+    soonhyeok_app = None
+    Soonhyeok_GraphState = None
+    NEO4J_GRAPHRAG_V2_AVAILABLE = False
 from llmrec.utils.soonhyeok.GraphRAG_Lite.langgraph.langgraph_app import lite_app, Lite_GraphState
 from llmrec.utils.kyeongchan.search_engine import SearchManager
 from llmrec.utils.kyeongchan.utils import get_landing_page_recommendation
@@ -215,6 +223,13 @@ def llmrec_soonhyeok(request):
     log_tracking(request=request, view='soonhyeok')
     username, session_id = get_username_sid(request, _from='llmrec/llmrec_soonhyeok GET')
     if request.method == 'POST':
+        # Check if Neo4j GraphRAG_V2 is available
+        if not NEO4J_GRAPHRAG_V2_AVAILABLE:
+            return JsonResponse({
+                'status': 'error',
+                'message': '현재 이 기능은 사용할 수 없습니다. Neo4j 서버 연결이 필요합니다.'
+            })
+
         try:
             data = json.loads(request.body.decode('utf-8'))
             message = data.get('message', '')

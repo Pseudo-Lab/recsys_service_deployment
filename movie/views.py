@@ -13,7 +13,10 @@ from clients import MysqlClient
 from db_clients.dynamodb import DynamoDBClient
 from movie.models import DaumMovies
 from movie.predictors.mf_predictor import mf_predictor
-from movie.predictors.ngcf_predictor import ngcf_predictor
+try:
+    from movie.predictors.ngcf_predictor import ngcf_predictor
+except ImportError:
+    ngcf_predictor = None  # NGCF is disabled when DGL is not available
 # from movie.predictors.ngcf_opt_predictor import ngcf_predictor
 
 from typing import List

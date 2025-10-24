@@ -20,8 +20,7 @@ COPY . /usr/src/app/
 
 # install dependencies
 RUN pip install --upgrade pip
-# RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 # RUN pip install  dgl -f https://data.dgl.ai/wheels/torch-2.3/repo.html
 
 # 모델 다운로드

@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # SSL 인증서 초기 설정 스크립트
-# Let's Encrypt를 사용하여 listeners-pseudolab.com의 SSL 인증서 발급
+# Let's Encrypt를 사용하여 pseudorec.com의 SSL 인증서 발급
 
-domains=(listeners-pseudolab.com www.listeners-pseudolab.com)
+domains=(pseudorec.com www.pseudorec.com)
 rsa_key_size=4096
 data_path="./data/certbot"
-email="your-email@example.com" # 여기에 실제 이메일 주소를 입력하세요
+email="pseudo.recsys@gmail.com"
 staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 
 if [ -d "$data_path" ]; then
@@ -25,8 +25,8 @@ if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/
 fi
 
 echo "### Creating dummy certificate for $domains ..."
-path="/etc/letsencrypt/live/listeners-pseudolab.com"
-mkdir -p "$data_path/conf/live/listeners-pseudolab.com"
+path="/etc/letsencrypt/live/pseudorec.com"
+mkdir -p "$data_path/conf/live/pseudorec.com"
 docker-compose run --rm --entrypoint "\
   openssl req -x509 -nodes -newkey rsa:$rsa_key_size -days 1\
     -keyout '$path/privkey.pem' \
@@ -40,9 +40,9 @@ echo
 
 echo "### Deleting dummy certificate for $domains ..."
 docker-compose run --rm --entrypoint "\
-  rm -Rf /etc/letsencrypt/live/listeners-pseudolab.com && \
-  rm -Rf /etc/letsencrypt/archive/listeners-pseudolab.com && \
-  rm -Rf /etc/letsencrypt/renewal/listeners-pseudolab.com.conf" certbot
+  rm -Rf /etc/letsencrypt/live/pseudorec.com && \
+  rm -Rf /etc/letsencrypt/archive/pseudorec.com && \
+  rm -Rf /etc/letsencrypt/renewal/pseudorec.com.conf" certbot
 echo
 
 echo "### Requesting Let's Encrypt certificate for $domains ..."

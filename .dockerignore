@@ -1,0 +1,10 @@
+data/
+llmrec/
+_media/
+_static/
+notebooks/
+.git/
+*.pyc
+__pycache__/
+*.sqlite3
+.env*

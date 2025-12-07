@@ -249,4 +249,4 @@ websockets==12.0
 widgetsnbextension==4.0.11
 wrapt==1.16.0
 yarl==1.9.4
-zipp==3.19.2
+zipp==3.19.2django-storages==1.14.4

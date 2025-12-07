@@ -1,0 +1,56 @@
+upstream pseudorec {
+server web:8000;
+}
+
+# HTTP - Redirect to HTTPS
+server {
+    listen 80;
+    server_name pseudorec.com www.pseudorec.com listeners-pseudolab.com www.listeners-pseudolab.com;
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+}
+
+# HTTPS - Old domain (pseudorec.com) - Redirect to new domain
+server {
+    listen 443 ssl;
+    server_name pseudorec.com www.pseudorec.com;
+
+    ssl_certificate /etc/letsencrypt/live/pseudorec.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pseudorec.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    return 301 https://www.listeners-pseudolab.com$request_uri;
+}
+
+# HTTPS - New domain (listeners-pseudolab.com)
+server {
+    listen 443 ssl;
+    server_name listeners-pseudolab.com www.listeners-pseudolab.com;
+
+    location / {
+        proxy_pass http://pseudorec;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_redirect off;
+    }
+
+    location /static/ {
+        alias /usr/src/app/_static/;
+    }
+
+    location /media/ {
+        alias /usr/src/app/_media/;
+    }
+
+    ssl_certificate /etc/letsencrypt/live/listeners-pseudolab.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/listeners-pseudolab.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}

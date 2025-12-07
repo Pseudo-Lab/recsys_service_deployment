@@ -450,35 +450,40 @@ def llmrec_home(request):
             'specialty': '영화 추천 AI 코난',
             'badge': 'Persona',
             'image': 'img/member/for_monthly_pseudorec/hyunwoo_square_2685x2685.jpeg',
-            'url': '/llmrec/hyeonwoo/'
+            'url': '/llmrec/hyeonwoo/',
+            'disabled': True
         },
         {
             'name': '경아',
             'specialty': '영화 추천 AI 장원영',
             'badge': 'Persona',
             'image': 'img/member/for_monthly_pseudorec/gyungah_square_1702x1702.jpeg',
-            'url': '/llmrec/gyungah/'
+            'url': '/llmrec/gyungah/',
+            'disabled': True
         },
         {
             'name': '순혁',
             'specialty': 'GrpahRAG 기반 추천',
             'badge': 'GrpahRAG',
             'image': 'img/member/for_monthly_pseudorec/soonhyeok_square_1561x1561.jpeg',
-            'url': '/llmrec/soonhyeok/'
+            'url': '/llmrec/soonhyeok/',
+            'disabled': True
         },
         {
             'name': '순혁 Lite',
             'specialty': 'Tavily 웹 검색 기반 추천(경량화)',
             'badge': '빠른 추천',
             'image': 'img/member/for_monthly_pseudorec/soonhyeok_square_1561x1561.jpeg',
-            'url': '/llmrec/soonhyeok_Lite/'
+            'url': '/llmrec/soonhyeok_Lite/',
+            'disabled': True
         },
         {
             'name': '경찬&남준&병철',
             'specialty': 'PALR 기반 추천',
             'badge': 'LLM을 이용한 Raranking',
             'image': 'img/member/for_monthly_pseudorec/kyeongchan_square_816x816.jpg',
-            'url': '/llmrec/kyeongchan/'
+            'url': '/llmrec/kyeongchan/',
+            'disabled': True
         },
     ]
 

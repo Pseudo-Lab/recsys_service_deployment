@@ -65,6 +65,7 @@ def pplrec(request):
             "description1": "Pseudorec's Personalized LLM Recommendation",
             "description2": "슈도렉 멤버가 다같이 만드는 영화 A-Z LLM 모델",
             "watched_movie": interacted_movie_d,
+            "is_disabled": True,
         }
         return render(request, "llmrec_pplrec.html", context)
 
@@ -101,6 +102,7 @@ def llmrec_hyeonwoo(request):
         context = {
             "description1": "Hyeonwoo's LLMREC",
             "description2": "안녕하세요! 저는 PseudoRec에서 개발된 영화 추천 AI 코난이에요!🎬✨ <br>명탐정으로서 여러분들의 요구사항을 해결할게요 🕵️",
+            "is_disabled": True,
         }
         return render(request, "llmrec.html", context)
 
@@ -140,6 +142,7 @@ def llmrec_namjoon(request):
         context = {
             "description1": "Namjoon's LLMREC",
             "description2": "남준님의 모델소개 : 준비중입니다!",
+            "is_disabled": True,
         }
         return render(request, "llmrec.html", context)
 
@@ -159,6 +162,7 @@ def llmrec_kyeongchan(request):
                 # 'initial_message': f'{username}의 취향을 분석 중입니다...',
                 "initial_message": "홈화면에서 좋아하는 영화 평점을 매긴 후 질문을 해보세요! 최근에 별점을 매겼거나 클릭한 영화를 기반으로 개인화 추천을 합니다.<br>감독 또는 배우의 이름, 시놉시스를 언급해주시면 답변을 잘합니다!<br><br>예시) 봉준호 감독이 연출한 영화 추천해줘<br>예시) 레오나르도 디카프리오가 출연한 영화 추천해줘",
                 "watched_movie": interacted_movie_d,
+                "is_disabled": True,
             }
         else:
             context = {
@@ -167,6 +171,7 @@ def llmrec_kyeongchan(request):
                 # 'initial_message': f'{username}의 취향을 분석 중입니다...',
                 "initial_message": "홈화면에서 좋아하는 영화 평점을 매긴 후 질문을 해보세요! 최근에 별점을 매겼거나 클릭한 영화를 기반으로 개인화 추천을 합니다.<br>감독 또는 배우의 이름, 시놉시스를 언급해주시면 답변을 잘합니다!<br><br>예시) 봉준호 감독이 연출한 영화 추천해줘<br>예시) 레오나르도 디카프리오가 출연한 영화 추천해줘",
                 "watched_movie": [],
+                "is_disabled": True,
             }
 
         return render(request, "llmrec_kyeongchan.html", context)
@@ -213,6 +218,7 @@ def llmrec_minsang(request):
         context = {
             "description1": "Minsang's LLMREC",
             "description2": "준비중입니다.",
+            "is_disabled": True,
         }
         return render(request, "llmrec.html", context)
 
@@ -301,6 +307,7 @@ def llmrec_soonhyeok(request):
         context = {
             'description1': "Soonhyeok's LLMREC",
             'description2': "GrpahRAG을 기반으로 영화를 찾아 추천합니다. 최신 기술을 접목한 추천 챗봇을 사용해보세요!(샤라웃 경찬님👏)",
+            'is_disabled': True,
         }
         return render(request, "llmrec_soonhyeok.html", context)
 
@@ -380,6 +387,7 @@ def llmrec_soonhyeok_Lite(request):
         context = {
             'description1': "Soonhyeok's LLMREC",
             'description2': "Tavily 웹 검색을 기반으로 영화를 찾아 추천합니다. 최신 기술을 접목한 추천 챗봇을 사용해보세요!",
+            'is_disabled': True,
         }
         return render(request, "llmrec_soonhyeok.html", context)
 
@@ -416,5 +424,6 @@ def llmrec_gyungah(request):
         context = {
             "description1": "Gyungah's LLMREC",
             "description2": "안녕하세요! 저는 PseudoRec에서 개발된 영화 추천 AI 장원영이에요!🎬✨ <br>귀엽고 긍정적인 말투로 여러분께 딱 맞는 영화를 추천해드릴게요! 🍿💖<br>GEMINI API를 사용했습니다!",
+            "is_disabled": True,
         }
         return render(request, "llmrec.html", context)

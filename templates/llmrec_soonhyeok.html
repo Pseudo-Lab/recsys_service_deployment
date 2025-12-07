@@ -30,7 +30,7 @@
     <div class="side-gutter"></div>
     <div class="inside">
         <div class="model-rec">
-            <div class="center-main-field">
+            <div class="center-main-field{% if is_disabled %} disabled{% endif %}">
                 <a href="/llmrec/" class="back-button">
                     <span>←</span>
                     <span>모든 챗봇 보기</span>
@@ -53,10 +53,17 @@
                         {% endif %}
                     </div>
                     <form class="chat-input-form" method="POST" style="width: 100%;">
-                        <input id="query-input" type="text" class="chat-input" required placeholder="영화 관련 질문을 입력하세요"/>
-                        <button type="submit" class="button send-button">Send</button>
+                        <input id="query-input" type="text" class="chat-input" {% if is_disabled %}disabled{% endif %} required placeholder="영화 관련 질문을 입력하세요"/>
+                        <button type="submit" class="button send-button" {% if is_disabled %}disabled{% endif %}>Send</button>
                     </form>
                 </div>
+                {% if is_disabled %}
+                <div class="disabled-overlay">
+                    <h3>🔧 서비스 점검 중</h3>
+                    <p>현재 이 챗봇은 일시적으로 비활성화되었습니다.<br>빠른 시일 내에 다시 서비스를 제공하겠습니다.</p>
+                    <a href="/about_us/">담당자 연락처 보기</a>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

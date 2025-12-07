@@ -266,3 +266,64 @@ main {
     float: left;         /* 왼쪽으로 정렬 */
     margin-right: 0px;  /* 오른쪽 여백 설정 */
 }
+
+/* Disabled state styles */
+.center-main-field.disabled {
+    opacity: 0.6;
+    filter: grayscale(80%);
+    pointer-events: none;
+}
+
+.center-main-field.disabled .chat-input {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.center-main-field.disabled .send-button {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.disabled-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.98);
+    border: 2px solid #ddd;
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+}
+
+.disabled-overlay h3 {
+    font-size: 1.5rem;
+    color: #666;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.disabled-overlay p {
+    font-size: 1rem;
+    color: #999;
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+
+.disabled-overlay a {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #333;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.disabled-overlay a:hover {
+    background: #000;
+}

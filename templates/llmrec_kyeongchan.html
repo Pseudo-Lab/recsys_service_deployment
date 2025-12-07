@@ -28,7 +28,7 @@
 <main>
     <div class="side-gutter"></div>
     <div class="inside">
-        <div class="center-main-field">
+        <div class="center-main-field{% if is_disabled %} disabled{% endif %}">
             <a href="/llmrec/" class="back-button">
                 <span>←</span>
                 <span>모든 챗봇 보기</span>
@@ -50,17 +50,24 @@
                         {% endif %}
                     </div>
                     <form class="chat-input-form">
-                        <input type="text" class="chat-input" required placeholder="Type here.."/>
-                        <button type="submit" id="send-button" class="button send-button">
+                        <input type="text" class="chat-input" {% if is_disabled %}disabled{% endif %} required placeholder="Type here.."/>
+                        <button type="submit" id="send-button" class="button send-button" {% if is_disabled %}disabled{% endif %}>
                             Send
                         </button>
-                        <button type="button" id="stop-button" class="button stop-button" style="display: none;">
+                        <button type="button" id="stop-button" class="button stop-button" style="display: none;" {% if is_disabled %}disabled{% endif %}>
                             Stop
                         </button>
                         <div id="loading-spinner" class="loading-spinner" style="display: none;"></div>
                     </form>
                 </div>
             </div>
+            {% if is_disabled %}
+            <div class="disabled-overlay">
+                <h3>🔧 서비스 점검 중</h3>
+                <p>현재 이 챗봇은 일시적으로 비활성화되었습니다.<br>빠른 시일 내에 다시 서비스를 제공하겠습니다.</p>
+                <a href="/about_us/">담당자 연락처 보기</a>
+            </div>
+            {% endif %}
         </div>
         {% include 'right_watched_list.html' %}
     </div>

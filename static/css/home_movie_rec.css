@@ -34,7 +34,7 @@ article {
     vertical-align: top;
     width: 25%;
     padding-left: 15px;
-    height: 150vh;
+    min-height: 100vh;
     background: #fff;
     border-radius: 12px;
     padding: 24px !important;

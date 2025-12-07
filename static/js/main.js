@@ -21,7 +21,8 @@ function init() {
     grid = new Isotope(frame, {
         itemSelector: box,
         columnWidth: box,
-        transitionDuration: speed
+        transitionDuration: speed,
+        layoutMode: 'fitRows'
     });
 }
 

@@ -437,3 +437,133 @@ def delete_all_interactions(request):
         return JsonResponse({'message': '모든 기록이 성공적으로 삭제되었습니다.'})
     else:
         return JsonResponse({'error': 'POST 요청이 아닙니다.'}, status=400)
+
+
+def llmrec_home(request):
+    """LLM Recommendation Demos 홈 페이지"""
+    from movie.utils import log_tracking
+    log_tracking(request=request, view='llmrec_home')
+
+    chatbots = [
+        {
+            'name': '현우',
+            'specialty': '영화 추천 AI 코난',
+            'badge': 'Persona',
+            'image': 'img/member/for_monthly_pseudorec/hyunwoo_square_2685x2685.jpeg',
+            'url': '/llmrec/hyeonwoo/'
+        },
+        {
+            'name': '경아',
+            'specialty': '영화 추천 AI 장원영',
+            'badge': 'Persona',
+            'image': 'img/member/for_monthly_pseudorec/gyungah_square_1702x1702.jpeg',
+            'url': '/llmrec/gyungah/'
+        },
+        {
+            'name': '순혁',
+            'specialty': 'GrpahRAG 기반 추천',
+            'badge': 'GrpahRAG',
+            'image': 'img/member/for_monthly_pseudorec/soonhyeok_square_1561x1561.jpeg',
+            'url': '/llmrec/soonhyeok/'
+        },
+        {
+            'name': '순혁 Lite',
+            'specialty': 'Tavily 웹 검색 기반 추천(경량화)',
+            'badge': '빠른 추천',
+            'image': 'img/member/for_monthly_pseudorec/soonhyeok_square_1561x1561.jpeg',
+            'url': '/llmrec/soonhyeok_Lite/'
+        },
+        {
+            'name': '경찬&남준&병철',
+            'specialty': 'PALR 기반 추천',
+            'badge': 'LLM을 이용한 Raranking',
+            'image': 'img/member/for_monthly_pseudorec/kyeongchan_square_816x816.jpg',
+            'url': '/llmrec/kyeongchan/'
+        },
+    ]
+
+    context = {
+        'chatbots': chatbots,
+    }
+
+    return render(request, 'llmrec_home.html', context=context)
+
+
+def movie_recommendation_home(request):
+    """Movie Recommendation 홈 페이지 (ML/DL과 LLM 탭)"""
+    print(f"movie/movie_recommendation_home view".ljust(100, '>'))
+    log_tracking(request=request, view='movie_recommendation_home')
+
+    # LLM 챗봇 데이터
+    chatbots = [
+        {
+            'name': '현우',
+            'specialty': '영화 추천 전문 챗봇',
+            'badge': 'Movie Expert',
+            'image': 'img/member/for_monthly_pseudorec/hyunwoo_square_2685x2685.jpeg',
+            'url': '/llmrec/hyeonwoo/'
+        },
+        {
+            'name': '경아',
+            'specialty': '개인화 추천 챗봇',
+            'badge': 'Personalization',
+            'image': 'img/member/for_monthly_pseudorec/gyungah_square_1702x1702.jpeg',
+            'url': '/llmrec/gyungah/'
+        },
+        {
+            'name': '순혁',
+            'specialty': 'NGCF 기반 추천',
+            'badge': 'Graph Neural Network',
+            'image': 'img/member/for_monthly_pseudorec/soonhyeok_square_1561x1561.jpeg',
+            'url': '/llmrec/soonhyeok/'
+        },
+        {
+            'name': '순혁 Lite',
+            'specialty': 'NGCF 기반 추천 (경량화)',
+            'badge': 'GNN Lite',
+            'image': 'img/member/for_monthly_pseudorec/soonhyeok_square_1561x1561.jpeg',
+            'url': '/llmrec/soonhyeok_Lite/'
+        },
+        {
+            'name': '경찬&남준',
+            'specialty': 'MF 기반 추천',
+            'badge': 'Matrix Factorization',
+            'image': 'img/member/for_monthly_pseudorec/kyeongchan_square_816x816.jpg',
+            'url': '/llmrec/kyeongchan/'
+        },
+    ]
+
+    # ML/DL 영화 추천 데이터 (home 뷰와 동일)
+    if request.method == "POST":
+        pass
+    else:
+        print(f"movie_recommendation_home - GET")
+        username, session_id = get_username_sid(request, _from='movie/movie_recommendation_home GET')
+        user_logs_df = get_user_logs_df(username, session_id)
+        if len(user_logs_df):  # 클릭로그 있을 때
+            print(f"Click logs exist.")
+            interacted_movie_d = get_interacted_movie_dicts(user_logs_df)
+            context = {
+                'movie_list': add_rank(add_past_rating(username=username,
+                                                       session_id=session_id,
+                                                       recomm_result=pop_movies)),
+                'watched_movie': interacted_movie_d,
+                'pop_on': True,
+                'description1': '인기 영화',
+                'description2': '평균 평점이 높은 순서입니다. 평점을 매겨보세요!',
+                'chatbots': chatbots,
+            }
+        else:  # 클릭로그 없을 때 인기영화만
+            print(f"No click logs")
+            context = {
+                'movie_list': add_past_rating(username=username,
+                                              session_id=session_id,
+                                              recomm_result=pop_movies),
+                'pop_on': True,
+                'description1': '인기 영화',
+                'description2': '평균 평점이 높은 순서입니다. 평점을 매겨보세요!',
+                'chatbots': chatbots,
+            }
+
+    return render(request, 'movie_recommendation_home.html', context=context)
+

@@ -1,14 +1,12 @@
 #!/bin/bash
 
-if ! [ -x "$(command -v docker-compose)" ]; then
-  echo 'Error: docker-compose is not installed.' >&2
-  exit 1
-fi
+# SSL 인증서 초기 설정 스크립트
+# Let's Encrypt를 사용하여 listeners-pseudolab.com의 SSL 인증서 발급
 
-domains=(pseudorec.com www.pseudorec.com)
+domains=(listeners-pseudolab.com www.listeners-pseudolab.com)
 rsa_key_size=4096
 data_path="./data/certbot"
-email="pseudo.recsys@gmail.com" # Adding a valid address is strongly recommended
+email="your-email@example.com" # 여기에 실제 이메일 주소를 입력하세요
 staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 
 if [ -d "$data_path" ]; then
@@ -17,7 +15,6 @@ if [ -d "$data_path" ]; then
     exit
   fi
 fi
-
 
 if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
   echo "### Downloading recommended TLS parameters ..."
@@ -28,15 +25,14 @@ if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/
 fi
 
 echo "### Creating dummy certificate for $domains ..."
-path="/etc/letsencrypt/live/$domains"
-mkdir -p "$data_path/conf/live/$domains"
+path="/etc/letsencrypt/live/listeners-pseudolab.com"
+mkdir -p "$data_path/conf/live/listeners-pseudolab.com"
 docker-compose run --rm --entrypoint "\
-  openssl req -x509 -nodes -newkey rsa:4096 -days 1\
+  openssl req -x509 -nodes -newkey rsa:$rsa_key_size -days 1\
     -keyout '$path/privkey.pem' \
     -out '$path/fullchain.pem' \
     -subj '/CN=localhost'" certbot
 echo
-
 
 echo "### Starting nginx ..."
 docker-compose up --force-recreate -d nginx
@@ -44,11 +40,10 @@ echo
 
 echo "### Deleting dummy certificate for $domains ..."
 docker-compose run --rm --entrypoint "\
-  rm -Rf /etc/letsencrypt/live/$domains && \
-  rm -Rf /etc/letsencrypt/archive/$domains && \
-  rm -Rf /etc/letsencrypt/renewal/$domains.conf" certbot
+  rm -Rf /etc/letsencrypt/live/listeners-pseudolab.com && \
+  rm -Rf /etc/letsencrypt/archive/listeners-pseudolab.com && \
+  rm -Rf /etc/letsencrypt/renewal/listeners-pseudolab.com.conf" certbot
 echo
-
 
 echo "### Requesting Let's Encrypt certificate for $domains ..."
 #Join $domains to -d args

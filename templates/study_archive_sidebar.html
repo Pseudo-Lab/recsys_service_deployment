@@ -1,0 +1,186 @@
+{% load static %}
+<style>
+    .study-sidebar {
+        width: 280px;
+        background: white;
+        border-right: 1px solid #e0e0e0;
+        position: fixed;
+        left: 0;
+        top: 60px;
+        bottom: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 20px 0;
+        z-index: 100;
+    }
+
+    .study-sidebar-header {
+        padding: 0 20px 15px;
+        border-bottom: 2px solid #667eea;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .study-sidebar-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 3px;
+    }
+
+    .study-sidebar-subtitle {
+        font-size: 0.75rem;
+        color: #666;
+        font-style: italic;
+    }
+
+    .study-nav-section {
+        margin-bottom: 10px;
+    }
+
+    .study-nav-section-header {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #333;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f8f9fa;
+    }
+
+    .study-nav-section-header:hover {
+        background: #e9ecef;
+        color: #667eea;
+    }
+
+    .study-nav-section-header i {
+        transition: transform 0.3s;
+        font-size: 0.7rem;
+    }
+
+    .study-nav-section-header.collapsed i {
+        transform: rotate(-90deg);
+    }
+
+    .study-nav-section-content {
+        max-height: 2000px;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+
+    .study-nav-section-content.collapsed {
+        max-height: 0;
+    }
+
+    .study-nav-item {
+        padding: 8px 20px 8px 30px;
+        font-size: 0.85rem;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+        text-decoration: none;
+        display: block;
+    }
+
+    .study-nav-item:hover {
+        background: #f8f9fa;
+        color: #667eea;
+        border-left-color: #667eea;
+        text-decoration: none;
+    }
+
+    .study-nav-item.active {
+        background: #f0f3ff;
+        color: #667eea;
+        border-left-color: #667eea;
+        font-weight: 600;
+    }
+
+    .study-sidebar::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .study-sidebar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .study-sidebar::-webkit-scrollbar-thumb {
+        background: #667eea;
+        border-radius: 3px;
+    }
+
+    .study-sidebar::-webkit-scrollbar-thumb:hover {
+        background: #764ba2;
+    }
+
+    /* 모바일 */
+    @media (max-width: 768px) {
+        .study-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+        .study-sidebar.mobile-open {
+            transform: translateX(0);
+        }
+    }
+</style>
+
+<aside class="study-sidebar" id="study-sidebar">
+    <div class="study-sidebar-header">
+        <div class="study-sidebar-title">Study Archive</div>
+        <div class="study-sidebar-subtitle">Life is short, you need RecSys</div>
+    </div>
+
+    {% for category, posts in posts_by_category %}
+    <div class="study-nav-section">
+        <div class="study-nav-section-header" onclick="toggleStudySection(this)">
+            <span>{{ category }}</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="study-nav-section-content">
+            {% for post in posts %}
+            <a href="{{ post.url }}" class="study-nav-item">
+                {{ post.title }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</aside>
+
+<script>
+    function toggleStudySection(element) {
+        element.classList.toggle('collapsed');
+        const content = element.nextElementSibling;
+        content.classList.toggle('collapsed');
+    }
+
+    // 페이지 로드 시 모든 섹션 펼치기
+    document.addEventListener('DOMContentLoaded', function() {
+        const headers = document.querySelectorAll('.study-nav-section-header');
+        headers.forEach(header => {
+            header.classList.remove('collapsed');
+            const content = header.nextElementSibling;
+            if (content) {
+                content.classList.remove('collapsed');
+            }
+        });
+
+        // 현재 페이지 활성화
+        const currentPath = window.location.pathname;
+        const navItems = document.querySelectorAll('.study-nav-item');
+        navItems.forEach(item => {
+            if (item.getAttribute('href') === currentPath) {
+                item.classList.add('active');
+            }
+        });
+    });
+</script>

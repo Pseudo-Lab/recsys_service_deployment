@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+
+<head>
+    <title>{{ agent_name }} - MY AGENTS - PseudoRec</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="icon" href="{% static 'img/listeners_logo_color_transparent.png' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
+    <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
+
+    <!-- React CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Marked.js for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        .my-agents-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .page-header {
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #0070f3;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .back-button:hover {
+            background: #f0f0f0;
+        }
+
+        .agent-header {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .agent-icon-large {
+            font-size: 3rem;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .agent-info {
+            flex: 1;
+        }
+
+        .agent-info h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .agent-info p {
+            font-size: 1rem;
+            color: #666;
+        }
+
+
+        /* Chat Interface Styles */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message.user {
+            align-items: flex-end;
+        }
+
+        .message.assistant {
+            align-items: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+        }
+
+        /* Markdown styling in message bubbles */
+        .message-bubble h1,
+        .message-bubble h2,
+        .message-bubble h3 {
+            margin-top: 12px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .message-bubble h1 {
+            font-size: 1.5rem;
+        }
+
+        .message-bubble h2 {
+            font-size: 1.3rem;
+        }
+
+        .message-bubble h3 {
+            font-size: 1.1rem;
+        }
+
+        .message-bubble p {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .message-bubble ul,
+        .message-bubble ol {
+            margin-left: 20px;
+            margin-bottom: 8px;
+        }
+
+        .message-bubble li {
+            margin-bottom: 4px;
+        }
+
+        .message-bubble code {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9em;
+        }
+
+        .message.assistant .message-bubble code {
+            background: #f0f0f0;
+        }
+
+        .message.user .message-bubble code {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .message-bubble pre {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 8px 0;
+        }
+
+        .message-bubble pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .message-bubble strong {
+            font-weight: 700;
+        }
+
+        .message-bubble em {
+            font-style: italic;
+        }
+
+        .message-bubble blockquote {
+            border-left: 3px solid rgba(0, 0, 0, 0.2);
+            padding-left: 12px;
+            margin: 8px 0;
+            font-style: italic;
+        }
+
+        .message.user .message-bubble {
+            background: #667eea;
+            color: white;
+        }
+
+        .message.user .message-bubble * {
+            color: white;
+        }
+
+        .message.assistant .message-bubble {
+            background: white;
+            color: #333;
+            border: 1px solid #eee;
+        }
+
+        .message.assistant .message-bubble * {
+            color: #333;
+        }
+
+        .message.assistant .message-bubble p,
+        .message.assistant .message-bubble strong,
+        .message.assistant .message-bubble li,
+        .message.assistant .message-bubble span {
+            color: #333 !important;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .send-button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .send-button:hover {
+            background: #5568d3;
+        }
+
+        .send-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            padding: 12px 16px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #eee;
+            display: inline-block;
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #999;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    {% include 'navbar.html' %}
+</header>
+
+<main>
+    <div id="root"></div>
+</main>
+
+<script type="text/babel">
+    // Django에서 전달받은 데이터
+    const agentData = {
+        name: "{{ agent_name|escapejs }}",
+        description: "{{ agent_description|escapejs }}",
+        icon: "{{ agent_icon|escapejs }}",
+        slug: "{{ agent_slug|escapejs }}"
+    };
+
+    {% verbatim %}
+    const { useState, useEffect } = React;
+
+    // 채팅 인터페이스 컴포넌트
+    function ChatInterface() {
+        const [messages, setMessages] = useState([]);
+        const [inputValue, setInputValue] = useState('');
+        const [isTyping, setIsTyping] = useState(false);
+        const [streamingMessage, setStreamingMessage] = useState('');
+        const messagesEndRef = React.useRef(null);
+
+        const scrollToBottom = () => {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        };
+
+        React.useEffect(() => {
+            scrollToBottom();
+        }, [messages, streamingMessage]);
+
+        const sendMessage = async () => {
+            if (!inputValue.trim()) return;
+
+            const userMessage = {
+                id: Date.now(),
+                role: 'user',
+                content: inputValue,
+                timestamp: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            setMessages(prev => [...prev, userMessage]);
+            const question = inputValue;
+            setInputValue('');
+            setIsTyping(true);
+            setStreamingMessage('');
+
+            try {
+                const response = await fetch('http://localhost:8001/api/analyze/stream', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question: question
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API 요청 실패');
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let allSteps = [];
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop(); // 마지막 불완전한 줄은 버퍼에 보관
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = JSON.parse(line.slice(6));
+
+                            if (data.type === 'error') {
+                                // 에러 발생
+                                const errorMessage = {
+                                    id: Date.now() + 1,
+                                    role: 'assistant',
+                                    content: `오류가 발생했습니다: ${data.content}`,
+                                    timestamp: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+                                };
+                                setMessages(prev => [...prev, errorMessage]);
+                                setStreamingMessage('');
+                                break;
+                            } else if (data.type === 'done') {
+                                // 완료 - 최종 메시지 저장 (도구 정보 포함)
+                                let finalContent = '';
+                                let toolsUsed = new Set();
+
+                                // 도구 사용 정보 수집
+                                for (const step of allSteps) {
+                                    if ((step.type === 'AIMessage' || step.type === 'AIMessageChunk') && step.tool_calls && step.tool_calls.length > 0) {
+                                        step.tool_calls.forEach(tc => toolsUsed.add(tc.name));
+                                    }
+                                }
+
+                                // 도구 사용 정보 추가
+                                if (toolsUsed.size > 0) {
+                                    finalContent += `**🔍 분석 과정:**\n\n`;
+                                    finalContent += `**사용한 도구:**\n`;
+                                    toolsUsed.forEach(tool => {
+                                        let toolIcon = '🔧';
+                                        let toolName = tool;
+                                        if (tool === 'search_news') {
+                                            toolIcon = '📰';
+                                            toolName = '뉴스 검색';
+                                        } else if (tool === 'get_stock_price') {
+                                            toolIcon = '📈';
+                                            toolName = '미국 주가 조회';
+                                        } else if (tool === 'get_korea_stock_price') {
+                                            toolIcon = '💹';
+                                            toolName = '한국 주가 조회';
+                                        } else if (tool === 'get_account_info') {
+                                            toolIcon = '💰';
+                                            toolName = '계좌 정보 조회';
+                                        }
+                                        finalContent += `- ${toolIcon} ${toolName}\n`;
+                                    });
+                                    finalContent += `\n---\n\n`;
+                                }
+
+                                // 분석 결과 추가
+                                const analysisText = allSteps
+                                    .filter(s => (s.type === 'AIMessage' || s.type === 'AIMessageChunk') && s.content && !s.tool_calls.length)
+                                    .map(s => s.content)
+                                    .join('');
+
+                                finalContent += analysisText;
+
+                                if (finalContent) {
+                                    const assistantMessage = {
+                                        id: Date.now() + 1,
+                                        role: 'assistant',
+                                        content: finalContent,
+                                        timestamp: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+                                        steps: allSteps
+                                    };
+
+                                    setMessages(prev => [...prev, assistantMessage]);
+                                }
+                                setStreamingMessage('');
+                            } else {
+                                // 각 chunk를 실시간으로 표시
+                                allSteps.push(data);
+
+                                let displayText = '';
+                                let toolsUsed = new Set();
+                                let currentAnalysis = '';
+
+                                for (const step of allSteps) {
+                                    if (step.type === 'HumanMessage') {
+                                        continue; // 사용자 메시지는 이미 표시됨
+                                    } else if (step.type === 'AIMessage' || step.type === 'AIMessageChunk') {
+                                        if (step.tool_calls && step.tool_calls.length > 0) {
+                                            // AI가 도구를 사용하기로 결정
+                                            step.tool_calls.forEach(tc => toolsUsed.add(tc.name));
+                                        } else if (step.content) {
+                                            // AI의 실제 답변 텍스트
+                                            currentAnalysis += step.content;
+                                        }
+                                    } else if (step.type === 'ToolMessage') {
+                                        // 도구 실행 완료 (아무것도 표시하지 않음, 다음 AI 응답 대기)
+                                    }
+                                }
+
+                                // 화면에 표시할 텍스트 구성
+                                if (toolsUsed.size > 0) {
+                                    displayText += `**🔍 분석 중...**\n\n`;
+                                    displayText += `**사용 중인 도구:**\n`;
+                                    toolsUsed.forEach(tool => {
+                                        let toolIcon = '🔧';
+                                        let toolName = tool;
+                                        if (tool === 'search_news') {
+                                            toolIcon = '📰';
+                                            toolName = '뉴스 검색';
+                                        } else if (tool === 'get_stock_price') {
+                                            toolIcon = '📈';
+                                            toolName = '미국 주가 조회';
+                                        } else if (tool === 'get_korea_stock_price') {
+                                            toolIcon = '💹';
+                                            toolName = '한국 주가 조회';
+                                        } else if (tool === 'get_account_info') {
+                                            toolIcon = '💰';
+                                            toolName = '계좌 정보 조회';
+                                        }
+                                        displayText += `- ${toolIcon} ${toolName}\n`;
+                                    });
+                                    displayText += `\n`;
+                                }
+
+                                if (currentAnalysis) {
+                                    displayText += `**📊 분석 결과:**\n\n${currentAnalysis}`;
+                                }
+
+                                setStreamingMessage(displayText);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                const errorMessage = {
+                    id: Date.now() + 1,
+                    role: 'assistant',
+                    content: '죄송합니다. 응답을 가져오는 중 오류가 발생했습니다. 백엔드 서버(localhost:8001)가 실행 중인지 확인해주세요.',
+                    timestamp: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+                };
+                setMessages(prev => [...prev, errorMessage]);
+                setStreamingMessage('');
+            } finally {
+                setIsTyping(false);
+            }
+        };
+
+        const handleKeyPress = (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        };
+
+        return (
+            <div className="chat-container">
+                <div className="chat-messages">
+                    {messages.length === 0 && (
+                        <div style={{ textAlign: 'center', color: '#999', padding: '40px 20px' }}>
+                            <i className="fas fa-robot" style={{ fontSize: '3rem', marginBottom: '16px' }}></i>
+                            <p>AI 에이전트와 대화를 시작해보세요!</p>
+                        </div>
+                    )}
+                    {messages.map(msg => (
+                        <div key={msg.id} className={`message ${msg.role}`}>
+                            <div
+                                className="message-bubble"
+                                dangerouslySetInnerHTML={{
+                                    __html: msg.role === 'assistant'
+                                        ? marked.parse(msg.content)
+                                        : msg.content
+                                }}
+                            />
+                            <div className="message-time">{msg.timestamp}</div>
+                        </div>
+                    ))}
+                    {streamingMessage && (
+                        <div className="message assistant">
+                            <div
+                                className="message-bubble"
+                                dangerouslySetInnerHTML={{
+                                    __html: marked.parse(streamingMessage)
+                                }}
+                            />
+                        </div>
+                    )}
+                    {isTyping && !streamingMessage && (
+                        <div className="message assistant">
+                            <div className="typing-indicator">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    )}
+                    <div ref={messagesEndRef} />
+                </div>
+                <div className="chat-input-container">
+                    <input
+                        type="text"
+                        className="chat-input"
+                        placeholder="메시지를 입력하세요..."
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        disabled={isTyping}
+                    />
+                    <button
+                        className="send-button"
+                        onClick={sendMessage}
+                        disabled={isTyping || !inputValue.trim()}
+                    >
+                        전송
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // 메인 앱 컴포넌트
+    function MyAgentsApp() {
+        return (
+            <div className="my-agents-container">
+                <div className="page-header">
+                    <a href="/my_agents/" className="back-button">
+                        <i className="fas fa-arrow-left"></i>
+                        에이전트 목록
+                    </a>
+                    <div className="agent-header">
+                        <div className="agent-icon-large">
+                            {agentData.icon}
+                        </div>
+                        <div className="agent-info">
+                            <h1>{agentData.name}</h1>
+                            <p>{agentData.description}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                    <ChatInterface />
+                </div>
+            </div>
+        );
+    }
+
+    // 렌더링
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<MyAgentsApp />);
+    {% endverbatim %}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -9,7 +9,7 @@
           integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
     <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
-    <link rel="stylesheet" href="{% static 'css/llmrec.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/llmrec.css' %}?v=20251207c">
     <link rel="stylesheet" href="{% static 'css/home_movie_rec.css' %}?v=2024011916">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <!--    iconicons-->
@@ -26,13 +26,19 @@
 </header>
 
 <main>
-    {% include 'left_col_home.html' %}
     <div class="side-gutter"></div>
     <div class="inside">
         <div class="center-main-field">
+            <a href="/llmrec/" class="back-button">
+                <span>←</span>
+                <span>모든 챗봇 보기</span>
+            </a>
             <div class="model-rec">
                 <div class="description">
                     <h3>{{description1}}</h3>
+                    {% if description2 %}
+                    <p>{{description2|safe}}</p>
+                    {% endif %}
                 </div>
                 <div class="chat-container">
                     <div class="chat-messages" id="chatMessages">
@@ -61,7 +67,7 @@
 </main>
 
 <!-- llmrec_kyeongchan.css 파일을 nav_bar.html 포함 후에 로드 -->
-<link rel="stylesheet" href="{% static 'css/llmrec_kyeongchan.css' %}?v=2024011916">
+<link rel="stylesheet" href="{% static 'css/llmrec_kyeongchan.css' %}?v=20251207b">
 
 </body>
 </html>

@@ -4,6 +4,9 @@ from . import views
 urlpatterns = [
     # path('<int:pk>/', views.PostDetail.as_view()),
     # path('', views.PostList.as_view()),
+    path("", views.study_archive_main, name="study_archive_main"),  # Study Archive 메인 페이지
+    path("category/<str:category_name>/", views.category_detail, name="category_detail"),  # 카테고리별 상세 페이지
+    path("category/<str:category_name>/<str:post_type>/<int:post_id>/", views.category_post_detail, name="category_post_detail"),  # 카테고리 내 글 상세
     path(
         "paper_review/<int:pk>/",
         views.single_post_page_paper_review,

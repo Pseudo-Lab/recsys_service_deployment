@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <title>Study Archive - ListeneRS</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="{% static 'img/listeners_logo_color_transparent.png' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
+    <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .book-container {
+            display: flex;
+            flex: 1;
+            margin-top: 60px; /* navbar 높이 고려 */
+        }
+
+        /* 왼쪽 사이드바 */
+        .sidebar {
+            width: 320px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            overflow-y: auto;
+            position: fixed;
+            left: 0;
+            top: 60px;
+            bottom: 0;
+            padding: 30px 0;
+        }
+
+        .sidebar-header {
+            padding: 20px 25px;
+            border-bottom: 2px solid #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .nav-section {
+            margin-bottom: 15px;
+        }
+
+        .nav-section-header {
+            padding: 12px 25px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #333;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-section-header:hover {
+            background: #f8f9fa;
+            color: #667eea;
+        }
+
+        .nav-section-header i {
+            transition: transform 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .nav-section-header.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .nav-section-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .nav-section-content.collapsed {
+            max-height: 0;
+        }
+
+        .nav-subsection {
+            border-left: 2px solid #f0f0f0;
+            margin-left: 25px;
+        }
+
+        .nav-subsection-header {
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-subsection-header:hover {
+            background: #f8f9fa;
+            color: #667eea;
+        }
+
+        .nav-subsection-header i {
+            transition: transform 0.3s;
+            font-size: 0.7rem;
+        }
+
+        .nav-subsection-header.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .nav-subsection-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .nav-subsection-content.collapsed {
+            max-height: 0;
+        }
+
+        .nav-item {
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            text-decoration: none;
+            display: block;
+        }
+
+        .nav-item:hover {
+            background: #f8f9fa;
+            color: #667eea;
+            border-left-color: #667eea;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            background: #f0f3ff;
+            color: #667eea;
+            border-left-color: #667eea;
+            font-weight: 600;
+        }
+
+        /* 메인 컨텐츠 */
+        .main-content {
+            flex: 1;
+            margin-left: 320px;
+            padding: 0;
+            height: calc(100vh - 60px);
+        }
+
+        .content-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .welcome-section {
+            text-align: center;
+            padding: 100px 40px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .welcome-title {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.3rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .welcome-description {
+            font-size: 1rem;
+            color: #888;
+            line-height: 1.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 50px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        /* 반응형 */
+        @media (max-width: 968px) {
+            .sidebar {
+                width: 280px;
+            }
+            .main-content {
+                margin-left: 280px;
+                padding: 30px 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+                z-index: 1000;
+            }
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .mobile-menu-btn {
+                display: block;
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                z-index: 999;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+        }
+
+        /* 스크롤바 스타일 */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    {% include 'navbar.html' %}
+</header>
+
+<div class="book-container">
+    <!-- 왼쪽 사이드바 -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Study Archive</div>
+            <div class="sidebar-subtitle">Life is short, you need RecSys</div>
+        </div>
+
+        <!-- 주제별 섹션 -->
+        {% for category, posts in posts_by_category %}
+        <div class="nav-section">
+            <div class="nav-section-header" onclick="toggleSection(this)">
+                <span>{{ category }}</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="nav-section-content">
+                {% for post in posts %}
+                <a href="{{ post.url }}" class="nav-item" target="content-frame" onclick="setActive(this)">
+                    {{ post.title }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </aside>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="main-content">
+        <div id="welcome-screen" class="welcome-section">
+            <div class="welcome-title">ListeneRS Study Archive</div>
+            <div class="welcome-subtitle">추천 시스템 연구의 모든 것, 한 곳에서</div>
+            <div class="welcome-description">
+                왼쪽 메뉴에서 읽고 싶은 논문 리뷰나 월간 슈도렉 아티클을 선택하세요.<br>
+                최신 추천 시스템 연구와 실무 인사이트를 체계적으로 정리했습니다.
+            </div>
+        </div>
+        <iframe name="content-frame" class="content-iframe" id="content-frame" style="display: none;"></iframe>
+    </main>
+</div>
+
+<!-- 모바일 메뉴 버튼 -->
+<button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+    <i class="fas fa-bars"></i>
+</button>
+
+<script>
+    // 섹션 토글
+    function toggleSection(element) {
+        element.classList.toggle('collapsed');
+        const content = element.nextElementSibling;
+        content.classList.toggle('collapsed');
+    }
+
+    // 서브섹션 토글
+    function toggleSubsection(element) {
+        element.classList.toggle('collapsed');
+        const content = element.nextElementSibling;
+        content.classList.toggle('collapsed');
+    }
+
+    // 모바일 메뉴 토글
+    function toggleMobileMenu() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('mobile-open');
+    }
+
+    // 활성 상태 설정
+    function setActive(element) {
+        // 모든 nav-item에서 active 제거
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        // 클릭한 항목에 active 추가
+        element.classList.add('active');
+
+        // Welcome 화면 숨기고 iframe 표시
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const iframe = document.getElementById('content-frame');
+        if (welcomeScreen && iframe) {
+            welcomeScreen.style.display = 'none';
+            iframe.style.display = 'block';
+        }
+
+        // 모바일에서 메뉴 닫기
+        if (window.innerWidth <= 768) {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.remove('mobile-open');
+        }
+    }
+
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        // 첫 번째 섹션들 자동 펼치기
+        const firstSectionHeaders = document.querySelectorAll('.nav-section-header');
+        firstSectionHeaders.forEach(header => {
+            header.classList.remove('collapsed');
+            const content = header.nextElementSibling;
+            if (content) {
+                content.classList.remove('collapsed');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

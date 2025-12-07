@@ -32,8 +32,22 @@
 
 main .model-rec .description {
     padding-bottom: 0;
-    height: 5vh;
+    min-height: 5vh;
     text-align: center;
+}
+
+main .model-rec .description h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 8px 0;
+}
+
+main .model-rec .description p {
+    font-size: 0.95rem;
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
 }
 
 

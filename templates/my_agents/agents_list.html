@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MY AGENTS - PseudoRec</title>
+    <link rel="icon" href="{% static 'img/listeners_logo_color_transparent.png' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8f9fa;
+            color: #000;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 50px auto 60px;
+            padding: 0 40px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 16px;
+            letter-spacing: -0.05em;
+        }
+
+        .page-description {
+            font-size: 1.125rem;
+            line-height: 1.7;
+            color: #666;
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .agent-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid #eaeaea;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .agent-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+            border-color: transparent;
+        }
+
+        .agent-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .agent-card:hover .agent-icon {
+            transform: scale(1.1);
+        }
+
+        .agent-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 8px;
+        }
+
+        .agent-description {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 80px auto 40px;
+                padding: 0 20px;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .agents-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    {% include 'navbar.html' %}
+</header>
+
+<div class="main-container">
+    <div class="page-header">
+        <h1 class="page-title">🤖 MY PERSONAL AGENTS</h1>
+        <p class="page-description">
+            당신의 학습과 분석을 돕는 AI 에이전트를 선택하세요
+        </p>
+    </div>
+
+    <div class="agents-grid">
+        {% for agent in agents %}
+        <a href="/my_agents/{{ agent.slug }}/" class="agent-card">
+            <div class="agent-icon" style="background: linear-gradient(135deg, {{ agent.color }} 0%, {{ agent.color }}cc 100%);">
+                {{ agent.icon }}
+            </div>
+            <div class="agent-name">{{ agent.name }}</div>
+            <div class="agent-description">{{ agent.description }}</div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+</body>
+</html>

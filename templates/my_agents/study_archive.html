@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+
+<head>
+    <title>Study Archive - ListeneRS</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="icon" href="{% static 'img/listeners_logo_color_transparent.png' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
+    <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
+
+    <!-- React CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        .archive-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .hero-section {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            padding: 60px 20px;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-subtitle {
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+            opacity: 0.95;
+        }
+
+        .hero-tagline {
+            font-size: 1.2rem;
+            font-weight: 400;
+            opacity: 0.85;
+            font-style: italic;
+        }
+
+        .controls-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .category-btn {
+            padding: 12px 24px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .category-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .post-card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .post-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .post-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .post-type {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .post-type.paper-review {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .post-type.monthly {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .post-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .post-subtitle {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .post-author {
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: 600;
+        }
+
+        .post-date {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        .post-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .post-tag {
+            padding: 4px 12px;
+            background: #f5f5f5;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .stats-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 10px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.3rem;
+            }
+
+            .posts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-filters {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    {% include 'navbar.html' %}
+</header>
+
+<main>
+    <div id="root"></div>
+</main>
+
+<script id="paper-reviews-data" type="application/json">
+{{ paper_reviews_json|safe }}
+</script>
+
+<script id="monthly-posts-data" type="application/json">
+{{ monthly_posts_json|safe }}
+</script>
+
+<script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // 카테고리 정의
+    const CATEGORIES = {
+        ALL: 'All',
+        REC_MODELS: '🎯 Rec Models',
+        LLM_REC: '🤖 LLM × RecSys',
+        GRAPH: '🕸️ Graph & Knowledge',
+        AGENTS: '💬 AI Agents',
+        RAG: '🔍 RAG & Retrieval',
+        CHATBOT: '🎭 Chatbot & Persona',
+        DEEP_DIVE: '🔢 Deep Dive',
+        ENGINEERING: '⚙️ Engineering'
+    };
+
+    // 카테고리 매핑 함수
+    function categorizePost(post) {
+        const title = post.title.toLowerCase();
+        const tag1 = (post.tag1 || '').toLowerCase();
+        const tag2 = (post.tag2 || '').toLowerCase();
+        const tags = `${title} ${tag1} ${tag2}`;
+
+        if (tags.includes('agent') || tags.includes('multi-agent') || tags.includes('agentic')) {
+            return CATEGORIES.AGENTS;
+        }
+        if (tags.includes('llm') || tags.includes('large language')) {
+            return CATEGORIES.LLM_REC;
+        }
+        if (tags.includes('graph') || tags.includes('knowledge')) {
+            return CATEGORIES.GRAPH;
+        }
+        if (tags.includes('rag') || tags.includes('retrieval')) {
+            return CATEGORIES.RAG;
+        }
+        if (tags.includes('chatbot') || tags.includes('persona') || tags.includes('character')) {
+            return CATEGORIES.CHATBOT;
+        }
+        if (tags.includes('matrix') || tags.includes('mathematics') || tags.includes('embedding')) {
+            return CATEGORIES.DEEP_DIVE;
+        }
+        if (tags.includes('docker') || tags.includes('kafka') || tags.includes('network')) {
+            return CATEGORIES.ENGINEERING;
+        }
+        return CATEGORIES.REC_MODELS;
+    }
+
+    // Post Card 컴포넌트
+    function PostCard({ post }) {
+        const formatDate = (dateStr) => {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' });
+        };
+
+        const handleClick = () => {
+            if (post.type === 'paper') {
+                window.location.href = `/archive/paper_review/${post.id}/`;
+            } else {
+                window.location.href = `/archive/monthly_pseudorec/${post.id}/`;
+            }
+        };
+
+        return (
+            <div className="post-card" onClick={handleClick}>
+                <div className={`post-type ${post.type === 'paper' ? 'paper-review' : 'monthly'}`}>
+                    {post.type === 'paper' ? 'Paper Review' : 'Deep Dive'}
+                </div>
+                <div className="post-title">{post.title}</div>
+                {post.subtitle && <div className="post-subtitle">{post.subtitle}</div>}
+                {post.tags && post.tags.length > 0 && (
+                    <div className="post-tags">
+                        {post.tags.map((tag, idx) => (
+                            <span key={idx} className="post-tag">{tag}</span>
+                        ))}
+                    </div>
+                )}
+                <div className="post-meta">
+                    <div className="post-author">👤 {post.author}</div>
+                    <div className="post-date">{formatDate(post.created_at)}</div>
+                </div>
+            </div>
+        );
+    }
+
+    // Main App 컴포넌트
+    function StudyArchiveApp() {
+        const [posts, setPosts] = useState([]);
+        const [selectedCategory, setSelectedCategory] = useState(CATEGORIES.ALL);
+        const [searchQuery, setSearchQuery] = useState('');
+
+        useEffect(() => {
+            // Django에서 전달받은 데이터 파싱
+            const paperReviews = JSON.parse(document.getElementById('paper-reviews-data').textContent);
+            const monthlyPosts = JSON.parse(document.getElementById('monthly-posts-data').textContent);
+
+            // Paper Reviews 데이터 변환
+            const papers = paperReviews.map(post => ({
+                ...post,
+                type: 'paper',
+                category: CATEGORIES.REC_MODELS,
+                tags: []
+            }));
+
+            // Monthly Posts 데이터 변환
+            const monthlies = monthlyPosts.map(post => ({
+                ...post,
+                type: 'monthly',
+                category: categorizePost(post),
+                tags: [post.tag1, post.tag2].filter(Boolean)
+            }));
+
+            // 모든 포스트 합치기
+            const allPosts = [...papers, ...monthlies];
+            setPosts(allPosts);
+        }, []);
+
+        // 필터링된 포스트
+        const filteredPosts = useMemo(() => {
+            let filtered = posts;
+
+            // 카테고리 필터
+            if (selectedCategory !== CATEGORIES.ALL) {
+                filtered = filtered.filter(post => post.category === selectedCategory);
+            }
+
+            // 검색 필터
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                filtered = filtered.filter(post =>
+                    post.title.toLowerCase().includes(query) ||
+                    (post.subtitle || '').toLowerCase().includes(query) ||
+                    post.author.toLowerCase().includes(query) ||
+                    (post.tags || []).some(tag => tag.toLowerCase().includes(query))
+                );
+            }
+
+            return filtered;
+        }, [posts, selectedCategory, searchQuery]);
+
+        // 통계
+        const stats = useMemo(() => {
+            const paperCount = posts.filter(p => p.type === 'paper').length;
+            const monthlyCount = posts.filter(p => p.type === 'monthly').length;
+            return {
+                total: posts.length,
+                papers: paperCount,
+                articles: monthlyCount
+            };
+        }, [posts]);
+
+        return (
+            <div className="archive-container">
+                {/* Hero Section */}
+                <div className="hero-section">
+                    <div className="hero-title">ListeneRS</div>
+                    <div className="hero-subtitle">Life is short, you need RecSys</div>
+                    <div className="hero-tagline">추천 시스템 연구의 모든 것, 한 곳에서</div>
+                </div>
+
+                {/* Stats Section */}
+                <div className="stats-section">
+                    <div className="stats-row">
+                        <div className="stat-item">
+                            <div className="stat-number">{stats.total}</div>
+                            <div className="stat-label">Total Posts</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-number">{stats.papers}</div>
+                            <div className="stat-label">Paper Reviews</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-number">{stats.articles}</div>
+                            <div className="stat-label">Deep Dives</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Controls Section */}
+                <div className="controls-section">
+                    <input
+                        type="text"
+                        className="search-bar"
+                        placeholder="🔍 Search posts, authors, topics..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+
+                    <div className="category-filters">
+                        {Object.values(CATEGORIES).map(category => (
+                            <button
+                                key={category}
+                                className={`category-btn ${selectedCategory === category ? 'active' : ''}`}
+                                onClick={() => setSelectedCategory(category)}
+                            >
+                                {category}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Posts Grid */}
+                {filteredPosts.length > 0 ? (
+                    <div className="posts-grid">
+                        {filteredPosts.map(post => (
+                            <PostCard key={`${post.type}-${post.id}`} post={post} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="no-results">
+                        <i className="fas fa-search fa-3x" style={{marginBottom: '20px'}}></i>
+                        <div>검색 결과가 없습니다</div>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    // 렌더링
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<StudyArchiveApp />);
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

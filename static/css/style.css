@@ -16,7 +16,7 @@ a {
 }
 
 body {
-    /*background: #efefef;*/
+    background: #fafafa;
 }
 
 button {
@@ -192,8 +192,10 @@ main .center-main-field .paper-review-main code {
 }
 
 main .model-rec .description {
-    padding-bottom: 2em;
-    height: 15vh;
+    background: #fff;
+    padding: 32px 40px;
+    margin-bottom: 20px;
+    border-radius: 12px;
 }
 
 main .model-rec .model-rec-header .listing-group {
@@ -201,16 +203,26 @@ main .model-rec .model-rec-header .listing-group {
 }
 
 
+main .model-rec .description h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 8px 0;
+}
+
 main .model-rec .description p {
-    color: #000;
+    font-size: 0.95rem;
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
 }
 
 main .model-rec .model-rec-header {
-    display: flex;
+    background: #fff;
+    padding: 20px 40px;
+    margin-bottom: 20px;
+    border-radius: 12px;
     position: relative;
-    margin-top: 10px;
-    /*justify-content: end;*/
-    padding: 0 0 2em 0;
 }
 
 
@@ -235,39 +247,45 @@ main .model-rec .model-rec-header .listing-group ul li {
 }
 
 main .model-rec .model-rec-header .listing-group ul li a {
-    display: block;
-    position: relative;
-    width: 100%;
-    /*height: 100%;*/
-    font: bold 12px/26px 'orbitron';
-    color: #aaa;
-    letter-spacing: 1px;
-    text-align: center;
-    border-radius: 5px;
-    box-shadow: 0px 10px 10px 0 rgba(0, 0, 0, 0.05);
-    background: #fff;
-    padding: 0 10px;
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #666;
+    background: #f5f5f5;
+    border: none;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    box-shadow: none;
+    letter-spacing: normal;
+    font-family: inherit;
+    line-height: normal;
 }
 
 main .model-rec .model-rec-header .listing-group ul li.on a {
-    background: linear-gradient(45deg, #67faf3, #58abf8);
-    /*box-shadow: 0px 5px 20px rgba(0, 255, 255, 0.527);*/
+    background: #1a1a1a;
     color: #fff;
 }
 
+main .model-rec .model-rec-header .listing-group ul li:not(.on):not(.disabled) a:hover {
+    background: #e5e5e5;
+    color: #333;
+}
+
 main .model-rec .model-rec-header .listing-group ul li.disabled a {
-    background: #e0e0e0;
+    background: #f5f5f5;
     color: #999;
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.35;
     pointer-events: none;
 }
 
 main .model-rec .model-rec-header .listing-group ul li.disabled.on a {
-    background: #d0d0d0;
-    color: #888;
+    background: #f5f5f5;
+    color: #999;
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.35;
     pointer-events: none;
 }
 
@@ -275,11 +293,58 @@ main .model-rec .model-rec-header .listing-group .search-icon {
     position: absolute;
     right: 0;
     z-index: 10;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+main .model-rec .model-rec-header .listing-group .search-icon .icon {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+main .model-rec .model-rec-header .listing-group .search-icon .btn,
+main .model-rec .model-rec-header .listing-group .search-icon .close {
+    width: 36px;
+    height: 36px;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 8px;
+    background: #fff !important;
+    border: none !important;
+    color: #666;
     cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: none !important;
+}
+
+main .model-rec .model-rec-header .listing-group .search-icon .btn:hover,
+main .model-rec .model-rec-header .listing-group .search-icon .close:hover {
+    background: #fafafa !important;
 }
 
 main .model-rec .model-rec-header .listing-group .search-icon ion-icon {
-    font-size: 1.5em;
+    font-size: 1.2rem !important;
+    color: #666 !important;
+    --ionicon-stroke-width: 48px;
+    display: block;
+}
+
+main .model-rec .model-rec-header .listing-group .search-icon .btn:hover ion-icon,
+main .model-rec .model-rec-header .listing-group .search-icon .close:hover ion-icon {
+    color: #333 !important;
+}
+
+main .model-rec .model-rec-header .listing-group .search-icon .close {
+    display: none !important;
+}
+
+main .model-rec .model-rec-header .listing-group .search-icon .closeBtn.active {
+    display: inline-flex !important;
 }
 
 
@@ -296,33 +361,35 @@ main .model-rec .model-rec-header .listing-group .search-icon ion-icon {
 }
 
 .searchBox {
-    position: absolute;
-    /*left: 0;*/
-    right: 0;
-    width: 0;
-    height: 100%;
-    /*display: flex;*/
+    width: 100%;
+    height: 0;
+    overflow: hidden;
     background: #fff;
-    align-items: center;
-    padding: 0 30px;
-    transition: 0.5s ease-in-out;
+    transition: all 0.3s ease-in-out;
+    opacity: 0;
 }
 
 .searchBox.active {
-    /*left: 0;*/
-    right: 0;
-    width: 100%;
+    height: auto;
+    padding: 16px 0 0 0;
+    opacity: 1;
 }
 
 .searchBox input {
     width: 100%;
-    border: none;
+    padding: 12px 16px;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
     outline: none;
     background-color: #fff;
-    color: #000000;
-    font-size: 1.25em;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
-    height: 50px;
+    color: #000;
+    height: auto;
+}
+
+.searchBox input:focus {
+    border-color: #1a1a1a;
 }
 
 .searchBtn {
@@ -371,97 +438,99 @@ main .model-rec section article {
     max-width: 300px;
     float: left;
     box-sizing: border-box;
-    /*padding: 12px;*/
+    padding: 10px;
+    margin-bottom: 20px;
 }
 
 main .model-rec section article > div {
     width: 100%;
     height: 100%;
     background: #fff;
-    border-radius: 4px;
-    /*box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);*/
+    border-radius: 12px;
     box-sizing: border-box;
-    padding: 3px;
-    padding-bottom: 20px;
-
-    /*transition-property: transform opacity;*/
-    transition-duration: .2s;
-    transition-delay: 0s;
-    transition-timing-function: cubic-bezier(.8, -0.1, .58, 1.39);
+    padding: 0;
+    padding-bottom: 16px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 main .model-rec section article > div:hover {
-    /*transform: scale(1.01);*/
-    background-color: #8192a1;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 
 main .model-rec section article > div:hover p {
-    color: white;
-    /*font-size: 13px;*/
+    color: #888;
+}
+
+main .model-rec section article div a {
+    display: block;
+    overflow: hidden;
 }
 
 main .model-rec section article div img {
     width: 100%;
-
+    height: 320px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
 }
 
-/*호버링*/
 main .model-rec section article div img:hover {
     cursor: pointer;
-    box-shadow: 5px 5px 10px rgba(0, 0, 0, 1);
-}
-
-/*클릭*/
-main .model-rec section article div img:active {
-    box-shadow: none;
+    transform: scale(1.05);
 }
 
 main .model-rec section article div h2 {
-    margin-top: 15px;
-    font: bold 15px/1 'orbitron';
-    letter-spacing: 1px;
-    color: #444;
-    margin-bottom: 5px;
-
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    padding: 16px 16px 8px;
+    line-height: 1.4;
+    margin: 0;
+    font-family: inherit;
+    letter-spacing: normal;
 }
 
 main .model-rec section article div p {
-    font: 12px/1.2 'arial';
-    color: #777;
-    margin-bottom: 5px;
+    font-size: 0.85rem;
+    color: #888;
+    padding: 0 16px;
+    line-height: 1.5;
+    margin: 0;
     overflow: hidden;
-
+    font-family: inherit;
+    flex-grow: 1;
 }
 
-main .model-rec section article > div:hover h2, p {
-    color: white;
-    /*font-size: 15px;*/
+main .model-rec section article > div:hover h2 {
+    color: #1a1a1a;
 }
 
 .rating_box {
-    text-align: center;
+    padding: 12px 16px 16px;
 }
-
-/*.rating_box:hover {*/
-/*    transform: scale(1.2);*/
-/*    transition-duration: .2s;*/
-/*}*/
 
 .rating {
     position: relative;
-    color: #ddd;
-    font-size: 30px;
+    font-size: 1.4rem;
+    color: #e5e5e5;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
     text-align: center;
-    width: max-content; /* 또는 width: fit-content; */
-    margin: 0 auto;
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .rating .rating_star {
     position: absolute;
     width: 0;
     left: 0;
-    color: #ffc107;
+    top: 0;
+    color: #fbbf24;
     overflow: hidden;
     margin: 0;
     padding: 0;
@@ -470,10 +539,12 @@ main .model-rec section article > div:hover h2, p {
 .rating input {
     position: absolute;
     width: 100%;
+    height: 4px;
     opacity: 0;
     left: 0;
-    top: 30%;
+    top: 100%;
     cursor: pointer;
+    accent-color: #1a1a1a;
 }
 
 @media screen and (max-width: 1500px) {

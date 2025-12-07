@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ListeneRS - 추천시스템 연구 커뮤니티</title>
+    <link rel="icon" href="{% static 'img/listeners_logo_color_transparent.png' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fff;
+            color: #000;
+            min-height: 100vh;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto 60px;
+            padding: 0 40px;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 80px 0 60px;
+            text-align: center;
+            border-bottom: 1px solid #eaeaea;
+            margin-bottom: 60px;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: #000;
+            letter-spacing: -0.05em;
+        }
+
+        .hero-title .gradient-text {
+            background: linear-gradient(90deg, #7B5FCC 0%, #6BA8DC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            padding-right: 10px
+        }
+
+        .hero-subtitle {
+            font-size: 1.35rem;
+            color: #666;
+            line-height: 1.6;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .hero-links {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .hero-link:hover {
+            background: #333;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .hero-link.secondary {
+            background: #fff;
+            color: #000;
+            border: 1px solid #e0e0e0;
+        }
+
+        .hero-link.secondary:hover {
+            background: #f5f5f5;
+            border-color: #ccc;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 50px;
+            padding-bottom: 50px;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        /* Two Column Section */
+        .section-two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #000;
+            letter-spacing: -0.05em;
+        }
+
+        .section-title-link {
+            color: #000;
+            text-decoration: none;
+            transition: opacity 0.2s, color 0.2s;
+            cursor: pointer;
+        }
+
+        .section-title-link:hover {
+            color: #667eea;
+            opacity: 0.8;
+        }
+
+        .section-title.non-clickable {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .section-description {
+            font-size: 1.125rem;
+            line-height: 1.7;
+            color: #666;
+            margin-bottom: 24px;
+            max-width: 700px;
+        }
+
+        .section-link {
+            display: inline-block;
+            color: #0070f3;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .section-link:hover {
+            opacity: 0.7;
+            text-decoration: none;
+        }
+
+        .section-link i {
+            margin-left: 4px;
+            font-size: 0.9em;
+        }
+
+        /* Posts List */
+        .posts-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .post-item {
+            padding: 20px 0;
+            border-bottom: 1px solid #eaeaea;
+            transition: opacity 0.2s;
+        }
+
+        .post-item:last-child {
+            border-bottom: none;
+        }
+
+        .post-item:hover {
+            opacity: 0.7;
+        }
+
+        .post-item a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .post-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 6px;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .new-badge {
+            background: #667eea;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .post-meta {
+            font-size: 0.875rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .author-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .section-two-col {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 80px auto 40px;
+                padding: 0 20px;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .section {
+                margin-bottom: 60px;
+                padding-bottom: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    {% include 'navbar.html' %}
+</header>
+
+<div class="main-container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <h1 class="hero-title"><span class="gradient-text">ListeneRS</span>에 오신 것을 환영합니다!👋</h1>
+        <p class="hero-subtitle">
+            추천시스템, Agent, LLM을 연구하고 실험하는 커뮤니티입니다.<br>
+            논문 리뷰부터 실제 추천 시스템 데모까지, 다양한 콘텐츠를 만나보세요.
+        </p>
+        <div class="hero-links">
+            <a href="/archive/" class="hero-link">논문 아카이브 →</a>
+            <a href="/llmrec/" class="hero-link">챗봇 체험하기 →</a>
+            <a href="/movie_recommendation/" class="hero-link secondary">영화 추천 데모</a>
+        </div>
+    </section>
+
+    <!-- Study Archive + Recent Posts Section -->
+    <section class="section">
+        <div class="section-two-col">
+            <div>
+                <h1 class="section-title"><a href="/archive/" class="section-title-link">Study Archive</a></h1>
+                <p class="section-description">
+                    추천시스템, Agent, LLM 등 AI 기술에 대한 논문 리뷰와 연구 인사이트를 공유합니다.
+                    최신 연구 트렌드와 실무 적용 사례를 체계적으로 정리했습니다.
+                </p>
+                <a href="/archive/" class="section-link">
+                    모든 글 보기 <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+            <div>
+                <h2 class="section-title non-clickable"> Recent Posts</h2>
+                <ul class="posts-list">
+                    {% for post in recent_posts %}
+                    <li class="post-item">
+                        <a href="{{ post.url }}">
+                            <div class="post-title">
+                                <span>{{ post.title }}</span>
+                                {% if post.is_new %}
+                                <span class="new-badge">NEW</span>
+                                {% endif %}
+                            </div>
+                            <div class="post-meta">
+                                <div class="author-info">
+                                    {% if post.author_image %}
+                                    <img src="{{ post.author_image }}" alt="{{ post.author }}" class="author-avatar">
+                                    {% else %}
+                                    <img src="{% static 'img/member/for_monthly_pseudorec/default_user.png' %}" alt="{{ post.author }}" class="author-avatar">
+                                    {% endif %}
+                                    <span>{{ post.author }}</span>
+                                </div>
+                                <span>{{ post.created_at|date:"Y-m-d" }}</span>
+                                {% if post.type == 'paper' %}
+                                <span>Paper Review</span>
+                                {% else %}
+                                <span>월간슈도렉</span>
+                                {% endif %}
+                            </div>
+                        </a>
+                    </li>
+                    {% empty %}
+                    <li style="text-align: center; color: #666; padding: 40px 0;">아직 포스트가 없습니다.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- LLM Recommendation Demos Section -->
+    <section class="section">
+        <h2 class="section-title"><a href="/llmrec/" class="section-title-link">LLM Recommendation Demos</a></h2>
+        <p class="section-description">
+            Large Language Model을 활용한 추천시스템 데모.
+            영화 추천, 콘텐츠 검색, 대화형 추천 등 LLM 기반의 다양한 응용 사례를 경험할 수 있습니다.
+        </p>
+        <a href="/llmrec/" class="section-link">
+            LLM 추천 데모 <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </section>
+
+    <!-- Recommendation Models Section -->
+    <section class="section">
+        <h2 class="section-title"><a href="/movie_recommendation/" class="section-title-link">Movie Recommendation Models</a></h2>
+        <p class="section-description">
+            전통적인 추천 모델부터 최신 딥러닝 기반 모델까지.
+            다양한 추천 알고리즘을 직접 체험하고 비교해보세요.
+        </p>
+        <a href="/movie_recommendation/" class="section-link">
+            영화 추천 데모 <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </section>
+</div>
+
+</body>
+</html>

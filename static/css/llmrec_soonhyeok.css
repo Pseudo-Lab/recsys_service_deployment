@@ -15,21 +15,66 @@ main {
 
 .center-main-field {
     width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.center-main-field .back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    margin: 20px 0 16px 0;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    color: #666;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.center-main-field .back-button:hover {
+    background: #f5f5f5;
+    color: #333;
+    border-color: #ccc;
+}
+
+.center-main-field .description {
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 20px 0;
+    margin-bottom: 24px;
+}
+
+.center-main-field .description h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 8px 0;
+}
+
+.center-main-field .description p {
+    font-size: 0.95rem;
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
 }
 
 .center-main-field .button {
     border: none;
-    padding: 0.625em;
-    border-radius: 0.5em;
+    padding: 10px 20px;
+    border-radius: 6px;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
 .center-main-field .button:hover {
-    filter: brightness(0.9);
+    opacity: 0.9;
 }
 
 .center-main-field .button:active {
-    transform: translateY(2px);
+    transform: scale(0.98);
 }
 
 .center-main-field .chat-container {

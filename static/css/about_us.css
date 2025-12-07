@@ -52,9 +52,9 @@ main {
 
 .center-main-field section {
     max-width: 300px;
-    width: 21%;
+    width: 100%;
     /*height: 30vh;*/
-    margin: 50px 10px;
+    margin: 50px 0;
     text-align: center;
 
     /*border: 1px solid red;*/
@@ -69,9 +69,13 @@ main {
 }
 
 .center-main-field .profile-boxes {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    justify-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
 }
 
 .center-main-field article.profile {

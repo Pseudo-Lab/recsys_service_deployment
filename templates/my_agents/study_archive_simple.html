@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <title>Study Archive - ListeneRS</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="{% static 'img/listeners_logo_color_transparent.png' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
+    <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+        .archive-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .hero-section {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            padding: 60px 20px;
+        }
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .hero-subtitle {
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+            opacity: 0.95;
+        }
+        .hero-tagline {
+            font-size: 1.2rem;
+            font-weight: 400;
+            opacity: 0.85;
+            font-style: italic;
+        }
+        .stats-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        .controls-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        .search-bar {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        .search-bar:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .category-btn {
+            padding: 12px 24px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .category-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+        }
+        .category-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .post-card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .post-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+        .post-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .post-type {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .post-type.paper-review {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .post-type.monthly {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        .post-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        .post-subtitle {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 16px;
+        }
+        .post-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .post-tag {
+            padding: 4px 12px;
+            background: #f5f5f5;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .post-author {
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: 600;
+        }
+        .post-date {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            font-size: 1.2rem;
+        }
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .hero-subtitle {
+                font-size: 1.3rem;
+            }
+            .posts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    {% include 'navbar.html' %}
+</header>
+
+<main>
+    <div class="archive-container">
+        <div class="hero-section">
+            <div class="hero-title">ListeneRS</div>
+            <div class="hero-subtitle">Life is short, you need RecSys</div>
+            <div class="hero-tagline">추천 시스템 연구의 모든 것, 한 곳에서</div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-count">0</div>
+                    <div class="stat-label">Total Posts</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="paper-count">0</div>
+                    <div class="stat-label">Paper Reviews</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="article-count">0</div>
+                    <div class="stat-label">Deep Dives</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls-section">
+            <input type="text" class="search-bar" id="searchInput" placeholder="🔍 Search posts, authors, topics...">
+            <div class="category-filters" id="categoryFilters"></div>
+        </div>
+
+        <div class="posts-grid" id="postsGrid"></div>
+    </div>
+</main>
+
+<script>
+// 카테고리 정의
+const CATEGORIES = {
+    ALL: 'All',
+    REC_MODELS: '🎯 Rec Models',
+    LLM_REC: '🤖 LLM × RecSys',
+    GRAPH: '🕸️ Graph & Knowledge',
+    AGENTS: '💬 AI Agents',
+    RAG: '🔍 RAG & Retrieval',
+    CHATBOT: '🎭 Chatbot & Persona',
+    DEEP_DIVE: '🔢 Deep Dive',
+    ENGINEERING: '⚙️ Engineering'
+};
+
+// Django에서 전달받은 데이터
+const paperReviews = {{ paper_reviews_json|safe }};
+const monthlyPosts = {{ monthly_posts_json|safe }};
+
+// 카테고리 매핑 함수
+function categorizePost(post) {
+    const title = post.title.toLowerCase();
+    const tag1 = (post.tag1 || '').toLowerCase();
+    const tag2 = (post.tag2 || '').toLowerCase();
+    const tags = title + ' ' + tag1 + ' ' + tag2;
+
+    if (tags.includes('agent') || tags.includes('multi-agent') || tags.includes('agentic')) {
+        return CATEGORIES.AGENTS;
+    }
+    if (tags.includes('llm') || tags.includes('large language')) {
+        return CATEGORIES.LLM_REC;
+    }
+    if (tags.includes('graph') || tags.includes('knowledge')) {
+        return CATEGORIES.GRAPH;
+    }
+    if (tags.includes('rag') || tags.includes('retrieval')) {
+        return CATEGORIES.RAG;
+    }
+    if (tags.includes('chatbot') || tags.includes('persona') || tags.includes('character')) {
+        return CATEGORIES.CHATBOT;
+    }
+    if (tags.includes('matrix') || tags.includes('mathematics') || tags.includes('embedding')) {
+        return CATEGORIES.DEEP_DIVE;
+    }
+    if (tags.includes('docker') || tags.includes('kafka') || tags.includes('network')) {
+        return CATEGORIES.ENGINEERING;
+    }
+    return CATEGORIES.REC_MODELS;
+}
+
+// 데이터 변환
+const papers = paperReviews.map(post => ({
+    ...post,
+    type: 'paper',
+    category: CATEGORIES.REC_MODELS,
+    tags: []
+}));
+
+const monthlies = monthlyPosts.map(post => ({
+    ...post,
+    type: 'monthly',
+    category: categorizePost(post),
+    tags: [post.tag1, post.tag2].filter(Boolean)
+}));
+
+const allPosts = [...papers, ...monthlies];
+let selectedCategory = CATEGORIES.ALL;
+let searchQuery = '';
+
+// 통계 업데이트
+function updateStats() {
+    const paperCount = allPosts.filter(p => p.type === 'paper').length;
+    const monthlyCount = allPosts.filter(p => p.type === 'monthly').length;
+
+    document.getElementById('total-count').textContent = allPosts.length;
+    document.getElementById('paper-count').textContent = paperCount;
+    document.getElementById('article-count').textContent = monthlyCount;
+}
+
+// 날짜 포맷팅
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+// 포스트 렌더링
+function renderPosts(posts) {
+    const grid = document.getElementById('postsGrid');
+
+    if (posts.length === 0) {
+        grid.innerHTML = '<div class="no-results"><i class="fas fa-search fa-3x" style="margin-bottom: 20px;"></i><div>검색 결과가 없습니다</div></div>';
+        return;
+    }
+
+    grid.innerHTML = posts.map(post => {
+        const isPaper = post.type === 'paper';
+        const url = isPaper ? '/archive/paper_review/' + post.id + '/' : '/archive/monthly_pseudorec/' + post.id + '/';
+        const date = formatDate(post.created_at);
+
+        let tagsHtml = '';
+        if (post.tags && post.tags.length > 0) {
+            tagsHtml = '<div class="post-tags">' +
+                post.tags.map(tag => '<span class="post-tag">' + tag + '</span>').join('') +
+                '</div>';
+        }
+
+        let subtitleHtml = '';
+        if (post.subtitle) {
+            subtitleHtml = '<div class="post-subtitle">' + post.subtitle + '</div>';
+        }
+
+        return '<div class="post-card" onclick="location.href=\'' + url + '\'">' +
+            '<div class="post-type ' + (isPaper ? 'paper-review' : 'monthly') + '">' +
+                (isPaper ? 'Paper Review' : 'Deep Dive') +
+            '</div>' +
+            '<div class="post-title">' + post.title + '</div>' +
+            subtitleHtml +
+            tagsHtml +
+            '<div class="post-meta">' +
+                '<div class="post-author">👤 ' + post.author + '</div>' +
+                '<div class="post-date">' + date + '</div>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+// 필터링된 포스트 가져오기
+function getFilteredPosts() {
+    let filtered = allPosts;
+
+    // 카테고리 필터
+    if (selectedCategory !== CATEGORIES.ALL) {
+        filtered = filtered.filter(post => post.category === selectedCategory);
+    }
+
+    // 검색 필터
+    if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        filtered = filtered.filter(post =>
+            post.title.toLowerCase().includes(query) ||
+            (post.subtitle || '').toLowerCase().includes(query) ||
+            post.author.toLowerCase().includes(query) ||
+            (post.tags || []).some(tag => tag.toLowerCase().includes(query))
+        );
+    }
+
+    return filtered;
+}
+
+// 카테고리 버튼 렌더링
+function renderCategoryButtons() {
+    const container = document.getElementById('categoryFilters');
+    container.innerHTML = Object.values(CATEGORIES).map(category => {
+        const isActive = selectedCategory === category ? 'active' : '';
+        return '<button class="category-btn ' + isActive + '" onclick="selectCategory(\'' + category + '\')">' +
+            category +
+        '</button>';
+    }).join('');
+}
+
+// 카테고리 선택
+function selectCategory(category) {
+    selectedCategory = category;
+    renderCategoryButtons();
+    renderPosts(getFilteredPosts());
+}
+
+// 검색 이벤트
+document.getElementById('searchInput').addEventListener('input', function() {
+    searchQuery = this.value;
+    renderPosts(getFilteredPosts());
+});
+
+// 초기화
+updateStats();
+renderCategoryButtons();
+renderPosts(allPosts);
+</script>
+
+</body>
+</html>

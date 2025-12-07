@@ -58,9 +58,9 @@ const createChatMessageElement = (message) => {
 };
 
 // Automatically focus the chat input
-if (chatInput) {
-    chatInput.focus();
-}
+// if (chatInput) {
+//     chatInput.focus();
+// }
 
 const scrollToBottom = () => {
     if (chatMessages) {

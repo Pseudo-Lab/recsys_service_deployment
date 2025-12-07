@@ -19,13 +19,14 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-from movie.views import home, log_click, log_star
+from movie.views import log_click, log_star
+from my_agents.views import study_archive_home
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("users/", include("users.urls")),
     path("movie/", include("movie.urls")),
-    path('', home),
+    path('', study_archive_home, name='home'),  # 첫 화면: STUDY ARCHIVE
     path('log_click/', log_click, name='log_click'),
     path('log_star/', log_star, name='log_star'),
     path('archive/', include('paper_review.urls')),
@@ -37,7 +38,8 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     # path('sasrec/', include('movie.urls')),
     path('ngcf/', include("movie.urls")),
-    path('movie_recommendation/', include("movie.urls")),
+    path('movie_recommendation/', include("movie.urls")),  # ML/DL 영화 추천
+    path('my_agents/', include('my_agents.urls')),  # MY AGENTS 페이지
 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

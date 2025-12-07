@@ -9,7 +9,7 @@
           integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
     <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
-    <link rel="stylesheet" href="{% static 'css/llmrec.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/llmrec.css' %}?v=20251207c">
     <script defer src="{% static 'js/llmrec.js' %}"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <!--    iconicons-->
@@ -25,21 +25,28 @@
 </header>
 
 <main>
-    {% include 'left_col_home.html' %}
     <div class="side-gutter"></div>
     <div class="inside">
         <div class="model-rec">
-            <div class="description">
-                <h1>{{description1}}</h1>
-                <p>{{description2|safe}}</p>
-            </div>
             <div class="center-main-field">
+                <a href="/llmrec/" class="back-button">
+                    <span>←</span>
+                    <span>모든 챗봇 보기</span>
+                </a>
+                <div class="description">
+                    <h3>{{description1}}</h3>
+                    {% if description2 %}
+                    <p>{{description2|safe}}</p>
+                    {% endif %}
+                </div>
                 <div class="chat-container">
                     <div class="chat-messages">
+                        {% if initial_message %}
                         <div class="message gray-bg">
                             <div class="message-sender"></div>
                             <div class="message-text">{{initial_message|safe}}</div>
                         </div>
+                        {% endif %}
                     </div>
                     <form class="chat-input-form" method="POST">
                         <input type="text" class="chat-input" required placeholder="Type here.."/>

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <title>Movie Recommendation - ListeneRS</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="{% static 'img/listeners_logo_color_transparent.png' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/left_aside.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/home_movie_rec.css' %}?v=2024011916">
+    <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/isotope.pkgd.min.js' %}"></script>
+    <script defer src="{% static 'js/main.js' %}"></script>
+    <script defer src="{% static 'js/star_logger.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/click_logger.js' %}"></script>
+    <script src="{% static 'js/delete_history.js' %}"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+    <style>
+        /* 탭 스타일 추가 */
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0 20px 0;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0;
+        }
+
+        .tab-button {
+            padding: 12px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #666;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            bottom: -2px;
+        }
+
+        .tab-button:hover {
+            color: #333;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ML/DL 탭 영화 포스터 개선 */
+        #ml-dl-tab .posters section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 24px;
+            padding: 20px 0;
+        }
+
+        #ml-dl-tab .posters article {
+            display: block;
+        }
+
+        #ml-dl-tab .movie {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #ml-dl-tab .movie:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 28px rgba(102, 126, 234, 0.15);
+        }
+
+        #ml-dl-tab .movie a {
+            display: block;
+            overflow: hidden;
+            border-radius: 16px 16px 0 0;
+        }
+
+        #ml-dl-tab .movie img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        #ml-dl-tab .movie:hover img {
+            transform: scale(1.05);
+        }
+
+        #ml-dl-tab .movie h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2d3748;
+            padding: 16px 16px 8px;
+            line-height: 1.4;
+            min-height: 60px;
+        }
+
+        #ml-dl-tab .movie p {
+            font-size: 0.9rem;
+            color: #718096;
+            padding: 0 16px;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        #ml-dl-tab .rating_box {
+            padding: 12px 16px 16px;
+        }
+
+        #ml-dl-tab .rating {
+            position: relative;
+            font-size: 1.6rem;
+            color: #e2e8f0;
+            letter-spacing: 3px;
+        }
+
+        #ml-dl-tab .rating_star {
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: #ffc107;
+            overflow: hidden;
+        }
+
+        #ml-dl-tab .rating input[type="range"] {
+            width: 100%;
+            margin-top: 8px;
+            accent-color: #667eea;
+        }
+
+        /* 오른쪽 히스토리 개선 */
+        #ml-dl-tab .right-field {
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+            border-radius: 20px;
+            padding: 24px !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        #ml-dl-tab .right-field h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e8ebf7;
+        }
+
+        #ml-dl-tab .watched_movie {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px !important;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+            border: 1px solid #e8ebf7;
+        }
+
+        #ml-dl-tab .watched_movie:hover {
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.12);
+            border-color: #667eea;
+        }
+
+        #ml-dl-tab .watched_movie .poster img {
+            border-radius: 8px;
+        }
+
+        #ml-dl-tab .watched_movie .title p {
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        #ml-dl-tab .right-field .btn-small {
+            background: linear-gradient(135deg, #f89494 0%, #e57373 100%);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(248, 148, 148, 0.3);
+        }
+
+        #ml-dl-tab .right-field .btn-small:hover {
+            background: linear-gradient(135deg, #e57373 0%, #d32f2f 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(248, 148, 148, 0.4);
+        }
+
+        /* 상단 설명 영역 개선 */
+        #ml-dl-tab .description {
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            border: 2px solid #e8ebf7;
+        }
+
+        #ml-dl-tab .description h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+
+        #ml-dl-tab .description p {
+            font-size: 1.1rem;
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        /* 모델 선택 메뉴 개선 */
+        #ml-dl-tab .model-rec-header {
+            margin-bottom: 24px;
+        }
+
+        #ml-dl-tab .listing-group ul li a {
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        #ml-dl-tab .listing-group ul li.on a {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff !important;
+        }
+
+        #ml-dl-tab .listing-group ul li:not(.on) a:hover {
+            background: #f8f9ff;
+        }
+
+        /* LLM 챗봇 카드 스타일 */
+        .chatbots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .chatbot-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 20px;
+            padding: 40px 28px;
+            border: 2px solid #e8ebf7;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chatbot-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .chatbot-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 40px rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+        }
+
+        .chatbot-card:hover::before {
+            opacity: 1;
+        }
+
+        .chatbot-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            font-size: 2.5rem;
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .chatbot-name {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #2d3748;
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .chatbot-specialty {
+            font-size: 1rem;
+            color: #718096;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .chatbot-badge {
+            display: inline-block;
+            padding: 8px 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-radius: 24px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    {% include 'navbar.html' %}
+</header>
+
+<!-- 탭 버튼 -->
+<div class="tabs-container">
+    <button class="tab-button active" onclick="switchTab('ml-dl')">ML/DL Models</button>
+    <button class="tab-button" onclick="switchTab('llm')">LLM Recommendation Demos</button>
+</div>
+
+<!-- ML/DL Models 탭 -->
+<div id="ml-dl-tab" class="tab-content active">
+    <main>
+        <div class="side-gutter"></div>
+        <div class="inside">
+            <div class="center-main-field">
+                <div class="model-rec">
+                    <div class="description">
+                        <h1>{{ description1 }}</h1>
+                        <p>{{ description2|safe }}</p>
+                    </div>
+                    <div class="model-rec-header">
+                        <div class="listing-group">
+                            <ul>
+                                {% if pop_on %}
+                                <li class="on"><a href="/movie_recommendation/">인기 영화</a></li>
+                                {% else %}
+                                <li><a href="/movie_recommendation/">인기 영화</a></li>
+                                {% endif %}
+
+                                {% if sasrec_on %}
+                                <li class="on disabled"><a href="javascript:void(0);" onclick="return false;">SASRec</a></li>
+                                {% else %}
+                                <li class="disabled"><a href="javascript:void(0);" onclick="return false;">SASRec</a></li>
+                                {% endif %}
+
+                                {% if kprn_on %}
+                                <li class="on disabled"><a href="javascript:void(0);" onclick="return false;">KPRN</a></li>
+                                {% else %}
+                                <li class="disabled"><a href="javascript:void(0);" onclick="return false;">KPRN</a></li>
+                                {% endif %}
+
+                                {% if mf_on %}
+                                <li class="on"><a href="/movie/mf/">General MF</a></li>
+                                {% else %}
+                                <li><a href="/movie/mf/">General MF</a></li>
+                                {% endif %}
+
+                                {% if ngcf_on %}
+                                <li class="on disabled"><a href="javascript:void(0);" onclick="return false;">NGCF</a></li>
+                                {% else %}
+                                <li class="disabled"><a href="javascript:void(0);" onclick="return false;">NGCF</a></li>
+                                {% endif %}
+                            </ul>
+                            <div class="search-icon">
+                                <span class="icon">
+                                    <button type="submit" class="btn btn-sm button-theme">
+                                        <ion-icon name="search-outline" class="searchBtn"></ion-icon>
+                                    </button>
+                                    <button type="button" class="close">
+                                        <ion-icon name="close-outline" class="closeBtn"></ion-icon>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="searchBox">
+                            <form class="search-header" method="POST">
+                                {% csrf_token %}
+                                <input type="text" placeholder="Search here . . ." name="keyword" id="search-input">
+                            </form>
+                        </div>
+                    </div>
+                    <div class="posters">
+                        <section>
+                            {% for r in movie_list %}
+                            <article>
+                                <div class="movie" dbid={{ r.movieid }} rank="{{ r.rank }}">
+                                    <a href="/movie/{{ r.movieid }}">
+                                        <img src={{ r.posterurl }} alt="">
+                                    </a>
+                                    <h2>{{ r.titleko }}</h2>
+                                    <p>{{ r.synopsis|slice:":100" }}{% if r.synopsis|length > 100 %}...{% endif %}</p>
+                                    <div class="rating_box">
+                                        <div class="rating">
+                                            ★★★★★
+                                            <span class="rating_star" style="width: {{ r.past_rating }}%">★★★★★</span>
+                                            <input type="range" value="0" step="1" min="0" max="10">
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+                            {% endfor %}
+                        </section>
+                    </div>
+                </div>
+            </div>
+            {% include 'right_watched_list.html' %}
+        </div>
+    </main>
+</div>
+
+<!-- LLM Recommendation Demos 탭 -->
+<div id="llm-tab" class="tab-content">
+    <div class="chatbots-grid">
+        {% for chatbot in chatbots %}
+        <a href="{{ chatbot.url }}" class="chatbot-card">
+            <div class="chatbot-icon">
+                <i class="fa-solid fa-comments"></i>
+            </div>
+            <h3 class="chatbot-name">{{ chatbot.name }}</h3>
+            <p class="chatbot-specialty">{{ chatbot.specialty }}</p>
+            <span class="chatbot-badge">{{ chatbot.badge }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 탭 전환 함수
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+        if (tabName === 'ml-dl') {
+            document.querySelector('.tab-button:first-child').classList.add('active');
+            document.getElementById('ml-dl-tab').classList.add('active');
+        } else if (tabName === 'llm') {
+            document.querySelector('.tab-button:last-child').classList.add('active');
+            document.getElementById('llm-tab').classList.add('active');
+        }
+    }
+
+    // 검색 기능 (home.html과 동일)
+    let searchBtn = document.querySelector('.searchBtn');
+    let closeBtn = document.querySelector('.closeBtn');
+    let searchBox = document.querySelector('.searchBox');
+    let searchActive = false;
+    let searchInput = null;
+
+    function initSearchInput() {
+        searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchBox.addEventListener('transitionend', function () {
+                searchInput.focus();
+            }, {once: true});
+        } else {
+            setTimeout(initSearchInput, 100);
+        }
+    }
+
+    searchBtn.onclick = function () {
+        if (!searchActive) {
+            searchBox.classList.add('active');
+            closeBtn.classList.add('active');
+            searchBtn.classList.add('active');
+            initSearchInput();
+            searchActive = true;
+        } else {
+            searchMovie();
+        }
+    }
+
+    closeBtn.onclick = function () {
+        searchBox.classList.remove('active');
+        closeBtn.classList.remove('active');
+        searchBtn.classList.remove('active');
+        searchActive = false;
+    }
+
+    function searchMovie() {
+        let searchValue = document.getElementById('search-input').value.trim();
+        if (searchActive) {
+            if (searchValue.length > 1) {
+                location.href = '/movie/search/' + searchValue + "/";
+            } else {
+                alert('검색어 "' + searchValue + '"가 너무 짧습니다.');
+                return;
+            }
+        }
+    }
+
+    document.getElementById('search-input').addEventListener('keyup', function (event) {
+        if (searchActive) {
+            if (event.key === 'Enter') {
+                searchMovie();
+            } else if (event.key === 'Escape') {
+                closeBtn.click();
+            }
+        }
+    });
+</script>
+</body>
+</html>

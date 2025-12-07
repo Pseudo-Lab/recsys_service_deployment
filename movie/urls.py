@@ -1,11 +1,11 @@
 from django.urls import path
 
 from movie.views import home, movie_detail, search, sasrec, kprn, general_mf, ngcf, delete_movie_interaction, \
-    delete_all_interactions
+    delete_all_interactions, movie_recommendation_home
 
 urlpatterns = [
     path("", home),
-    path("movierecommendation/", home),
+    path("movierecommendation/", movie_recommendation_home),
     path("<int:movie_id>", movie_detail),
     path("search/<str:keyword>/", search),
     path("sasrec/", sasrec),

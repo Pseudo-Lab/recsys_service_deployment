@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from datetime import datetime
 from markdown.extensions.extra import ExtraExtension
 from markdown.extensions.tables import TableExtension
 from markdownx.utils import markdown as mdx_markdown
@@ -19,6 +20,7 @@ from paper_review.models import (
     PostMonthlyPseudorec,
     PaperTalkPost,
 )
+from my_agents.views import get_posts_by_category, get_subcategories_for_category, find_category_for_post
 
 import uuid
 from paper_review.utils import codeblock
@@ -37,6 +39,268 @@ from django.template.loader import render_to_string
 
 paper_review_base_dir = "post_markdowns/paper_review/"
 monthly_pseudorec_base_dir = "post_markdowns/monthly_pseudorec/"
+
+
+def study_archive_main(request):
+    """Study Archive 메인 페이지 - 주제별 최신 글 표시"""
+    log_tracking(request=request, view='study_archive_main')
+
+    # 주제별로 분류된 모든 포스트 가져오기
+    posts_by_category = get_posts_by_category()
+
+    # Paper Review와 다른 카테고리 분리
+    paper_review_posts = []
+    other_categories = []
+
+    for category_name, posts in posts_by_category:
+        category_slug = category_name.split(' ', 1)[-1]
+
+        if category_name == 'Paper Review':
+            paper_review_posts = posts
+        else:
+            # 카테고리의 최신 글 날짜 찾기
+            latest_date = max(post['created_at'] for post in posts) if posts else None
+            other_categories.append({
+                'name': category_name,
+                'slug': category_slug,
+                'posts': posts,
+                'total_count': len(posts),
+                'latest_date': latest_date
+            })
+
+    # 최신 글 날짜순으로 카테고리 정렬
+    other_categories.sort(key=lambda x: x['latest_date'] if x['latest_date'] else datetime.min, reverse=True)
+
+    # Paper Review 서브카테고리별로 그룹화
+    paper_review_subcategories = get_subcategories_for_category('Paper Review', paper_review_posts)
+
+    # 모든 포스트 중 최신 3개 가져오기 (히어로 슬라이더용)
+    all_posts_for_hero = []
+    print(f"DEBUG: other_categories count: {len(other_categories)}")
+    for category in other_categories:
+        print(f"DEBUG: Category '{category['name']}' has {len(category['posts'])} posts")
+        all_posts_for_hero.extend(category['posts'])
+    print(f"DEBUG: paper_review_posts count: {len(paper_review_posts)}")
+    all_posts_for_hero.extend(paper_review_posts)
+
+    print(f"DEBUG: Total posts collected: {len(all_posts_for_hero)}")
+
+    # 날짜순 정렬하고 최신 3개만
+    all_posts_for_hero.sort(key=lambda x: x['created_at'], reverse=True)
+    hero_posts = all_posts_for_hero[:3]
+
+    # 디버그 출력
+    print(f"=== HERO SLIDER DEBUG ===")
+    print(f"Total posts for hero: {len(all_posts_for_hero)}")
+    print(f"Hero posts count: {len(hero_posts)}")
+    for i, post in enumerate(hero_posts):
+        print(f"Hero post {i+1}:")
+        print(f"  Title: {post.get('title', 'NO TITLE')}")
+        print(f"  Card Image: {post.get('card_image', 'NO IMAGE')}")
+        print(f"  Author: {post.get('author', 'NO AUTHOR')}")
+        print(f"  Author Image: {post.get('author_image', 'NO AUTHOR IMAGE')}")
+        print(f"  URL: {post.get('url', 'NO URL')}")
+        print(f"  Created At: {post.get('created_at', 'NO DATE')}")
+    print(f"=========================")
+    print(f"Passing hero_posts to template with {len(hero_posts)} posts")
+
+    # 월별로 그룹화된 포스트 가져오기 (DB에서 month_sort로 정렬)
+    from collections import defaultdict
+    monthly_posts_all = PostMonthlyPseudorec.objects.all().order_by('-month_sort', '-created_at')
+    posts_by_month = defaultdict(lambda: {'posts': [], 'month_sort': 0})
+
+    for post in monthly_posts_all:
+        author_image_url = None
+        if post.author_image:
+            author_image_url = post.author_image.url
+
+        card_image_url = None
+        if post.card_image:
+            card_image_url = post.card_image.url
+
+        posts_by_month[post.month]['posts'].append({
+            'id': post.id,
+            'title': post.title,
+            'author': post.author,
+            'author_image': author_image_url,
+            'card_image': card_image_url,
+            'created_at': post.created_at,
+            'type': 'monthly',
+            'url': f"/archive/monthly_pseudorec/{post.id}/"
+        })
+        posts_by_month[post.month]['month_sort'] = post.month_sort
+
+    # 월별로 정렬 (최신순) - DB의 month_sort 값으로 정렬
+    monthly_groups = []
+    sorted_months = sorted(posts_by_month.items(), key=lambda x: x[1]['month_sort'], reverse=True)
+    for month, data in sorted_months:
+        monthly_groups.append({
+            'month': month,
+            'posts': data['posts'],
+            'total_count': len(data['posts'])
+        })
+
+    context = {
+        'categories': other_categories,
+        'monthly_groups': monthly_groups,
+        'paper_review_subcategories': paper_review_subcategories,
+        'hero_posts': hero_posts,
+    }
+
+    return render(request, "study_archive_main.html", context=context)
+
+
+def category_detail(request, category_name):
+    """특정 카테고리의 모든 글 표시 - 서브카테고리 구조 포함"""
+    log_tracking(request=request, view=f'category_detail_{category_name}')
+
+    # 주제별로 분류된 모든 포스트 가져오기
+    posts_by_category = get_posts_by_category()
+
+    # 해당 카테고리 찾기
+    category_posts = []
+    full_category_name = category_name
+    category_slug = category_name
+    for cat_name, posts in posts_by_category:
+        if cat_name.endswith(category_name) or category_name in cat_name or category_name == cat_name:
+            full_category_name = cat_name
+            category_slug = cat_name
+            category_posts = posts
+            break
+
+    # 서브카테고리로 구조화
+    subcategories = get_subcategories_for_category(full_category_name, category_posts)
+
+    # 모든 카테고리 목록 (드롭다운용)
+    all_categories = []
+    for cat_name, posts in posts_by_category:
+        all_categories.append({
+            'name': cat_name,
+            'slug': cat_name,
+            'count': len(posts)
+        })
+
+    context = {
+        'category_name': full_category_name,
+        'category_slug': category_slug,
+        'posts': category_posts,
+        'subcategories': subcategories,
+        'all_categories': all_categories,
+    }
+
+    return render(request, "category_detail.html", context=context)
+
+
+def category_post_detail(request, category_name, post_type, post_id):
+    """카테고리 내에서 특정 글 표시 (사이드바 유지)"""
+    log_tracking(request=request, view=f'category_post_detail_{category_name}_{post_id}')
+
+    # 주제별로 분류된 모든 포스트 가져오기
+    posts_by_category = get_posts_by_category()
+
+    # 해당 카테고리 찾기
+    category_posts = []
+    full_category_name = category_name
+    category_slug = category_name
+    for cat_name, posts in posts_by_category:
+        if cat_name.endswith(category_name) or category_name in cat_name or category_name == cat_name:
+            full_category_name = cat_name
+            category_slug = cat_name
+            category_posts = posts
+            break
+
+    # 서브카테고리로 구조화
+    subcategories = get_subcategories_for_category(full_category_name, category_posts)
+
+    # 글 내용 가져오기
+    if post_type == 'paper':
+        post = Post.objects.get(pk=post_id)
+        md_mapper = {
+            1: paper_review_base_dir + "kprn review.md",
+            2: paper_review_base_dir + "ngcf review.md",
+            3: paper_review_base_dir + "sasrec review.md",
+            4: paper_review_base_dir + "srgnn review.md",
+            5: paper_review_base_dir + "bert4rec review.md",
+            6: paper_review_base_dir + "Large Language Models are Zero-Shot Rankers for Recommender Systems.md",
+            7: paper_review_base_dir + "A Survey of Large Language Models for Graphs.md",
+            8: paper_review_base_dir + "A Large Language Model Enhanced Conversational Recommender System.md",
+            9: paper_review_base_dir + "Seven Failure Points When Engineering a Retrieval Augmented Generation System.md",
+            10: paper_review_base_dir + "HalluMeasure: Fine-grained Hallucination Measurement Using Chain-of-Thought Reasoning.md",
+            11: paper_review_base_dir + "Addressing Confounding Feature Issue for Causal Recommendation.md",
+            12: paper_review_base_dir + "ONCE: Boosting Content-based Recommendation with Both Open- and Closed-source Large Language Models.md",
+        }
+        md_file_path = md_mapper.get(post_id)
+        if md_file_path:
+            post.set_content_from_md_file(md_file_path)
+    else:  # monthly
+        post = PostMonthlyPseudorec.objects.get(pk=post_id)
+        md_mapper = {
+            1: monthly_pseudorec_base_dir + "202405/202404_kyungah.md",
+            2: monthly_pseudorec_base_dir + "202405/202404_minsang.md",
+            3: monthly_pseudorec_base_dir + "202405/202404_kyeongchan.md",
+            4: monthly_pseudorec_base_dir + "202405/202404_hyunwoo.md",
+            5: monthly_pseudorec_base_dir + "202405/202404_namjoon.md",
+            6: monthly_pseudorec_base_dir + "202405/202404_soonhyeok.md",
+            7: monthly_pseudorec_base_dir + "202406/202406_kyeongchan.md",
+            8: monthly_pseudorec_base_dir + "202406/202406_soonhyeok.md",
+            9: monthly_pseudorec_base_dir + "202406/202406_namjoon.md",
+            10: monthly_pseudorec_base_dir + "202406/202406_hyeonwoo.md",
+            11: monthly_pseudorec_base_dir + "202406/202406_minsang.md",
+            12: monthly_pseudorec_base_dir + "202406/202406_gyungah.md",
+            13: monthly_pseudorec_base_dir + "202408/202408_kyeongchan.md",
+            14: monthly_pseudorec_base_dir + "202408/202408_soonhyeok.md",
+            15: monthly_pseudorec_base_dir + "202408/202408_namjoon.md",
+            16: monthly_pseudorec_base_dir + "202408/202408_hyeonwoo.md",
+            17: monthly_pseudorec_base_dir + "202408/202408_minsang.md",
+            18: monthly_pseudorec_base_dir + "202408/202408_gyungah.md",
+            19: monthly_pseudorec_base_dir + "202409/202409_kyeongchan.md",
+            20: monthly_pseudorec_base_dir + "202409/202409_sanghyeon.md",
+            21: monthly_pseudorec_base_dir + "202409/202409_minsang.md",
+            22: monthly_pseudorec_base_dir + "202409/202409_seonjin.md",
+            23: monthly_pseudorec_base_dir + "202410/202410_soonhyeok.md",
+            24: monthly_pseudorec_base_dir + "202410/202410_seonjin.md",
+            25: monthly_pseudorec_base_dir + "202501/202501_kyeongchan.md",
+            26: monthly_pseudorec_base_dir + "202501/202501_sanghyeon.md",
+            27: monthly_pseudorec_base_dir + "202501/202501_namjoon.md",
+            28: monthly_pseudorec_base_dir + "202501/202501_hyeonwoo.md",
+            29: monthly_pseudorec_base_dir + "202501/202501_gyungah.md",
+        }
+        md_file_path = md_mapper.get(post_id)
+        if md_file_path:
+            post.content = load_md_file(md_file_path)
+            post.save()
+
+    # 조회수 증가
+    view_count(request, post_id, post)
+
+    # Markdown 변환
+    html_content = codeblock(post)
+    markdown_content_with_highlight = mdx_markdown(
+        html_content, extensions=[TableExtension(), ExtraExtension()]
+    )
+
+    # 모든 카테고리 목록 (드롭다운용)
+    all_categories = []
+    for cat_name, posts_list in posts_by_category:
+        all_categories.append({
+            'name': cat_name,
+            'slug': cat_name,
+            'count': len(posts_list)
+        })
+
+    context = {
+        'category_name': full_category_name,
+        'category_slug': category_slug,
+        'posts': category_posts,
+        'subcategories': subcategories,
+        'current_post': post,
+        'current_post_id': post_id,
+        'current_post_type': post_type,
+        'markdown_content_with_highlight': markdown_content_with_highlight,
+        'all_categories': all_categories,
+    }
+
+    return render(request, "category_detail.html", context=context)
 
 
 def index_paper_talk(request):
@@ -184,6 +448,16 @@ def index_monthly_pseudorec(request):
 
 
 def single_post_page_paper_review(request, pk):
+    """Paper Review 포스트 - 카테고리 페이지로 리다이렉트"""
+    # 해당 포스트가 속한 카테고리 찾기
+    category_name = find_category_for_post(pk, 'paper')
+
+    if category_name:
+        # 카테고리 페이지로 리다이렉트
+        from urllib.parse import quote
+        return redirect(f"/archive/category/{quote(category_name)}/paper/{pk}/")
+
+    # 카테고리를 못 찾으면 기존 방식으로 표시
     post = Post.objects.get(pk=pk)
     md_mapper = {
         1: paper_review_base_dir + "kprn review.md",
@@ -237,6 +511,7 @@ def single_post_page_paper_review(request, pk):
             "markdown_content_with_highlight": markdown_content_with_highlight,
             "comments": comments,
             "form": form,
+            "posts_by_category": get_posts_by_category(),
         },
     )
 
@@ -270,6 +545,16 @@ def load_md_file(md_file_path):
 
 
 def single_post_page_monthly_pseudorec(request, pk):
+    """Monthly Pseudorec 포스트 - 카테고리 페이지로 리다이렉트"""
+    # 해당 포스트가 속한 카테고리 찾기
+    category_name = find_category_for_post(pk, 'monthly')
+
+    if category_name:
+        # 카테고리 페이지로 리다이렉트
+        from urllib.parse import quote
+        return redirect(f"/archive/category/{quote(category_name)}/monthly/{pk}/")
+
+    # 카테고리를 못 찾으면 기존 방식으로 표시
     post = PostMonthlyPseudorec.objects.get(pk=pk)
     md_mapper = {
         1: monthly_pseudorec_base_dir + "202405/202404_kyungah.md",
@@ -334,9 +619,6 @@ def single_post_page_monthly_pseudorec(request, pk):
     else:
         form = CommentForm()
 
-    # 사이드바용 글 목록 가져오기
-    posts = PostMonthlyPseudorec.objects.all().order_by("-pk")
-
     return render(
         request=request,
         template_name="post_detail.html",
@@ -345,7 +627,7 @@ def single_post_page_monthly_pseudorec(request, pk):
             "markdown_content_with_highlight": markdown_content_with_highlight,
             "comments": comments,  # 댓글 리스트 추가
             "form": form,  # 댓글 입력 폼 추가
-            "posts": posts,  # 사이드바용 글 목록 추가
+            "posts_by_category": get_posts_by_category(),  # 사이드바용 주제별 글 목록 추가
         },
     )
 

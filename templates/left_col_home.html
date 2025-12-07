@@ -1,38 +1,71 @@
 {% load static %}
+<style>
+    .left-float-field {
+        background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+        border-right: 2px solid #e8ebf7;
+        box-shadow: 2px 0 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .left-float-field .menu {
+        padding: 24px 16px;
+    }
+
+    .nav-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .nav-links li {
+        margin-bottom: 8px;
+    }
+
+    .nav-links li a {
+        display: block;
+        padding: 14px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #4a5568;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid transparent;
+        background: #fff;
+    }
+
+    .nav-links li a:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .nav-links li a sup {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 4px;
+    }
+
+    .nav-links li a:hover sup {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff !important;
+    }
+
+    .nav-links li a sup[style*="blue"] {
+        color: #667eea !important;
+    }
+</style>
+
 <div class="left-float-field">
-    <a href="/" class="logo">
-        <img src="{% static 'img/listeners_logo_color_transparent.png' %}" alt="Logo">
-    </a>
     <div class="menu">
         <ul class="nav-links">
-            <li>
-                <div class="icon-link">
-                    <a href="/">
-                        <ion-icon name="grid-outline"></ion-icon>
-                        <span>Models</span>
-                    </a>
-<!--                    <ion-icon name="chevron-down-outline" class="arrow"></ion-icon>-->
-                </div>
-            </li>
-            <li class="showMenu">
-                <div class="icon-link">
-                    <a>
-                        <ion-icon name="chatbox-outline"></ion-icon>
-                        <span>LLM</span>
-                    </a>
-<!--                    <ion-icon name="chevron-down-outline" class="arrow"></ion-icon>-->
-                </div>
-                <ul class="sub-menu">
-                    <li><a href="/llmrec/pplrec/">PPLRec<sup>준비중</sup></a></li>
-                    <li><a href="/llmrec/hyeonwoo/">현우<sup style="color: blue;">beta</sup></a></li>
-                    <li><a href="/llmrec/gyungah/">경아<sup style="color: blue;">beta</sup></a></li>
-                    <li><a href="/llmrec/soonhyeok/">순혁<sup style="color: blue;">beta</sup></a></li>
-                    <li><a href="/llmrec/soonhyeok_Lite/">순혁<sup style="color: blue;">Lite</sup></a></li>
-                    <li><a href="/llmrec/kyeongchan/">경찬&병철&남준<sup style="color: blue;">beta</sup></a></li>
-                    <li><a href="/llmrec/namjoon/">남준<sup>준비중</sup></a></li>
-                    <li><a href="/llmrec/minsang/">민상<sup>준비중</sup></a></li>
-                </ul>
-            <li>
+            <li><a href="/llmrec/hyeonwoo/">현우<sup style="color: blue;">beta</sup></a></li>
+            <li><a href="/llmrec/gyungah/">경아<sup style="color: blue;">beta</sup></a></li>
+            <li><a href="/llmrec/soonhyeok/">순혁<sup style="color: blue;">beta</sup></a></li>
+            <li><a href="/llmrec/soonhyeok_Lite/">순혁<sup style="color: blue;">Lite</sup></a></li>
+            <li><a href="/llmrec/kyeongchan/">경찬&남준<sup style="color: blue;">beta</sup></a></li>
         </ul>
     </div>
     <button class="hamburger-menu" aria-label="Toggle navigation">

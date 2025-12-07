@@ -32,8 +32,9 @@ SECRET_KEY = 'django-insecure-=$#jed1amhyw0c5^%ltvxx)84!coez=h_qtmm5&1ms^#7fbpjq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['13.209.69.81', '127.0.0.1', 'localhost', '3.36.208.188', '0.0.0.0', 'www.pseudorec.com',
-                 'pseudorec.com']
+ALLOWED_HOSTS = ['13.209.69.81', '127.0.0.1', 'localhost', '3.36.208.188', '0.0.0.0',
+                 'www.pseudorec.com', 'pseudorec.com',
+                 'www.listeners-pseudolab.com', 'listeners-pseudolab.com']
 
 # Application definition
 
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'paper_review',  # 논문 리뷰 포스팅 페이지
     'paper_review.templatetags',
     'utils',  # utils/custom_filters.py가 있는 앱 등록
+    'my_agents',  # MY AGENTS 페이지
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,6 +60,9 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+
+    # AWS S3 스토리지
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -201,7 +206,8 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 
 SECURE_SSL_REDIRECT = False
 
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1", "https://pseudorec.com", "https://www.pseudorec.com"]
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1", "https://pseudorec.com", "https://www.pseudorec.com",
+                        "https://listeners-pseudolab.com", "https://www.listeners-pseudolab.com"]
 
 
 # AWS S3 스토리지 (월슈 이미지파일 등)
@@ -209,6 +215,34 @@ AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = "posting-files"
 AWS_S3_REGION_NAME = "ap-northeast-2"  # 서울 리전
-AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
+AWS_S3_FILE_OVERWRITE = False  # 같은 이름의 파일 덮어쓰기 방지
+AWS_DEFAULT_ACL = None  # ACL 사용 안함 (버킷 정책으로 public 접근 허용)
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_QUERYSTRING_AUTH = True  # URL에 서명 추가 (private bucket용)
 
+# Django 4.2+ STORAGES 설정
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {
+            "access_key": AWS_ACCESS_KEY_ID,
+            "secret_key": AWS_SECRET_ACCESS_KEY,
+            "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "region_name": AWS_S3_REGION_NAME,
+            "default_acl": None,  # ACL 사용 안함 (버킷 정책으로 public 접근 허용)
+            "querystring_auth": False,  # Public이므로 서명 불필요
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+# 이전 버전 호환성을 위한 설정
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+# iframe 허용 설정 (같은 origin에서만)
+X_FRAME_OPTIONS = 'SAMEORIGIN'

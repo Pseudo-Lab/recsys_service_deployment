@@ -1,13 +1,26 @@
 {% load socialaccount %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+<link rel="stylesheet" href="{% static 'css/navbar.css' %}?v=20251201">
 <link rel="stylesheet" href="{% static 'css/login_modal.css' %}">
 
 <div class="group">
     <ul class="navigation">
-        <li><a href="/">Movie Recommendation</a></li>
-        <li><a href="/archive/monthly_pseudorec/">Study Archive</a></li>
-        <li><a href="/about_us/">About Us</a></li>
+        <li style="padding: 0;">
+            <a href="/" id="navbarLogo" style="display: flex; align-items: center; padding: 8px; text-decoration: none;">
+                <span style="font-size: 1.6em; font-weight: 1000; background: linear-gradient(90deg, #7B5FCC 0%, #6BA8DC 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-transform: none;">ListeneRS</span>
+            </a>
+        </li>
+        <li><a href="/archive/" {% if request.path|slice:":9" == '/archive/' %}class="active"{% endif %}>Study Archive</a></li>
+        <li class="dropdown">
+            <a href="/movie_recommendation/" {% if request.path|slice:":22" == '/movie_recommendation/' or request.path|slice:":8" == '/llmrec/' %}class="active"{% endif %}>
+                Movie Recommendation Demos
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="/movie_recommendation/">ML/DL Models</a></li>
+                <li><a href="/llmrec/">LLM Recommendation Demos</a></li>
+            </ul>
+        </li>
+        <li><a href="/about_us/" {% if request.path|slice:":10" == '/about_us/' %}class="active"{% endif %}>About Us</a></li>
         {% if user.is_authenticated %}
         <li><a href="/users/logout/">Log Out</a></li>
         <li><a id="navbarUserName">👋 Hi, {{ user.username }}</a></li>
@@ -36,11 +49,15 @@
     const modalCloseButton = document.getElementById('modalCloseButton');
     const modal = document.getElementById('modalContainer');
 
-    modalOpenButton.addEventListener('click', () => {
-        modal.style.display = "flex";
-    });
+    if (modalOpenButton) {
+        modalOpenButton.addEventListener('click', () => {
+            modal.style.display = "flex";
+        });
+    }
 
-    modalCloseButton.addEventListener('click', () => {
-        modal.style.display = "none";
-    });
+    if (modalCloseButton) {
+        modalCloseButton.addEventListener('click', () => {
+            modal.style.display = "none";
+        });
+    }
 </script>

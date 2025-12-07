@@ -22,6 +22,8 @@ class Post(models.Model):
     author_image2 = models.ImageField(
         "작성자2 이미지", upload_to="paper_review/author_imgs", blank=True
     )
+    category = models.CharField(max_length=100, blank=True, default="")
+    subcategory = models.CharField(max_length=100, blank=True, default="")
     view_count = models.PositiveIntegerField(default=0)
 
     def __str__(self):
@@ -45,6 +47,7 @@ class PostMonthlyPseudorec(models.Model):
     title = models.CharField(max_length=100, default="제목 작성")
     subtitle = models.CharField(max_length=100, default="부제 작성")
     month = models.CharField(max_length=10, default="203004")
+    month_sort = models.IntegerField(default=203004, help_text="YYYYMM 형식의 정렬용 필드")
     card_image = models.ImageField(
         "카드 이미지", upload_to="paper_review/card_imgs", blank=True
     )
@@ -57,6 +60,8 @@ class PostMonthlyPseudorec(models.Model):
     )
     tag1 = models.CharField(max_length=50, default="Recommendation Model")
     tag2 = models.CharField(max_length=50, default="Tech")
+    category = models.CharField(max_length=100, blank=True, default="")
+    subcategory = models.CharField(max_length=100, blank=True, default="")
     view_count = models.PositiveIntegerField(default=0)
 
     def __str__(self):

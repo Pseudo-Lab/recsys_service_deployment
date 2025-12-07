@@ -536,6 +536,404 @@ recsys_service_deployment/
 
 ---
 
+---
+
+## 실제 배포 기록 (2025-12-07 실행)
+
+### 배포 환경
+- **EC2 IP**: 13.125.131.249
+- **OS**: Amazon Linux 2
+- **Docker**: 설치됨
+- **디스크**: 30GB (초기 사용률 87% → 최종 57%)
+- **배포 소요 시간**: 약 2시간
+
+### 발생한 문제와 해결 방법
+
+#### 1. 디스크 공간 부족 (반복 발생 ★★★)
+
+**문제**:
+```bash
+no space left on device
+df -h: 26GB/30GB used (87% usage)
+```
+
+Docker 빌드 중 여러 차례 디스크 공간 부족으로 실패.
+
+**원인**:
+- 이전 배포의 Docker 이미지/컨테이너/볼륨이 남아있음
+- llmrec 디렉토리가 797MB로 매우 큼
+- Docker 빌드 캐시가 쌓임
+
+**해결 방법**:
+
+1. 이전 컨테이너 중지:
+```bash
+ssh ec2-user@13.125.131.249 "cd ~/recsys_service_deployment && docker-compose down"
+```
+
+2. Docker 시스템 전체 정리 (14.82GB 확보):
+```bash
+docker system prune -af --volumes
+```
+
+3. `.dockerignore` 업데이트로 빌드 컨텍스트 축소 (500MB → 337.6MB):
+```
+data/
+llmrec/          # 797MB 디렉토리 제외
+_media/
+_static/
+notebooks/
+.git/
+*.pyc
+__pycache__/
+*.sqlite3
+.env*
+```
+
+4. `config/urls.py`에서 llmrec URL 비활성화:
+```python
+# path('llmrec/', include('llmrec.urls')),  # Temporarily disabled due to disk space
+```
+
+**결과**:
+- 빌드 성공
+- 최종 디스크 사용률 57% (18GB/30GB)
+- **주의**: llmrec 기능은 비활성화되어 /llmrec/ 접속 시 404 에러 발생
+
+---
+
+#### 2. django-storages 모듈 누락
+
+**문제**:
+```
+ModuleNotFoundError: No module named 'storages'
+```
+
+`collectstatic` 실행 중 발생.
+
+**원인**:
+- `config/settings.py`에서 `storages` 사용 중이지만 `requirements.txt`에 없음
+
+**해결 방법**:
+```bash
+ssh ec2-user@13.125.131.249 "echo 'django-storages==1.14.4' >> ~/recsys_service_deployment/requirements.txt"
+```
+
+그 후 web 이미지 재빌드.
+
+**결과**: collectstatic 성공
+
+---
+
+#### 3. llmrec 모듈 누락
+
+**문제**:
+```
+ModuleNotFoundError: No module named 'llmrec.urls'
+```
+
+Django migrate 실행 중 발생.
+
+**원인**:
+- `.dockerignore`에서 llmrec 디렉토리를 제외했지만 `config/urls.py`에서 여전히 참조
+
+**해결 방법**:
+
+`config/urls.py` 수정:
+```python
+# path('llmrec/', include('llmrec.urls')),  # Temporarily disabled
+```
+
+백업 생성:
+```bash
+cp config/urls.py config/urls.py.backup
+```
+
+**결과**: migrate 성공
+
+---
+
+#### 4. Nginx SSL 인증서 누락 (★★★ 중요)
+
+**문제**:
+```
+nginx: [emerg] cannot load certificate "/etc/letsencrypt/live/listeners-pseudolab.com/fullchain.pem"
+```
+
+Nginx 컨테이너가 시작되지 않음.
+
+**원인**:
+- `nginx.conf`가 `listeners-pseudolab.com`용 SSL 인증서를 요구
+- 도메인 DNS가 설정되지 않아 Let's Encrypt 인증서 발급 불가
+- `init-letsencrypt.sh` 실행 시 DNS 검증 실패:
+```
+DNS problem: NXDOMAIN looking up A for listeners-pseudolab.com
+```
+
+**해결 방법**:
+
+HTTP-only nginx 설정으로 임시 전환:
+
+1. HTTP-only nginx 설정 파일 생성 (`nginx/nginx_http_only.conf`):
+```nginx
+upstream pseudorec {
+    server web:8000;
+}
+
+# HTTP Only - No SSL
+server {
+    listen 80;
+    server_name listeners-pseudolab.com www.listeners-pseudolab.com;
+
+    location / {
+        proxy_pass http://pseudorec;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_redirect off;
+    }
+
+    location /static/ {
+        alias /usr/src/app/_static/;
+    }
+
+    location /media/ {
+        alias /usr/src/app/_media/;
+    }
+}
+
+# Allow access via IP as well
+server {
+    listen 80 default_server;
+    server_name _;
+
+    location / {
+        proxy_pass http://pseudorec;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_redirect off;
+    }
+
+    location /static/ {
+        alias /usr/src/app/_static/;
+    }
+
+    location /media/ {
+        alias /usr/src/app/_media/;
+    }
+}
+```
+
+2. 기존 SSL 설정 백업:
+```bash
+cp nginx/nginx.conf nginx/nginx.conf.with_ssl
+```
+
+3. HTTP-only 설정으로 교체:
+```bash
+cp nginx/nginx_http_only.conf nginx/nginx.conf
+```
+
+4. Nginx 이미지 재빌드:
+```bash
+DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker-compose build nginx
+```
+
+5. 컨테이너 재시작:
+```bash
+docker-compose up -d nginx
+```
+
+**결과**: Nginx 정상 작동
+
+**향후 HTTPS 활성화 방법**:
+1. DNS에서 `listeners-pseudolab.com` → `13.125.131.249` 설정
+2. `init-letsencrypt.sh` 실행하여 SSL 인증서 발급
+3. `nginx.conf.with_ssl` → `nginx.conf`로 복원
+4. Nginx 재빌드 및 재시작
+
+---
+
+#### 5. Django ALLOWED_HOSTS 오류
+
+**문제**:
+```
+HTTP 400 Bad Request
+```
+
+IP 주소로 접속 시 발생.
+
+**원인**:
+- `config/settings.py`의 `ALLOWED_HOSTS`에 현재 EC2 IP (13.125.131.249)가 없음
+
+**해결 방법**:
+
+1. 실행 중인 컨테이너 내부에서 직접 수정:
+```bash
+docker exec recsys_service_deployment-web-1 sed -i \
+  "s/ALLOWED_HOSTS = \['13.209.69.81'/ALLOWED_HOSTS = ['13.125.131.249', '13.209.69.81'/" \
+  /usr/src/app/config/settings.py
+```
+
+2. EC2 파일 시스템에서도 수정 (향후 재빌드용):
+```bash
+ssh ec2-user@13.125.131.249 \
+  "cd ~/recsys_service_deployment && sed -i \
+  's/ALLOWED_HOSTS = \[/ALLOWED_HOSTS = [\"13.125.131.249\", /' config/settings.py"
+```
+
+3. Web 컨테이너 재시작:
+```bash
+docker-compose restart web
+```
+
+**결과**: HTTP 200 OK, 웹사이트 정상 접속
+
+---
+
+### 최종 배포 아키텍처
+
+```
+                    ┌─────────────────┐
+                    │  Internet       │
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │   Nginx:80      │  HTTP-only (임시)
+                    │  (Reverse Proxy)│
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │   Gunicorn:8000 │
+                    │   Django 5.1    │
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │   MySQL RDS     │
+                    │  (movielens25m) │
+                    └─────────────────┘
+```
+
+---
+
+### 성공적으로 완료된 작업
+
+1. ✅ SSH 연결 성공
+2. ✅ 최신 코드 pull (GitHub)
+3. ✅ Docker 이미지 빌드 성공
+   - web: 7.21GB (200+ Python 패키지)
+   - nginx: 152MB
+   - consumer: 819MB (미사용, numpy 오류)
+4. ✅ Database migration 완료
+5. ✅ Nginx HTTP 설정 적용
+6. ✅ 웹사이트 접속 확인
+
+---
+
+### 배포 완료 상태
+
+#### 접속 URL
+- ✅ http://13.125.131.249/
+- ✅ http://www.pseudorec.com/
+- ✅ http://pseudorec.com/
+- ❌ https://www.pseudorec.com/ (SSL 미설정)
+- ❌ http://www.pseudorec.com/llmrec/ (404 - 기능 비활성화)
+
+#### 컨테이너 상태
+```
+NAME                              STATUS
+recsys_service_deployment-web-1   Up (healthy)
+recsys_service_deployment-nginx-1 Up (healthy)
+```
+
+#### 디스크 사용량
+```
+Filesystem      Size  Used Avail Use%
+/dev/nvme0n1p1   30G   18G   13G  57%
+```
+
+---
+
+### 알려진 제약사항
+
+1. **llmrec 기능 비활성화**
+   - 디스크 공간 절약을 위해 임시 비활성화
+   - URL 접속 시 404 에러 발생
+   - 13GB 여유 공간 확보 시 재활성화 가능
+
+2. **HTTPS 미지원**
+   - `listeners-pseudolab.com` DNS 미설정으로 SSL 인증서 발급 불가
+   - HTTP로만 접속 가능
+   - `pseudorec.com`용 SSL 인증서는 존재하나 사용 안 함
+
+3. **Consumer 컨테이너 미작동**
+   - Numpy/Pandas 버전 호환성 문제
+   - 웹 서비스에는 영향 없음
+
+---
+
+### 핵심 교훈
+
+#### 1. 디스크 공간 관리가 핵심
+- EC2 인스턴스 배포 전 충분한 디스크 공간 확보 필수
+- 정기적인 `docker system prune` 필요
+- `.dockerignore` 적극 활용으로 빌드 컨텍스트 최소화
+- **권장**: 최소 50GB 이상의 디스크 공간
+
+#### 2. 의존성 관리 철저히
+- `requirements.txt`와 실제 코드 사용 패키지 일치 확인 필요
+- 배포 전 로컬에서 `pip freeze > requirements.txt` 실행 권장
+
+#### 3. 단계적 배포 접근
+- HTTP 먼저 → HTTPS 나중에
+- 핵심 기능 먼저 → 부가 기능 나중에
+- 빠른 피드백 루프 유지
+
+#### 4. 설정 파일 버전 관리
+- 백업 파일 생성 습관화 (`.backup`, `.with_ssl` 등)
+- Git으로 모든 설정 변경 추적
+
+---
+
+### 다음 단계 (선택사항)
+
+#### 1. llmrec 기능 재활성화 (우선순위: 중간)
+```bash
+# 1. .dockerignore 수정 (llmrec/ 제거)
+# 2. config/urls.py 주석 해제
+# 3. Web 이미지 재빌드 (10-15분 소요)
+DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker-compose build web
+docker-compose up -d web
+```
+
+#### 2. HTTPS 활성화 (우선순위: 높음)
+```bash
+# 1. DNS 설정: listeners-pseudolab.com → 13.125.131.249
+# 2. SSL 인증서 발급
+cd ~/recsys_service_deployment
+./init-letsencrypt.sh
+
+# 3. Nginx 설정 복원
+cp nginx/nginx.conf.with_ssl nginx/nginx.conf
+docker-compose build nginx
+docker-compose up -d nginx
+```
+
+---
+
+### 변경된 파일 목록
+
+EC2 서버에서 변경된 파일들 (Git commit 필요):
+- `.dockerignore` (llmrec 제외 추가)
+- `config/settings.py` (ALLOWED_HOSTS에 13.125.131.249 추가)
+- `config/urls.py` (llmrec URL 주석 처리)
+- `nginx/nginx.conf` (HTTP-only로 변경)
+- `requirements.txt` (django-storages 추가)
+- `nginx/nginx_http_only.conf` (신규 생성)
+- `nginx/nginx.conf.with_ssl` (백업 파일)
+- `config/urls.py.backup` (백업 파일)
+
+---
+
 ## 참고 자료
 
 - [Docker Compose 문서](https://docs.docker.com/compose/)

@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Agent - ListeneRS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="{% static 'img/listeners_logo_color_transparent.png' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2024011916">
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+
+        .trading-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 60px 20px;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .input-section {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .form-control {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-analyze {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .btn-analyze:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-analyze:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Quick select buttons */
+        .ticker-quick-select, .date-quick-select {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .ticker-btn, .date-btn {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #333;
+        }
+
+        .ticker-btn:hover, .date-btn:hover {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .ticker-btn.active, .date-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        /* Intermediate results cards */
+        .intermediate-card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #667eea;
+            animation: slideIn 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .intermediate-card-header {
+            padding: 20px 24px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .intermediate-card-header:hover {
+            background: #f8f9fa;
+        }
+
+        .intermediate-card-header h5 {
+            color: #333;
+            font-weight: 600;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .intermediate-card-header h5 i {
+            color: #667eea;
+            margin-right: 8px;
+        }
+
+        .intermediate-card-toggle {
+            color: #667eea;
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+
+        .intermediate-card-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .intermediate-content-wrapper {
+            max-height: 600px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+        }
+
+        .intermediate-content-wrapper.collapsed {
+            max-height: 0;
+            padding: 0;
+        }
+
+        .intermediate-content {
+            padding: 0 24px 24px 24px;
+            color: #555;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .intermediate-content h1,
+        .intermediate-content h2,
+        .intermediate-content h3 {
+            color: #333;
+            margin-top: 16px;
+            margin-bottom: 12px;
+        }
+
+        .intermediate-content table {
+            width: 100%;
+            margin: 16px 0;
+            border-collapse: collapse;
+        }
+
+        .intermediate-content table th,
+        .intermediate-content table td {
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        .intermediate-content table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .loading-section {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 60px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid rgba(102, 126, 234, 0.2);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .loading-subtext {
+            color: #666;
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .result-header {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .result-ticker {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .result-date {
+            font-size: 1.1rem;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .result-decision {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 20px 0;
+        }
+
+        .decision-buy { color: #10b981; }
+        .decision-sell { color: #ef4444; }
+        .decision-hold { color: #f59e0b; }
+
+        .result-confidence {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .report-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .report-content {
+            color: #444;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        .accuracy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .accuracy-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+
+        .accuracy-label {
+            font-size: 0.85rem;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .accuracy-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #333;
+        }
+
+        .error-alert {
+            display: none;
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .nav-tabs .nav-link {
+            color: #666;
+            font-weight: 600;
+            border: none;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: none;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .result-ticker {
+                font-size: 2.5rem;
+            }
+            .result-decision {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    {% include 'navbar.html' %}
+</header>
+
+<main>
+    <div class="trading-container">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1 class="hero-title">AI Trading Agent</h1>
+            <p class="hero-subtitle">
+                자율 AI 에이전트가 시장을 분석하고 투자 의사결정을 제공합니다
+            </p>
+            <p class="hero-tagline" style="color: #888; font-size: 1rem;">
+                Multi-Agent System for Deep Market Intelligence
+            </p>
+        </div>
+
+        <!-- Input Form -->
+        <div class="input-section">
+            <form id="analysisForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="ticker" class="form-label">Stock Ticker</label>
+
+                        <!-- Popular tickers quick select -->
+                        <div class="ticker-quick-select mb-2">
+                            <button type="button" class="ticker-btn" data-ticker="NVDA">NVDA</button>
+                            <button type="button" class="ticker-btn" data-ticker="AAPL">AAPL</button>
+                            <button type="button" class="ticker-btn" data-ticker="TSLA">TSLA</button>
+                            <button type="button" class="ticker-btn" data-ticker="MSFT">MSFT</button>
+                            <button type="button" class="ticker-btn" data-ticker="GOOGL">GOOGL</button>
+                            <button type="button" class="ticker-btn" data-ticker="AMZN">AMZN</button>
+                            <button type="button" class="ticker-btn" data-ticker="META">META</button>
+                            <button type="button" class="ticker-btn" data-ticker="TSM">TSM</button>
+                        </div>
+
+                        <input type="text" class="form-control" id="ticker"
+                               placeholder="또는 직접 입력 (예: AMD, NFLX)" required
+                               style="text-transform: uppercase;">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="date" class="form-label">Analysis Date</label>
+
+                        <!-- Date quick select buttons -->
+                        <div class="date-quick-select mb-2">
+                            <button type="button" class="date-btn" data-days="0">오늘</button>
+                            <button type="button" class="date-btn" data-days="1">어제</button>
+                            <button type="button" class="date-btn" data-days="7">1주일 전</button>
+                            <button type="button" class="date-btn" data-days="14">2주일 전</button>
+                            <button type="button" class="date-btn" data-days="30">1개월 전</button>
+                        </div>
+
+                        <input type="date" class="form-control" id="date" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-analyze" id="analyzeBtn">
+                    <i class="fas fa-rocket"></i> 에이전트 실행
+                </button>
+
+                <div class="error-alert" id="errorAlert"></div>
+            </form>
+        </div>
+
+        <!-- Loading Section -->
+        <div class="loading-section" id="loadingSection">
+            <div class="spinner"></div>
+            <div class="loading-text">AI 에이전트가 분석 중입니다...</div>
+
+            <!-- Progress Bar -->
+            <div style="width: 100%; background: #e9ecef; border-radius: 10px; height: 20px; margin: 30px 0 10px 0; overflow: hidden;">
+                <div id="progressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); transition: width 0.5s;"></div>
+            </div>
+
+            <!-- Current Step -->
+            <div id="currentStep" style="font-size: 1rem; color: #667eea; font-weight: 600; margin-bottom: 20px;">
+                초기화 중...
+            </div>
+
+            <!-- Steps Progress -->
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #999; margin-bottom: 20px;">
+                <span>데이터 수집</span>
+                <span>분석</span>
+                <span>토론</span>
+                <span>리스크 평가</span>
+                <span>의사결정</span>
+            </div>
+
+            <!-- Live Log Terminal (Collapsible) -->
+            <div style="margin-top: 30px;">
+                <button id="toggleLogBtn" onclick="toggleLog()" style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; color: #666; width: 100%; text-align: left; display: flex; justify-content: space-between; align-items: center;">
+                    <span><i class="fas fa-terminal"></i> 실시간 분석 로그</span>
+                    <i id="logToggleIcon" class="fas fa-chevron-down"></i>
+                </button>
+                <div id="terminalLog" style="display: none; background: #1e1e1e; color: #d4d4d4; font-family: 'Courier New', monospace; font-size: 0.85rem; padding: 20px; border-radius: 0 0 8px 8px; max-height: 300px; overflow-y: auto; margin-top: 2px;">
+                    <div style="color: #4ec9b0;">System initialized. Ready to deploy agents...</div>
+                </div>
+            </div>
+
+            <p class="loading-subtext" style="margin-top: 20px;">
+                <small>이 과정은 30초~2분 정도 소요될 수 있습니다.</small>
+            </p>
+
+            <!-- Intermediate Results Section -->
+            <div id="intermediateResults" style="margin-top: 40px; display: none;">
+                <h4 style="color: #333; margin-bottom: 20px; font-weight: 600;">
+                    <i class="fas fa-clipboard-check"></i> 중간 분석 결과
+                </h4>
+
+                <div id="marketReportCard" class="intermediate-card" style="display: none;">
+                    <div class="intermediate-card-header" onclick="toggleIntermediateCard('market')">
+                        <h5><i class="fas fa-chart-line"></i> 기술적 분석</h5>
+                        <i class="fas fa-chevron-down intermediate-card-toggle" id="marketToggle"></i>
+                    </div>
+                    <div class="intermediate-content-wrapper" id="marketContent">
+                        <div id="marketReportContent" class="intermediate-content"></div>
+                    </div>
+                </div>
+
+                <div id="sentimentReportCard" class="intermediate-card" style="display: none;">
+                    <div class="intermediate-card-header" onclick="toggleIntermediateCard('sentiment')">
+                        <h5><i class="fas fa-comments"></i> 소셜 미디어 감성 분석</h5>
+                        <i class="fas fa-chevron-down intermediate-card-toggle" id="sentimentToggle"></i>
+                    </div>
+                    <div class="intermediate-content-wrapper" id="sentimentContent">
+                        <div id="sentimentReportContent" class="intermediate-content"></div>
+                    </div>
+                </div>
+
+                <div id="newsReportCard" class="intermediate-card" style="display: none;">
+                    <div class="intermediate-card-header" onclick="toggleIntermediateCard('news')">
+                        <h5><i class="fas fa-newspaper"></i> 최신 뉴스 분석</h5>
+                        <i class="fas fa-chevron-down intermediate-card-toggle" id="newsToggle"></i>
+                    </div>
+                    <div class="intermediate-content-wrapper" id="newsContent">
+                        <div id="newsReportContent" class="intermediate-content"></div>
+                    </div>
+                </div>
+
+                <div id="fundamentalsReportCard" class="intermediate-card" style="display: none;">
+                    <div class="intermediate-card-header" onclick="toggleIntermediateCard('fundamentals')">
+                        <h5><i class="fas fa-building"></i> 기업 펀더멘털 분석</h5>
+                        <i class="fas fa-chevron-down intermediate-card-toggle" id="fundamentalsToggle"></i>
+                    </div>
+                    <div class="intermediate-content-wrapper" id="fundamentalsContent">
+                        <div id="fundamentalsReportContent" class="intermediate-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <!-- Result Header -->
+            <div class="result-header">
+                <div class="result-ticker" id="resultTicker">NVDA</div>
+                <div class="result-date" id="resultDate">2024-12-27</div>
+                <div class="result-decision" id="resultDecision">HOLD</div>
+                <div class="result-confidence" id="resultConfidence">신뢰도: Medium</div>
+            </div>
+
+            <!-- Accuracy Section -->
+            <div class="report-card">
+                <h3><i class="fas fa-chart-line"></i> 예측 정확도 (5일 백테스트)</h3>
+                <div class="accuracy-grid">
+                    <div class="accuracy-item">
+                        <div class="accuracy-label">분석일 가격</div>
+                        <div class="accuracy-value" id="startPrice">$0.00</div>
+                    </div>
+                    <div class="accuracy-item">
+                        <div class="accuracy-label">5일 후 가격</div>
+                        <div class="accuracy-value" id="endPrice">$0.00</div>
+                    </div>
+                    <div class="accuracy-item">
+                        <div class="accuracy-label">수익률</div>
+                        <div class="accuracy-value" id="returnPct">0.00%</div>
+                    </div>
+                    <div class="accuracy-item">
+                        <div class="accuracy-label">결과</div>
+                        <div class="accuracy-value" id="accuracyBadge" style="font-size: 1.2rem;">N/A</div>
+                    </div>
+                </div>
+                <p id="accuracyExplanation" style="margin-top: 25px; color: #666; font-style: italic; text-align: center;"></p>
+            </div>
+
+            <!-- Investment Strategy -->
+            <div class="report-card">
+                <h3><i class="fas fa-briefcase"></i> 투자 전략</h3>
+                <div class="report-content" id="investmentPlan"></div>
+            </div>
+
+            <!-- Risk Assessment -->
+            <div class="report-card">
+                <h3><i class="fas fa-exclamation-triangle"></i> 리스크 평가</h3>
+                <div class="report-content" id="riskReport"></div>
+            </div>
+
+            <!-- Detailed Reports -->
+            <div class="report-card">
+                <h3><i class="fas fa-clipboard-list"></i> 상세 분석 리포트</h3>
+
+                <ul class="nav nav-tabs mb-4" id="reportTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="technical-tab" data-bs-toggle="tab"
+                                data-bs-target="#technical" type="button" role="tab">
+                            기술적 분석
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="fundamentals-tab" data-bs-toggle="tab"
+                                data-bs-target="#fundamentals" type="button" role="tab">
+                            기본적 분석
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="sentiment-tab" data-bs-toggle="tab"
+                                data-bs-target="#sentiment" type="button" role="tab">
+                            감성 분석
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="reportTabsContent">
+                    <div class="tab-pane fade show active" id="technical" role="tabpanel">
+                        <div class="report-content" id="technicalReport"></div>
+                    </div>
+                    <div class="tab-pane fade" id="fundamentals" role="tabpanel">
+                        <div class="report-content" id="fundamentalsReport"></div>
+                    </div>
+                    <div class="tab-pane fade" id="sentiment" role="tabpanel">
+                        <div class="report-content" id="sentimentReport"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Set default date to today
+document.getElementById('date').valueAsDate = new Date();
+
+// Ticker quick select buttons
+document.querySelectorAll('.ticker-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        // Remove active class from all ticker buttons
+        document.querySelectorAll('.ticker-btn').forEach(b => b.classList.remove('active'));
+        // Add active class to clicked button
+        this.classList.add('active');
+        // Set ticker value
+        document.getElementById('ticker').value = this.dataset.ticker;
+    });
+});
+
+// Date quick select buttons
+document.querySelectorAll('.date-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        // Remove active class from all date buttons
+        document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+        // Add active class to clicked button
+        this.classList.add('active');
+
+        // Calculate date
+        const daysAgo = parseInt(this.dataset.days);
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() - daysAgo);
+
+        // Set date input value
+        document.getElementById('date').valueAsDate = targetDate;
+    });
+});
+
+// Form submission handler
+document.getElementById('analysisForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const ticker = document.getElementById('ticker').value.toUpperCase();
+    const date = document.getElementById('date').value;
+
+    // Hide error, show loading
+    document.getElementById('errorAlert').style.display = 'none';
+    document.getElementById('loadingSection').style.display = 'block';
+    document.getElementById('resultsSection').style.display = 'none';
+    document.getElementById('analyzeBtn').disabled = true;
+
+    // Reset progress
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('currentStep').textContent = '초기화 중...';
+
+    // Initialize task system with predefined steps
+    taskSystem.initializeTasks();
+
+    try {
+        const response = await fetch('/trading_agent/analyze/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ ticker, date })
+        });
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n\n');
+
+            // Process all complete messages
+            for (let i = 0; i < lines.length - 1; i++) {
+                const line = lines[i];
+                if (line.startsWith('data: ')) {
+                    const jsonStr = line.substring(6); // Remove 'data: ' prefix
+                    try {
+                        const data = JSON.parse(jsonStr);
+
+                        if (data.type === 'progress') {
+                            // Update progress bar and step
+                            document.getElementById('progressBar').style.width = data.progress + '%';
+                            document.getElementById('currentStep').textContent = data.step;
+                        } else if (data.type === 'log') {
+                            // Append log message to terminal
+                            appendLog(data.message, data.level || 'info', data.task_id || null);
+                        } else if (data.type === 'intermediate') {
+                            // Show intermediate results
+                            showIntermediateResult(data.report_type, data.content);
+                        } else if (data.type === 'result') {
+                            // Display final results
+                            setTimeout(() => {
+                                displayResults(data);
+                                document.getElementById('loadingSection').style.display = 'none';
+                            }, 500);
+                        } else if (data.type === 'error') {
+                            showError(data.message || '분석 중 오류가 발생했습니다.');
+                            document.getElementById('loadingSection').style.display = 'none';
+                        }
+                    } catch (e) {
+                        console.error('Error parsing JSON:', e, jsonStr);
+                    }
+                }
+            }
+
+            // Keep the last incomplete line in the buffer
+            buffer = lines[lines.length - 1];
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+        showError('서버 연결 중 오류가 발생했습니다: ' + error.message);
+        document.getElementById('loadingSection').style.display = 'none';
+    } finally {
+        document.getElementById('analyzeBtn').disabled = false;
+    }
+});
+
+function displayResults(data) {
+    // Header
+    document.getElementById('resultTicker').textContent = data.ticker;
+    document.getElementById('resultDate').textContent = data.date;
+
+    // Decision
+    const decisionEl = document.getElementById('resultDecision');
+    decisionEl.textContent = data.decision;
+    decisionEl.className = 'result-decision';
+
+    if (data.decision.includes('BUY')) {
+        decisionEl.classList.add('decision-buy');
+    } else if (data.decision.includes('SELL')) {
+        decisionEl.classList.add('decision-sell');
+    } else {
+        decisionEl.classList.add('decision-hold');
+    }
+
+    // Confidence
+    document.getElementById('resultConfidence').textContent = '신뢰도: ' + (data.confidence || 'N/A');
+
+    // Investment Plan
+    document.getElementById('investmentPlan').innerHTML = marked.parse(data.report || '분석 결과가 없습니다.');
+
+    // Risk Report
+    document.getElementById('riskReport').innerHTML = marked.parse(data.full_state?.risk || '리스크 평가 정보가 없습니다.');
+
+    // Detailed Reports
+    document.getElementById('technicalReport').innerHTML = marked.parse(data.full_state?.technical || '기술적 분석 정보가 없습니다.');
+    document.getElementById('fundamentalsReport').innerHTML = marked.parse(data.full_state?.fundamentals || '기본적 분석 정보가 없습니다.');
+    document.getElementById('sentimentReport').innerHTML = marked.parse(data.full_state?.sentiment || '감성 분석 정보가 없습니다.');
+
+    // Accuracy
+    const acc = data.accuracy || {};
+    if (acc.calculable) {
+        document.getElementById('startPrice').textContent = '$' + acc.start_price;
+        document.getElementById('endPrice').textContent = '$' + acc.end_price;
+
+        const returnPctEl = document.getElementById('returnPct');
+        returnPctEl.textContent = acc.return_pct;
+        returnPctEl.style.color = parseFloat(acc.return_pct) >= 0 ? '#10b981' : '#ef4444';
+
+        document.getElementById('accuracyExplanation').textContent = acc.explanation || '';
+
+        const badge = document.getElementById('accuracyBadge');
+        if (acc.is_accurate) {
+            badge.textContent = '정확';
+            badge.style.color = '#10b981';
+        } else {
+            badge.textContent = '부정확';
+            badge.style.color = '#ef4444';
+        }
+    } else {
+        document.getElementById('accuracyExplanation').textContent = acc.message || '백테스트 정보 없음';
+        document.getElementById('accuracyBadge').textContent = 'N/A';
+    }
+
+    // Show results
+    document.getElementById('resultsSection').style.display = 'block';
+    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function showError(message) {
+    const errorEl = document.getElementById('errorAlert');
+    errorEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
+    errorEl.style.display = 'block';
+}
+
+// Toggle log terminal visibility
+function toggleLog() {
+    const logEl = document.getElementById('terminalLog');
+    const iconEl = document.getElementById('logToggleIcon');
+
+    if (logEl.style.display === 'none') {
+        logEl.style.display = 'block';
+        iconEl.className = 'fas fa-chevron-up';
+    } else {
+        logEl.style.display = 'none';
+        iconEl.className = 'fas fa-chevron-down';
+    }
+}
+
+// Task tracking system
+const taskSystem = {
+    tasks: {},
+    taskElements: {},
+    animationIntervals: {},
+
+    // Predefined task order and labels
+    taskDefinitions: {
+        'init': '분석 시작',
+        'profile': '사용자 프로필 로드',
+        'graph_init': '멀티 에이전트 시스템 초기화',
+        'market_data': '시장 데이터 수집',
+        'sentiment': '소셜 미디어 감성 분석',
+        'news': '최신 뉴스 분석',
+        'fundamentals': '기업 재무 데이터 분석',
+        'bull_research': '강세 분석가 리서치',
+        'bear_research': '약세 분석가 리서치',
+        'investment_debate': '투자 전략 토론',
+        'trader_decision': '트레이더 의사결정',
+        'risk_debate': '리스크 관리 토론',
+        'final_plan': '최종 투자 계획 수립'
+    },
+
+    initializeTasks() {
+        const logEl = document.getElementById('terminalLog');
+
+        // Clear existing content
+        logEl.innerHTML = '<div style="color: #4ec9b0; margin-bottom: 12px;">System initialized. Ready to deploy agents...</div>';
+
+        // Create task list container
+        const taskContainer = document.createElement('div');
+        taskContainer.id = 'taskContainer';
+        taskContainer.style.marginTop = '8px';
+        taskContainer.style.textAlign = 'left';
+
+        // Create all task elements
+        for (const [taskId, label] of Object.entries(this.taskDefinitions)) {
+            const taskLine = document.createElement('div');
+            taskLine.className = 'task-line';
+            taskLine.id = `task-${taskId}`;
+            taskLine.style.marginBottom = '4px';
+            taskLine.style.color = '#858585';
+
+            const checkbox = document.createElement('span');
+            checkbox.className = 'task-checkbox';
+            checkbox.textContent = '[ ] ';
+            checkbox.style.color = '#858585';
+
+            const taskLabel = document.createElement('span');
+            taskLabel.className = 'task-label';
+            taskLabel.textContent = label;
+
+            const taskStatus = document.createElement('span');
+            taskStatus.className = 'task-status';
+            taskStatus.textContent = '';
+            taskStatus.style.marginLeft = '8px';
+
+            taskLine.appendChild(checkbox);
+            taskLine.appendChild(taskLabel);
+            taskLine.appendChild(taskStatus);
+
+            taskContainer.appendChild(taskLine);
+            this.taskElements[taskId] = {
+                line: taskLine,
+                checkbox: checkbox,
+                label: taskLabel,
+                status: taskStatus
+            };
+            this.tasks[taskId] = { state: 'pending', startTime: null };
+        }
+
+        logEl.appendChild(taskContainer);
+        logEl.scrollTop = logEl.scrollHeight;
+    },
+
+    startTask(taskId) {
+        if (!this.tasks[taskId]) return;
+
+        this.tasks[taskId].state = 'in_progress';
+        this.tasks[taskId].startTime = Date.now();
+
+        const elements = this.taskElements[taskId];
+        if (!elements) return;
+
+        elements.line.style.color = '#4ec9b0';
+        elements.checkbox.style.color = '#4ec9b0';
+        elements.status.textContent = '중';
+        elements.status.style.color = '#4ec9b0';
+
+        // Start animated dots
+        let dotCount = 0;
+        this.animationIntervals[taskId] = setInterval(() => {
+            dotCount = (dotCount + 1) % 4;
+            elements.status.textContent = '중' + '.'.repeat(dotCount);
+        }, 500);
+    },
+
+    completeTask(taskId) {
+        if (!this.tasks[taskId]) return;
+
+        // Stop animation
+        if (this.animationIntervals[taskId]) {
+            clearInterval(this.animationIntervals[taskId]);
+            delete this.animationIntervals[taskId];
+        }
+
+        const task = this.tasks[taskId];
+        task.state = 'complete';
+
+        // Calculate elapsed time
+        let elapsedText = '';
+        if (task.startTime) {
+            const elapsed = Math.floor((Date.now() - task.startTime) / 1000);
+            if (elapsed >= 60) {
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                elapsedText = ` (${minutes}분 ${seconds}초 소요)`;
+            } else {
+                elapsedText = ` (${elapsed}초 소요)`;
+            }
+        }
+
+        const elements = this.taskElements[taskId];
+        if (!elements) return;
+
+        elements.line.style.color = '#89d185';
+        elements.checkbox.textContent = '[✓] ';
+        elements.checkbox.style.color = '#89d185';
+        elements.status.textContent = '완료' + elapsedText;
+        elements.status.style.color = '#89d185';
+
+        // Auto-scroll to bottom
+        const logEl = document.getElementById('terminalLog');
+        logEl.scrollTop = logEl.scrollHeight;
+    },
+
+    addGeneralLog(message, level = 'info') {
+        const logEl = document.getElementById('terminalLog');
+        const timestamp = new Date().toLocaleTimeString('ko-KR', { hour12: false });
+
+        const colors = {
+            'info': '#4ec9b0',
+            'success': '#89d185',
+            'warning': '#dcdcaa',
+            'error': '#f48771'
+        };
+
+        const icons = {
+            'info': '→',
+            'success': '✓',
+            'warning': '⚠',
+            'error': '✗'
+        };
+
+        const color = colors[level] || '#d4d4d4';
+        const icon = icons[level] || '→';
+
+        const logLine = document.createElement('div');
+        logLine.style.color = color;
+        logLine.style.marginBottom = '4px';
+        logLine.style.marginTop = '8px';
+        logLine.innerHTML = `<span style="color: #858585;">[${timestamp}]</span> ${icon} ${message}`;
+
+        logEl.appendChild(logLine);
+        logEl.scrollTop = logEl.scrollHeight;
+    }
+};
+
+// Append log message to terminal (modified to use task system)
+function appendLog(message, level = 'info', taskId = null) {
+    // If taskId is provided, update the task
+    if (taskId) {
+        if (level === 'start' || level === 'info') {
+            taskSystem.startTask(taskId);
+        } else if (level === 'complete' || level === 'success') {
+            taskSystem.completeTask(taskId);
+        }
+    } else {
+        // General log message
+        taskSystem.addGeneralLog(message, level);
+    }
+}
+
+// Show intermediate results
+function showIntermediateResult(reportType, content) {
+    // Show the intermediate results section
+    document.getElementById('intermediateResults').style.display = 'block';
+
+    // Map report types to card IDs
+    const cardMap = {
+        'market': 'marketReportCard',
+        'sentiment': 'sentimentReportCard',
+        'news': 'newsReportCard',
+        'fundamentals': 'fundamentalsReportCard'
+    };
+
+    const contentMap = {
+        'market': 'marketReportContent',
+        'sentiment': 'sentimentReportContent',
+        'news': 'newsReportContent',
+        'fundamentals': 'fundamentalsReportContent'
+    };
+
+    const cardId = cardMap[reportType];
+    const contentId = contentMap[reportType];
+
+    if (cardId && contentId) {
+        // Show the card
+        document.getElementById(cardId).style.display = 'block';
+        // Render markdown content
+        document.getElementById(contentId).innerHTML = marked.parse(content);
+        // Scroll to the intermediate results
+        document.getElementById('intermediateResults').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
+// Toggle intermediate card collapse/expand
+function toggleIntermediateCard(reportType) {
+    const contentWrapper = document.getElementById(reportType + 'Content');
+    const toggleIcon = document.getElementById(reportType + 'Toggle');
+
+    if (contentWrapper.classList.contains('collapsed')) {
+        // Expand
+        contentWrapper.classList.remove('collapsed');
+        toggleIcon.classList.remove('collapsed');
+    } else {
+        // Collapse
+        contentWrapper.classList.add('collapsed');
+        toggleIcon.classList.add('collapsed');
+    }
+}
+
+// CSRF Token helper
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+
+</body>
+</html>

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'paper_review.templatetags',
     'utils',  # utils/custom_filters.py가 있는 앱 등록
     'my_agents',  # MY AGENTS 페이지
+    'trading_agent',  # Trading Agent 앱
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

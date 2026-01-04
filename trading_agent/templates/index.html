@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tauric Research | AI Stock Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            light: '#1e293b',
+                            accent: '#38bdf8',
+                            success: '#34d399',
+                            danger: '#f87171'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen font-sans">
+
+    <!-- Navbar -->
+    <nav class="border-b border-gray-800 bg-gray-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div
+                        class="w-8 h-8 bg-gradient-to-br from-blue-400 to-cyan-300 rounded-lg flex items-center justify-center font-bold text-gray-900">
+                        T</div>
+                    <span class="text-xl font-bold tracking-tight">Tauric<span
+                            class="text-gray-400">Research</span></span>
+                </div>
+                <div>
+                    <button onclick="openPersonaModal()"
+                        class="text-sm font-medium text-cyan-400 hover:text-cyan-300 transition flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        My Persona
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <!-- Hero / Input Section -->
+        <div class="text-center mb-16">
+            <h1
+                class="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400">
+                Deep Market Intelligence
+            </h1>
+            <p class="text-gray-400 text-lg mb-8 max-w-2xl mx-auto">
+                Deploy autonomous AI agents to research, debate, and analyze market conditions.
+                <br><span class="text-sm text-gray-500">(자율 AI 에이전트가 시장을 분석하고 토론합니다.)</span>
+            </p>
+
+            <div
+                class="max-w-xl mx-auto bg-gray-800/50 p-6 rounded-2xl border border-gray-700 shadow-2xl backdrop-blur-sm">
+                <form id="analysisForm" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-left">
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Stock Ticker</label>
+                            <input type="text" id="ticker" placeholder="e.g. NVDA" required
+                                class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition uppercase">
+                        </div>
+                        <div class="text-left">
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Analysis Date</label>
+                            <input type="date" id="date" required
+                                class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition">
+                        </div>
+                    </div>
+
+                    <!-- Mode Selection -->
+                    <div class="flex bg-gray-900 p-1 rounded-lg border border-gray-700">
+                        <button type="button" id="modeQuick" onclick="setMode('quick')"
+                            class="flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium text-gray-400 hover:text-white transition group">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            Quick (Cheap)
+                        </button>
+                        <button type="button" id="modeDeep" onclick="setMode('deep')"
+                            class="flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium bg-gray-700 text-cyan-400 shadow-sm transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                                </path>
+                            </svg>
+                            Deep (Pro)
+                        </button>
+                    </div>
+
+                    <button type="submit" id="analyzeBtn"
+                        class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2">
+                        <span>Deploy Agents</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </button>
+                    <div class="mt-4 flex gap-2 justify-center">
+                        <button type="button" onclick="quickTestOrder('SCHD', 28.00, 'AMS', 'BUY')"
+                            class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1 rounded border border-gray-600">
+                            🛠️ Buy SCHD (AMS)
+                        </button>
+                        <button type="button" onclick="quickTestOrder('SCHD', 28.00, 'NYSE', 'BUY')"
+                            class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1 rounded border border-gray-600">
+                            🛠️ Buy SCHD (NYSE)
+                        </button>
+                        <button type="button" onclick="quickTestOrder('TSLA', 200.00, 'NASD', 'BUY')"
+                            class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1 rounded border border-gray-600">
+                            🛠️ Buy TSLA (NASD)
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Real-time Execution State -->
+        <div id="executionState" class="hidden max-w-4xl mx-auto space-y-6 fade-in">
+
+            <!-- Progress & Cost Header -->
+            <div class="bg-gray-800/80 border border-gray-700 rounded-xl p-6 backdrop-blur-md">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                            <span class="relative flex h-3 w-3">
+                                <span
+                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+                            </span>
+                            Live Analysis <span id="currentStep"
+                                class="text-cyan-400 font-normal ml-2 text-base">Initializing...</span>
+                        </h3>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-gray-400 uppercase tracking-widest">Estimated Cost</div>
+                        <div id="costMeter" class="text-2xl font-mono font-bold text-green-400">$0.000</div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-gray-700 rounded-full h-2.5 mb-1 overflow-hidden">
+                    <div id="progressBar"
+                        class="bg-gradient-to-r from-cyan-500 to-blue-500 h-2.5 rounded-full transition-all duration-500"
+                        style="width: 5%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500 px-1">
+                    <span>Data</span>
+                    <span>Research</span>
+                    <span>Debate</span>
+                    <span>Risk</span>
+                    <span>Decision</span>
+                </div>
+            </div>
+
+            <!-- Live Terminal Log -->
+            <div class="bg-black/80 border border-gray-800 rounded-xl p-4 font-mono text-sm h-64 overflow-y-auto custom-scrollbar"
+                id="terminalLog">
+                <div class="text-gray-500">System initialized. Ready to deploy agents...</div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="hidden space-y-8 fade-in max-w-5xl mx-auto">
+
+            <!-- Header Card: Ticker, Date, Verdict -->
+            <div class="bg-gray-800 border border-gray-700 rounded-2xl p-8 relative overflow-hidden shadow-2xl">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    <!-- Left: Ticker & Date -->
+                    <div>
+                        <h1 id="resultTicker" class="text-6xl font-black text-white tracking-tight mb-2">NVDA</h1>
+                        <p id="resultDate" class="text-xl text-gray-400 font-medium">YYYY-MM-DD</p>
+                        <div class="mt-4 flex items-center gap-2">
+                            <span
+                                class="px-3 py-1 bg-gray-700 rounded-full text-xs text-gray-300 uppercase tracking-wider">Deploy
+                                Agents</span>
+                            <span
+                                class="px-3 py-1 bg-cyan-900/50 text-cyan-400 rounded-full text-xs uppercase tracking-wider">Finished</span>
+                        </div>
+                    </div>
+
+                    <!-- Right: Verdict & Confidence -->
+                    <div
+                        class="text-left md:text-right border-t md:border-t-0 md:border-l border-gray-700 pt-6 md:pt-0 md:pl-8">
+                        <div class="mb-4">
+                            <span class="text-xs text-gray-500 uppercase tracking-widest">Total Cost</span>
+                            <div id="finalCost" class="text-xl font-mono text-emerald-400">$0.0000</div>
+                        </div>
+                        <div class="text-sm text-gray-400 uppercase tracking-widest mb-1">Final Verdict</div>
+                        <div id="resultDecision" class="text-5xl md:text-6xl font-black text-white mb-2">HOLD</div>
+                        <div class="flex items-center justify-start md:justify-end gap-2 mb-4">
+                            <span class="text-sm text-gray-500">Confidence Score</span>
+                            <span id="resultConfidence"
+                                class="text-lg font-bold text-white max-w-[150px] truncate">Medium</span>
+                        </div>
+
+                        <!-- Execution Button (Hidden by default) -->
+                        <button id="execTradeBtn" onclick="executeTrade()"
+                            class="hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                            <span>Execute Strategy (Buy)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Reasoning / Summary (New) -->
+                <div class="mt-8 pt-6 border-t border-gray-700">
+                    <h4 class="text-sm text-gray-400 uppercase tracking-widest mb-2">Executive Summary</h4>
+                    <div id="resultReasoning"
+                        class="text-gray-300 prose prose-invert prose-lg max-w-none font-light leading-relaxed">
+                        Analysis summary will appear here...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accuracy / Backtest Section -->
+            <div class="bg-gray-800/50 border border-gray-700 rounded-2xl p-6" id="accuracyCard">
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Prediction Accuracy (5-Day Backtest)
+                </h3>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+                    <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
+                        <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Analysis Date Price</div>
+                        <div id="startPrice" class="text-2xl font-mono text-white">$0.00</div>
+                    </div>
+                    <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
+                        <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">5 Days Later</div>
+                        <div id="endPrice" class="text-2xl font-mono text-white">$0.00</div>
+                    </div>
+                    <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
+                        <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Return</div>
+                        <div id="returnPct" class="text-2xl font-bold font-mono text-white">0.00%</div>
+                    </div>
+                    <div
+                        class="bg-gray-900/50 rounded-xl p-4 border border-gray-800 flex flex-col items-center justify-center">
+                        <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Result</div>
+                        <div id="accuracyBadge"
+                            class="px-3 py-1 rounded-full text-sm font-bold bg-gray-700 text-gray-300">
+                            N/A
+                        </div>
+                    </div>
+                </div>
+                <p id="accuracyExplanation"
+                    class="text-sm text-gray-500 mt-4 text-center border-t border-gray-700/50 pt-3">
+                    <!-- Dynamic explanation -->
+                </p>
+            </div>
+
+            <!-- Investment Strategy -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+                <h3 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                    <span class="w-1 h-8 bg-cyan-500 rounded-full"></span>
+                    Investment Strategy
+                </h3>
+                <div id="investmentPlan" class="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed">
+                    <!-- Content -->
+                </div>
+            </div>
+
+            <!-- Risk Assessment -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+                <h3 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                    <span class="w-1 h-8 bg-red-500 rounded-full"></span>
+                    Risk Assessment
+                </h3>
+                <div id="riskReport" class="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed">
+                    <!-- Content -->
+                </div>
+                <div id="riskReport" class="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed">
+                    <!-- Content -->
+                </div>
+            </div>
+
+            <!-- Related Opportunities (Recommendations) -->
+            <div id="recommendationsSection" class="hidden space-y-6 fade-in">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="w-1 h-6 bg-purple-500 rounded-full"></span>
+                    <h3 class="text-xl font-bold text-white">Related Opportunities (AI Recommended)</h3>
+                </div>
+                <!-- Logic Reasoning -->
+                <p id="recReasoning" class="text-gray-400 text-sm mb-4 italic"></p>
+
+                <!-- Grid -->
+                <div id="recGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Dynamic Cards will appear here -->
+                </div>
+            </div>
+
+            <!-- Detailed Reports Tabs -->
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-white">Detailed Agent Reports</h3>
+                    <div class="flex space-x-2 bg-gray-800 p-1 rounded-lg">
+                        <button class="tab-btn px-4 py-2 text-sm rounded-md bg-gray-700 text-white shadow"
+                            onclick="switchTab('technical')">Technical</button>
+                        <button class="tab-btn px-4 py-2 text-sm rounded-md text-gray-400 hover:text-white"
+                            onclick="switchTab('fundamentals')">Fundamentals</button>
+                        <button class="tab-btn px-4 py-2 text-sm rounded-md text-gray-400 hover:text-white"
+                            onclick="switchTab('sentiment')">Sentiment</button>
+                    </div>
+                </div>
+
+                <div class="min-h-[300px] bg-gray-800/30 rounded-xl p-6 border border-gray-800">
+                    <div id="technicalReport" class="report-content prose prose-invert max-w-none"></div>
+                    <div id="fundamentalsReport" class="report-content hidden prose prose-invert max-w-none"></div>
+                    <div id="sentimentReport" class="report-content hidden prose prose-invert max-w-none"></div>
+                </div>
+            </div>
+
+            <div class="text-center pb-12">
+                <p class="text-gray-600 text-sm">Tauric Research | AI Stock Analysis System</p>
+                <p class="text-gray-700 text-xs mt-1">Generated by Multi-Agent Swarm</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Persona Modal -->
+    <div id="personaModal"
+        class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity opacity-0">
+        <div
+            class="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl transform scale-95 transition-transform">
+            <div class="p-6 border-b border-gray-800 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                    <span class="text-cyan-400">My Investment Persona</span>
+                </h2>
+                <button onclick="closePersonaModal()" class="text-gray-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flex flex-col md:flex-row h-[600px]">
+                <!-- Left: Current Profile View -->
+                <div class="w-full md:w-1/2 p-6 bg-gray-800/50 overflow-y-auto">
+                    <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">Current Profile</h3>
+
+                    <div class="space-y-6">
+                        <div class="bg-gray-900 rounded-xl p-4 border border-gray-700/50">
+                            <div class="text-xs text-gray-500 mb-1">Risk Tolerance</div>
+                            <div id="p_risk" class="text-lg font-bold text-white">Loading...</div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-900 rounded-xl p-4 border border-gray-700/50">
+                                <div class="text-xs text-gray-500 mb-1">Horizon</div>
+                                <div id="p_horizon" class="text-base font-medium text-white">-</div>
+                            </div>
+                            <div class="bg-gray-900 rounded-xl p-4 border border-gray-700/50">
+                                <div class="text-xs text-gray-500 mb-1">Style</div>
+                                <div id="p_style" class="text-base font-medium text-white">-</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-xs text-gray-500 mb-2">Favorite Sectors</div>
+                            <div id="p_favorites" class="flex flex-wrap gap-2">
+                                <!-- Tags -->
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-xs text-gray-500 mb-2">Avoid Sectors</div>
+                            <div id="p_avoid" class="flex flex-wrap gap-2">
+                                <!-- Tags -->
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-900 rounded-xl p-4 border border-gray-700/50">
+                            <div class="text-xs text-gray-500 mb-1">Custom Instructions</div>
+                            <p id="p_instructions" class="text-sm text-gray-300 italic">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Chat/Update Interface -->
+                <div class="w-full md:w-1/2 p-6 flex flex-col bg-gray-900">
+                    <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-2">Update Persona</h3>
+                    <p class="text-xs text-gray-500 mb-4">
+                        Chat with the Profile Manager to update your preferences. <br>
+                        Ex: "I want to be more aggressive and focus on AI stocks."
+                    </p>
+
+                    <div id="personaChatLog"
+                        class="flex-1 bg-gray-950 rounded-xl p-4 mb-4 overflow-y-auto font-mono text-sm border border-gray-800 space-y-3">
+                        <div class="text-gray-500 text-center text-xs mt-10">System ready. Type below to update profile.
+                        </div>
+                    </div>
+
+                    <form id="personaForm" class="relative">
+                        <input type="text" id="personaInput" placeholder="Type instructions..."
+                            class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-4 pr-12 py-3 text-white focus:ring-2 focus:ring-cyan-500 outline-none">
+                        <button type="submit"
+                            class="absolute right-2 top-2 p-1 bg-cyan-600 rounded-md text-white hover:bg-cyan-500 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 19l9-2-9-18-9 18 9-2zm0 0v-8"></path>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set default date to today
+        document.getElementById('date').valueAsDate = new Date();
+
+        // --- Persona Logic ---
+        const personaModal = document.getElementById('personaModal');
+        const modalContent = personaModal.querySelector('div');
+
+        function openPersonaModal() {
+            personaModal.classList.remove('hidden');
+            // Animate in
+            setTimeout(() => {
+                personaModal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+            fetchProfile();
+        }
+
+        function closePersonaModal() {
+            personaModal.classList.add('opacity-0');
+            modalContent.classList.add('scale-95');
+            modalContent.classList.remove('scale-100');
+            setTimeout(() => {
+                personaModal.classList.add('hidden');
+            }, 300);
+        }
+
+        async function fetchProfile() {
+            try {
+                const res = await fetch('/api/profile');
+                const data = await res.json();
+                renderProfile(data);
+            } catch (e) {
+                console.error("Failed to fetch profile", e);
+            }
+        }
+
+        function renderProfile(data) {
+            document.getElementById('p_risk').textContent = data.risk_tolerance;
+            // Color code risk
+            const riskEl = document.getElementById('p_risk');
+            riskEl.className = "text-lg font-bold " + (
+                data.risk_tolerance.includes('Aggressive') ? 'text-red-400' :
+                    data.risk_tolerance.includes('Conservative') ? 'text-green-400' : 'text-blue-400'
+            );
+
+            document.getElementById('p_horizon').textContent = data.investment_horizon;
+            document.getElementById('p_style').textContent = data.investment_style;
+            document.getElementById('p_instructions').textContent = '"' + data.custom_instructions + '"';
+
+            // Render tags
+            const renderTags = (id, tags, colorClass) => {
+                const container = document.getElementById(id);
+                container.innerHTML = '';
+                if (!tags || tags.length === 0) {
+                    container.innerHTML = '<span class="text-gray-600 text-sm">None</span>';
+                    return;
+                }
+                tags.forEach(tag => {
+                    const span = document.createElement('span');
+                    span.className = `px-2 py-1 rounded text-xs font-medium ${colorClass}`;
+                    span.textContent = tag;
+                    container.appendChild(span);
+                });
+            };
+
+            renderTags('p_favorites', data.favorite_sectors, 'bg-cyan-900/50 text-cyan-300 border border-cyan-800');
+            renderTags('p_avoid', data.avoid_sectors, 'bg-red-900/50 text-red-300 border border-red-800');
+        }
+
+        document.getElementById('personaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('personaInput');
+            const text = input.value;
+            if (!text) return;
+
+            // Add user message to chat
+            addChatMessage('user', text);
+            input.value = '';
+
+            // Add loading state
+            const loadingMsg = addChatMessage('system', 'Updating profile...');
+
+            try {
+                const res = await fetch('/api/profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                const newData = await res.json();
+
+                // Update UI
+                renderProfile(newData);
+
+                // Update chat
+                loadingMsg.textContent = 'Profile updated successfully.';
+                loadingMsg.classList.add('text-green-400');
+
+            } catch (e) {
+                loadingMsg.textContent = 'Error updating profile.';
+                loadingMsg.classList.add('text-red-400');
+            }
+        });
+
+        function addChatMessage(role, text) {
+            const container = document.getElementById('personaChatLog');
+            const div = document.createElement('div');
+            div.className = role === 'user' ? 'text-right' : 'text-left';
+
+            const bubble = document.createElement('div');
+            bubble.className = `inline-block px-3 py-2 rounded-lg max-w-[80%] text-xs ${role === 'user' ? 'bg-cyan-700 text-white' : 'bg-gray-800 text-gray-300'
+                }`;
+            bubble.textContent = text;
+
+            div.appendChild(bubble);
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return bubble; // Return for updating text later
+        }
+
+        let currentMode = 'deep';
+
+        function setMode(mode) {
+            currentMode = mode;
+            const quickBtn = document.getElementById('modeQuick');
+            const deepBtn = document.getElementById('modeDeep');
+
+            if (mode === 'quick') {
+                quickBtn.className = "flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium bg-emerald-900/50 text-emerald-400 border border-emerald-800 shadow-sm transition";
+                deepBtn.className = "flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium text-gray-400 hover:text-white transition";
+            } else {
+                quickBtn.className = "flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium text-gray-400 hover:text-white transition";
+                deepBtn.className = "flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium bg-gray-700 text-cyan-400 shadow-sm transition";
+            }
+        }
+
+        document.getElementById('analysisForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const ticker = document.getElementById('ticker').value;
+            const date = document.getElementById('date').value;
+
+            startAnalysis(ticker, date, currentMode);
+        });
+
+        function startAnalysis(ticker, date, mode) {
+            // UI Reset
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('executionState').classList.remove('hidden');
+            document.getElementById('analyzeBtn').disabled = true;
+            document.getElementById('analyzeBtn').textContent = "Running Analysis..."; // Simplified
+
+            // Reset Logs & Meters
+            const terminal = document.getElementById('terminalLog');
+            terminal.innerHTML = '<div class="text-gray-500">Connecting to agents...</div>';
+            document.getElementById('costMeter').textContent = "$0.000";
+            document.getElementById('progressBar').style.width = "5%";
+            document.getElementById('currentStep').textContent = "Initializing...";
+
+            // Reset Recommendations
+            document.getElementById('recommendationsSection').classList.add('hidden');
+            document.getElementById('recGrid').innerHTML = '';
+
+            let lastStreamEl = null;
+
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/analyze`;
+            console.log("Connecting to WS:", wsUrl); // Debug log
+            const ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                ws.send(JSON.stringify({ ticker, date, mode }));
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+
+                if (data.type === 'log') {
+                    lastStreamEl = null; // Break stream
+                    const div = document.createElement('div');
+                    div.className = 'text-green-400/80 mb-1';
+                    div.textContent = `> ${data.message}`;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+
+                } else if (data.type === 'stream_chunk') {
+                    if (data.content) {
+                        if (!lastStreamEl) {
+                            lastStreamEl = document.createElement('span');
+                            lastStreamEl.className = 'text-gray-500/80 text-xs break-all';
+                            const container = document.createElement('div');
+                            container.className = 'mb-1';
+                            container.appendChild(lastStreamEl);
+                            terminal.appendChild(container);
+                        }
+                        lastStreamEl.textContent += data.content;
+                        terminal.scrollTop = terminal.scrollHeight;
+                    }
+                    if (data.cost) {
+                        document.getElementById('costMeter').textContent = '$' + data.cost.toFixed(4);
+                    }
+
+                } else if (data.type === 'progress') {
+                    lastStreamEl = null;
+                    const stepName = data.step;
+                    document.getElementById('currentStep').textContent = stepName;
+
+                    let pct = 10;
+                    if (stepName.includes('Market')) pct = 25;
+                    else if (stepName.includes('News')) pct = 40;
+                    else if (stepName.includes('Gathering')) pct = 50;
+                    else if (stepName.includes('Debate')) pct = 70;
+                    else if (stepName.includes('Risk')) pct = 85;
+                    else if (stepName.includes('Decision')) pct = 95;
+                    else if (stepName.includes('Tool')) pct += 2;
+
+                    document.getElementById('progressBar').style.width = `${Math.min(pct, 98)}%`;
+
+                    const div = document.createElement('div');
+                    div.className = 'text-cyan-300 mb-1 font-bold';
+                    div.textContent = `[PHASE] ${stepName}`;
+                    terminal.appendChild(div);
+                    terminal.scrollTop = terminal.scrollHeight;
+
+                } else if (data.type === 'recommendations') {
+                    // Show section and create placeholders
+                    document.getElementById('recommendationsSection').classList.remove('hidden');
+                    document.getElementById('recReasoning').textContent = data.reasoning;
+
+                    const grid = document.getElementById('recGrid');
+                    grid.innerHTML = ''; // Clear just in case
+
+                    data.tickers.forEach(t => {
+                        const card = document.createElement('div');
+                        card.id = `card-${t}`;
+                        card.className = "bg-gray-800 border border-gray-700 rounded-xl p-6 relative overflow-hidden transition-all duration-500 opacity-50"; // Dim initially
+                        card.innerHTML = `
+                            <div class="flex justify-between items-start mb-4">
+                                <h4 class="text-2xl font-bold text-white">${t}</h4>
+                                <span class="rec-status text-xs bg-gray-700 text-gray-400 px-2 py-1 rounded">Queued</span>
+                            </div>
+                            <div class="h-16 flex items-center justify-center">
+                                <span class="animate-pulse text-gray-600">Waiting for analysis...</span>
+                            </div>
+                       `;
+                        grid.appendChild(card);
+                    });
+
+                } else if (data.type === 'result') {
+
+                    if (data.is_primary) {
+                        document.getElementById('progressBar').style.width = "100%";
+                        renderPrimaryResults(data);
+
+                        setTimeout(() => {
+                            document.getElementById('executionState').classList.add('hidden');
+                            document.getElementById('results').classList.remove('hidden');
+                        }, 1000);
+                    } else {
+                        // Update Mini Card
+                        updateMiniCard(data);
+                    }
+
+                } else if (data.type === 'done') {
+                    ws.close();
+                    document.getElementById('analyzeBtn').disabled = false;
+                    document.getElementById('analyzeBtn').textContent = "Deploy Agents";
+
+                } else if (data.type === 'error') {
+                    alert("Error: " + data.message);
+                    ws.close();
+                    document.getElementById('analyzeBtn').disabled = false;
+                    document.getElementById('analyzeBtn').textContent = "Deploy Agents";
+                }
+            };
+
+            ws.onerror = (e) => {
+                console.error("WebSocket Error:", e);
+                const div = document.createElement('div');
+                div.className = 'text-red-500 mb-1';
+                div.textContent = `[ERROR] Connection failed. Please check server logs or refresh.`;
+                terminal.appendChild(div);
+                alert("Connection failed. See terminal for details.");
+                document.getElementById('analyzeBtn').disabled = false;
+                document.getElementById('analyzeBtn').textContent = "Deploy Agents";
+            };
+
+            ws.onclose = () => {
+                console.log("WS Closed");
+            };
+        }
+
+        function renderPrimaryResults(data) {
+            // 3. Populate Results
+            document.getElementById('resultTicker').textContent = data.ticker || document.getElementById('ticker').value.toUpperCase();
+            document.getElementById('resultDate').textContent = document.getElementById('date').value;
+            document.getElementById('resultDecision').textContent = data.decision;
+            document.getElementById('resultConfidence').textContent = data.confidence || "N/A";
+            document.getElementById('resultReasoning').innerHTML = marked.parse(data.reasoning || data.decision);
+            document.getElementById('finalCost').textContent = `$${parseFloat(document.getElementById('costMeter').textContent.replace('$', '')).toFixed(4)}`;
+
+            // Color coding for Verdict
+            const decisionElem = document.getElementById('resultDecision');
+            decisionElem.className = "text-6xl font-black tracking-tighter"; // Reset
+            if (data.decision.includes('BUY')) decisionElem.classList.add('text-rose-500');
+            else if (data.decision.includes('SELL')) decisionElem.classList.add('text-blue-500');
+            else decisionElem.classList.add('text-gray-400');
+
+            // Show/Hide Execution Button
+            const execBtn = document.getElementById('execTradeBtn');
+            execBtn.classList.add('hidden');
+            execBtn.classList.remove('bg-gray-600', 'bg-emerald-600', 'bg-blue-600', 'hover:bg-emerald-500', 'hover:bg-blue-500');
+            execBtn.disabled = false;
+
+            if (data.decision.includes('BUY')) {
+                execBtn.classList.remove('hidden');
+                execBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+                execBtn.textContent = "Execute Strategy (Buy)";
+                execBtn.dataset.action = "BUY";
+            } else if (data.decision.includes('SELL')) {
+                execBtn.classList.remove('hidden');
+                execBtn.classList.add('bg-blue-600', 'hover:bg-blue-500');
+                execBtn.textContent = "Execute Strategy (Sell)";
+                execBtn.dataset.action = "SELL";
+            }
+
+            // Reports
+            document.getElementById('investmentPlan').innerHTML = marked.parse(data.report || '');
+            document.getElementById('riskReport').innerHTML = marked.parse(data.full_state.risk || '');
+
+            document.getElementById('technicalReport').innerHTML = marked.parse(data.full_state.technical || 'No technical data.');
+            document.getElementById('fundamentalsReport').innerHTML = marked.parse(data.full_state.fundamentals || 'No fundamental data.');
+            document.getElementById('sentimentReport').innerHTML = marked.parse(data.full_state.sentiment || 'No sentiment data.');
+
+            // Accuracy
+            const acc = data.accuracy;
+            if (acc.calculable) {
+                document.getElementById('startPrice').textContent = '$' + acc.start_price;
+                document.getElementById('endPrice').textContent = '$' + acc.end_price;
+                document.getElementById('returnPct').textContent = acc.return_pct;
+                document.getElementById('returnPct').className = 'text-2xl font-bold font-mono ' +
+                    (parseFloat(acc.return_pct) >= 0 ? 'text-green-400' : 'text-red-400');
+
+                document.getElementById('accuracyExplanation').textContent = acc.explanation;
+
+                const badge = document.getElementById('accuracyBadge');
+                if (acc.is_accurate) {
+                    badge.textContent = 'ACCURATE';
+                    badge.className = 'px-3 py-1 rounded-full text-sm font-bold bg-green-900/50 text-green-400 border border-green-700';
+                } else {
+                    badge.textContent = 'INACCURATE';
+                    badge.className = 'px-3 py-1 rounded-full text-sm font-bold bg-red-900/50 text-red-400 border border-red-700';
+                }
+            } else {
+                document.getElementById('accuracyExplanation').textContent = acc.message;
+                document.getElementById('accuracyBadge').textContent = 'N/A';
+            }
+        }
+
+        function updateMiniCard(data) {
+            const card = document.getElementById(`card-${data.ticker}`);
+            if (!card) return;
+
+            card.classList.remove('opacity-50');
+
+            // Verdict Color
+            let colorClass = 'text-gray-400';
+            if (data.decision.includes('BUY')) colorClass = 'text-rose-500';
+            else if (data.decision.includes('SELL')) colorClass = 'text-blue-500';
+
+            card.innerHTML = `
+                 <div class="flex justify-between items-start mb-2">
+                    <h4 class="text-2xl font-bold text-white">${data.ticker}</h4>
+                    <span class="text-xs font-bold ${colorClass} border border-current px-2 py-1 rounded">${data.decision}</span>
+                </div>
+                <div class="text-xs text-gray-500 mb-4">Confidence: <span class="text-gray-300">${data.confidence}</span></div>
+                
+                <div class="text-gray-400 text-sm line-clamp-4 leading-relaxed mb-4">
+                    ${data.reasoning.substring(0, 150)}...
+                </div>
+                
+                <!-- Expanded Modal Trigger (Simplified: just show alert or expand) -->
+                <button onclick="alert('Full report for ${data.ticker} Coming Soon!')" class="w-full py-2 bg-gray-700 hover:bg-gray-600 rounded text-xs text-white transition">
+                    View Analysis
+                </button>
+            `;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.report-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('text-cyan-400', 'border-b-2', 'border-cyan-400', 'font-medium');
+                btn.classList.add('text-gray-400');
+            });
+            document.getElementById(tabName + 'Report').classList.remove('hidden');
+            const btnIndex = tabName === 'technical' ? 0 : tabName === 'fundamentals' ? 1 : 2;
+            const btn = document.querySelectorAll('.tab-btn')[btnIndex];
+            btn.classList.remove('text-gray-400');
+            btn.classList.add('text-cyan-400', 'border-b-2', 'border-cyan-400', 'font-medium');
+        }
+
+        // --- Execution Logic ---
+        async function executeTrade() {
+            const ticker = document.getElementById('resultTicker').textContent;
+            const price = parseFloat(document.getElementById('startPrice').textContent.replace('$', '')) || 100.0; // Fallback
+            const confidence = document.getElementById('resultConfidence').textContent;
+
+            const btn = document.getElementById('execTradeBtn');
+            const action = btn.dataset.action || "BUY";
+
+            if (!confirm(`Are you sure you want to execute a ${action} order for ${ticker}?`)) return;
+
+            btn.disabled = true;
+            btn.textContent = "Executing...";
+
+            try {
+                const res = await fetch('/api/execute_trade', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ticker: ticker,
+                        price: price,
+                        confidence: confidence,
+                        reason: "User Initiated from Web UI",
+                        action: action
+                    })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    const side = data.action === "BUY" ? "Bought" : "Sold";
+                    alert(`SUCCESS: ${side} ${data.qty} shares of ${data.ticker}.\nTotal: $${data.total_amt.toFixed(2)}\nRemaining Balance: $${data.balance_remaining.toFixed(2)}` + (data.is_mock ? "\n(MOCKED)" : ""));
+                    btn.textContent = "Order Filled";
+                    btn.classList.remove('bg-emerald-600', 'bg-blue-600');
+                    btn.classList.add('bg-gray-600');
+                } else {
+                    alert(`FAILED: ${data.msg}`);
+                    btn.disabled = false;
+                    btn.textContent = `Execute Strategy (${action === 'BUY' ? 'Buy' : 'Sell'})`;
+                }
+            } catch (e) {
+                alert("Error executing trade: " + e);
+                btn.disabled = false;
+                btn.textContent = `Execute Strategy (${action === 'BUY' ? 'Buy' : 'Sell'})`;
+            }
+        }
+
+        async function quickTestOrder(ticker, price, exchange, action) {
+            const confidence = "Medium";
+
+            if (!confirm(`[TEST] Execute ${action} ${ticker} (${exchange})?`)) return;
+
+            try {
+                const res = await fetch('/api/execute_trade', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ticker: ticker,
+                        price: price,
+                        confidence: confidence,
+                        reason: "Quick Test Button",
+                        action: action,
+                        exchange: exchange
+                    })
+                });
+                const data = await res.json();
+                alert(data.success ? `SUCCESS: ${data.msg}\nQty: ${data.qty}\nOrder No: ${data.msg}` : `FAILED: ${data.msg}`);
+            } catch (e) {
+                alert("Error: " + e);
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -412,8 +412,154 @@ docker system df
 
 ---
 
+---
+
+## 추가 배포 (2차 - 23:35 ~ 23:45)
+
+### 추가된 기능
+
+#### 1. 회원가입 필드 추가
+- **이메일**: 필수 입력 (중복 체크 포함)
+- **휴대폰 번호**: 선택 입력
+
+#### 2. 로그인/회원가입 UI 리뉴얼
+- **로그인 페이지**: "Welcome to ListeneRS!" 타이틀
+- **회원가입 페이지**: "Join ListeneRS!" 타이틀
+- 보라색 그라데이션 배경
+- 모던 카드 레이아웃
+- 반응형 폼 디자인
+
+#### 3. Gunicorn 타임아웃 증가
+```yaml
+# docker-compose.yml
+command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --timeout=300
+```
+- 60초 → 300초 (Trading Agent 분석 시간 고려)
+
+### 발생한 에러 및 해결
+
+#### 에러 1: 이메일 입력 필드 안 보임
+**문제**: 회원가입 페이지에서 이메일 입력 필드가 보이지 않음
+
+**원인**: CSS에서 `input[type="email"]` 스타일 누락
+```css
+/* 기존 - email 타입 누락 */
+.auth-form input[type="text"],
+.auth-form input[type="password"],
+.auth-form input[type="tel"] { ... }
+```
+
+**해결**:
+```css
+/* 수정 - email 타입 추가 */
+.auth-form input[type="text"],
+.auth-form input[type="password"],
+.auth-form input[type="tel"],
+.auth-form input[type="email"] { ... }
+```
+
+#### 에러 2: phone_number 컬럼 없음
+**문제**:
+```
+OperationalError: (1054, "Unknown column 'users_user.phone_number' in 'field list'")
+```
+
+**원인**: 마이그레이션 미실행
+
+**해결**:
+```bash
+python manage.py migrate
+# Applying users.0004_add_phone_number... OK
+```
+
+#### 에러 3: 버튼 글자 잘림
+**문제**: 로그인/가입 버튼의 글자가 아래쪽이 잘림
+
+**원인**: Bootstrap `.btn` 클래스와 커스텀 스타일 충돌
+
+**해결**:
+```html
+<!-- 기존 -->
+<button type="submit" class="btn btn-primary btn-signup">
+
+<!-- 수정 - Bootstrap 클래스 제거 -->
+<button type="submit" class="btn-signup">
+```
+
+```css
+.btn-signup {
+    padding: 16px 20px;  /* 14px → 16px 20px */
+    line-height: 1.4;
+    box-sizing: border-box;
+}
+```
+
+#### 에러 4: Trading Agent 404 (docker-compose up 후)
+**문제**: `docker-compose up -d web` 실행 후 Trading Agent 404
+
+**원인**: 컨테이너 재생성으로 이전에 복사한 파일들 모두 삭제됨
+
+**해결**: 파일 재복사 + 패키지 재설치
+```bash
+# 파일 복사
+docker cp trading_agent/ recsys_service_deployment-web-1:/usr/src/app/
+docker cp config/urls.py recsys_service_deployment-web-1:/usr/src/app/config/
+# ... 기타 파일들
+
+# 패키지 설치
+docker exec recsys_service_deployment-web-1 pip install \
+    langchain_anthropic yfinance stockstats fredapi praw \
+    googlenewsdecoder pandas_datareader
+
+# 재시작
+docker-compose restart web
+```
+
+#### 에러 5: Gunicorn Worker Timeout (Trading Agent 분석 중)
+**문제**:
+```
+[CRITICAL] WORKER TIMEOUT (pid:7)
+[ERROR] Worker (pid:7) was sent SIGKILL! Perhaps out of memory?
+```
+
+**원인**: Trading Agent AI 분석이 60초 이상 소요
+
+**해결**: docker-compose.yml에서 타임아웃 증가
+```yaml
+command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --timeout=300
+```
+
+### 최종 배포 검증
+
+```bash
+$ curl -s -o /dev/null -w "%{http_code}" https://www.pseudorec.com/
+200
+
+$ curl -s -o /dev/null -w "%{http_code}" https://www.pseudorec.com/trading_agent/
+200
+
+$ curl -s -o /dev/null -w "%{http_code}" https://www.pseudorec.com/users/login/
+200
+
+$ curl -s -o /dev/null -w "%{http_code}" https://www.pseudorec.com/users/signup/
+200
+```
+
+### 주의사항: langchain 버전 충돌
+
+pip 설치 시 다음 경고 발생 (기능에는 영향 없음):
+```
+langchain 0.3.7 requires langchain-core<0.4.0,>=0.3.15
+현재 설치: langchain-core 1.2.6
+```
+
+향후 langchain 패키지 버전 통일 필요.
+
+---
+
 ## 변경 이력
 
 | 날짜 | 버전 | 변경 내용 | 작성자 |
 |-----|------|---------|--------|
-| 2026-01-09 | 1.0 | 초안 작성 | Claude Code |
+| 2026-01-09 | 1.0 | 초안 작성 (Trading Agent 배포) | Claude Code |
+| 2026-01-09 | 1.1 | 회원가입 UI 리뉴얼, 이메일/휴대폰 필드 추가, 타임아웃 증가 | Claude Code |

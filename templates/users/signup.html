@@ -1,13 +1,189 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div id="signup">
-    <form method="POST" enctype="multipart/form-data">
-        <h1>Sign up</h1>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-signup">가입</button>
-        <a href="/users/login/">로그인 페이지로 이동</a>
-    </form>
+<div class="auth-container">
+    <div class="auth-card signup-card">
+        <div class="auth-header">
+            <h1>Join ListeneRS!</h1>
+            <p class="auth-subtitle">추천 시스템 스터디에 참여하세요</p>
+        </div>
+        <form method="POST" enctype="multipart/form-data" class="auth-form">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {% if field.name == 'profile_image' %}
+                <input type="file" name="{{ field.name }}" id="{{ field.id_for_label }}" accept="image/*" class="file-input">
+                {% elif field.name == 'short_description' %}
+                <textarea name="{{ field.name }}" id="{{ field.id_for_label }}" rows="3" class="textarea-input" placeholder="간단한 자기소개를 입력하세요">{{ field.value|default:'' }}</textarea>
+                {% else %}
+                {{ field }}
+                {% endif %}
+                {% if field.errors %}
+                <div class="error-message">{{ field.errors.0 }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+            <div class="error-message">{{ form.non_field_errors.0 }}</div>
+            {% endif %}
+            <button type="submit" class="btn-signup">가입하기</button>
+        </form>
+        <div class="auth-links">
+            <span class="auth-text">이미 계정이 있으신가요?</span>
+            <a href="/users/login/" class="auth-link">로그인</a>
+        </div>
+    </div>
 </div>
+
+<style>
+.auth-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.auth-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+}
+
+.signup-card {
+    max-width: 480px;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.auth-header h1 {
+    color: #333;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.auth-subtitle {
+    color: #666;
+    font-size: 14px;
+}
+
+.auth-form .form-group {
+    margin-bottom: 18px;
+}
+
+.auth-form label {
+    display: block;
+    color: #555;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="password"],
+.auth-form input[type="tel"],
+.auth-form input[type="email"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-sizing: border-box;
+}
+
+.auth-form input:focus,
+.auth-form .textarea-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.textarea-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    resize: vertical;
+    min-height: 80px;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.file-input {
+    width: 100%;
+    padding: 10px;
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    background: #fafafa;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.file-input:hover {
+    border-color: #667eea;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+.btn-signup {
+    width: 100%;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 10px;
+    line-height: 1.4;
+    box-sizing: border-box;
+}
+
+.btn-signup:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.auth-text {
+    color: #888;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+.auth-link {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+}
+</style>
 {% endblock %}

@@ -251,3 +251,12 @@ wrapt==1.16.0
 yarl==1.9.4
 zipp==3.19.2
 django-storages==1.14.4
+
+# Trading Agent dependencies (added 2026-01-09)
+langchain-anthropic==0.3.0
+yfinance==0.2.48
+stockstats==0.6.2
+fredapi==0.5.2
+praw==7.7.1
+googlenewsdecoder==0.1.2
+pandas-datareader==0.10.0

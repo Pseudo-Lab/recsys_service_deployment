@@ -1,14 +1,150 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div id="login">
-    <form method="POST">
-        <h1>Welcome to PseudoRec</h1>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-login">로그인</button>
-        <a href="/users/signup/">회원가입 페이지로 이동</a>
-        <a href="/">홈페이지로 이동</a>
-    </form>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Welcome to ListeneRS!</h1>
+            <p class="auth-subtitle">추천 시스템 스터디 아카이브</p>
+        </div>
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="error-message">{{ field.errors.0 }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+            <div class="error-message">{{ form.non_field_errors.0 }}</div>
+            {% endif %}
+            <button type="submit" class="btn-login">로그인</button>
+        </form>
+        <div class="auth-links">
+            <a href="/users/signup/" class="auth-link">회원가입</a>
+            <span class="divider">|</span>
+            <a href="/" class="auth-link">홈으로</a>
+        </div>
+    </div>
 </div>
+
+<style>
+.auth-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.auth-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.auth-header h1 {
+    color: #333;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.auth-subtitle {
+    color: #666;
+    font-size: 14px;
+}
+
+.auth-form .form-group {
+    margin-bottom: 20px;
+}
+
+.auth-form label {
+    display: block;
+    color: #555;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="password"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-sizing: border-box;
+}
+
+.auth-form input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 10px;
+    line-height: 1.4;
+    box-sizing: border-box;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.auth-link {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+}
+
+.divider {
+    color: #ccc;
+    margin: 0 12px;
+}
+</style>
 {% endblock %}

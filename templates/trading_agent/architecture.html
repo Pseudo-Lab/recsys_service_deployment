@@ -1,0 +1,417 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Assistant Agent Architecture</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 0;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        .architecture-section {
+            margin-bottom: 50px;
+        }
+        .architecture-section h2 {
+            color: #764ba2;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+        }
+        .mermaid {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .description {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .agent-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .agent-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+        .agent-card p {
+            font-size: 0.9rem;
+            margin: 0;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        {% include 'navbar.html' %}
+    </header>
+
+    <div class="container">
+        <h1><i class="fas fa-project-diagram"></i> Trading Assistant Agent Architecture</h1>
+
+        <!-- Overall System Flow -->
+        <div class="architecture-section">
+            <h2>1. Overall System Flow</h2>
+            <div class="description">
+                <strong>Multi-Agent System:</strong> 4개의 분석 에이전트가 시장을 분석하고, 투자 토론과 리스크 토론을 거쳐 최종 투자 계획을 수립합니다.
+            </div>
+
+            <div class="mermaid">
+graph TB
+    Start([User Input: Ticker & Date]) --> Init[Initialize Graph]
+    Init --> Analysts{4 Analysts}
+
+    Analysts --> MA[Market Analyst<br/>기술적 분석]
+    Analysts --> SA[Social Media Analyst<br/>감성 분석]
+    Analysts --> NA[News Analyst<br/>뉴스 분석]
+    Analysts --> FA[Fundamentals Analyst<br/>재무 분석]
+
+    MA --> Reports[Analysis Reports]
+    SA --> Reports
+    NA --> Reports
+    FA --> Reports
+
+    Reports --> InvestDebate{Investment Debate}
+
+    InvestDebate --> Bull[Bull Researcher<br/>강세 분석가]
+    InvestDebate --> Bear[Bear Researcher<br/>약세 분석가]
+
+    Bull -->|Counter| Bear
+    Bear -->|Counter| Bull
+
+    Bull --> RM[Research Manager<br/>투자 판단]
+    Bear --> RM
+
+    RM -->|Continue Debate| Bull
+    RM -->|Decision Made| Trader[Trader<br/>투자 계획 수립]
+
+    Trader --> RiskDebate{Risk Debate}
+
+    RiskDebate --> Risky[Risky Debator<br/>공격적 전략]
+    RiskDebate --> Neutral[Neutral Debator<br/>중립적 전략]
+    RiskDebate --> Safe[Safe Debator<br/>보수적 전략]
+
+    Risky -->|Counter| Neutral
+    Neutral -->|Counter| Safe
+    Safe -->|Counter| Risky
+
+    Risky --> RiskJudge[Risk Manager<br/>리스크 판단]
+    Neutral --> RiskJudge
+    Safe --> RiskJudge
+
+    RiskJudge -->|Continue Debate| Risky
+    RiskJudge -->|Final Decision| Final([Final Investment Plan<br/>BUY/HOLD/SELL])
+
+    style Start fill:#667eea,stroke:#333,stroke-width:2px,color:#fff
+    style Final fill:#764ba2,stroke:#333,stroke-width:3px,color:#fff
+    style MA fill:#4CAF50,color:#fff
+    style SA fill:#2196F3,color:#fff
+    style NA fill:#FF9800,color:#fff
+    style FA fill:#9C27B0,color:#fff
+    style Bull fill:#f44336,color:#fff
+    style Bear fill:#3f51b5,color:#fff
+    style RM fill:#e91e63,color:#fff
+    style Trader fill:#00bcd4,color:#fff
+    style Risky fill:#ff5722,color:#fff
+    style Neutral fill:#607d8b,color:#fff
+    style Safe fill:#4caf50,color:#fff
+    style RiskJudge fill:#795548,color:#fff
+            </div>
+        </div>
+
+        <!-- Analyst Agents -->
+        <div class="architecture-section">
+            <h2>2. Analyst Agents (병렬 실행)</h2>
+            <div class="description">
+                4개의 분석 에이전트가 독립적으로 시장을 분석합니다. 각 에이전트는 전문화된 도구와 프롬프트를 사용합니다.
+            </div>
+
+            <div class="mermaid">
+graph LR
+    subgraph Analysts["Analyst Agents (Parallel Execution)"]
+        MA[Market Analyst<br/>📈]
+        SA[Social Media Analyst<br/>💬]
+        NA[News Analyst<br/>📰]
+        FA[Fundamentals Analyst<br/>💰]
+    end
+
+    MA --> MR[Market Report<br/>기술적 지표 분석]
+    SA --> SR[Sentiment Report<br/>소셜 미디어 감성]
+    NA --> NR[News Report<br/>최신 뉴스 요약]
+    FA --> FR[Fundamentals Report<br/>재무 데이터 분석]
+
+    MR --> NextStage[Investment Debate Stage]
+    SR --> NextStage
+    NR --> NextStage
+    FR --> NextStage
+
+    style MA fill:#4CAF50,color:#fff
+    style SA fill:#2196F3,color:#fff
+    style NA fill:#FF9800,color:#fff
+    style FA fill:#9C27B0,color:#fff
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="agent-card">
+                        <h4>📈 Market Analyst</h4>
+                        <p><strong>도구:</strong> get_stock_data, get_indicators</p>
+                        <p><strong>역할:</strong> 50/200 SMA, MACD, RSI, Bollinger Bands 등 기술적 지표 분석</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="agent-card">
+                        <h4>💬 Social Media Analyst</h4>
+                        <p><strong>도구:</strong> get_social_media_sentiment</p>
+                        <p><strong>역할:</strong> Reddit, Twitter 등 소셜 미디어의 감성 분석</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="agent-card">
+                        <h4>📰 News Analyst</h4>
+                        <p><strong>도구:</strong> get_news</p>
+                        <p><strong>역할:</strong> 최신 뉴스 수집 및 영향 분석</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="agent-card">
+                        <h4>💰 Fundamentals Analyst</h4>
+                        <p><strong>도구:</strong> get_financial_metrics</p>
+                        <p><strong>역할:</strong> P/E ratio, EPS, Revenue 등 재무 지표 분석</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Investment Debate -->
+        <div class="architecture-section">
+            <h2>3. Investment Debate (순환 토론)</h2>
+            <div class="description">
+                <strong>Bull vs Bear Debate:</strong> 강세 분석가와 약세 분석가가 토론하며, Research Manager가 판단합니다.
+                최대 100회 반복 가능 (recursion_limit)
+            </div>
+
+            <div class="mermaid">
+graph TD
+    Start([Analysis Reports]) --> Bull[Bull Researcher<br/>강세 주장]
+    Bull --> Bear[Bear Researcher<br/>약세 주장]
+    Bear --> Manager{Research Manager<br/>투자 판단}
+
+    Manager -->|"합의 도달"| Decision[Investment Decision<br/>BUY/HOLD/SELL]
+    Manager -->|"토론 계속"| Bull
+
+    Decision --> Trader[Trader<br/>투자 계획 수립]
+
+    subgraph Memory["Long-term Memory"]
+        BullMem[(Bull Memory)]
+        BearMem[(Bear Memory)]
+        ManagerMem[(Manager Memory)]
+    end
+
+    Bull -.-> BullMem
+    Bear -.-> BearMem
+    Manager -.-> ManagerMem
+
+    style Bull fill:#f44336,color:#fff
+    style Bear fill:#3f51b5,color:#fff
+    style Manager fill:#e91e63,color:#fff
+    style Trader fill:#00bcd4,color:#fff
+            </div>
+        </div>
+
+        <!-- Risk Debate -->
+        <div class="architecture-section">
+            <h2>4. Risk Debate (3-Way 토론)</h2>
+            <div class="description">
+                <strong>Risky vs Neutral vs Safe Debate:</strong> 3개의 리스크 관리 에이전트가 토론하며, Risk Manager가 최종 결정합니다.
+            </div>
+
+            <div class="mermaid">
+graph TD
+    Start([Trader's Investment Plan]) --> Safe[Safe Debator<br/>보수적 전략]
+    Safe --> Neutral[Neutral Debator<br/>중립적 전략]
+    Neutral --> Risky[Risky Debator<br/>공격적 전략]
+
+    Risky --> RiskManager{Risk Manager<br/>리스크 판단}
+    Safe --> RiskManager
+    Neutral --> RiskManager
+
+    RiskManager -->|"합의 도달"| Final([Final Investment Plan<br/>최종 투자 결정])
+    RiskManager -->|"토론 계속"| Safe
+
+    subgraph Memory["Long-term Memory"]
+        RiskMem[(Risk Manager Memory)]
+    end
+
+    RiskManager -.-> RiskMem
+
+    style Safe fill:#4caf50,color:#fff
+    style Neutral fill:#607d8b,color:#fff
+    style Risky fill:#ff5722,color:#fff
+    style RiskManager fill:#795548,color:#fff
+    style Final fill:#764ba2,color:#fff
+            </div>
+        </div>
+
+        <!-- State Management -->
+        <div class="architecture-section">
+            <h2>5. State Management</h2>
+            <div class="description">
+                <strong>LangGraph State:</strong> 모든 에이전트 간 정보 공유를 위한 상태 관리
+            </div>
+
+            <div class="mermaid">
+classDiagram
+    class State {
+        +messages: List
+        +company_of_interest: str
+        +trade_date: str
+        +market_report: str
+        +sentiment_report: str
+        +news_report: str
+        +fundamentals_report: str
+        +trader_investment_plan: str
+        +final_investment_plan: str
+        +investment_debate_state: Dict
+        +risk_debate_state: Dict
+    }
+
+    class InvestmentDebateState {
+        +history: List
+        +bull_history: List
+        +bear_history: List
+        +current_response: str
+        +judge_decision: str
+        +count: int
+    }
+
+    class RiskDebateState {
+        +history: List
+        +risky_history: List
+        +neutral_history: List
+        +safe_history: List
+        +current_risky_response: str
+        +current_neutral_response: str
+        +current_safe_response: str
+        +judge_decision: str
+        +count: int
+    }
+
+    State --> InvestmentDebateState
+    State --> RiskDebateState
+            </div>
+        </div>
+
+        <!-- Technology Stack -->
+        <div class="architecture-section">
+            <h2>6. Technology Stack</h2>
+
+            <div class="mermaid">
+graph TB
+    subgraph Frontend["Frontend Layer"]
+        HTML[HTML/CSS/JavaScript]
+        SSE[Server-Sent Events]
+        Markdown[Marked.js for Rendering]
+    end
+
+    subgraph Backend["Backend Layer"]
+        Django[Django Views]
+        Stream[SSE Streaming]
+    end
+
+    subgraph LangGraph["LangGraph Layer"]
+        Graph[StateGraph]
+        Nodes[Agent Nodes]
+        Edges[Conditional Edges]
+    end
+
+    subgraph LLM["LLM Layer"]
+        Quick[Quick Thinking LLM<br/>gpt-4o-mini]
+        Deep[Deep Thinking LLM<br/>gpt-4o]
+    end
+
+    subgraph Memory["Memory Layer"]
+        BullM[(Bull Memory)]
+        BearM[(Bear Memory)]
+        TraderM[(Trader Memory)]
+        InvestM[(Invest Judge Memory)]
+        RiskM[(Risk Manager Memory)]
+    end
+
+    subgraph Tools["External Tools"]
+        StockAPI[Stock Data API]
+        NewsAPI[News API]
+        SocialAPI[Social Media API]
+        FinAPI[Financial Metrics API]
+    end
+
+    HTML --> Django
+    Django --> Stream
+    Stream --> Graph
+    Graph --> Nodes
+    Nodes --> Quick
+    Nodes --> Deep
+    Nodes --> Memory
+    Nodes --> Tools
+
+    style Frontend fill:#667eea,color:#fff
+    style Backend fill:#764ba2,color:#fff
+    style LangGraph fill:#4CAF50,color:#fff
+    style LLM fill:#FF9800,color:#fff
+    style Memory fill:#2196F3,color:#fff
+    style Tools fill:#9C27B0,color:#fff
+            </div>
+        </div>
+
+        <!-- Back to Main -->
+        <div class="text-center mt-5">
+            <a href="{% url 'trading_agent:index' %}" class="btn btn-lg"
+               style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 40px; border-radius: 25px;">
+                <i class="fas fa-arrow-left"></i> Back to Trading Assistant Agent
+            </a>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#667eea',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#764ba2',
+                lineColor: '#667eea',
+                secondaryColor: '#764ba2',
+                tertiaryColor: '#f0f4ff'
+            }
+        });
+    </script>
+
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Trading Agent</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=20240121">
+    <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
+    <style>
+        .trading-agent-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .trading-agent-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            background: linear-gradient(90deg, #7B5FCC 0%, #6BA8DC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .trading-agent-content {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+        .trading-agent-description {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        {% include 'navbar.html' %}
+    </header>
+    <main>
+        <div class="trading-agent-container">
+            <h1 class="trading-agent-title">Trading Agent</h1>
+            <div class="trading-agent-content">
+                <div class="trading-agent-description">
+                    <p>Trading Agent 페이지입니다.</p>
+                    <p>곧 TradingAgent 레포지토리의 내용이 여기에 통합될 예정입니다.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

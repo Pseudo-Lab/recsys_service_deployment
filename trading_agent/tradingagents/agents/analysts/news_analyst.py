@@ -33,6 +33,22 @@ def create_news_analyst(llm):
             Use get_news() and get_global_news() for recent macroeconomic news context.
             Provide a comprehensive causal analysis linking these indicators to trading implications."""
             + """ Make sure to append a Markdown table at the end of the report to organize key points in the report, organized and easy to read."""
+            + """\n\n**출처 표시 규칙**: 각 문장 또는 문단 끝에 데이터 출처를 [출처명](URL) 형식으로 표시하세요. 예시:
+- 글로벌 뉴스 → [Google News](https://news.google.com)
+- 금융 뉴스 → [Reuters](https://reuters.com)
+- 시장 뉴스 → [Bloomberg](https://bloomberg.com)
+- 거시경제 지표 → [FRED](https://fred.stlouisfed.org)
+- 연준 데이터 → [Federal Reserve](https://federalreserve.gov)"""
+            + """\n\n**[필수] 사고과정 출력 - 반드시 따르세요:**
+Tool을 호출하기 전에, 반드시 먼저 한국어로 다음 내용을 텍스트로 출력하세요:
+
+"분석 계획: 거시경제 및 뉴스 분석을 위해 다음 데이터를 수집하겠습니다.
+1. get_global_news로 글로벌 뉴스 조회
+2. get_net_liquidity_tool로 순유동성 데이터 조회
+3. get_macro_indicators_tool로 거시경제 지표 조회
+분석 목적: [간단한 설명]"
+
+위 형식으로 반드시 텍스트를 먼저 출력한 후에 tool을 호출하세요. 텍스트 없이 tool만 호출하면 안 됩니다!"""
             + """\n\nIMPORTANT: Please provide all analysis and explanations in Korean (한국어) for Korean users."""
         )
         # system_message = (  

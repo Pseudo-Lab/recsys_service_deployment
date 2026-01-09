@@ -11,6 +11,7 @@
             </a>
         </li>
         <li><a href="/archive/" {% if request.path|slice:":9" == '/archive/' %}class="active"{% endif %}>Study Archive</a></li>
+        <li><a href="/trading_agent/" {% if request.path|slice:":16" == '/trading_agent/' %}class="active"{% endif %}>Trading Agent</a></li>
         <li class="dropdown">
             <a href="/movie_recommendation/" {% if request.path|slice:":22" == '/movie_recommendation/' or request.path|slice:":8" == '/llmrec/' %}class="active"{% endif %}>
                 Movie Recommendation Demos

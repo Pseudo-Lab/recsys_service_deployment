@@ -87,11 +87,16 @@ class UserProfileManager:
                 "format_instructions": self.parser.get_format_instructions()
             })
             
-            # Merge logic is handled by LLM effectively regenerating the whole object, 
+            # Merge logic is handled by LLM effectively regenerating the whole object,
             # but we sanity check the result
-            updated_profile = UserProfile(**new_data)
+            if isinstance(new_data, dict):
+                updated_profile = UserProfile(**new_data)
+            else:
+                # If parser already returned a UserProfile object
+                updated_profile = new_data
+
             self.save_profile(updated_profile)
-            print(f"DEBUG: Profile updated: {updated_profile.summary}")
+            print(f"DEBUG: Profile updated successfully")
             return updated_profile
             
         except Exception as e:

@@ -1,0 +1,11 @@
+{
+  "risk_tolerance": "Conservative",
+  "investment_horizon": "Long-term",
+  "favorite_sectors": [
+    "Technology",
+    "AI"
+  ],
+  "avoid_sectors": [],
+  "investment_style": "Balanced",
+  "custom_instructions": "Focus on fundamental analysis and market trends."
+}

@@ -68,6 +68,84 @@ def analyze_stock(request):
 
                 # Track progress through the graph execution
                 from .tradingagents.agents.utils.agent_states import AgentState
+                from langchain_core.callbacks import BaseCallbackHandler
+
+                # Tool execution logger with queue for streaming
+                tool_events = []
+
+                class ToolLoggingCallback(BaseCallbackHandler):
+                    def on_tool_start(self, serialized, input_str, **kwargs):
+                        tool_name = serialized.get("name", "Unknown")
+
+                        # Parse input to get meaningful parameters
+                        params = ""
+                        if input_str:
+                            try:
+                                # input_str might be a string representation of dict, parse it
+                                if isinstance(input_str, str):
+                                    import ast
+                                    try:
+                                        input_dict = ast.literal_eval(input_str)
+                                    except:
+                                        input_dict = {}
+                                elif isinstance(input_str, dict):
+                                    input_dict = input_str
+                                else:
+                                    input_dict = {}
+
+                                # Extract key parameters based on tool type
+                                if tool_name == 'get_indicators' and input_dict:
+                                    indicator = input_dict.get('indicator', '')
+                                    symbol = input_dict.get('symbol', '')
+                                    params = f"{symbol}/{indicator}"
+                                elif tool_name == 'get_stock_data' and input_dict:
+                                    symbol = input_dict.get('symbol', input_dict.get('ticker', ''))
+                                    params = symbol
+                                elif tool_name == 'get_news' and input_dict:
+                                    ticker = input_dict.get('ticker', '')
+                                    start = input_dict.get('start_date', '')
+                                    end = input_dict.get('end_date', '')
+                                    params = f"{ticker} ({start}~{end})"
+                                elif tool_name == 'get_global_news' and input_dict:
+                                    curr_date = input_dict.get('curr_date', '')
+                                    days = input_dict.get('look_back_days', 7)
+                                    params = f"{curr_date}, {days}일"
+                                elif tool_name in ['get_fundamentals', 'get_balance_sheet', 'get_cashflow', 'get_income_statement'] and input_dict:
+                                    ticker = input_dict.get('ticker', '')
+                                    freq = input_dict.get('freq', '')
+                                    params = f"{ticker}" + (f" ({freq})" if freq else "")
+                                elif tool_name in ['get_net_liquidity_tool', 'get_macro_indicators_tool']:
+                                    params = ""
+                                else:
+                                    params = ""
+                            except:
+                                params = ""
+
+                        # Map tool names to data sources
+                        source_map = {
+                            'get_stock_data': ('Yahoo Finance', 'https://finance.yahoo.com'),
+                            'get_indicators': ('Alpha Vantage', 'https://www.alphavantage.co'),
+                            'get_news': ('Google News', 'https://news.google.com'),
+                            'get_global_news': ('Reuters/Bloomberg', 'https://reuters.com'),
+                            'get_fundamentals': ('Yahoo Finance', 'https://finance.yahoo.com'),
+                            'get_balance_sheet': ('SEC EDGAR', 'https://www.sec.gov/edgar'),
+                            'get_cashflow': ('SEC EDGAR', 'https://www.sec.gov/edgar'),
+                            'get_income_statement': ('SEC EDGAR', 'https://www.sec.gov/edgar'),
+                            'get_net_liquidity_tool': ('FRED', 'https://fred.stlouisfed.org'),
+                            'get_macro_indicators_tool': ('FRED', 'https://fred.stlouisfed.org'),
+                        }
+
+                        source_info = source_map.get(tool_name, (tool_name, None))
+                        tool_events.append({
+                            'type': 'tool_call',
+                            'tool_name': tool_name,
+                            'source': source_info[0],
+                            'url': source_info[1],
+                            'params': params
+                        })
+
+                    def on_tool_end(self, output, **kwargs):
+                        pass
 
                 init_agent_state = {
                     "company_of_interest": ticker,
@@ -83,6 +161,7 @@ def analyze_stock(request):
                         "history": [],
                         "current_response": "",
                         "judge_decision": "",
+                        "count": 0,
                     },
                     "trader_investment_plan": "",
                     "risk_debate_state": {
@@ -90,15 +169,35 @@ def analyze_stock(request):
                         "safe_history": [],
                         "neutral_history": [],
                         "history": [],
+                        "current_risky_response": "",
+                        "current_safe_response": "",
+                        "current_neutral_response": "",
+                        "latest_speaker": "",
                         "judge_decision": "",
+                        "count": 0,
                     },
                     "investment_plan": "",
                     "final_trade_decision": "",
                 }
 
-                args = {"config": {"recursion_limit": 100}}
+                tool_callback = ToolLoggingCallback()
+                args = {
+                    "config": {"recursion_limit": 100, "callbacks": [tool_callback]}
+                }
                 trace = []
                 current_progress = 15
+
+                # Accumulated state to collect all reports
+                accumulated_state = {
+                    'market_report': '',
+                    'sentiment_report': '',
+                    'news_report': '',
+                    'fundamentals_report': '',
+                    'trader_investment_plan': '',
+                    'final_trade_decision': '',
+                    'risk_debate_state': {'judge_decision': ''},
+                    'investment_debate_state': {'judge_decision': ''},
+                }
 
                 # Track what we've already reported
                 reported_market = False
@@ -107,8 +206,51 @@ def analyze_stock(request):
                 reported_fundamentals = False
 
                 for chunk in ta.graph.stream(init_agent_state, **args):
+                    # Stream any pending tool events
+                    while tool_events:
+                        event = tool_events.pop(0)
+                        yield f"data: {json.dumps(event)}\n\n"
+
                     # Check if chunk has data updates and report them
                     chunk_data = list(chunk.values())[0] if chunk else {}
+                    chunk_key = list(chunk.keys())[0] if chunk else ""
+
+                    # Capture LLM reasoning from messages (when LLM outputs thought process before tool calls)
+                    if 'messages' in chunk_data:
+                        messages = chunk_data['messages']
+                        for msg in messages:
+                            # Debug: log message structure
+                            has_content = hasattr(msg, 'content') and msg.content
+                            has_tool_calls = hasattr(msg, 'tool_calls') and msg.tool_calls
+                            print(f"DEBUG MSG: chunk_key={chunk_key}, has_content={has_content}, has_tool_calls={has_tool_calls}")
+                            if has_content:
+                                print(f"DEBUG MSG CONTENT: {str(msg.content)[:200]}...")
+
+                            # Check if this message has content (reasoning) and also has tool calls
+                            if has_content and has_tool_calls:
+                                reasoning_content = msg.content
+                                # Determine which analyst this is based on chunk key
+                                analyst_type = 'analysis'
+                                if 'market' in chunk_key.lower():
+                                    analyst_type = 'market'
+                                elif 'social' in chunk_key.lower() or 'sentiment' in chunk_key.lower():
+                                    analyst_type = 'sentiment'
+                                elif 'news' in chunk_key.lower():
+                                    analyst_type = 'news'
+                                elif 'fundamental' in chunk_key.lower():
+                                    analyst_type = 'fundamentals'
+                                print(f"DEBUG: Sending reasoning for {analyst_type}")
+                                yield f"data: {json.dumps({'type': 'reasoning', 'analyst': analyst_type, 'content': reasoning_content})}\n\n"
+
+                    # Update accumulated state with any new data
+                    for key in ['market_report', 'sentiment_report', 'news_report', 'fundamentals_report',
+                                'trader_investment_plan', 'final_trade_decision']:
+                        if chunk_data.get(key):
+                            accumulated_state[key] = chunk_data[key]
+                    if chunk_data.get('risk_debate_state', {}).get('judge_decision'):
+                        accumulated_state['risk_debate_state']['judge_decision'] = chunk_data['risk_debate_state']['judge_decision']
+                    if chunk_data.get('investment_debate_state', {}).get('judge_decision'):
+                        accumulated_state['investment_debate_state']['judge_decision'] = chunk_data['investment_debate_state']['judge_decision']
 
                     # Report market data collection completion
                     if not reported_market and chunk_data.get('market_report'):
@@ -117,7 +259,9 @@ def analyze_stock(request):
                         yield f"data: {json.dumps({'type': 'intermediate', 'report_type': 'market', 'content': market_report})}\n\n"
                         reported_market = True
                         current_progress = 30
-                        yield f"data: {json.dumps({'type': 'progress', 'step': '시장 데이터 분석 중...', 'progress': current_progress})}\n\n"
+                        yield f"data: {json.dumps({'type': 'progress', 'step': '소셜 미디어 감성 분석 중...', 'progress': current_progress})}\n\n"
+                        # Start next task
+                        yield f"data: {json.dumps({'type': 'log', 'message': '소셜 미디어 감성 분석', 'level': 'start', 'task_id': 'sentiment'})}\n\n"
 
                     # Report sentiment data collection
                     if not reported_sentiment and chunk_data.get('sentiment_report'):
@@ -126,119 +270,128 @@ def analyze_stock(request):
                         yield f"data: {json.dumps({'type': 'intermediate', 'report_type': 'sentiment', 'content': sentiment_report})}\n\n"
                         reported_sentiment = True
                         current_progress = 45
-                        yield f"data: {json.dumps({'type': 'progress', 'step': '감성 데이터 처리 중...', 'progress': current_progress})}\n\n"
+                        yield f"data: {json.dumps({'type': 'progress', 'step': '뉴스 데이터 분석 중...', 'progress': current_progress})}\n\n"
+                        # Start next task
+                        yield f"data: {json.dumps({'type': 'log', 'message': '최신 뉴스 분석', 'level': 'start', 'task_id': 'news'})}\n\n"
 
                     # Report news data collection
                     if not reported_news and chunk_data.get('news_report'):
                         news_report = chunk_data.get('news_report', '')
-                        yield f"data: {json.dumps({'type': 'log', 'message': '뉴스 데이터 수집 완료', 'level': 'complete', 'task_id': 'news'})}\n\n"
+                        yield f"data: {json.dumps({'type': 'log', 'message': '최신 뉴스 분석 완료', 'level': 'complete', 'task_id': 'news'})}\n\n"
                         yield f"data: {json.dumps({'type': 'intermediate', 'report_type': 'news', 'content': news_report})}\n\n"
                         reported_news = True
                         current_progress = 55
-                        yield f"data: {json.dumps({'type': 'progress', 'step': '뉴스 분석 중...', 'progress': current_progress})}\n\n"
+                        yield f"data: {json.dumps({'type': 'progress', 'step': '기업 재무 데이터 분석 중...', 'progress': current_progress})}\n\n"
+                        # Start next task
+                        yield f"data: {json.dumps({'type': 'log', 'message': '기업 재무 데이터 분석', 'level': 'start', 'task_id': 'fundamentals'})}\n\n"
 
                     # Report fundamentals data collection
                     if not reported_fundamentals and chunk_data.get('fundamentals_report'):
                         fundamentals_report = chunk_data.get('fundamentals_report', '')
-                        yield f"data: {json.dumps({'type': 'log', 'message': '기업 펀더멘털 분석 완료', 'level': 'complete', 'task_id': 'fundamentals'})}\n\n"
+                        yield f"data: {json.dumps({'type': 'log', 'message': '기업 재무 데이터 분석 완료', 'level': 'complete', 'task_id': 'fundamentals'})}\n\n"
                         yield f"data: {json.dumps({'type': 'intermediate', 'report_type': 'fundamentals', 'content': fundamentals_report})}\n\n"
                         reported_fundamentals = True
                         current_progress = 65
-                        yield f"data: {json.dumps({'type': 'progress', 'step': '펀더멘털 데이터 처리 중...', 'progress': current_progress})}\n\n"
+                        yield f"data: {json.dumps({'type': 'progress', 'step': '강세/약세 분석가 토론 중...', 'progress': current_progress})}\n\n"
+                        # Start bull research
+                        yield f"data: {json.dumps({'type': 'log', 'message': '강세 분석가 리서치', 'level': 'start', 'task_id': 'bull_research'})}\n\n"
 
                     # Update progress based on which node is executing
-                    if 'market_analyst' in str(chunk):
-                        if not reported_market:
-                            current_progress = 20
-                            yield f"data: {json.dumps({'type': 'progress', 'step': '기술적 지표 계산 중...', 'progress': current_progress})}\n\n"
-                            yield f"data: {json.dumps({'type': 'log', 'message': '기술적 지표 분석 시작...', 'level': 'info'})}\n\n"
-                    elif 'news_analyst' in str(chunk):
-                        current_progress = 40
-                        if not reported_sentiment:
-                            yield f"data: {json.dumps({'type': 'log', 'message': '소셜 미디어 감성 분석', 'level': 'start', 'task_id': 'sentiment'})}\n\n"
-                        if not reported_news:
-                            yield f"data: {json.dumps({'type': 'log', 'message': '뉴스 데이터 수집', 'level': 'start', 'task_id': 'news'})}\n\n"
-                    elif 'fundamentals_analyst' in str(chunk):
-                        current_progress = 50
-                        if not reported_fundamentals:
-                            yield f"data: {json.dumps({'type': 'log', 'message': '기업 펀더멘털 분석', 'level': 'start', 'task_id': 'fundamentals'})}\n\n"
-                    elif 'bull_researcher' in str(chunk):
+                    chunk_str = str(chunk).lower()
+                    node_keys = [k.lower() for k in chunk.keys()] if chunk else []
+
+                    # Check for Bull Researcher
+                    if 'bull' in chunk_str or any('bull' in k for k in node_keys):
+                        # Show bull argument as intermediate result
+                        bull_history = chunk_data.get('investment_debate_state', {}).get('bull_history', [])
+                        if bull_history:
+                            latest_bull = bull_history[-1] if isinstance(bull_history, list) else str(bull_history)
+                            yield f"data: {json.dumps({'type': 'intermediate', 'report_type': 'bull_debate', 'content': latest_bull})}\n\n"
+                        yield f"data: {json.dumps({'type': 'log', 'message': '강세 분석가 리서치 완료', 'level': 'complete', 'task_id': 'bull_research'})}\n\n"
+                        yield f"data: {json.dumps({'type': 'log', 'message': '약세 분석가 리서치', 'level': 'start', 'task_id': 'bear_research'})}\n\n"
                         current_progress = 70
-                        yield f"data: {json.dumps({'type': 'progress', 'step': '투자 토론 진행 중...', 'progress': current_progress})}\n\n"
-                        yield f"data: {json.dumps({'type': 'log', 'message': 'Bull Analyst: 낙관적 분석 진행 중...', 'level': 'start', 'task_id': 'bull_research'})}\n\n"
-                        yield f"data: {json.dumps({'type': 'log', 'message': 'Bull 리서치 완료', 'level': 'complete', 'task_id': 'bull_research'})}\n\n"
-                    elif 'bear_researcher' in str(chunk):
-                        current_progress = 73
-                        yield f"data: {json.dumps({'type': 'progress', 'step': '투자 토론 진행 중...', 'progress': current_progress})}\n\n"
-                        yield f"data: {json.dumps({'type': 'log', 'message': 'Bear Analyst: 비관적 분석 진행 중...', 'level': 'start', 'task_id': 'bear_research'})}\n\n"
-                        yield f"data: {json.dumps({'type': 'log', 'message': 'Bear 리서치 완료', 'level': 'complete', 'task_id': 'bear_research'})}\n\n"
-                    elif 'investment_judge' in str(chunk):
-                        current_progress = 76
-                        yield f"data: {json.dumps({'type': 'log', 'message': '투자 전략 토론 진행', 'level': 'start', 'task_id': 'investment_debate'})}\n\n"
+                        yield f"data: {json.dumps({'type': 'progress', 'step': '약세 분석가 토론 중...', 'progress': current_progress})}\n\n"
+
+                    # Check for Bear Researcher
+                    if 'bear' in chunk_str or any('bear' in k for k in node_keys):
+                        # Show bear argument as intermediate result
+                        bear_history = chunk_data.get('investment_debate_state', {}).get('bear_history', [])
+                        if bear_history:
+                            latest_bear = bear_history[-1] if isinstance(bear_history, list) else str(bear_history)
+                            yield f"data: {json.dumps({'type': 'intermediate', 'report_type': 'bear_debate', 'content': latest_bear})}\n\n"
+                        yield f"data: {json.dumps({'type': 'log', 'message': '약세 분석가 리서치 완료', 'level': 'complete', 'task_id': 'bear_research'})}\n\n"
+                        yield f"data: {json.dumps({'type': 'log', 'message': '투자 전략 토론', 'level': 'start', 'task_id': 'investment_debate'})}\n\n"
+                        current_progress = 75
+                        yield f"data: {json.dumps({'type': 'progress', 'step': '투자 전략 토론 중...', 'progress': current_progress})}\n\n"
+
+                    # Check for Research Manager
+                    if 'research manager' in chunk_str or any('manager' in k for k in node_keys):
+                        # Show investment judge decision
+                        judge_decision = chunk_data.get('investment_debate_state', {}).get('judge_decision', '')
+                        if judge_decision:
+                            yield f"data: {json.dumps({'type': 'intermediate', 'report_type': 'investment_decision', 'content': judge_decision})}\n\n"
                         yield f"data: {json.dumps({'type': 'log', 'message': '투자 전략 토론 완료', 'level': 'complete', 'task_id': 'investment_debate'})}\n\n"
-                    elif 'trader' in str(chunk):
+                        yield f"data: {json.dumps({'type': 'log', 'message': '트레이더 의사결정', 'level': 'start', 'task_id': 'trader_decision'})}\n\n"
                         current_progress = 80
                         yield f"data: {json.dumps({'type': 'progress', 'step': '트레이더 투자 계획 수립 중...', 'progress': current_progress})}\n\n"
-                        yield f"data: {json.dumps({'type': 'log', 'message': 'Trader: 투자 계획 작성 중...', 'level': 'start', 'task_id': 'trader_decision'})}\n\n"
-                        yield f"data: {json.dumps({'type': 'log', 'message': '트레이더 투자 계획 수립 완료', 'level': 'complete', 'task_id': 'trader_decision'})}\n\n"
-                    elif 'risk_manager' in str(chunk):
+
+                    # Check for Trader
+                    if 'trader' in chunk_str or any('trader' in k for k in node_keys):
+                        # Show trader investment plan
+                        trader_plan = chunk_data.get('trader_investment_plan', '')
+                        if trader_plan:
+                            yield f"data: {json.dumps({'type': 'intermediate', 'report_type': 'trader_plan', 'content': trader_plan})}\n\n"
+                        yield f"data: {json.dumps({'type': 'log', 'message': '트레이더 의사결정 완료', 'level': 'complete', 'task_id': 'trader_decision'})}\n\n"
+                        yield f"data: {json.dumps({'type': 'log', 'message': '리스크 관리 토론', 'level': 'start', 'task_id': 'risk_debate'})}\n\n"
                         current_progress = 85
                         yield f"data: {json.dumps({'type': 'progress', 'step': '리스크 평가 중...', 'progress': current_progress})}\n\n"
-                        yield f"data: {json.dumps({'type': 'log', 'message': 'Risk Manager: 리스크 분석 시작...', 'level': 'start', 'task_id': 'risk_debate'})}\n\n"
-                    elif 'safe_debator' in str(chunk):
-                        current_progress = 87
-                    elif 'neutral_debator' in str(chunk):
-                        current_progress = 89
-                    elif 'risky_debator' in str(chunk):
-                        current_progress = 91
-                    elif 'risk_judge' in str(chunk):
-                        current_progress = 93
+
+                    # Check for Risk Judge
+                    if 'risk judge' in chunk_str or 'risk_judge' in chunk_str or any('judge' in k for k in node_keys):
+                        # Show risk judge decision
+                        risk_decision = chunk_data.get('risk_debate_state', {}).get('judge_decision', '')
+                        if risk_decision:
+                            yield f"data: {json.dumps({'type': 'intermediate', 'report_type': 'risk_decision', 'content': risk_decision})}\n\n"
                         yield f"data: {json.dumps({'type': 'log', 'message': '리스크 관리 토론 완료', 'level': 'complete', 'task_id': 'risk_debate'})}\n\n"
-                    elif 'final_decision' in str(chunk):
-                        current_progress = 97
+                        yield f"data: {json.dumps({'type': 'log', 'message': '최종 투자 계획 수립', 'level': 'start', 'task_id': 'final_plan'})}\n\n"
+                        current_progress = 95
                         yield f"data: {json.dumps({'type': 'progress', 'step': '최종 의사결정 도출 중...', 'progress': current_progress})}\n\n"
-                        yield f"data: {json.dumps({'type': 'log', 'message': '최종 투자 결정 도출 중...', 'level': 'start', 'task_id': 'final_plan'})}\n\n"
-                        yield f"data: {json.dumps({'type': 'log', 'message': '최종 투자 계획 수립 완료', 'level': 'complete', 'task_id': 'final_plan'})}\n\n"
 
                     trace.append(chunk)
 
-                final_state = trace[-1] if trace else init_agent_state
-                yield f"data: {json.dumps({'type': 'log', 'message': 'All agents completed execution', 'level': 'complete'})}\n\n"
+                yield f"data: {json.dumps({'type': 'log', 'message': '최종 투자 계획 수립 완료', 'level': 'complete', 'task_id': 'final_plan'})}\n\n"
 
-                # Process the decision
-                yield f"data: {json.dumps({'type': 'log', 'message': 'Processing final trading signal...', 'level': 'info'})}\n\n"
-                decision = ta.process_signal(final_state.get("final_trade_decision", ""))
-                yield f"data: {json.dumps({'type': 'log', 'message': f'Decision: {decision}', 'level': 'complete'})}\n\n"
+                # Process the decision using accumulated state (no log messages)
+                decision = ta.process_signal(accumulated_state.get("final_trade_decision", ""))
 
                 yield f"data: {json.dumps({'type': 'progress', 'step': '분석 완료!', 'progress': 100})}\n\n"
 
-                # Calculate accuracy
-                yield f"data: {json.dumps({'type': 'log', 'message': 'Calculating backtest accuracy...', 'level': 'info'})}\n\n"
+                # Calculate accuracy (no log messages)
                 accuracy_info = calculate_accuracy(ticker, date_str, decision)
-                if accuracy_info.get('calculable'):
-                    return_pct = accuracy_info.get('return_pct', 'N/A')
-                    yield f"data: {json.dumps({'type': 'log', 'message': f'Backtest complete: {return_pct} return', 'level': 'complete'})}\n\n"
-                else:
-                    yield f"data: {json.dumps({'type': 'log', 'message': 'Backtest unavailable for this date', 'level': 'warning'})}\n\n"
 
-                # Send final result
+                # Send final result using accumulated state
                 result = {
                     'type': 'result',
                     'status': 'success',
                     'ticker': ticker,
                     'date': date_str,
                     'decision': decision,
-                    'report': final_state.get('trader_investment_plan', 'No report available.'),
+                    'report': accumulated_state.get('trader_investment_plan', 'No report available.'),
                     'accuracy': accuracy_info,
                     'full_state': {
-                        'sentiment': final_state.get('sentiment_report', ''),
-                        'fundamentals': final_state.get('fundamentals_report', ''),
-                        'technical': final_state.get('market_report', ''),
-                        'risk': final_state.get('risk_debate_state', {}).get('judge_decision', '')
+                        'sentiment': accumulated_state.get('sentiment_report', ''),
+                        'fundamentals': accumulated_state.get('fundamentals_report', ''),
+                        'technical': accumulated_state.get('market_report', ''),
+                        'risk': accumulated_state.get('risk_debate_state', {}).get('judge_decision', '')
                     }
                 }
                 yield f"data: {json.dumps(result)}\n\n"
 
+            except GeneratorExit:
+                # Client disconnected (stop button clicked)
+                print(f"[STOP SIGNAL] Client disconnected from analysis stream for {ticker} on {date_str}")
+                # Clean exit - generator will terminate here
+                return
             except Exception as e:
                 import traceback
                 traceback.print_exc()  # Print full traceback to server logs
@@ -355,3 +508,202 @@ def user_profile_api(request):
         # Later we'll use profile_manager.update_profile_from_text(text_input)
         profile = get_user_investment_profile(request.user)
         return JsonResponse(profile)
+
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def save_analysis(request):
+    """
+    Save analysis results to database
+    POST /trading_agent/api/save_analysis/
+    Body: {"ticker": "AAPL", "date": "2024-12-27", "decision": "BUY", "report": "...", "accuracy": {...}, "full_state": {...}}
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Authentication required'
+        }, status=401)
+
+    try:
+        from .models import AnalysisHistory
+
+        data = json.loads(request.body)
+        ticker = data.get('ticker', '').upper()
+        date_str = data.get('date', '')
+        decision = data.get('decision', '')
+        report = data.get('report', '')
+        accuracy = data.get('accuracy', {})
+        full_state = data.get('full_state', {})
+
+        if not ticker or not date_str or not decision:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'ticker, date, and decision are required'
+            }, status=400)
+
+        analysis_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+
+        # Create analysis history record
+        analysis = AnalysisHistory.objects.create(
+            user=request.user,
+            ticker=ticker,
+            analysis_date=analysis_date,
+            decision=decision,
+            investment_plan=report,
+            risk_assessment=full_state.get('risk', ''),
+            technical_analysis=full_state.get('technical', ''),
+            fundamental_analysis=full_state.get('fundamentals', ''),
+            sentiment_analysis=full_state.get('sentiment', ''),
+            start_price=accuracy.get('start_price'),
+            end_price=accuracy.get('end_price'),
+            return_pct=accuracy.get('return_pct', ''),
+            is_accurate=accuracy.get('is_accurate')
+        )
+
+        return JsonResponse({
+            'status': 'success',
+            'analysis_id': analysis.id,
+            'message': '분석 결과가 저장되었습니다.'
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+
+@require_http_methods(["GET"])
+def get_analysis_history(request):
+    """
+    Get user's analysis history
+    GET /trading_agent/api/history/
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Authentication required'
+        }, status=401)
+
+    try:
+        from .models import AnalysisHistory
+
+        analyses = AnalysisHistory.objects.filter(user=request.user).order_by('-created_at')
+
+        history = []
+        for analysis in analyses:
+            history.append({
+                'id': analysis.id,
+                'ticker': analysis.ticker,
+                'analysis_date': analysis.analysis_date.strftime('%Y-%m-%d'),
+                'decision': analysis.decision,
+                'return_pct': analysis.return_pct,
+                'is_accurate': analysis.is_accurate,
+                'created_at': analysis.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            })
+
+        return JsonResponse({
+            'status': 'success',
+            'history': history
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+
+@require_http_methods(["GET"])
+def get_analysis_detail(request, analysis_id):
+    """
+    Get detailed analysis by ID
+    GET /trading_agent/api/history/<analysis_id>/
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Authentication required'
+        }, status=401)
+
+    try:
+        from .models import AnalysisHistory
+
+        analysis = AnalysisHistory.objects.get(id=analysis_id, user=request.user)
+
+        detail = {
+            'id': analysis.id,
+            'ticker': analysis.ticker,
+            'analysis_date': analysis.analysis_date.strftime('%Y-%m-%d'),
+            'decision': analysis.decision,
+            'investment_plan': analysis.investment_plan,
+            'risk_assessment': analysis.risk_assessment,
+            'technical_analysis': analysis.technical_analysis,
+            'fundamental_analysis': analysis.fundamental_analysis,
+            'sentiment_analysis': analysis.sentiment_analysis,
+            'start_price': str(analysis.start_price) if analysis.start_price else None,
+            'end_price': str(analysis.end_price) if analysis.end_price else None,
+            'return_pct': analysis.return_pct,
+            'is_accurate': analysis.is_accurate,
+            'created_at': analysis.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        }
+
+        return JsonResponse({
+            'status': 'success',
+            'analysis': detail
+        })
+
+    except AnalysisHistory.DoesNotExist:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Analysis not found'
+        }, status=404)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+
+@require_http_methods(["DELETE"])
+@csrf_exempt
+def delete_analysis(request, analysis_id):
+    """
+    Delete analysis by ID
+    DELETE /trading_agent/api/history/<analysis_id>/delete/
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Authentication required'
+        }, status=401)
+
+    try:
+        from .models import AnalysisHistory
+
+        analysis = AnalysisHistory.objects.get(id=analysis_id, user=request.user)
+        analysis.delete()
+
+        return JsonResponse({
+            'status': 'success',
+            'message': '분석 결과가 삭제되었습니다.'
+        })
+
+    except AnalysisHistory.DoesNotExist:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Analysis not found'
+        }, status=404)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)

@@ -25,14 +25,26 @@ class Propagator:
             "trade_date": str(trade_date),
             "user_profile": user_profile,
             "investment_debate_state": InvestDebateState(
-                {"history": "", "current_response": "", "count": 0}
+                {
+                    "history": [],
+                    "bull_history": [],
+                    "bear_history": [],
+                    "current_response": "",
+                    "judge_decision": "",
+                    "count": 0,
+                }
             ),
             "risk_debate_state": RiskDebateState(
                 {
-                    "history": "",
+                    "history": [],
+                    "risky_history": [],
+                    "safe_history": [],
+                    "neutral_history": [],
                     "current_risky_response": "",
                     "current_safe_response": "",
                     "current_neutral_response": "",
+                    "latest_speaker": "",
+                    "judge_decision": "",
                     "count": 0,
                 }
             ),

@@ -497,7 +497,7 @@ def user_profile_api(request):
 
     if request.method == "GET":
         profile = get_user_investment_profile(request.user)
-        return JsonResponse(profile)
+        return JsonResponse({'profile': profile})
 
     elif request.method == "POST":
         # TODO: Implement profile update with LLM
@@ -507,7 +507,7 @@ def user_profile_api(request):
         # For now, return the current profile
         # Later we'll use profile_manager.update_profile_from_text(text_input)
         profile = get_user_investment_profile(request.user)
-        return JsonResponse(profile)
+        return JsonResponse({'profile': profile})
 
 
 @require_http_methods(["POST"])

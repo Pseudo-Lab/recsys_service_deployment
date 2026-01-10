@@ -214,18 +214,33 @@
             width: 100%;
             margin: 16px 0;
             border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
         .intermediate-content table th,
         .intermediate-content table td {
-            padding: 8px 12px;
+            padding: 10px 14px;
             border: 1px solid #e0e0e0;
             text-align: left;
         }
 
         .intermediate-content table th {
-            background: #f8f9fa;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .intermediate-content table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .intermediate-content table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
         }
 
         .source-citation {
@@ -377,6 +392,39 @@
             color: #444;
             line-height: 1.8;
             font-size: 1.05rem;
+        }
+
+        .report-content table {
+            width: 100%;
+            margin: 16px 0;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .report-content table th,
+        .report-content table td {
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        .report-content table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .report-content table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .report-content table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
         }
 
         .accuracy-grid {
@@ -575,6 +623,13 @@
             border: 1px solid #e0e0e0;
         }
 
+        .profile-hint {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
         .profile-sectors {
             display: flex;
             flex-wrap: wrap;
@@ -706,6 +761,17 @@
                         <i class="fas fa-cog"></i> 투자 성향 설정
                     </button>
                 </div>
+                {% else %}
+                <div id="loginPromptBanner" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%); border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.2);">
+                    <div style="flex: 1;">
+                        <div style="font-size: 1rem; color: #666;">
+                            <i class="fas fa-info-circle" style="color: #667eea;"></i> 로그인하면 개인 투자 성향을 설정할 수 있습니다
+                        </div>
+                    </div>
+                    <a href="/users/login/" class="persona-btn" style="margin-top: 0; text-decoration: none;">
+                        <i class="fas fa-sign-in-alt"></i> 로그인
+                    </a>
+                </div>
                 {% endif %}
 
                 <div class="row">
@@ -788,7 +854,7 @@
                     <span><i class="fas fa-terminal"></i> 실시간 분석 로그</span>
                     <i id="logToggleIcon" class="fas fa-chevron-up"></i>
                 </button>
-                <div id="terminalLog" style="display: block; background: #1e1e1e; color: #d4d4d4; font-family: 'Courier New', monospace; font-size: 0.85rem; padding: 20px; border-radius: 0 0 8px 8px; max-height: 400px; overflow-y: auto; margin-top: 0; border: 1px solid #dee2e6; border-top: none;">
+                <div id="terminalLog" style="display: block; background: #1e1e1e; color: #d4d4d4; font-family: 'Courier New', monospace; font-size: 0.85rem; padding: 20px; border-radius: 0 0 8px 8px; margin-top: 0; border: 1px solid #dee2e6; border-top: none;">
                     <div style="color: #4ec9b0;">시스템 초기화 완료. AI 에이전트 배포 준비 중...</div>
 
                     <!-- Real-time data source display -->
@@ -1396,6 +1462,37 @@ const taskSystem = {
         logEl.scrollTop = logEl.scrollHeight;
     },
 
+    addReasoningToTask(taskId, analystName, content) {
+        const elements = this.taskElements[taskId];
+        if (!elements) return;
+
+        // Create or get reasoning container
+        let reasoningContainer = elements.line.querySelector('.task-reasoning');
+        if (!reasoningContainer) {
+            reasoningContainer = document.createElement('div');
+            reasoningContainer.className = 'task-reasoning';
+            reasoningContainer.style.cssText = 'margin: 8px 0 8px 20px; padding: 10px 12px; background: rgba(102, 126, 234, 0.08); border-left: 3px solid #667eea; border-radius: 4px; font-size: 0.9rem;';
+            elements.line.appendChild(reasoningContainer);
+        }
+
+        reasoningContainer.innerHTML = `
+            <div style="color: #667eea; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                <i class="fas fa-brain"></i> ${analystName} 사고 과정
+            </div>
+            <div style="color: #b0b0b0; line-height: 1.5; white-space: pre-wrap;">${this.escapeHtml(content)}</div>
+        `;
+
+        // Auto-scroll
+        const logEl = document.getElementById('terminalLog');
+        logEl.scrollTop = logEl.scrollHeight;
+    },
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    },
+
     addGeneralLog(message, level = 'info') {
         const logEl = document.getElementById('terminalLog');
         const timestamp = new Date().toLocaleTimeString('ko-KR', { hour12: false });
@@ -1591,24 +1688,21 @@ function showReasoningContent(analyst, content) {
         'analysis': 'AI 분석가'
     };
 
+    // Map analyst to taskId
+    const analystToTask = {
+        'market': 'market_data',
+        'sentiment': 'sentiment',
+        'news': 'news',
+        'fundamentals': 'fundamentals'
+    };
+
     const analystName = analystNames[analyst] || 'AI 분석가';
+    const taskId = analystToTask[analyst];
 
-    // Add reasoning to terminal log
-    const logEl = document.getElementById('terminalLog');
-    const timestamp = new Date().toLocaleTimeString('ko-KR', { hour12: false });
-
-    const reasoningDiv = document.createElement('div');
-    reasoningDiv.style.cssText = 'margin: 10px 0; padding: 12px; background: rgba(102, 126, 234, 0.1); border-left: 3px solid #667eea; border-radius: 4px;';
-    reasoningDiv.innerHTML = `
-        <div style="color: #667eea; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-brain"></i> ${analystName} 사고 과정
-            <span style="color: #858585; font-weight: normal; font-size: 0.85rem;">[${timestamp}]</span>
-        </div>
-        <div style="color: #d4d4d4; line-height: 1.6; white-space: pre-wrap; font-size: 0.9rem;">${escapeHtml(content)}</div>
-    `;
-
-    logEl.appendChild(reasoningDiv);
-    logEl.scrollTop = logEl.scrollHeight;
+    // Add reasoning to the specific task container
+    if (taskId && taskLogger.taskElements[taskId]) {
+        taskLogger.addReasoningToTask(taskId, analystName, content);
+    }
 }
 
 // Helper function to escape HTML
@@ -1666,16 +1760,19 @@ function getCookie(name) {
                 <div class="profile-item">
                     <div class="profile-label">Risk Tolerance</div>
                     <div class="profile-value" id="p_risk">-</div>
+                    <div class="profile-hint">ex. conservative, moderate, aggressive</div>
                 </div>
 
                 <div class="profile-item">
                     <div class="profile-label">Investment Horizon</div>
                     <div class="profile-value" id="p_horizon">-</div>
+                    <div class="profile-hint">ex. short-term, medium-term, long-term</div>
                 </div>
 
                 <div class="profile-item">
                     <div class="profile-label">Investment Style</div>
                     <div class="profile-value" id="p_style">-</div>
+                    <div class="profile-hint">ex. growth, value, income, balanced</div>
                 </div>
 
                 <div class="profile-item">
@@ -1683,6 +1780,7 @@ function getCookie(name) {
                     <div class="profile-sectors" id="p_favorite">
                         <span class="profile-value">없음</span>
                     </div>
+                    <div class="profile-hint">ex. tech, healthcare, finance, energy, consumer</div>
                 </div>
 
                 <div class="profile-item">
@@ -1690,11 +1788,13 @@ function getCookie(name) {
                     <div class="profile-sectors" id="p_avoid">
                         <span class="profile-value">없음</span>
                     </div>
+                    <div class="profile-hint">ex. tobacco, gambling, weapons, fossil fuels</div>
                 </div>
 
                 <div class="profile-item">
                     <div class="profile-label">Custom Instructions</div>
                     <div class="profile-value" id="p_custom">-</div>
+                    <div class="profile-hint">ex. 배당주 위주로, ESG 중시, 변동성 낮은 종목 선호</div>
                 </div>
             </div>
 
@@ -1799,8 +1899,9 @@ async function fetchProfile() {
     try {
         const response = await fetch('/trading_agent/api/profile/');
         const data = await response.json();
-        renderProfile(data);
-        renderChatHistory(data.chat_history || []);
+        const profile = data.profile || data;
+        renderProfile(profile);
+        renderChatHistory(profile.chat_history || []);
     } catch (error) {
         console.error('Error fetching profile:', error);
     }
@@ -1811,14 +1912,20 @@ function renderChatHistory(chatHistory) {
     const chatLog = document.getElementById('personaChatLog');
     chatLog.innerHTML = '';  // Clear existing
 
+    if (!chatHistory || chatHistory.length === 0) {
+        chatLog.innerHTML = '<div class="chat-message system"><em>아직 대화 내역이 없습니다. 투자 성향을 입력해보세요.</em></div>';
+        return;
+    }
+
     chatHistory.forEach(chat => {
-        const messageClass = chat.is_user ? 'user' : 'system';
-        const label = chat.is_user ? 'You' : 'System';
+        const isUser = chat.role === 'user';
+        const messageClass = isUser ? 'user' : 'system';
+        const label = isUser ? 'You' : 'System';
 
         chatLog.innerHTML += `
             <div class="chat-message ${messageClass}">
                 <strong>${label}</strong><br>
-                ${chat.message}
+                ${chat.content}
             </div>
         `;
     });
@@ -2037,14 +2144,31 @@ async function loadHistoryDetail(analysisId) {
             document.getElementById('ticker').value = analysis.ticker;
             document.getElementById('date').value = analysis.analysis_date;
 
+            // Construct full_state from individual fields
+            const full_state = {
+                risk: analysis.risk_assessment || '',
+                technical: analysis.technical_analysis || '',
+                fundamentals: analysis.fundamental_analysis || '',
+                sentiment: analysis.sentiment_analysis || ''
+            };
+
+            // Construct accuracy from individual fields
+            const accuracy = {
+                calculable: analysis.start_price !== null,
+                start_price: analysis.start_price ? parseFloat(analysis.start_price) : null,
+                end_price: analysis.end_price ? parseFloat(analysis.end_price) : null,
+                return_pct: analysis.return_pct || '',
+                is_accurate: analysis.is_accurate
+            };
+
             // Display the results
             displayResults({
                 ticker: analysis.ticker,
                 date: analysis.analysis_date,
                 decision: analysis.decision,
                 report: analysis.investment_plan,
-                accuracy: analysis.accuracy,
-                full_state: analysis.full_state
+                accuracy: accuracy,
+                full_state: full_state
             });
 
             // Scroll to results
@@ -2073,7 +2197,7 @@ async function saveAnalysisResult(resultData) {
                 ticker: resultData.ticker,
                 date: resultData.date,
                 decision: resultData.decision,
-                investment_plan: resultData.report,
+                report: resultData.report,
                 full_state: resultData.full_state,
                 accuracy: resultData.accuracy
             })

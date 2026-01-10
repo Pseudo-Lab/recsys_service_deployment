@@ -416,16 +416,23 @@ def analyze_stock(request):
 
 def get_user_investment_profile(user):
     """
-    Get user's investment profile
-    This will be implemented after we extend the User model
+    Get user's investment profile from database
     """
-    # TODO: Implement this based on extended User model
-    return {
-        'risk_tolerance': 'moderate',
-        'investment_horizon': 'medium-term',
-        'preferred_sectors': [],
-        'avoided_sectors': []
-    }
+    from .models import InvestmentProfile
+
+    try:
+        profile = InvestmentProfile.objects.get(user=user)
+        return profile.to_dict()
+    except InvestmentProfile.DoesNotExist:
+        # Return default profile if not exists
+        return {
+            'risk_tolerance': 'moderate',
+            'investment_horizon': 'medium-term',
+            'preferred_sectors': [],
+            'avoided_sectors': [],
+            'raw_text': None,
+            'chat_history': [],
+        }
 
 
 def calculate_accuracy(ticker, date_str, decision):
@@ -489,6 +496,8 @@ def user_profile_api(request):
     GET: Retrieve current profile
     POST: Update profile based on natural language input
     """
+    from .models import InvestmentProfile
+
     if not request.user.is_authenticated:
         return JsonResponse({
             'status': 'error',
@@ -500,14 +509,120 @@ def user_profile_api(request):
         return JsonResponse({'profile': profile})
 
     elif request.method == "POST":
-        # TODO: Implement profile update with LLM
         data = json.loads(request.body)
         text_input = data.get('text', '')
 
-        # For now, return the current profile
-        # Later we'll use profile_manager.update_profile_from_text(text_input)
-        profile = get_user_investment_profile(request.user)
-        return JsonResponse({'profile': profile})
+        # Get or create profile
+        profile, created = InvestmentProfile.objects.get_or_create(
+            user=request.user,
+            defaults={
+                'risk_tolerance': 'moderate',
+                'investment_horizon': 'medium-term',
+                'preferred_sectors': [],
+                'avoided_sectors': [],
+            }
+        )
+
+        # Add to chat history
+        chat_history = profile.chat_history or []
+        chat_history.append({
+            'role': 'user',
+            'content': text_input,
+            'timestamp': datetime.now().isoformat()
+        })
+
+        # Update raw_text with latest input
+        profile.raw_text = text_input
+        profile.chat_history = chat_history
+
+        # Simple keyword-based profile extraction (can be enhanced with LLM later)
+        text_lower = text_input.lower()
+
+        # Risk tolerance detection
+        if any(word in text_lower for word in ['공격적', '고위험', '적극적', 'aggressive', 'high risk']):
+            profile.risk_tolerance = 'aggressive'
+        elif any(word in text_lower for word in ['보수적', '안정적', '저위험', 'conservative', 'safe', 'low risk']):
+            profile.risk_tolerance = 'conservative'
+        elif any(word in text_lower for word in ['중립', '보통', 'moderate', 'balanced']):
+            profile.risk_tolerance = 'moderate'
+
+        # Investment horizon detection
+        if any(word in text_lower for word in ['단기', '1년 이내', 'short-term', 'short term']):
+            profile.investment_horizon = 'short-term'
+        elif any(word in text_lower for word in ['장기', '5년', '10년', 'long-term', 'long term']):
+            profile.investment_horizon = 'long-term'
+        elif any(word in text_lower for word in ['중기', '2년', '3년', 'medium-term', 'medium term']):
+            profile.investment_horizon = 'medium-term'
+
+        # Investment style detection
+        if any(word in text_lower for word in ['성장', 'growth', '성장주']):
+            profile.investment_style = 'growth'
+        elif any(word in text_lower for word in ['가치', 'value', '가치주', '저평가']):
+            profile.investment_style = 'value'
+        elif any(word in text_lower for word in ['배당', 'income', 'dividend', '인컴']):
+            profile.investment_style = 'income'
+        elif any(word in text_lower for word in ['균형', 'balanced', '혼합']):
+            profile.investment_style = 'balanced'
+
+        # Custom instructions - save the text if it contains specific preferences
+        custom_keywords = ['위주', '중시', '선호', '싫어', '피하고', '원해', '원함', '좋아',
+                          'ESG', '변동성', '안전', '수익률', '리스크', '분산', '집중']
+        if any(kw in text_lower for kw in custom_keywords):
+            # Append to existing custom instructions or set new
+            if profile.custom_instructions:
+                profile.custom_instructions = f"{profile.custom_instructions}; {text_input}"
+            else:
+                profile.custom_instructions = text_input
+
+        # Sector detection
+        sector_keywords = {
+            'tech': ['기술', '테크', 'tech', 'technology', 'IT', '반도체', 'AI', '인공지능'],
+            'healthcare': ['헬스케어', '의료', '바이오', 'healthcare', 'biotech', 'pharma'],
+            'finance': ['금융', '은행', 'finance', 'banking', 'fintech'],
+            'energy': ['에너지', '친환경', 'energy', 'renewable', 'solar', 'green'],
+            'consumer': ['소비재', '유통', 'consumer', 'retail'],
+        }
+
+        preferred = list(profile.preferred_sectors) if profile.preferred_sectors else []
+        avoided = list(profile.avoided_sectors) if profile.avoided_sectors else []
+
+        for sector, keywords in sector_keywords.items():
+            if any(kw in text_lower for kw in keywords):
+                if any(neg in text_lower for neg in ['싫', '피하', 'avoid', 'hate', '안좋', '제외']):
+                    if sector not in avoided:
+                        avoided.append(sector)
+                    if sector in preferred:
+                        preferred.remove(sector)
+                else:
+                    if sector not in preferred:
+                        preferred.append(sector)
+                    if sector in avoided:
+                        avoided.remove(sector)
+
+        profile.preferred_sectors = preferred
+        profile.avoided_sectors = avoided
+
+        # Add system response to chat history
+        response_msg = f"프로필이 업데이트되었습니다. 투자 성향: {profile.risk_tolerance}, 투자 기간: {profile.investment_horizon}"
+        if profile.investment_style:
+            response_msg += f", 투자 스타일: {profile.investment_style}"
+        if preferred:
+            response_msg += f", 선호 섹터: {', '.join(preferred)}"
+        if avoided:
+            response_msg += f", 비선호 섹터: {', '.join(avoided)}"
+        if profile.custom_instructions:
+            response_msg += f", 커스텀 지시: {profile.custom_instructions}"
+
+        chat_history.append({
+            'role': 'assistant',
+            'content': response_msg,
+            'timestamp': datetime.now().isoformat()
+        })
+        profile.chat_history = chat_history
+
+        profile.save()
+
+        return JsonResponse({'profile': profile.to_dict()})
 
 
 @require_http_methods(["POST"])

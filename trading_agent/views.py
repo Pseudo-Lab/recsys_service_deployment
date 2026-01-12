@@ -13,6 +13,7 @@ load_dotenv()
 # Import TradingAgents components
 from .tradingagents.graph.trading_graph import TradingAgentsGraph
 from .tradingagents.default_config import DEFAULT_CONFIG
+from .tradingagents.utils.token_tracker import TokenUsageTracker
 
 
 @require_http_methods(["GET"])
@@ -70,8 +71,79 @@ def analyze_stock(request):
                 from .tradingagents.agents.utils.agent_states import AgentState
                 from langchain_core.callbacks import BaseCallbackHandler
 
+                # Initialize token tracker
+                token_tracker = TokenUsageTracker()
+                last_token_update = [0]  # Use list to allow mutation in closure
+
                 # Tool execution logger with queue for streaming
                 tool_events = []
+
+                class TokenTrackingCallback(BaseCallbackHandler):
+                    """Callback handler to track token usage from LLM calls"""
+
+                    def __init__(self, tracker: TokenUsageTracker):
+                        self.tracker = tracker
+                        self.current_agent = "unknown"
+
+                    def set_current_agent(self, agent_name: str):
+                        self.current_agent = agent_name
+
+                    def on_llm_end(self, response, **kwargs):
+                        """Called when LLM call ends - extract token usage"""
+                        try:
+                            # Try to get token usage from response
+                            if hasattr(response, 'llm_output') and response.llm_output:
+                                token_usage = response.llm_output.get('token_usage', {})
+                                if token_usage:
+                                    model = response.llm_output.get('model_name', 'unknown')
+                                    input_tokens = token_usage.get('prompt_tokens', 0)
+                                    output_tokens = token_usage.get('completion_tokens', 0)
+                                    self.tracker.add_usage(model, input_tokens, output_tokens, self.current_agent)
+                                    return
+
+                            # Try generations approach (for ChatOpenAI)
+                            if hasattr(response, 'generations') and response.generations:
+                                for gen_list in response.generations:
+                                    for gen in gen_list:
+                                        if hasattr(gen, 'generation_info') and gen.generation_info:
+                                            # Try to get usage from generation_info
+                                            pass
+                                        if hasattr(gen, 'message') and hasattr(gen.message, 'usage_metadata'):
+                                            usage = gen.message.usage_metadata
+                                            if usage:
+                                                model = getattr(gen.message, 'response_metadata', {}).get('model_name', 'unknown')
+                                                input_tokens = getattr(usage, 'input_tokens', 0)
+                                                output_tokens = getattr(usage, 'output_tokens', 0)
+                                                self.tracker.add_usage(model, input_tokens, output_tokens, self.current_agent)
+                                                return
+
+                            # Alternative: check response_metadata on the message
+                            if hasattr(response, 'generations') and response.generations:
+                                for gen_list in response.generations:
+                                    for gen in gen_list:
+                                        if hasattr(gen, 'message'):
+                                            msg = gen.message
+                                            if hasattr(msg, 'response_metadata'):
+                                                meta = msg.response_metadata
+                                                if 'token_usage' in meta:
+                                                    usage = meta['token_usage']
+                                                    model = meta.get('model_name', 'unknown')
+                                                    input_tokens = usage.get('prompt_tokens', 0)
+                                                    output_tokens = usage.get('completion_tokens', 0)
+                                                    self.tracker.add_usage(model, input_tokens, output_tokens, self.current_agent)
+                                                    return
+                                                # OpenAI style
+                                                if 'usage' in meta:
+                                                    usage = meta['usage']
+                                                    model = meta.get('model', 'unknown')
+                                                    input_tokens = usage.get('prompt_tokens', usage.get('input_tokens', 0))
+                                                    output_tokens = usage.get('completion_tokens', usage.get('output_tokens', 0))
+                                                    self.tracker.add_usage(model, input_tokens, output_tokens, self.current_agent)
+                                                    return
+                        except Exception as e:
+                            print(f"Token tracking error: {e}")
+
+                token_callback = TokenTrackingCallback(token_tracker)
 
                 class ToolLoggingCallback(BaseCallbackHandler):
                     def on_tool_start(self, serialized, input_str, **kwargs):
@@ -182,7 +254,7 @@ def analyze_stock(request):
 
                 tool_callback = ToolLoggingCallback()
                 args = {
-                    "config": {"recursion_limit": 100, "callbacks": [tool_callback]}
+                    "config": {"recursion_limit": 100, "callbacks": [tool_callback, token_callback]}
                 }
                 trace = []
                 current_progress = 15
@@ -211,9 +283,36 @@ def analyze_stock(request):
                         event = tool_events.pop(0)
                         yield f"data: {json.dumps(event)}\n\n"
 
+                    # Stream token usage updates (every 5 tokens to avoid too many updates)
+                    current_tokens = token_tracker.total_tokens
+                    if current_tokens > last_token_update[0] + 100:  # Update every 100 tokens
+                        last_token_update[0] = current_tokens
+                        stats = token_tracker.get_current_stats()
+                        yield f"data: {json.dumps({'type': 'token_update', 'stats': stats})}\n\n"
+
                     # Check if chunk has data updates and report them
                     chunk_data = list(chunk.values())[0] if chunk else {}
                     chunk_key = list(chunk.keys())[0] if chunk else ""
+
+                    # Update agent name for token tracking based on current chunk
+                    if 'market' in chunk_key.lower():
+                        token_callback.set_current_agent('market_analyst')
+                    elif 'social' in chunk_key.lower() or 'sentiment' in chunk_key.lower():
+                        token_callback.set_current_agent('sentiment_analyst')
+                    elif 'news' in chunk_key.lower():
+                        token_callback.set_current_agent('news_analyst')
+                    elif 'fundamental' in chunk_key.lower():
+                        token_callback.set_current_agent('fundamentals_analyst')
+                    elif 'bull' in chunk_key.lower():
+                        token_callback.set_current_agent('bull_researcher')
+                    elif 'bear' in chunk_key.lower():
+                        token_callback.set_current_agent('bear_researcher')
+                    elif 'trader' in chunk_key.lower():
+                        token_callback.set_current_agent('trader')
+                    elif 'risk' in chunk_key.lower():
+                        token_callback.set_current_agent('risk_analyst')
+                    elif 'manager' in chunk_key.lower() or 'judge' in chunk_key.lower():
+                        token_callback.set_current_agent('manager')
 
                     # Capture LLM reasoning from messages (when LLM outputs thought process before tool calls)
                     if 'messages' in chunk_data:
@@ -369,6 +468,12 @@ def analyze_stock(request):
                 # Calculate accuracy (no log messages)
                 accuracy_info = calculate_accuracy(ticker, date_str, decision)
 
+                # Get final token usage summary
+                token_summary = token_tracker.get_summary()
+
+                # Send final token usage update
+                yield f"data: {json.dumps({'type': 'token_update', 'stats': token_tracker.get_current_stats(), 'final': True})}\n\n"
+
                 # Send final result using accumulated state
                 result = {
                     'type': 'result',
@@ -383,7 +488,8 @@ def analyze_stock(request):
                         'fundamentals': accumulated_state.get('fundamentals_report', ''),
                         'technical': accumulated_state.get('market_report', ''),
                         'risk': accumulated_state.get('risk_debate_state', {}).get('judge_decision', '')
-                    }
+                    },
+                    'token_usage': token_summary
                 }
                 yield f"data: {json.dumps(result)}\n\n"
 

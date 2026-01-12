@@ -2375,35 +2375,46 @@ function updateTokenStats(stats, animate = false) {
     const container = document.getElementById('tokenStatsContainer');
     container.style.display = 'block';
 
-    if (animate && stats.total_tokens > 0) {
-        // Slot machine animation for final results
-        animateNumber(document.getElementById('inputTokens'), stats.input_tokens);
-        animateNumber(document.getElementById('outputTokens'), stats.output_tokens);
-        animateNumber(document.getElementById('totalTokens'), stats.total_tokens);
-        animateNumber(document.getElementById('costKrw'), Math.round(stats.cost_krw), '₩');
+    // Always animate if there's a change (slot machine effect every step)
+    if (stats.total_tokens > 0) {
+        // Get current values
+        const currentInput = parseInt(document.getElementById('inputTokens').textContent.replace(/,/g, '')) || 0;
+        const currentOutput = parseInt(document.getElementById('outputTokens').textContent.replace(/,/g, '')) || 0;
+        const currentTotal = parseInt(document.getElementById('totalTokens').textContent.replace(/,/g, '')) || 0;
+        const currentKrw = parseInt(document.getElementById('costKrw').textContent.replace(/[₩,]/g, '')) || 0;
 
-        // USD with 2 decimal places
-        const usdEl = document.getElementById('costUsd');
-        const startUsd = parseFloat(usdEl.textContent.replace(/[^0-9.-]/g, '')) || 0;
-        const targetUsd = stats.cost_usd;
-        const startTime = performance.now();
+        // Only animate if values actually changed
+        if (stats.input_tokens !== currentInput || stats.output_tokens !== currentOutput) {
+            // Slot machine animation - 촤라락 effect
+            const duration = animate ? 800 : 400;  // Faster during analysis, slower at end
+            animateNumber(document.getElementById('inputTokens'), stats.input_tokens, '', '', duration);
+            animateNumber(document.getElementById('outputTokens'), stats.output_tokens, '', '', duration);
+            animateNumber(document.getElementById('totalTokens'), stats.total_tokens, '', '', duration);
+            animateNumber(document.getElementById('costKrw'), Math.round(stats.cost_krw), '₩', '', duration);
 
-        function updateUsd(currentTime) {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / 800, 1);
-            const easeOut = 1 - Math.pow(1 - progress, 3);
-            const currentUsd = startUsd + (targetUsd - startUsd) * easeOut;
-            usdEl.textContent = '($' + currentUsd.toFixed(2) + ')';
-            if (progress < 1) requestAnimationFrame(updateUsd);
+            // USD with 2 decimal places
+            const usdEl = document.getElementById('costUsd');
+            const startUsd = parseFloat(usdEl.textContent.replace(/[^0-9.-]/g, '')) || 0;
+            const targetUsd = stats.cost_usd;
+            const startTime = performance.now();
+
+            function updateUsd(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const currentUsd = startUsd + (targetUsd - startUsd) * easeOut;
+                usdEl.textContent = '($' + currentUsd.toFixed(2) + ')';
+                if (progress < 1) requestAnimationFrame(updateUsd);
+            }
+            requestAnimationFrame(updateUsd);
         }
-        requestAnimationFrame(updateUsd);
     } else {
-        // Direct update (during analysis)
-        document.getElementById('inputTokens').textContent = stats.input_tokens.toLocaleString();
-        document.getElementById('outputTokens').textContent = stats.output_tokens.toLocaleString();
-        document.getElementById('totalTokens').textContent = stats.total_tokens.toLocaleString();
-        document.getElementById('costUsd').textContent = '($' + stats.cost_usd.toFixed(2) + ')';
-        document.getElementById('costKrw').textContent = '₩' + Math.round(stats.cost_krw).toLocaleString();
+        // Initial zero state
+        document.getElementById('inputTokens').textContent = '0';
+        document.getElementById('outputTokens').textContent = '0';
+        document.getElementById('totalTokens').textContent = '0';
+        document.getElementById('costUsd').textContent = '($0.00)';
+        document.getElementById('costKrw').textContent = '₩0';
     }
 }
 

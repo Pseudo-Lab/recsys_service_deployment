@@ -91,57 +91,77 @@ def analyze_stock(request):
                     def on_llm_end(self, response, **kwargs):
                         """Called when LLM call ends - extract token usage"""
                         try:
-                            # Try to get token usage from response
+                            # Debug: Print response structure
+                            print(f"[TOKEN DEBUG] Response type: {type(response)}")
+                            print(f"[TOKEN DEBUG] Response attrs: {dir(response)}")
+
+                            # Try to get token usage from llm_output
                             if hasattr(response, 'llm_output') and response.llm_output:
+                                print(f"[TOKEN DEBUG] llm_output: {response.llm_output}")
                                 token_usage = response.llm_output.get('token_usage', {})
                                 if token_usage:
                                     model = response.llm_output.get('model_name', 'unknown')
                                     input_tokens = token_usage.get('prompt_tokens', 0)
                                     output_tokens = token_usage.get('completion_tokens', 0)
+                                    print(f"[TOKEN DEBUG] Found in llm_output: {input_tokens} / {output_tokens}")
                                     self.tracker.add_usage(model, input_tokens, output_tokens, self.current_agent)
                                     return
 
-                            # Try generations approach (for ChatOpenAI)
+                            # Try generations approach (for ChatOpenAI with streaming)
                             if hasattr(response, 'generations') and response.generations:
                                 for gen_list in response.generations:
                                     for gen in gen_list:
-                                        if hasattr(gen, 'generation_info') and gen.generation_info:
-                                            # Try to get usage from generation_info
-                                            pass
-                                        if hasattr(gen, 'message') and hasattr(gen.message, 'usage_metadata'):
-                                            usage = gen.message.usage_metadata
-                                            if usage:
-                                                model = getattr(gen.message, 'response_metadata', {}).get('model_name', 'unknown')
-                                                input_tokens = getattr(usage, 'input_tokens', 0)
-                                                output_tokens = getattr(usage, 'output_tokens', 0)
-                                                self.tracker.add_usage(model, input_tokens, output_tokens, self.current_agent)
-                                                return
-
-                            # Alternative: check response_metadata on the message
-                            if hasattr(response, 'generations') and response.generations:
-                                for gen_list in response.generations:
-                                    for gen in gen_list:
+                                        # Check usage_metadata on message
                                         if hasattr(gen, 'message'):
                                             msg = gen.message
-                                            if hasattr(msg, 'response_metadata'):
+                                            print(f"[TOKEN DEBUG] Message type: {type(msg)}")
+                                            print(f"[TOKEN DEBUG] Message attrs: {dir(msg)}")
+
+                                            # Check usage_metadata (LangChain standard)
+                                            if hasattr(msg, 'usage_metadata') and msg.usage_metadata:
+                                                usage = msg.usage_metadata
+                                                print(f"[TOKEN DEBUG] usage_metadata: {usage}")
+                                                model = getattr(msg, 'response_metadata', {}).get('model_name', 'gpt-4o-mini')
+                                                # usage_metadata is a dict-like object
+                                                input_tokens = getattr(usage, 'input_tokens', 0) or usage.get('input_tokens', 0) if isinstance(usage, dict) else 0
+                                                output_tokens = getattr(usage, 'output_tokens', 0) or usage.get('output_tokens', 0) if isinstance(usage, dict) else 0
+                                                if input_tokens or output_tokens:
+                                                    print(f"[TOKEN DEBUG] Found in usage_metadata: {input_tokens} / {output_tokens}")
+                                                    self.tracker.add_usage(model, input_tokens, output_tokens, self.current_agent)
+                                                    return
+
+                                            # Check response_metadata
+                                            if hasattr(msg, 'response_metadata') and msg.response_metadata:
                                                 meta = msg.response_metadata
+                                                print(f"[TOKEN DEBUG] response_metadata: {meta}")
+
+                                                # token_usage key
                                                 if 'token_usage' in meta:
                                                     usage = meta['token_usage']
-                                                    model = meta.get('model_name', 'unknown')
-                                                    input_tokens = usage.get('prompt_tokens', 0)
-                                                    output_tokens = usage.get('completion_tokens', 0)
-                                                    self.tracker.add_usage(model, input_tokens, output_tokens, self.current_agent)
-                                                    return
-                                                # OpenAI style
-                                                if 'usage' in meta:
-                                                    usage = meta['usage']
-                                                    model = meta.get('model', 'unknown')
+                                                    model = meta.get('model_name', meta.get('model', 'gpt-4o-mini'))
                                                     input_tokens = usage.get('prompt_tokens', usage.get('input_tokens', 0))
                                                     output_tokens = usage.get('completion_tokens', usage.get('output_tokens', 0))
-                                                    self.tracker.add_usage(model, input_tokens, output_tokens, self.current_agent)
-                                                    return
+                                                    if input_tokens or output_tokens:
+                                                        print(f"[TOKEN DEBUG] Found in token_usage: {input_tokens} / {output_tokens}")
+                                                        self.tracker.add_usage(model, input_tokens, output_tokens, self.current_agent)
+                                                        return
+
+                                                # usage key (alternative)
+                                                if 'usage' in meta:
+                                                    usage = meta['usage']
+                                                    model = meta.get('model_name', meta.get('model', 'gpt-4o-mini'))
+                                                    input_tokens = usage.get('prompt_tokens', usage.get('input_tokens', 0))
+                                                    output_tokens = usage.get('completion_tokens', usage.get('output_tokens', 0))
+                                                    if input_tokens or output_tokens:
+                                                        print(f"[TOKEN DEBUG] Found in usage: {input_tokens} / {output_tokens}")
+                                                        self.tracker.add_usage(model, input_tokens, output_tokens, self.current_agent)
+                                                        return
+
+                            print(f"[TOKEN DEBUG] No token usage found in response")
                         except Exception as e:
                             print(f"Token tracking error: {e}")
+                            import traceback
+                            traceback.print_exc()
 
                 token_callback = TokenTrackingCallback(token_tracker)
 

@@ -850,6 +850,12 @@
 
             <!-- Token Usage Display - Prominent Cost Display -->
             <div id="tokenStatsContainer" style="display: none; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 12px; padding: 20px 25px; margin-bottom: 25px; border: 2px solid #667eea40; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);">
+                <!-- Model Name -->
+                <div style="text-align: center; margin-bottom: 10px;">
+                    <span id="modelName" style="font-size: 0.8rem; color: #667eea; background: #667eea20; padding: 4px 12px; border-radius: 12px; font-weight: 600;">
+                        <i class="fas fa-robot"></i> gpt-4o-mini / o4-mini
+                    </span>
+                </div>
                 <!-- Main Cost Display -->
                 <div style="display: flex; align-items: center; justify-content: center; gap: 30px; margin-bottom: 15px;">
                     <div style="text-align: center;">
@@ -857,8 +863,8 @@
                             <i class="fas fa-coins" style="color: #667eea;"></i> 현재 비용
                         </div>
                         <div style="display: flex; align-items: baseline; justify-content: center; gap: 15px;">
-                            <div id="costKrw" style="font-size: 2rem; font-weight: 700; color: #667eea;">₩0</div>
-                            <div id="costUsd" style="font-size: 1.1rem; font-weight: 500; color: #888;">($0.0000)</div>
+                            <div id="costKrw" class="slot-number" style="font-size: 2rem; font-weight: 700; color: #667eea;">₩0</div>
+                            <div id="costUsd" style="font-size: 1.1rem; font-weight: 500; color: #888;">($0.00)</div>
                         </div>
                     </div>
                 </div>
@@ -866,15 +872,15 @@
                 <div style="display: flex; justify-content: center; gap: 30px; padding-top: 12px; border-top: 1px solid #667eea30;">
                     <div style="text-align: center;">
                         <div style="font-size: 0.75rem; color: #888;">입력 토큰</div>
-                        <div id="inputTokens" style="font-weight: 600; color: #333; font-size: 1rem;">0</div>
+                        <div id="inputTokens" class="slot-number" style="font-weight: 600; color: #333; font-size: 1rem;">0</div>
                     </div>
                     <div style="text-align: center;">
                         <div style="font-size: 0.75rem; color: #888;">출력 토큰</div>
-                        <div id="outputTokens" style="font-weight: 600; color: #333; font-size: 1rem;">0</div>
+                        <div id="outputTokens" class="slot-number" style="font-weight: 600; color: #333; font-size: 1rem;">0</div>
                     </div>
                     <div style="text-align: center;">
                         <div style="font-size: 0.75rem; color: #888;">총 토큰</div>
-                        <div id="totalTokens" style="font-weight: 600; color: #667eea; font-size: 1rem;">0</div>
+                        <div id="totalTokens" class="slot-number" style="font-weight: 600; color: #667eea; font-size: 1rem;">0</div>
                     </div>
                 </div>
             </div>
@@ -1213,8 +1219,8 @@ document.getElementById('analysisForm').addEventListener('submit', async (e) => 
                             // Show LLM reasoning/thought process
                             showReasoningContent(data.analyst, data.content);
                         } else if (data.type === 'token_update') {
-                            // Update token usage display
-                            updateTokenStats(data.stats);
+                            // Update token usage display (animate if final)
+                            updateTokenStats(data.stats, data.final === true);
                         } else if (data.type === 'intermediate') {
                             // Show intermediate results
                             showIntermediateResult(data.report_type, data.content);
@@ -2341,17 +2347,64 @@ function handleToolCall(data) {
     logEl.scrollTop = logEl.scrollHeight;
 }
 
-function updateTokenStats(stats) {
+// Slot machine animation for numbers
+function animateNumber(element, targetValue, prefix = '', suffix = '', duration = 800) {
+    const startValue = parseInt(element.textContent.replace(/[^0-9.-]/g, '')) || 0;
+    const startTime = performance.now();
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Easing function for smooth animation
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const currentValue = Math.round(startValue + (targetValue - startValue) * easeOut);
+
+        element.textContent = prefix + currentValue.toLocaleString() + suffix;
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+
+    requestAnimationFrame(update);
+}
+
+function updateTokenStats(stats, animate = false) {
     // Show the token stats container
     const container = document.getElementById('tokenStatsContainer');
     container.style.display = 'block';
 
-    // Update values
-    document.getElementById('inputTokens').textContent = stats.input_tokens.toLocaleString();
-    document.getElementById('outputTokens').textContent = stats.output_tokens.toLocaleString();
-    document.getElementById('totalTokens').textContent = stats.total_tokens.toLocaleString();
-    document.getElementById('costUsd').textContent = '($' + stats.cost_usd.toFixed(4) + ')';
-    document.getElementById('costKrw').textContent = '₩' + Math.round(stats.cost_krw).toLocaleString();
+    if (animate && stats.total_tokens > 0) {
+        // Slot machine animation for final results
+        animateNumber(document.getElementById('inputTokens'), stats.input_tokens);
+        animateNumber(document.getElementById('outputTokens'), stats.output_tokens);
+        animateNumber(document.getElementById('totalTokens'), stats.total_tokens);
+        animateNumber(document.getElementById('costKrw'), Math.round(stats.cost_krw), '₩');
+
+        // USD with 2 decimal places
+        const usdEl = document.getElementById('costUsd');
+        const startUsd = parseFloat(usdEl.textContent.replace(/[^0-9.-]/g, '')) || 0;
+        const targetUsd = stats.cost_usd;
+        const startTime = performance.now();
+
+        function updateUsd(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / 800, 1);
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            const currentUsd = startUsd + (targetUsd - startUsd) * easeOut;
+            usdEl.textContent = '($' + currentUsd.toFixed(2) + ')';
+            if (progress < 1) requestAnimationFrame(updateUsd);
+        }
+        requestAnimationFrame(updateUsd);
+    } else {
+        // Direct update (during analysis)
+        document.getElementById('inputTokens').textContent = stats.input_tokens.toLocaleString();
+        document.getElementById('outputTokens').textContent = stats.output_tokens.toLocaleString();
+        document.getElementById('totalTokens').textContent = stats.total_tokens.toLocaleString();
+        document.getElementById('costUsd').textContent = '($' + stats.cost_usd.toFixed(2) + ')';
+        document.getElementById('costKrw').textContent = '₩' + Math.round(stats.cost_krw).toLocaleString();
+    }
 }
 
 function resetTokenStats() {
@@ -2361,7 +2414,7 @@ function resetTokenStats() {
     document.getElementById('inputTokens').textContent = '0';
     document.getElementById('outputTokens').textContent = '0';
     document.getElementById('totalTokens').textContent = '0';
-    document.getElementById('costUsd').textContent = '($0.0000)';
+    document.getElementById('costUsd').textContent = '($0.00)';
     document.getElementById('costKrw').textContent = '₩0';
 }
 

@@ -848,34 +848,33 @@
                 <span>의사결정</span>
             </div>
 
-            <!-- Token Usage Display -->
-            <div id="tokenStatsContainer" style="display: none; background: #f8f9fa; border-radius: 8px; padding: 15px 20px; margin-bottom: 20px; border: 1px solid #e0e0e0;">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-coins" style="color: #667eea;"></i>
-                        <span style="font-weight: 600; color: #333;">토큰 사용량</span>
+            <!-- Token Usage Display - Prominent Cost Display -->
+            <div id="tokenStatsContainer" style="display: none; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 12px; padding: 20px 25px; margin-bottom: 25px; border: 2px solid #667eea40; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);">
+                <!-- Main Cost Display -->
+                <div style="display: flex; align-items: center; justify-content: center; gap: 30px; margin-bottom: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">
+                            <i class="fas fa-coins" style="color: #667eea;"></i> 현재 비용
+                        </div>
+                        <div style="display: flex; align-items: baseline; justify-content: center; gap: 15px;">
+                            <div id="costKrw" style="font-size: 2rem; font-weight: 700; color: #667eea;">₩0</div>
+                            <div id="costUsd" style="font-size: 1.1rem; font-weight: 500; color: #888;">($0.0000)</div>
+                        </div>
                     </div>
-                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.75rem; color: #888;">입력</div>
-                            <div id="inputTokens" style="font-weight: 600; color: #333;">0</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.75rem; color: #888;">출력</div>
-                            <div id="outputTokens" style="font-weight: 600; color: #333;">0</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.75rem; color: #888;">총 토큰</div>
-                            <div id="totalTokens" style="font-weight: 600; color: #333;">0</div>
-                        </div>
-                        <div style="text-align: center; border-left: 1px solid #ddd; padding-left: 20px;">
-                            <div style="font-size: 0.75rem; color: #888;">비용 (USD)</div>
-                            <div id="costUsd" style="font-weight: 600; color: #28a745;">$0.0000</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.75rem; color: #888;">비용 (KRW)</div>
-                            <div id="costKrw" style="font-weight: 600; color: #28a745;">₩0</div>
-                        </div>
+                </div>
+                <!-- Token Details -->
+                <div style="display: flex; justify-content: center; gap: 30px; padding-top: 12px; border-top: 1px solid #667eea30;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.75rem; color: #888;">입력 토큰</div>
+                        <div id="inputTokens" style="font-weight: 600; color: #333; font-size: 1rem;">0</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.75rem; color: #888;">출력 토큰</div>
+                        <div id="outputTokens" style="font-weight: 600; color: #333; font-size: 1rem;">0</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.75rem; color: #888;">총 토큰</div>
+                        <div id="totalTokens" style="font-weight: 600; color: #667eea; font-size: 1rem;">0</div>
                     </div>
                 </div>
             </div>
@@ -2351,7 +2350,7 @@ function updateTokenStats(stats) {
     document.getElementById('inputTokens').textContent = stats.input_tokens.toLocaleString();
     document.getElementById('outputTokens').textContent = stats.output_tokens.toLocaleString();
     document.getElementById('totalTokens').textContent = stats.total_tokens.toLocaleString();
-    document.getElementById('costUsd').textContent = '$' + stats.cost_usd.toFixed(4);
+    document.getElementById('costUsd').textContent = '($' + stats.cost_usd.toFixed(4) + ')';
     document.getElementById('costKrw').textContent = '₩' + Math.round(stats.cost_krw).toLocaleString();
 }
 
@@ -2362,7 +2361,7 @@ function resetTokenStats() {
     document.getElementById('inputTokens').textContent = '0';
     document.getElementById('outputTokens').textContent = '0';
     document.getElementById('totalTokens').textContent = '0';
-    document.getElementById('costUsd').textContent = '$0.0000';
+    document.getElementById('costUsd').textContent = '($0.0000)';
     document.getElementById('costKrw').textContent = '₩0';
 }
 

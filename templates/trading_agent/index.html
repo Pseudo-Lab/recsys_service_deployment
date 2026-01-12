@@ -2355,9 +2355,9 @@ function updateTokenStats(stats) {
 }
 
 function resetTokenStats() {
-    // Hide and reset the token stats container
+    // Show and reset the token stats container (visible from start)
     const container = document.getElementById('tokenStatsContainer');
-    container.style.display = 'none';
+    container.style.display = 'block';  // Show immediately when analysis starts
     document.getElementById('inputTokens').textContent = '0';
     document.getElementById('outputTokens').textContent = '0';
     document.getElementById('totalTokens').textContent = '0';

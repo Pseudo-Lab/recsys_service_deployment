@@ -8,7 +8,8 @@ def price_cypher(llm, state: GraphState) -> dict:
     query = state.get("rewritten_query") or state.get("query")
     prompt = PRICE_CYPHER_PROMPT.format(query=query)
     res = llm.invoke(prompt)
-    cypher = res.content.replace("```cypher", "").replace("```", "").strip()
+    content = res.content or ""
+    cypher = content.replace("```cypher", "").replace("```", "").strip()
 
     if cypher:
         return {

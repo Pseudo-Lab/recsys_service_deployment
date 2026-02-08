@@ -8,7 +8,8 @@ def restaurant_name_cypher(llm, state: GraphState) -> dict:
     query = state.get("query")
     prompt = RESTAURANT_NAME_CYPHER_PROMPT.format(query=query)
     res = llm.invoke(prompt)
-    cypher = res.content.replace("```cypher", "").replace("```", "").strip()
+    content = res.content or ""
+    cypher = content.replace("```cypher", "").replace("```", "").strip()
 
     if cypher:
         return {

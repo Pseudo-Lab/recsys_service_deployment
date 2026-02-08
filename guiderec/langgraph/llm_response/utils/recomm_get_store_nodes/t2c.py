@@ -11,7 +11,8 @@ def text_to_cypher_for_recomm(llm, state:GraphState):
             query=state['query']
             )
     )
-    cypher = response.content.replace('```', '').replace('cypher', '').strip()
+    content = response.content or ""
+    cypher = content.replace('```', '').replace('cypher', '').strip()
     print(f"# cypher : \n{cypher}\n")
     state['t2c_for_recomm'] = cypher
     # print(f"# input_tokens count : {response.usage_metadata['input_tokens']}")

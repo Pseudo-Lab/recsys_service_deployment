@@ -3,7 +3,7 @@ from prompt.cypher_tools.location import LOCATION_CYPHER_PROMPT
 
 def location_cypher(llm, state: GraphState) -> dict:
     if state.get("location_mentioned") == "":
-        return {}
+        return None  # LangGraph 0.2.x: None means no state update
 
     query = state.get("rewritten_query") or state.get("query")
     prompt = LOCATION_CYPHER_PROMPT.format(query=query)
@@ -15,4 +15,4 @@ def location_cypher(llm, state: GraphState) -> dict:
             "field_cypher_parts": {"location": cypher},
             "field_conditions_summary": {"location": "✅ 위치 조건 추가"}
         }
-    return {}
+    return None  # LangGraph 0.2.x: None means no state update

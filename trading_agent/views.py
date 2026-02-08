@@ -476,6 +476,7 @@ def analyze_stock(request):
                         'sentiment': accumulated_state.get('sentiment_report', ''),
                         'fundamentals': accumulated_state.get('fundamentals_report', ''),
                         'technical': accumulated_state.get('market_report', ''),
+                        'news': accumulated_state.get('news_report', ''),
                         'risk': accumulated_state.get('risk_debate_state', {}).get('judge_decision', '')
                     },
                     'token_usage': token_summary
@@ -569,10 +570,16 @@ def calculate_accuracy(ticker, date_str, decision):
         else:
             explanation += f" AI의 {decision} 판단과 실제 움직임이 다릅니다."
 
+        # Get actual dates from history index
+        start_date = hist.index[0].strftime('%Y.%m.%d')
+        end_date = hist.index[-1].strftime('%Y.%m.%d')
+
         return {
             "calculable": True,
             "start_price": start_price,
             "end_price": end_price,
+            "start_date": start_date,
+            "end_date": end_date,
             "return_pct": return_pct,
             "is_accurate": is_accurate,
             "explanation": explanation
@@ -764,8 +771,11 @@ def save_analysis(request):
             technical_analysis=full_state.get('technical', ''),
             fundamental_analysis=full_state.get('fundamentals', ''),
             sentiment_analysis=full_state.get('sentiment', ''),
+            news_analysis=full_state.get('news', ''),
             start_price=accuracy.get('start_price'),
             end_price=accuracy.get('end_price'),
+            start_date=accuracy.get('start_date', ''),
+            end_date=accuracy.get('end_date', ''),
             return_pct=accuracy.get('return_pct', ''),
             is_accurate=accuracy.get('is_accurate')
         )
@@ -855,8 +865,11 @@ def get_analysis_detail(request, analysis_id):
             'technical_analysis': analysis.technical_analysis,
             'fundamental_analysis': analysis.fundamental_analysis,
             'sentiment_analysis': analysis.sentiment_analysis,
+            'news_analysis': getattr(analysis, 'news_analysis', ''),
             'start_price': str(analysis.start_price) if analysis.start_price else None,
             'end_price': str(analysis.end_price) if analysis.end_price else None,
+            'start_date': getattr(analysis, 'start_date', ''),
+            'end_date': getattr(analysis, 'end_date', ''),
             'return_pct': analysis.return_pct,
             'is_accurate': analysis.is_accurate,
             'created_at': analysis.created_at.strftime('%Y-%m-%d %H:%M:%S')

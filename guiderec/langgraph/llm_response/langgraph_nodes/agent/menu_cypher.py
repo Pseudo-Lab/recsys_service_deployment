@@ -3,7 +3,7 @@ from prompt.cypher_tools.menu import MENU_CYPHER_PROMPT
 
 def menu_cypher(llm, state: GraphState) -> dict:
     if state.get("menu_mentioned") == "":
-        return {}
+        return None  # LangGraph 0.2.x: None means no state update
 
     query = state.get("rewritten_query") or state.get("query")
     prompt = MENU_CYPHER_PROMPT.format(query=query)
@@ -15,4 +15,4 @@ def menu_cypher(llm, state: GraphState) -> dict:
             "field_cypher_parts": {"menu": cypher},
             "field_conditions_summary": {"menu": "✅ 메뉴 조건 추가"}
         }
-    return {}
+    return None  # LangGraph 0.2.x: None means no state update

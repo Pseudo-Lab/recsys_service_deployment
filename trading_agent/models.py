@@ -77,10 +77,13 @@ class AnalysisHistory(models.Model):
     technical_analysis = models.TextField(blank=True)
     fundamental_analysis = models.TextField(blank=True)
     sentiment_analysis = models.TextField(blank=True)
+    news_analysis = models.TextField(blank=True)  # 뉴스 분석
 
     # 백테스트 정보
     start_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     end_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    start_date = models.CharField(max_length=20, blank=True)  # 분석일 실제 거래일
+    end_date = models.CharField(max_length=20, blank=True)  # 5일 후 실제 거래일
     return_pct = models.CharField(max_length=20, blank=True)
     is_accurate = models.BooleanField(null=True, blank=True)
 

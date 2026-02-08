@@ -3,7 +3,7 @@ from prompt.cypher_tools.attraction import ATTRACTION_CYPHER_PROMPT
 
 def attraction_cypher(llm, state: GraphState) -> dict:
     if state.get("attraction_mentioned") == "":
-        return {}
+        return None  # LangGraph 0.2.x: None means no state update
 
     query = state.get("rewritten_query") or state.get("query")
     prompt = ATTRACTION_CYPHER_PROMPT.format(query=query)
@@ -15,4 +15,4 @@ def attraction_cypher(llm, state: GraphState) -> dict:
             "field_cypher_parts": {"attraction": cypher},
             "field_conditions_summary": {"attraction": "✅ 관광지 조건 추가"}
         }
-    return {}
+    return None  # LangGraph 0.2.x: None means no state update

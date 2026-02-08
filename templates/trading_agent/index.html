@@ -17,6 +17,16 @@
             background-color: #ffffff;
         }
 
+        /* Pricing Tooltip Hover Effect */
+        .pricing-tooltip-container:hover .pricing-tooltip {
+            display: block !important;
+        }
+        .pricing-help-icon:hover {
+            background: #764ba2 !important;
+            transform: scale(1.1);
+            transition: all 0.2s ease;
+        }
+
         .trading-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -850,11 +860,25 @@
 
             <!-- Token Usage Display - Prominent Cost Display -->
             <div id="tokenStatsContainer" style="display: none; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 12px; padding: 20px 25px; margin-bottom: 25px; border: 2px solid #667eea40; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);">
-                <!-- Model Name -->
-                <div style="text-align: center; margin-bottom: 10px;">
+                <!-- Model Name with Pricing Tooltip -->
+                <div style="text-align: center; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <span id="modelName" style="font-size: 0.8rem; color: #667eea; background: #667eea20; padding: 4px 12px; border-radius: 12px; font-weight: 600;">
                         <i class="fas fa-robot"></i> gpt-4o-mini / o4-mini
                     </span>
+                    <!-- Pricing Info Tooltip -->
+                    <div class="pricing-tooltip-container" style="position: relative; display: inline-block;">
+                        <span class="pricing-help-icon" style="display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; background: #667eea; color: white; border-radius: 50%; font-size: 0.7rem; font-weight: 700; cursor: help;">?</span>
+                        <div class="pricing-tooltip" style="display: none; position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 15px; border-radius: 8px; font-size: 0.75rem; white-space: nowrap; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                            <div style="font-weight: 600; margin-bottom: 8px; color: #667eea;">💰 토큰당 가격 (1K 토큰)</div>
+                            <div style="margin-bottom: 4px;"><b>gpt-4o-mini:</b> 입력 $0.00015 / 출력 $0.0006</div>
+                            <div style="margin-bottom: 8px;"><b>o4-mini:</b> 입력 $0.0011 / 출력 $0.0044</div>
+                            <a href="https://openai.com/api/pricing/" target="_blank" style="color: #667eea; text-decoration: none; font-size: 0.7rem;">
+                                <i class="fas fa-external-link-alt"></i> OpenAI 가격표 보기
+                            </a>
+                            <!-- Tooltip Arrow -->
+                            <div style="position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid #333;"></div>
+                        </div>
+                    </div>
                 </div>
                 <!-- Main Cost Display -->
                 <div style="display: flex; align-items: center; justify-content: center; gap: 30px; margin-bottom: 15px;">
@@ -982,11 +1006,11 @@
                 <h3><i class="fas fa-chart-line"></i> 예측 정확도 (5일 백테스트)</h3>
                 <div class="accuracy-grid">
                     <div class="accuracy-item">
-                        <div class="accuracy-label">분석일 가격</div>
+                        <div class="accuracy-label">분석일 가격 <span id="startDateLabel" style="font-size: 0.8rem; color: #667eea;"></span></div>
                         <div class="accuracy-value" id="startPrice">$0.00</div>
                     </div>
                     <div class="accuracy-item">
-                        <div class="accuracy-label">5일 후 가격</div>
+                        <div class="accuracy-label">5일 후 가격 <span id="endDateLabel" style="font-size: 0.8rem; color: #667eea;"></span></div>
                         <div class="accuracy-value" id="endPrice">$0.00</div>
                     </div>
                     <div class="accuracy-item">
@@ -1087,6 +1111,19 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// Configure marked to add external link icon and target="_blank" to all links
+const renderer = new marked.Renderer();
+renderer.link = function(href, title, text) {
+    // Handle both old and new marked.js API
+    const linkHref = typeof href === 'object' ? href.href : href;
+    const linkTitle = typeof href === 'object' ? href.title : title;
+    const linkText = typeof href === 'object' ? href.text : text;
+
+    const titleAttr = linkTitle ? ` title="${linkTitle}"` : '';
+    return `<a href="${linkHref}"${titleAttr} target="_blank" rel="noopener noreferrer">${linkText} <i class="fas fa-external-link-alt" style="font-size: 0.75em; margin-left: 2px;"></i></a>`;
+};
+marked.setOptions({ renderer: renderer });
+
 // Set default date to today
 document.getElementById('date').valueAsDate = new Date();
 
@@ -1321,24 +1358,68 @@ function displayResults(data) {
         return html;
     }
 
+    // Market/Technical Report
+    if (data.full_state?.technical) {
+        document.getElementById('marketReportCard').style.display = 'block';
+        document.getElementById('marketReportContent').innerHTML = addSourceCitations(
+            data.full_state.technical,
+            technicalSources
+        );
+    }
     document.getElementById('technicalReport').innerHTML = addSourceCitations(
         data.full_state?.technical || '기술적 분석 정보가 없습니다.',
         technicalSources
     );
+
+    // Fundamentals Report
+    if (data.full_state?.fundamentals) {
+        document.getElementById('fundamentalsReportCard').style.display = 'block';
+        document.getElementById('fundamentalsReportContent').innerHTML = addSourceCitations(
+            data.full_state.fundamentals,
+            fundamentalsSources
+        );
+    }
     document.getElementById('fundamentalsReport').innerHTML = addSourceCitations(
         data.full_state?.fundamentals || '기본적 분석 정보가 없습니다.',
         fundamentalsSources
     );
+
+    // Sentiment Report
+    if (data.full_state?.sentiment) {
+        document.getElementById('sentimentReportCard').style.display = 'block';
+        document.getElementById('sentimentReportContent').innerHTML = addSourceCitations(
+            data.full_state.sentiment,
+            sentimentSources
+        );
+    }
     document.getElementById('sentimentReport').innerHTML = addSourceCitations(
         data.full_state?.sentiment || '감성 분석 정보가 없습니다.',
         sentimentSources
     );
+
+    // News Report (for history loading)
+    const newsSources = ['Bloomberg News', 'Reuters Markets', 'Yahoo Finance News', 'CNBC'];
+    if (data.full_state?.news) {
+        document.getElementById('newsReportCard').style.display = 'block';
+        document.getElementById('newsReportContent').innerHTML = addSourceCitations(
+            data.full_state.news,
+            newsSources
+        );
+    }
 
     // Accuracy
     const acc = data.accuracy || {};
     if (acc.calculable) {
         document.getElementById('startPrice').textContent = '$' + acc.start_price;
         document.getElementById('endPrice').textContent = '$' + acc.end_price;
+
+        // Display dates if available
+        if (acc.start_date) {
+            document.getElementById('startDateLabel').textContent = `(${acc.start_date})`;
+        }
+        if (acc.end_date) {
+            document.getElementById('endDateLabel').textContent = `(${acc.end_date})`;
+        }
 
         const returnPctEl = document.getElementById('returnPct');
         returnPctEl.textContent = acc.return_pct;
@@ -1355,6 +1436,8 @@ function displayResults(data) {
             badge.style.color = '#ef4444';
         }
     } else {
+        document.getElementById('startDateLabel').textContent = '';
+        document.getElementById('endDateLabel').textContent = '';
         document.getElementById('accuracyExplanation').textContent = acc.message || '백테스트 정보 없음';
         document.getElementById('accuracyBadge').textContent = 'N/A';
     }
@@ -2237,7 +2320,8 @@ async function loadHistoryDetail(analysisId) {
                 risk: analysis.risk_assessment || '',
                 technical: analysis.technical_analysis || '',
                 fundamentals: analysis.fundamental_analysis || '',
-                sentiment: analysis.sentiment_analysis || ''
+                sentiment: analysis.sentiment_analysis || '',
+                news: analysis.news_analysis || ''
             };
 
             // Construct accuracy from individual fields
@@ -2245,6 +2329,8 @@ async function loadHistoryDetail(analysisId) {
                 calculable: analysis.start_price !== null,
                 start_price: analysis.start_price ? parseFloat(analysis.start_price) : null,
                 end_price: analysis.end_price ? parseFloat(analysis.end_price) : null,
+                start_date: analysis.start_date || '',
+                end_date: analysis.end_date || '',
                 return_pct: analysis.return_pct || '',
                 is_accurate: analysis.is_accurate
             };

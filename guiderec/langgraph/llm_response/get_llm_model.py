@@ -20,6 +20,6 @@ def get_llm_model():
     llm = ChatOpenAI(
         model="gpt-4.1-2025-04-14",
         temperature=0,
-        api_key=os.environ["KYEONGCHAN_OPENAI_API_KEY"]
+        api_key=os.environ.get("KYEONGCHAN_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
     )
     return llm

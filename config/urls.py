@@ -41,6 +41,7 @@ urlpatterns = [
     path('ngcf/', include("movie.urls")),
     path('movie_recommendation/', include("movie.urls")),  # ML/DL 영화 추천
     path('my_agents/', include('my_agents.urls')),  # MY AGENTS 페이지
+    path('guiderec/', include('guiderec.urls')),  # Jeju Food Guide
 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

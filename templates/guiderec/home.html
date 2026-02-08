@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - ListeneRS</title>
+    <link rel="icon" href="{% static 'img/listeners_logo_color_transparent.png' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fff;
+            color: #000;
+            min-height: 100vh;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7C331 100%);
+            padding: 120px 40px 80px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        .hero-emoji {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 18px 40px;
+            background: #fff;
+            color: #FF6B35;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+            color: #FF6B35;
+        }
+
+        .features-section {
+            max-width: 1200px;
+            margin: -40px auto 60px;
+            padding: 0 40px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .feature-desc {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .tech-section {
+            background: #f8f9fa;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .tech-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: #333;
+        }
+
+        .tech-badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .tech-badge {
+            padding: 12px 24px;
+            background: #fff;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .hero-section {
+                padding: 100px 20px 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        {% include 'navbar.html' %}
+    </header>
+
+    <section class="hero-section">
+        <div class="hero-emoji">🍊🍜</div>
+        <h1 class="hero-title">Jeju Food Guide</h1>
+        <p class="hero-subtitle">{{ description }}</p>
+        <a href="/guiderec/chat/" class="cta-button">맛집 추천받기 →</a>
+    </section>
+
+    <section class="features-section">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3 class="feature-title">AI 맞춤 추천</h3>
+                <p class="feature-desc">GraphRAG 기반 AI가 당신의 취향과 상황에 맞는 맛집을 추천합니다.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👨‍👩‍👧‍👦</div>
+                <h3 class="feature-title">동행 맞춤</h3>
+                <p class="feature-desc">가족, 친구, 연인 등 여행 동행에 따라 최적의 장소를 안내합니다.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📍</div>
+                <h3 class="feature-title">위치 기반</h3>
+                <p class="feature-desc">제주도 전역의 맛집 정보를 지역별로 탐색할 수 있습니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="tech-section">
+        <h2 class="tech-title">사용 기술</h2>
+        <div class="tech-badges">
+            <span class="tech-badge">LangGraph</span>
+            <span class="tech-badge">Neo4j GraphDB</span>
+            <span class="tech-badge">Google Gemini</span>
+            <span class="tech-badge">Cypher Query</span>
+            <span class="tech-badge">Vector Search</span>
+        </div>
+    </section>
+</body>
+</html>

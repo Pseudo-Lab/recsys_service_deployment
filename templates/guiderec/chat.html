@@ -1,0 +1,671 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - ListeneRS</title>
+    <link rel="icon" href="/static/img/listeners_logo_color_transparent.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/6998928b29.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .main-container {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .chat-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 10%;
+            background: #fff;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message.user {
+            align-items: flex-end;
+        }
+
+        .message.assistant {
+            align-items: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant .message-bubble {
+            background: #fff;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .message.assistant .message-bubble img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+
+        /* Welcome message */
+        .welcome-bubble {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7C331 100%) !important;
+            color: #fff !important;
+        }
+
+        .example-query {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 16px;
+            margin: 4px 0;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .example-query:hover {
+            background: rgba(255,255,255,0.35);
+        }
+
+        .chat-input-area {
+            padding: 12px 20px;
+            background: #fff;
+            border-top: 1px solid #eee;
+            flex-shrink: 0;
+        }
+
+        .chat-form {
+            display: flex;
+            gap: 10px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #eee;
+            border-radius: 24px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #FF6B35 0%, #F7C331 100%);
+            color: #fff;
+            border: none;
+            border-radius: 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Progress indicator */
+        .progress-container {
+            background: #fff;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+            padding: 14px 18px;
+            max-width: 75%;
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .progress-spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #f0f0f0;
+            border-top-color: #FF6B35;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-step {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .progress-description {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-container {
+            background: #eee;
+            border-radius: 10px;
+            height: 6px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #FF6B35 0%, #F7C331 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-percent {
+            font-size: 0.75rem;
+            color: #999;
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        /* Detected conditions */
+        .detected-conditions {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #eee;
+        }
+
+        .conditions-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #FF6B35;
+            margin-bottom: 6px;
+        }
+
+        .condition-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 0.85rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .condition-label {
+            color: #666;
+            min-width: 70px;
+        }
+
+        .condition-value {
+            color: #333;
+            font-weight: 500;
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        /* Markdown content styling */
+        .message-bubble h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #FF6B35;
+            margin: 16px 0 8px 0;
+            padding-bottom: 4px;
+            border-bottom: 2px solid #FFE0B2;
+        }
+
+        .message-bubble h4:first-child {
+            margin-top: 0;
+        }
+
+        .message-bubble p {
+            margin: 6px 0;
+        }
+
+        .message-bubble strong {
+            color: #333;
+        }
+
+        .message-bubble hr {
+            border: none;
+            border-top: 1px dashed #ddd;
+            margin: 16px 0;
+        }
+
+        /* Progress complete state */
+        .progress-complete .progress-spinner {
+            display: none;
+        }
+
+        .progress-complete .progress-header::before {
+            content: "✓";
+            color: #4CAF50;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        /* Step history toggle */
+        .history-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #eee;
+            cursor: pointer;
+            color: #888;
+            font-size: 0.75rem;
+            user-select: none;
+        }
+
+        .history-toggle:hover {
+            color: #666;
+        }
+
+        .history-toggle i {
+            transition: transform 0.2s;
+            font-size: 0.7rem;
+        }
+
+        .history-toggle.expanded i {
+            transform: rotate(90deg);
+        }
+
+        .step-history {
+            display: none;
+            margin-top: 8px;
+            padding: 8px;
+            background: #f8f8f8;
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+
+        .step-history.show {
+            display: block;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 0;
+            color: #666;
+        }
+
+        .history-item .check {
+            color: #4CAF50;
+        }
+
+        .history-item .current {
+            color: #FF6B35;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                top: 56px;
+            }
+
+            .chat-messages {
+                padding: 16px;
+            }
+
+            .message-bubble {
+                max-width: 85%;
+            }
+
+            .progress-container {
+                max-width: 85%;
+            }
+
+            .chat-input-area {
+                padding: 10px 12px;
+            }
+
+            .send-btn {
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        {% include 'navbar.html' %}
+    </header>
+
+    <div class="main-container">
+        <div class="chat-wrapper">
+            <div class="chat-messages" id="chatMessages">
+                {% if initial_message %}
+                <div class="message assistant">
+                    <div class="message-bubble welcome-bubble">
+                        <strong>{{ title }}</strong><br>
+                        {{ initial_message|safe }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="chat-input-area">
+                <form class="chat-form" id="chatForm">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="제주도 맛집을 물어보세요..." required>
+                    <button type="submit" class="send-btn" id="sendBtn">전송</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const chatForm = document.getElementById('chatForm');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        let currentEventSource = null;
+        let progressElement = null;
+
+        // 예시 클릭 시 input에 넣고 바로 전송
+        function useExample(el) {
+            chatInput.value = el.textContent;
+            chatForm.dispatchEvent(new Event('submit'));
+        }
+
+        function addMessage(text, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+
+            // 마크다운 렌더링 (assistant 메시지만)
+            const content = isUser ? text : marked.parse(text);
+            messageDiv.innerHTML = `<div class="message-bubble">${content}</div>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return messageDiv;
+        }
+
+        let stepHistory = [];
+
+        function showProgress() {
+            stepHistory = [];
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message assistant';
+            messageDiv.id = 'progressMessage';
+            messageDiv.innerHTML = `
+                <div class="progress-container">
+                    <div class="progress-header">
+                        <div class="progress-spinner"></div>
+                        <span class="progress-step">시작 중...</span>
+                    </div>
+                    <div class="progress-description">질문을 이해하고 있어요...</div>
+                    <div class="detected-conditions" id="detectedConditions" style="display: none;">
+                        <div class="conditions-title">📋 파악된 조건</div>
+                        <div class="conditions-list"></div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-percent">0%</div>
+                    <div class="history-toggle" onclick="toggleHistory(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <span>진행 과정 보기</span>
+                    </div>
+                    <div class="step-history"></div>
+                </div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            progressElement = messageDiv;
+            return messageDiv;
+        }
+
+        function toggleHistory(el) {
+            el.classList.toggle('expanded');
+            const history = el.nextElementSibling;
+            history.classList.toggle('show');
+            el.querySelector('span').textContent = history.classList.contains('show') ? '진행 과정 접기' : '진행 과정 보기';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addStepToHistory(step, description, isCurrent = false) {
+            if (!progressElement) return;
+
+            // 이전 current를 완료로 변경
+            stepHistory = stepHistory.map(s => ({...s, isCurrent: false}));
+
+            // 새 단계 추가
+            stepHistory.push({ step, description, isCurrent });
+
+            // 히스토리 UI 업데이트
+            const historyEl = progressElement.querySelector('.step-history');
+            if (!historyEl) return;
+
+            historyEl.innerHTML = stepHistory.map(s => `
+                <div class="history-item">
+                    <span class="${s.isCurrent ? 'current' : 'check'}">${s.isCurrent ? '●' : '✓'}</span>
+                    <span>${s.step}</span>
+                    <span style="color:#aaa">- ${s.description}</span>
+                </div>
+            `).join('');
+        }
+
+        function showConditions(conditions) {
+            if (!progressElement) return;
+            const conditionsContainer = progressElement.querySelector('#detectedConditions');
+            const conditionsList = progressElement.querySelector('.conditions-list');
+            if (!conditionsContainer || !conditionsList) return;
+
+            conditionsContainer.style.display = 'block';
+            conditionsList.innerHTML = '';
+
+            for (const [label, value] of Object.entries(conditions)) {
+                const item = document.createElement('div');
+                item.className = 'condition-item';
+                item.innerHTML = `
+                    <span class="condition-label">${label}</span>
+                    <span class="condition-value">${value}</span>
+                `;
+                conditionsList.appendChild(item);
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function updateProgress(step, description, progress) {
+            if (!progressElement) return;
+            const container = progressElement.querySelector('.progress-container');
+            if (!container) return;
+
+            container.querySelector('.progress-step').textContent = step;
+            container.querySelector('.progress-description').textContent = description;
+            container.querySelector('.progress-bar-fill').style.width = `${progress}%`;
+            container.querySelector('.progress-percent').textContent = `${progress}%`;
+
+            // 히스토리에 추가
+            addStepToHistory(step, description, true);
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function completeProgress() {
+            if (progressElement) {
+                const container = progressElement.querySelector('.progress-container');
+                if (container) {
+                    container.classList.add('progress-complete');
+                    container.querySelector('.progress-step').textContent = '완료';
+                    container.querySelector('.progress-description').textContent = '추천이 완료되었습니다!';
+                    container.querySelector('.progress-bar-fill').style.width = '100%';
+                    container.querySelector('.progress-percent').textContent = '100%';
+                }
+                progressElement = null;
+            }
+        }
+
+        function stopEventSource() {
+            if (currentEventSource) {
+                currentEventSource.close();
+                currentEventSource = null;
+            }
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            // Stop any existing stream
+            stopEventSource();
+
+            // Add user message
+            addMessage(text, true);
+            chatInput.value = '';
+            sendBtn.disabled = true;
+
+            // Show progress indicator
+            showProgress();
+
+            try {
+                // Create POST request with fetch for SSE
+                const response = await fetch('/guiderec/chat/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: {
+                            text: text,
+                            sender: 'user',
+                            timestamp: new Date().toISOString()
+                        }
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+
+                    // Process complete SSE messages
+                    const lines = buffer.split('\n\n');
+                    buffer = lines.pop() || ''; // Keep incomplete message in buffer
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                handleSSEMessage(data);
+                            } catch (e) {
+                                console.error('Failed to parse SSE data:', e);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Stream error:', error);
+                completeProgress();
+                addMessage('죄송합니다. 서버와 연결할 수 없습니다.', false);
+            }
+
+            sendBtn.disabled = false;
+            chatInput.focus();
+        });
+
+        function handleSSEMessage(data) {
+            console.log('SSE:', data);
+
+            switch (data.type) {
+                case 'start':
+                    updateProgress('시작', data.message, 5);
+                    break;
+
+                case 'progress':
+                    updateProgress(data.step, data.description, data.progress);
+                    break;
+
+                case 'conditions':
+                    showConditions(data.conditions);
+                    break;
+
+                case 'result':
+                    completeProgress();
+                    if (data.status === 'success') {
+                        addMessage(data.message, false);
+                    } else {
+                        addMessage('죄송합니다. 오류가 발생했습니다: ' + data.message, false);
+                    }
+                    break;
+
+                case 'error':
+                    completeProgress();
+                    addMessage('죄송합니다. 오류가 발생했습니다: ' + data.message, false);
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>

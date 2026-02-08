@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'utils',  # utils/custom_filters.py가 있는 앱 등록
     'my_agents',  # MY AGENTS 페이지
     'trading_agent',  # Trading Agent 앱
+    'guiderec',  # Jeju Food Guide
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

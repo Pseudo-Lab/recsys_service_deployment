@@ -13,6 +13,7 @@ def merge_dicts(left: Dict, right: Dict) -> Dict:
 
 class GraphState(TypedDict):
     query: str
+    intent_type: str  # "recommendation" or "casual"
     # query_type: str
     # subtype: str
     rewritten_query: List[str]

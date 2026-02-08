@@ -19,6 +19,8 @@ from llm_response.langgraph_nodes.recommendation.selecting import final_selectin
 from llm_response.langgraph_nodes.recommendation.get_store_candidates import get_store_candidates
 from llm_response.langgraph_nodes.search.retrieve_for_search_cypher import retrieve_for_search_cypher
 from llm_response.langgraph_nodes.intent_analysis.rewrite import rewrite
+from llm_response.langgraph_nodes.intent_analysis.intent_router import intent_router
+from llm_response.langgraph_nodes.intent_analysis.casual_response import casual_response
 from langgraph.graph import END
 from guiderec_utils import graphdb_driver
 from guiderec_config import CONFIG
@@ -31,6 +33,10 @@ store_retriever_grp_emb = get_neo4j_vector_graph().as_retriever(search_kwargs={"
 workflow = StateGraph(GraphState)
 
 # Nodes
+## Intent Router (Entry Point)
+workflow.add_node("intent_router", lambda state: intent_router(llm, state))
+workflow.add_node("casual_response", lambda state: casual_response(llm, state))
+
 ## Rewrite
 workflow.add_node("rewrite", lambda state: rewrite(llm, state))
 
@@ -56,6 +62,26 @@ workflow.add_node("similar_menu_store_recomm", lambda state: similar_menu_store_
 workflow.add_node("final_formatting_for_recomm", lambda state: final_formatting_for_recomm(graphdb_driver, state))
 
 # Edges
+# Intent Router - Conditional routing
+def route_by_intent(state):
+    """의도에 따라 다음 노드를 결정합니다."""
+    intent = state.get("intent_type", "recommendation")
+    if intent == "casual":
+        return "casual_response"
+    return "rewrite"
+
+workflow.add_conditional_edges(
+    "intent_router",
+    route_by_intent,
+    {
+        "casual_response": "casual_response",
+        "rewrite": "rewrite"
+    }
+)
+
+# Casual response goes to END
+workflow.add_edge("casual_response", END)
+
 # Agent
 workflow.add_edge('rewrite', 'field_detection')
 
@@ -86,6 +112,6 @@ workflow.add_edge('final_selecting_for_recomm', 'similar_menu_store_recomm')
 workflow.add_edge('similar_menu_store_recomm', 'final_formatting_for_recomm')
 workflow.add_edge('final_formatting_for_recomm', END)
 
-workflow.set_entry_point("rewrite")
+workflow.set_entry_point("intent_router")
 
 app = workflow.compile()

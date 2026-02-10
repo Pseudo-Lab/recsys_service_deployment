@@ -547,15 +547,20 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function completeProgress() {
+        function completeProgress(isCasual = false) {
             if (progressElement) {
-                const container = progressElement.querySelector('.progress-container');
-                if (container) {
-                    container.classList.add('progress-complete');
-                    container.querySelector('.progress-step').textContent = '완료';
-                    container.querySelector('.progress-description').textContent = '추천이 완료되었습니다!';
-                    container.querySelector('.progress-bar-fill').style.width = '100%';
-                    container.querySelector('.progress-percent').textContent = '100%';
+                if (isCasual) {
+                    // 일반 대화면 상태바 제거
+                    progressElement.remove();
+                } else {
+                    const container = progressElement.querySelector('.progress-container');
+                    if (container) {
+                        container.classList.add('progress-complete');
+                        container.querySelector('.progress-step').textContent = '완료';
+                        container.querySelector('.progress-description').textContent = '추천이 완료되었습니다!';
+                        container.querySelector('.progress-bar-fill').style.width = '100%';
+                        container.querySelector('.progress-percent').textContent = '100%';
+                    }
                 }
                 progressElement = null;
             }
@@ -652,7 +657,7 @@
                     break;
 
                 case 'result':
-                    completeProgress();
+                    completeProgress(data.is_casual);
                     if (data.status === 'success') {
                         addMessage(data.message, false);
                     } else {

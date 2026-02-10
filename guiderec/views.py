@@ -192,9 +192,9 @@ def guiderec_chat(request):
                     yield f"data: {json.dumps({'type': 'progress', 'step': '완료', 'description': '추천이 완료되었습니다!', 'progress': 100}, ensure_ascii=False)}\n\n"
 
                 if final_answer:
-                    yield f"data: {json.dumps({'type': 'result', 'status': 'success', 'message': final_answer}, ensure_ascii=False)}\n\n"
+                    yield f"data: {json.dumps({'type': 'result', 'status': 'success', 'message': final_answer, 'is_casual': is_casual}, ensure_ascii=False)}\n\n"
                 else:
-                    yield f"data: {json.dumps({'type': 'result', 'status': 'error', 'message': '추천 결과를 생성하지 못했습니다.'}, ensure_ascii=False)}\n\n"
+                    yield f"data: {json.dumps({'type': 'result', 'status': 'error', 'message': '추천 결과를 생성하지 못했습니다.', 'is_casual': is_casual}, ensure_ascii=False)}\n\n"
 
             except Exception as e:
                 import traceback

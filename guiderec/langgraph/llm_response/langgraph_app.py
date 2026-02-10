@@ -1,4 +1,5 @@
 import os
+import sqlite3
 from langgraph.graph import END, StateGraph
 from typing import List, TypedDict
 from langgraph.checkpoint.sqlite import SqliteSaver
@@ -124,7 +125,9 @@ CHECKPOINTS_DB_PATH = os.environ.get(
 )
 
 try:
-    checkpointer = SqliteSaver.from_conn_string(CHECKPOINTS_DB_PATH)
+    # SQLite connection with check_same_thread=False for multi-threaded access
+    _sqlite_conn = sqlite3.connect(CHECKPOINTS_DB_PATH, check_same_thread=False)
+    checkpointer = SqliteSaver(_sqlite_conn)
     app = workflow.compile(checkpointer=checkpointer)
     print(f"[GuideRec] Compiled with SQLite checkpointer: {CHECKPOINTS_DB_PATH}")
 except Exception as e:

@@ -55,7 +55,8 @@ def final_formatting_for_recomm(graphdb_driver, state: GraphState):
         state["final_answer"] += "\n"
         state["final_answer"] += get_ratings_str_for_node(node) + "\n"
         state["final_answer"] += REVIEW_HTML.format(review=pk_desc["review"]) + "\n"
-        state["final_answer"] += "\n" + pk_desc["desc"] + "\n"
+        desc = pk_desc["desc"].replace("~", "-")  # ~를 -로 바꿔서 마크다운 취소선 방지
+        state["final_answer"] += "\n" + desc + "\n"
         state["final_answer"] += "\n" + "---" + "\n"
 
     state["final_answer"] += (

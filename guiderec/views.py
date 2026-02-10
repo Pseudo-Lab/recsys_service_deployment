@@ -128,9 +128,6 @@ def guiderec_chat(request):
         def event_stream():
             """Generator function that yields SSE events"""
             try:
-                # 시작 이벤트 (rewrite 노드 실행 중)
-                yield f"data: {json.dumps({'type': 'start', 'message': '질문을 이해하고 있어요...'}, ensure_ascii=False)}\n\n"
-
                 config = RunnableConfig(recursion_limit=20, configurable={"thread_id": "guiderec"})
                 graph_state = GraphState(query=query, messages=[])
 
@@ -138,12 +135,28 @@ def guiderec_chat(request):
                 total_steps = len(NODE_DESCRIPTIONS)
                 last_node = None
                 final_answer = None
+                is_casual = False  # 일반 대화인지 여부
 
                 # LangGraph 스트리밍 실행
                 for chunk in app.stream(graph_state, config=config):
                     # chunk는 {node_name: state} 형태
                     for node_name, state in chunk.items():
+                        # casual_response면 상태바 없이 바로 결과 반환
+                        if node_name == 'casual_response':
+                            is_casual = True
+                            if state and 'final_answer' in state and state['final_answer']:
+                                final_answer = state['final_answer']
+                            continue
+
+                        # intent_router는 상태바에 표시하지 않음
+                        if node_name == 'intent_router':
+                            continue
+
                         if node_name != last_node:
+                            # 첫 진행 상태일 때 시작 이벤트 전송
+                            if last_node is None:
+                                yield f"data: {json.dumps({'type': 'start', 'message': '질문을 이해하고 있어요...'}, ensure_ascii=False)}\n\n"
+
                             last_node = node_name
                             current_step += 1
                             progress = int((current_step / total_steps) * 100)
@@ -174,8 +187,9 @@ def guiderec_chat(request):
                         if state and 'final_answer' in state and state['final_answer']:
                             final_answer = state['final_answer']
 
-                # 완료 이벤트
-                yield f"data: {json.dumps({'type': 'progress', 'step': '완료', 'description': '추천이 완료되었습니다!', 'progress': 100}, ensure_ascii=False)}\n\n"
+                # 완료 이벤트 (일반 대화가 아닐 때만)
+                if not is_casual:
+                    yield f"data: {json.dumps({'type': 'progress', 'step': '완료', 'description': '추천이 완료되었습니다!', 'progress': 100}, ensure_ascii=False)}\n\n"
 
                 if final_answer:
                     yield f"data: {json.dumps({'type': 'result', 'status': 'success', 'message': final_answer}, ensure_ascii=False)}\n\n"

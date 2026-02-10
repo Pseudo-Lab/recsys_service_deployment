@@ -17,6 +17,8 @@ GUIDEREC_AVAILABLE = False
 
 # Node name to Korean description mapping
 NODE_DESCRIPTIONS = {
+    'intent_router': ('의도 파악', '질문의 의도를 파악하고 있어요...'),
+    'casual_response': ('응답 생성', '응답을 생성하고 있어요...'),
     'rewrite': ('쿼리 분석', '질문을 분석하고 있어요...'),
     'field_detection': ('조건 파악', '원하시는 조건을 파악하고 있어요...'),
     'restaurant_name_cypher': ('식당명 검색', '식당명을 확인하고 있어요...'),

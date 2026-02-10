@@ -115,6 +115,7 @@ langchain-upstage==0.3.0
 langchainhub==0.1.21
 langgraph==0.2.19
 langgraph-checkpoint==1.0.9
+langgraph-checkpoint-sqlite>=1.0.0
 langsmith==0.1.134
 Markdown==3.6
 markdown-it-py==3.0.0

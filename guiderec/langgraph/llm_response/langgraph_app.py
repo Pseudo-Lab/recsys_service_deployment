@@ -1,5 +1,7 @@
+import os
 from langgraph.graph import END, StateGraph
 from typing import List, TypedDict
+from langgraph.checkpoint.sqlite import SqliteSaver
 from graphrag.retriever import get_neo4j_vector
 from graphrag.graph_search import get_neo4j_vector_graph
 from llm_response.conditional_decision.route_query import is_search_query
@@ -114,4 +116,17 @@ workflow.add_edge('final_formatting_for_recomm', END)
 
 workflow.set_entry_point("intent_router")
 
-app = workflow.compile()
+# SQLite Checkpointer 설정
+# EC2에서는 /home/ec2-user/recsys_service_deployment/guiderec_checkpoints.db 사용
+CHECKPOINTS_DB_PATH = os.environ.get(
+    "GUIDEREC_CHECKPOINTS_DB",
+    os.path.join(os.path.dirname(__file__), "..", "..", "..", "guiderec_checkpoints.db")
+)
+
+try:
+    checkpointer = SqliteSaver.from_conn_string(CHECKPOINTS_DB_PATH)
+    app = workflow.compile(checkpointer=checkpointer)
+    print(f"[GuideRec] Compiled with SQLite checkpointer: {CHECKPOINTS_DB_PATH}")
+except Exception as e:
+    print(f"[GuideRec] Failed to initialize checkpointer: {e}, running without checkpointer")
+    app = workflow.compile()

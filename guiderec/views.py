@@ -1,11 +1,15 @@
 import json
 import sys
 import os
+import uuid
 
 from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from langchain_core.runnables import RunnableConfig
+
+from .models import ChatSession, ChatMessage
 
 # Add langgraph path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'langgraph'))
@@ -98,6 +102,21 @@ def guiderec_home(request):
 def guiderec_chat(request):
     """GuideRec 채팅 페이지"""
     if request.method == 'GET':
+        # Get session_id from query params
+        session_id = request.GET.get('session_id')
+        previous_messages = []
+
+        if request.user.is_authenticated and session_id:
+            try:
+                session = ChatSession.objects.get(
+                    id=session_id,
+                    user=request.user,
+                    is_active=True
+                )
+                previous_messages = list(session.messages.values('role', 'content'))
+            except ChatSession.DoesNotExist:
+                session_id = None
+
         context = {
             'title': 'Jeju Food Guide',
             'description': '제주도 맛집 추천 AI와 대화해보세요!',
@@ -106,6 +125,9 @@ def guiderec_chat(request):
 <span style="font-size:0.85rem; color:rgba(255,255,255,0.85);">예시) 클릭해서 바로 질문해보세요!</span><br>
 <span class="example-query" onclick="useExample(this)">부모님과 성산일출봉 근처에서 3만원대 한정식 먹고 싶어요</span><br>
 <span class="example-query" onclick="useExample(this)">친구들이랑 한라산 등산 후 갈만한 흑돼지 맛집 추천해줘</span>''',
+            'session_id': session_id,
+            'previous_messages': json.dumps(previous_messages, ensure_ascii=False),
+            'is_authenticated': request.user.is_authenticated,
         }
         return render(request, 'guiderec/chat.html', context)
 
@@ -122,13 +144,45 @@ def guiderec_chat(request):
         data = json.loads(request.body.decode('utf-8'))
         message = data.get('message', {})
         query = message.get('text', '')
+        session_id = data.get('session_id')
 
-        print(f"[GuideRec] Query: {query}")
+        print(f"[GuideRec] Query: {query}, Session: {session_id}")
+
+        # Get or create session for authenticated users
+        session = None
+        if request.user.is_authenticated:
+            if session_id:
+                try:
+                    session = ChatSession.objects.get(
+                        id=session_id,
+                        user=request.user
+                    )
+                except ChatSession.DoesNotExist:
+                    session = None
+
+            if not session:
+                session = ChatSession.objects.create(user=request.user)
+                session_id = str(session.id)
+
+            # Save user message
+            ChatMessage.objects.create(
+                session=session,
+                role='user',
+                content=query
+            )
+
+            # Generate title from first message
+            if session.title == 'New Chat':
+                session.generate_title_from_first_message()
+
+        # Use session ID as thread_id for LangGraph checkpointer
+        thread_id = session_id if session_id else str(uuid.uuid4())
 
         def event_stream():
             """Generator function that yields SSE events"""
+            nonlocal session  # Access session from outer scope
             try:
-                config = RunnableConfig(recursion_limit=20, configurable={"thread_id": "guiderec"})
+                config = RunnableConfig(recursion_limit=20, configurable={"thread_id": thread_id})
                 graph_state = GraphState(query=query, messages=[])
 
                 current_step = 0
@@ -191,10 +245,20 @@ def guiderec_chat(request):
                 if not is_casual:
                     yield f"data: {json.dumps({'type': 'progress', 'step': '완료', 'description': '추천이 완료되었습니다!', 'progress': 100}, ensure_ascii=False)}\n\n"
 
+                # Save assistant message for authenticated users
+                if final_answer and session:
+                    ChatMessage.objects.create(
+                        session=session,
+                        role='assistant',
+                        content=final_answer,
+                        metadata={'is_casual': is_casual}
+                    )
+                    session.save()  # Update timestamp
+
                 if final_answer:
-                    yield f"data: {json.dumps({'type': 'result', 'status': 'success', 'message': final_answer, 'is_casual': is_casual}, ensure_ascii=False)}\n\n"
+                    yield f"data: {json.dumps({'type': 'result', 'status': 'success', 'message': final_answer, 'is_casual': is_casual, 'session_id': thread_id}, ensure_ascii=False)}\n\n"
                 else:
-                    yield f"data: {json.dumps({'type': 'result', 'status': 'error', 'message': '추천 결과를 생성하지 못했습니다.', 'is_casual': is_casual}, ensure_ascii=False)}\n\n"
+                    yield f"data: {json.dumps({'type': 'result', 'status': 'error', 'message': '추천 결과를 생성하지 못했습니다.', 'is_casual': is_casual, 'session_id': thread_id}, ensure_ascii=False)}\n\n"
 
             except Exception as e:
                 import traceback
@@ -211,3 +275,103 @@ def guiderec_chat(request):
     except Exception as e:
         print(f"[GuideRec] Error: {e}")
         return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+# ============================================================
+# Session Management API Endpoints
+# ============================================================
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def session_list(request):
+    """Get list of chat sessions for the current user."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'sessions': [], 'authenticated': False})
+
+    sessions = ChatSession.objects.filter(
+        user=request.user,
+        is_active=True
+    ).values('id', 'title', 'updated_at')[:50]
+
+    # Convert UUID to string for JSON serialization
+    sessions_list = [
+        {
+            'id': str(s['id']),
+            'title': s['title'],
+            'updated_at': s['updated_at'].isoformat() if s['updated_at'] else None
+        }
+        for s in sessions
+    ]
+
+    return JsonResponse({
+        'sessions': sessions_list,
+        'authenticated': True
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def session_create(request):
+    """Create a new chat session."""
+    if not request.user.is_authenticated:
+        # Anonymous session - just return a temporary ID
+        session_id = str(uuid.uuid4())
+        return JsonResponse({
+            'session_id': session_id,
+            'title': 'New Chat',
+            'authenticated': False
+        })
+
+    session = ChatSession.objects.create(
+        user=request.user,
+        title='New Chat'
+    )
+
+    return JsonResponse({
+        'session_id': str(session.id),
+        'title': session.title,
+        'authenticated': True
+    })
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def session_detail(request, session_id):
+    """Get session details with messages."""
+    try:
+        if request.user.is_authenticated:
+            session = ChatSession.objects.get(
+                id=session_id,
+                user=request.user,
+                is_active=True
+            )
+        else:
+            return JsonResponse({'error': 'Not authenticated'}, status=401)
+
+        messages = list(session.messages.values('role', 'content', 'metadata', 'created_at'))
+        for msg in messages:
+            msg['created_at'] = msg['created_at'].isoformat() if msg['created_at'] else None
+
+        return JsonResponse({
+            'session_id': str(session.id),
+            'title': session.title,
+            'messages': messages
+        })
+    except ChatSession.DoesNotExist:
+        return JsonResponse({'error': 'Session not found'}, status=404)
+
+
+@csrf_exempt
+@require_http_methods(["POST", "DELETE"])
+def session_delete(request, session_id):
+    """Soft delete a chat session."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    try:
+        session = ChatSession.objects.get(id=session_id, user=request.user)
+        session.is_active = False
+        session.save(update_fields=['is_active'])
+        return JsonResponse({'success': True})
+    except ChatSession.DoesNotExist:
+        return JsonResponse({'error': 'Session not found'}, status=404)

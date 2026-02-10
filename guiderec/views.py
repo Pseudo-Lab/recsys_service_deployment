@@ -17,20 +17,20 @@ GUIDEREC_AVAILABLE = False
 
 # Node name to Korean description mapping
 NODE_DESCRIPTIONS = {
-    'intent_router': ('의도 파악', '질문의 의도를 파악하고 있어요...'),
-    'casual_response': ('응답 생성', '응답을 생성하고 있어요...'),
-    'rewrite': ('쿼리 분석', '질문을 분석하고 있어요...'),
-    'field_detection': ('조건 파악', '원하시는 조건을 파악하고 있어요...'),
-    'restaurant_name_cypher': ('식당명 검색', '식당명을 확인하고 있어요...'),
-    'price_cypher': ('가격대 분석', '가격 조건을 분석하고 있어요...'),
-    'location_cypher': ('위치 분석', '위치 조건을 분석하고 있어요...'),
-    'menu_cypher': ('메뉴 분석', '메뉴 조건을 분석하고 있어요...'),
-    'attraction_cypher': ('관광지 연계', '주변 관광지를 확인하고 있어요...'),
-    'build_final_cypher_from_parts': ('검색 쿼리 생성', '맛집 검색 쿼리를 만들고 있어요...'),
-    'get_store_candidates': ('맛집 후보 검색', '조건에 맞는 맛집을 찾고 있어요...'),
-    'final_selecting_for_recomm': ('맛집 선정', 'AI가 최적의 맛집을 선별하고 있어요...'),
-    'similar_menu_store_recomm': ('유사 맛집 검색', '비슷한 메뉴의 다른 맛집도 찾고 있어요...'),
-    'final_formatting_for_recomm': ('결과 정리', '추천 결과를 정리하고 있어요...'),
+    'intent_router': ('의도 파악', '질문의 의도를 파악하고 있어요'),
+    'casual_response': ('응답 생성', '응답을 생성하고 있어요'),
+    'rewrite': ('쿼리 분석', '질문을 분석하고 있어요'),
+    'field_detection': ('조건 파악', '원하시는 조건을 파악하고 있어요'),
+    'restaurant_name_cypher': ('식당명 검색', '식당명을 확인하고 있어요'),
+    'price_cypher': ('가격대 분석', '가격 조건을 분석하고 있어요'),
+    'location_cypher': ('위치 분석', '위치 조건을 분석하고 있어요'),
+    'menu_cypher': ('메뉴 분석', '메뉴 조건을 분석하고 있어요'),
+    'attraction_cypher': ('관광지 연계', '주변 관광지를 확인하고 있어요'),
+    'build_final_cypher_from_parts': ('검색 쿼리 생성', '맛집 검색 쿼리를 만들고 있어요'),
+    'get_store_candidates': ('맛집 후보 검색', '조건에 맞는 맛집을 찾고 있어요'),
+    'final_selecting_for_recomm': ('맛집 선정', 'AI가 최적의 맛집을 선별하고 있어요'),
+    'similar_menu_store_recomm': ('유사 맛집 검색', '비슷한 메뉴의 다른 맛집도 찾고 있어요'),
+    'final_formatting_for_recomm': ('결과 정리', '추천 결과를 정리하고 있어요'),
 }
 
 

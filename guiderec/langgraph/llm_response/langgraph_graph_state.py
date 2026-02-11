@@ -14,6 +14,8 @@ def merge_dicts(left: Dict, right: Dict) -> Dict:
 class GraphState(TypedDict):
     query: str
     intent_type: str  # "recommendation" or "casual"
+    selected_tool: str  # Tool agent가 선택한 도구 이름
+    tool_args: Dict  # Tool 인자
     # query_type: str
     # subtype: str
     rewritten_query: List[str]

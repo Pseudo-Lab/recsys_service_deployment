@@ -16,8 +16,14 @@ def intent_router(llm, state: GraphState) -> dict:
         content_clean = content.replace("```json", "").replace("```", "").strip()
         res_json = json.loads(content_clean)
         intent = res_json.get("intent", "recommendation")
+        restaurant_name = res_json.get("restaurant_name", "")
     except Exception as e:
         print(f"Intent parsing failed: {e}, defaulting to recommendation")
         intent = "recommendation"
+        restaurant_name = ""
 
-    return {"intent_type": intent}
+    result = {"intent_type": intent}
+    if restaurant_name:
+        result["search_restaurant_name"] = restaurant_name
+
+    return result

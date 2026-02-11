@@ -21,6 +21,8 @@ GUIDEREC_AVAILABLE = False
 
 # Node name to Korean description mapping
 NODE_DESCRIPTIONS = {
+    'tool_agent': ('도구 선택', '어떤 도움이 필요한지 파악하고 있어요'),
+    'execute_tool': ('정보 조회', '요청하신 정보를 찾고 있어요'),
     'intent_router': ('의도 파악', '질문의 의도를 파악하고 있어요'),
     'casual_response': ('응답 생성', '응답을 생성하고 있어요'),
     'rewrite': ('쿼리 분석', '질문을 분석하고 있어요'),
@@ -195,15 +197,22 @@ def guiderec_chat(request):
                 for chunk in app.stream(graph_state, config=config):
                     # chunk는 {node_name: state} 형태
                     for node_name, state in chunk.items():
-                        # casual_response면 상태바 없이 바로 결과 반환
+                        # execute_tool (search/casual)은 상태바 없이 바로 결과 반환
+                        if node_name == 'execute_tool':
+                            is_casual = True  # 상태바 없이 처리
+                            if state and 'final_answer' in state and state['final_answer']:
+                                final_answer = state['final_answer']
+                            continue
+
+                        # casual_response면 상태바 없이 바로 결과 반환 (기존 호환)
                         if node_name == 'casual_response':
                             is_casual = True
                             if state and 'final_answer' in state and state['final_answer']:
                                 final_answer = state['final_answer']
                             continue
 
-                        # intent_router는 상태바에 표시하지 않음
-                        if node_name == 'intent_router':
+                        # tool_agent, intent_router는 상태바에 표시하지 않음
+                        if node_name in ('tool_agent', 'intent_router'):
                             continue
 
                         if node_name != last_node:

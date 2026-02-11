@@ -150,42 +150,55 @@ def guiderec_chat(request):
 
         print(f"[GuideRec] Query: {query}, Session: {session_id}")
 
-        # Get or create session for authenticated users
+        # Get or create session (로그인/비로그인 모두 지원)
         session = None
-        if request.user.is_authenticated:
-            if session_id:
-                try:
-                    session = ChatSession.objects.get(
-                        id=session_id,
-                        user=request.user
-                    )
-                except ChatSession.DoesNotExist:
-                    session = None
+        if session_id:
+            try:
+                if request.user.is_authenticated:
+                    session = ChatSession.objects.get(id=session_id, user=request.user)
+                else:
+                    # 익명 사용자도 세션 ID로 조회 (user=null인 세션)
+                    session = ChatSession.objects.get(id=session_id, user__isnull=True)
+            except ChatSession.DoesNotExist:
+                session = None
 
-            if not session:
+        if not session:
+            # 새 세션 생성 (로그인 시 user 연결, 비로그인 시 user=null)
+            if request.user.is_authenticated:
                 session = ChatSession.objects.create(user=request.user)
-                session_id = str(session.id)
+            else:
+                session = ChatSession.objects.create(user=None)
+            session_id = str(session.id)
 
-            # Save user message
-            ChatMessage.objects.create(
-                session=session,
-                role='user',
-                content=query
-            )
+        # Save user message (로그인/비로그인 모두)
+        ChatMessage.objects.create(
+            session=session,
+            role='user',
+            content=query
+        )
 
-            # Generate title from first message
-            if session.title == 'New Chat':
-                session.generate_title_from_first_message()
+        # Generate title from first message
+        if session.title == 'New Chat':
+            session.generate_title_from_first_message()
 
         # Use session ID as thread_id for LangGraph checkpointer
         thread_id = session_id if session_id else str(uuid.uuid4())
+
+        # 이전 대화 메시지 로드 (최근 10개) - 현재 메시지 제외
+        previous_messages = []
+        prev_msgs = session.messages.order_by('-created_at')[1:11]  # 현재 메시지 제외
+        for msg in reversed(prev_msgs):
+            previous_messages.append({
+                "role": msg.role,
+                "content": msg.content
+            })
 
         def event_stream():
             """Generator function that yields SSE events"""
             nonlocal session  # Access session from outer scope
             try:
                 config = RunnableConfig(recursion_limit=20, configurable={"thread_id": thread_id})
-                graph_state = GraphState(query=query, messages=[])
+                graph_state = GraphState(query=query, messages=previous_messages)
 
                 current_step = 0
                 total_steps = len(NODE_DESCRIPTIONS)
@@ -254,7 +267,7 @@ def guiderec_chat(request):
                 if not is_casual:
                     yield f"data: {json.dumps({'type': 'progress', 'step': '완료', 'description': '추천이 완료되었습니다!', 'progress': 100}, ensure_ascii=False)}\n\n"
 
-                # Save assistant message for authenticated users
+                # Save assistant message (로그인/비로그인 모두)
                 if final_answer and session:
                     ChatMessage.objects.create(
                         session=session,

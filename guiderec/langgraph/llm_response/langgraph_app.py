@@ -2,7 +2,15 @@ import os
 import sqlite3
 from langgraph.graph import END, StateGraph
 from typing import List, TypedDict
-from langgraph.checkpoint.sqlite import SqliteSaver
+
+# SqliteSaver는 선택적 import (로컬 환경에서는 없을 수 있음)
+try:
+    from langgraph.checkpoint.sqlite import SqliteSaver
+    SQLITE_SAVER_AVAILABLE = True
+except ImportError:
+    SqliteSaver = None
+    SQLITE_SAVER_AVAILABLE = False
+    print("[GuideRec] langgraph-checkpoint-sqlite not installed, running without checkpointer")
 from graphrag.retriever import get_neo4j_vector
 from graphrag.graph_search import get_neo4j_vector_graph
 from llm_response.conditional_decision.route_query import is_search_query
@@ -45,6 +53,7 @@ llm_with_tools = llm.bind_tools(GUIDEREC_TOOLS)
 def tool_agent(state: GraphState) -> dict:
     """LLM이 적절한 tool을 선택합니다."""
     query = state["query"]
+    previous_messages = state.get("messages", [])
 
     system_prompt = """당신은 제주도 맛집 추천 AI '제주맛집탐험대'입니다.
 사용자의 요청에 따라 적절한 도구를 선택하세요:
@@ -58,12 +67,14 @@ def tool_agent(state: GraphState) -> dict:
 3. casual_chat: 일상 대화, 인사, 감사 등
    - 예: "안녕", "고마워", "뭐해?", "거기 맛있었어", "괜찮은데?"
 
+이전 대화 내용을 참고하여 맥락에 맞게 응답하세요. 사용자가 이름을 알려줬다면 기억하세요.
 반드시 하나의 도구를 선택하세요."""
 
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": query}
-    ]
+    # 이전 대화 + 현재 쿼리로 메시지 구성
+    messages = [{"role": "system", "content": system_prompt}]
+    for msg in previous_messages:
+        messages.append({"role": msg["role"], "content": msg["content"]})
+    messages.append({"role": "user", "content": query})
 
     response = llm_with_tools.invoke(messages)
 
@@ -94,19 +105,20 @@ def execute_tool(state: GraphState) -> dict:
     """선택된 tool을 실행합니다."""
     tool_name = state.get("selected_tool", "")
     tool_args = state.get("tool_args", {})
+    previous_messages = state.get("messages", [])
 
     if tool_name == "search_restaurant_info":
         result = tool_executor.execute({
             "name": tool_name,
             "args": tool_args
-        })
+        }, previous_messages)
         return {"final_answer": result}
 
     elif tool_name == "casual_chat":
         result = tool_executor.execute({
             "name": tool_name,
             "args": tool_args
-        })
+        }, previous_messages)
         return {"final_answer": result}
 
     elif tool_name == "recommend_restaurants":
@@ -210,12 +222,16 @@ CHECKPOINTS_DB_PATH = os.environ.get(
     os.path.join(os.path.dirname(__file__), "..", "..", "..", "guiderec_checkpoints.db")
 )
 
-try:
-    # SQLite connection with check_same_thread=False for multi-threaded access
-    _sqlite_conn = sqlite3.connect(CHECKPOINTS_DB_PATH, check_same_thread=False)
-    checkpointer = SqliteSaver(_sqlite_conn)
-    app = workflow.compile(checkpointer=checkpointer)
-    print(f"[GuideRec] Compiled with SQLite checkpointer: {CHECKPOINTS_DB_PATH}")
-except Exception as e:
-    print(f"[GuideRec] Failed to initialize checkpointer: {e}, running without checkpointer")
+if SQLITE_SAVER_AVAILABLE:
+    try:
+        # SQLite connection with check_same_thread=False for multi-threaded access
+        _sqlite_conn = sqlite3.connect(CHECKPOINTS_DB_PATH, check_same_thread=False)
+        checkpointer = SqliteSaver(_sqlite_conn)
+        app = workflow.compile(checkpointer=checkpointer)
+        print(f"[GuideRec] Compiled with SQLite checkpointer: {CHECKPOINTS_DB_PATH}")
+    except Exception as e:
+        print(f"[GuideRec] Failed to initialize checkpointer: {e}, running without checkpointer")
+        app = workflow.compile()
+else:
+    print("[GuideRec] Compiling without checkpointer (SqliteSaver not available)")
     app = workflow.compile()

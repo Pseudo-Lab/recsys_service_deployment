@@ -14,11 +14,11 @@ from guiderec_config import CONFIG
 #     )
 #     return llm
 
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 
 def get_llm_model():
     llm = ChatOpenAI(
-        model="gpt-4.1-2025-04-14",
+        model="gpt-4o-mini",
         temperature=0,
         api_key=os.environ.get("KYEONGCHAN_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
     )

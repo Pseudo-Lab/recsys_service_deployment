@@ -225,3 +225,87 @@ class SessionAPITest(TestCase):
         response = self.client.post(f'/guiderec/api/sessions/{session.id}/delete/')
 
         self.assertEqual(response.status_code, 401)
+
+    def test_session_detail_unauthenticated(self):
+        """비로그인 상태 세션 상세 조회 시도"""
+        session = ChatSession.objects.create(user=self.user)
+
+        response = self.client.get(f'/guiderec/api/sessions/{session.id}/')
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_session_access_other_user(self):
+        """다른 사용자의 세션 접근 시도"""
+        other_user = User.objects.create_user(
+            username='otheruser',
+            email='other@example.com',
+            password='otherpass123'
+        )
+        other_session = ChatSession.objects.create(user=other_user, title='다른 사용자 세션')
+
+        self.client.login(username='testuser', password='testpass123')
+
+        # 다른 사용자 세션 조회 시도
+        response = self.client.get(f'/guiderec/api/sessions/{other_session.id}/')
+        self.assertEqual(response.status_code, 404)
+
+        # 다른 사용자 세션 삭제 시도
+        response = self.client.post(f'/guiderec/api/sessions/{other_session.id}/delete/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_session_list_excludes_inactive(self):
+        """비활성 세션은 목록에서 제외"""
+        self.client.login(username='testuser', password='testpass123')
+
+        active_session = ChatSession.objects.create(user=self.user, title='활성 세션')
+        inactive_session = ChatSession.objects.create(user=self.user, title='비활성 세션', is_active=False)
+
+        response = self.client.get('/guiderec/api/sessions/')
+        data = response.json()
+
+        self.assertEqual(len(data['sessions']), 1)
+        self.assertEqual(data['sessions'][0]['title'], '활성 세션')
+
+
+class ChatMessageMetadataTest(TestCase):
+    """ChatMessage 메타데이터 테스트"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser',
+            email='test@example.com',
+            password='testpass123'
+        )
+        self.session = ChatSession.objects.create(user=self.user)
+
+    def test_message_with_metadata(self):
+        """메타데이터가 있는 메시지 생성"""
+        metadata = {'is_casual': True, 'response_time': 1.5}
+        message = ChatMessage.objects.create(
+            session=self.session,
+            role='assistant',
+            content='안녕하세요!',
+            metadata=metadata
+        )
+
+        self.assertEqual(message.metadata['is_casual'], True)
+        self.assertEqual(message.metadata['response_time'], 1.5)
+
+    def test_message_cascade_delete(self):
+        """세션 삭제 시 메시지도 삭제"""
+        ChatMessage.objects.create(
+            session=self.session,
+            role='user',
+            content='테스트'
+        )
+        ChatMessage.objects.create(
+            session=self.session,
+            role='assistant',
+            content='응답'
+        )
+
+        self.assertEqual(ChatMessage.objects.count(), 2)
+
+        self.session.delete()
+
+        self.assertEqual(ChatMessage.objects.count(), 0)

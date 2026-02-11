@@ -89,20 +89,6 @@ def study_archive_main(request):
     all_posts_for_hero.sort(key=lambda x: x['created_at'], reverse=True)
     hero_posts = all_posts_for_hero[:3]
 
-    # 디버그 출력
-    print(f"=== HERO SLIDER DEBUG ===")
-    print(f"Total posts for hero: {len(all_posts_for_hero)}")
-    print(f"Hero posts count: {len(hero_posts)}")
-    for i, post in enumerate(hero_posts):
-        print(f"Hero post {i+1}:")
-        print(f"  Title: {post.get('title', 'NO TITLE')}")
-        print(f"  Card Image: {post.get('card_image', 'NO IMAGE')}")
-        print(f"  Author: {post.get('author', 'NO AUTHOR')}")
-        print(f"  Author Image: {post.get('author_image', 'NO AUTHOR IMAGE')}")
-        print(f"  URL: {post.get('url', 'NO URL')}")
-        print(f"  Created At: {post.get('created_at', 'NO DATE')}")
-    print(f"=========================")
-    print(f"Passing hero_posts to template with {len(hero_posts)} posts")
 
     # 월별로 그룹화된 포스트 가져오기 (DB에서 month_sort로 정렬)
     from collections import defaultdict

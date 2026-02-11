@@ -77,16 +77,10 @@ def add_rank(recomm_result):
 
 def get_username_sid(request, _from=""):
     if not request.user.is_authenticated:
-        print(
-            f"[{_from}/get_username_sid()] user not authenticated. username : Anonymous"
-        )
         username = "Anonymous"
     else:
         username = request.user.username
     session_id = request.session.session_key
-    print(
-        f"[{_from}/get_username_sid()] username : {username}, session_id : {session_id}"
-    )
     return username, session_id
 
 
@@ -134,11 +128,7 @@ def get_interacted_movie_dicts(user_logs_df, k=50):
 
 
 def log_tracking(request, view):
-    print(f"Log Tracking".ljust(60, '='))
     username, session_id = get_username_sid(request, _from="log_tracking")
-    print(f"\tL {'username':20} : {username}")
-    print(f"\tL {'session id':20} : {session_id}")
-    print(f"\tL {'view':20} : {view}")
     log = {
         "userId": username,
         "sessionId": session_id,
@@ -146,7 +136,6 @@ def log_tracking(request, view):
         "timestamp": int(time.time()),
     }
     table_tracking.put_item(click_log=log)
-    print(f"".ljust(60, '='))
 
 
 def get_poster_urls(movie_ids):

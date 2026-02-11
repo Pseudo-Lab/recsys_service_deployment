@@ -263,7 +263,6 @@ def study_archive_home(request):
         if post.author_image:
             # ImageField의 .url 속성 사용
             author_image_url = post.author_image.url
-            print(f"Paper Review - Author: {post.author}, Image URL: {author_image_url}")
 
         all_posts.append({
             'id': post.id,
@@ -280,7 +279,6 @@ def study_archive_home(request):
         if post.author_image:
             # ImageField의 .url 속성 사용
             author_image_url = post.author_image.url
-            print(f"Monthly Post - Author: {post.author}, Image URL: {author_image_url}")
 
         all_posts.append({
             'id': post.id,

@@ -12,7 +12,7 @@ services:
   web:
     build: .
     #    command: python manage.py runserver 0.0.0.0:8000
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --timeout=300
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --worker-class gevent --workers 2 --worker-connections 100 --timeout=300
     volumes:
       - static_volume:/usr/src/app/_static
       - media_volume:/usr/src/app/_media

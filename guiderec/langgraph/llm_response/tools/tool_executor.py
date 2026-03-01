@@ -9,11 +9,11 @@ def execute_search_restaurant(graphdb_driver, restaurant_name: str) -> str:
     try:
         with graphdb_driver.session() as session:
             cypher = """
-            MATCH (s:Store)
-            WHERE s.name CONTAINS $name OR $name CONTAINS s.name
-            RETURN s.name as name, s.address as address, s.tel as tel,
-                   s.menu as menu, s.business_hours as hours,
-                   s.kakao_rating as kakao_rating, s.google_rating as google_rating
+            MATCH (s:STORE)
+            WHERE s.MCT_NM CONTAINS $name OR $name CONTAINS s.MCT_NM
+            RETURN s.MCT_NM as name, s.ADDR as address, s.menu as menu,
+                   s.rating_kakao as kakao_rating, s.rating_google as google_rating,
+                   s.rating_naver as naver_rating
             LIMIT 3
             """
             result = session.run(cypher, name=restaurant_name)
@@ -24,14 +24,12 @@ def execute_search_restaurant(graphdb_driver, restaurant_name: str) -> str:
 
             response = ""
             for record in records:
-                menu_str = record['menu'][:150] + "..." if record['menu'] and len(record['menu']) > 150 else (record['menu'] or '정보 없음')
+                menu_str = record['menu'][:200] + "..." if record['menu'] and len(record['menu']) > 200 else (record['menu'] or '정보 없음')
                 response += f"""
 🏠 **{record['name']}**
 📍 주소: {record['address'] or '정보 없음'}
-📞 전화: {record['tel'] or '정보 없음'}
 🍽️ 메뉴: {menu_str}
-⏰ 영업시간: {record['hours'] or '정보 없음'}
-⭐ 평점: 카카오 {record['kakao_rating'] or '-'} / 구글 {record['google_rating'] or '-'}
+⭐ 평점: 카카오 {record['kakao_rating'] or '-'} / 네이버 {record['naver_rating'] or '-'} / 구글 {record['google_rating'] or '-'}
 
 """
             return response.strip()

@@ -24,7 +24,7 @@ MATCH (s:STORE)
 WITH s, lat1, lon1, s.latitude AS lat2, s.longitude AS lon2
 RETURN s, point.distance(point({{latitude: lat1, longitude: lon1}}), point({{latitude: lat2, longitude: lon2}})) AS distance
 ORDER BY distance ASC
-LIMIT 500
+LIMIT 100
 
 USER INPUT: "성산일출봉 주변 맛집"
 Cypher:
@@ -35,7 +35,7 @@ MATCH (s:STORE)
 WITH s, lat1, lon1, s.latitude AS lat2, s.longitude AS lon2
 RETURN s, point.distance(point({{latitude: lat1, longitude: lon1}}), point({{latitude: lat2, longitude: lon2}})) AS distance
 ORDER BY distance ASC
-LIMIT 500
+LIMIT 100
 
 Input: {query}
 
@@ -47,7 +47,7 @@ Instructions:
 - Compute distance with `point.distance(...)`, and sort by ascending distance.
 - Include a full query with MATCH, WHERE, WITH, RETURN, and LIMIT.
 - Do not include any unused nodes or properties.
-- Limit to 500 results.
+- Limit to 100 results.
 
 Cypher query:
 """

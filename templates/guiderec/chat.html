@@ -53,6 +53,24 @@
         .sidebar-header {
             padding: 12px;
             border-bottom: 1px solid #2d2d2d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-close-btn {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .sidebar-close-btn:hover {
+            background: #2d2d2d;
+            color: #fff;
         }
 
         .new-chat-btn {
@@ -148,18 +166,19 @@
             color: #888;
         }
 
-        /* Toggle button */
+        /* Toggle button - navbar 영역에 고정 */
         .sidebar-toggle {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 100;
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1100;
             background: #fff;
             border: 1px solid #ddd;
             border-radius: 6px;
             padding: 8px 12px;
             cursor: pointer;
             display: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .sidebar-toggle:hover {
@@ -207,7 +226,7 @@
             max-width: 75%;
             padding: 12px 16px;
             border-radius: 18px;
-            font-size: 0.95rem;
+            font-size: 0.8rem;
             line-height: 1.5;
         }
 
@@ -407,6 +426,36 @@
             font-size: 0.8rem;
         }
 
+        /* Rewritten Query Display */
+        .rewritten-query-container {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #eee;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .rewritten-query-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .rewritten-query-title i {
+            font-size: 0.7rem;
+        }
+
+        .rewritten-query-text {
+            font-size: 0.82rem;
+            color: #444;
+            padding: 8px 12px;
+            line-height: 1.5;
+        }
+
+
         /* Markdown content styling */
         .message-bubble h4 {
             font-size: 1rem;
@@ -510,8 +559,11 @@
 
             .chat-sidebar {
                 position: absolute;
-                height: 100%;
+                height: auto;
+                max-height: 60%;
                 z-index: 1000;
+                border-radius: 0 0 12px 0;
+                box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
             }
 
             .chat-sidebar.collapsed {
@@ -550,10 +602,18 @@
         {% include 'navbar.html' %}
     </header>
 
+    <!-- Sidebar toggle - navbar 영역 고정 -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
     <div class="app-container">
         <!-- Left Sidebar (ChatGPT-style) -->
         <aside class="chat-sidebar {% if not is_authenticated %}collapsed{% endif %}" id="chatSidebar">
             <div class="sidebar-header">
+                <button class="sidebar-close-btn" id="sidebarCloseBtn">
+                    <i class="fas fa-times"></i>
+                </button>
                 <button class="new-chat-btn" id="newChatBtn">
                     <i class="fas fa-plus"></i>
                     <span>새 대화</span>
@@ -578,10 +638,6 @@
 
         <!-- Main Chat Area -->
         <div class="main-container">
-            <button class="sidebar-toggle" id="sidebarToggle">
-                <i class="fas fa-bars"></i>
-            </button>
-
             <div class="chat-wrapper">
                 <div class="chat-messages" id="chatMessages">
                     {% if initial_message and not previous_messages or previous_messages == '[]' %}
@@ -771,6 +827,14 @@
             });
         }
 
+        // Close sidebar button
+        const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+        if (sidebarCloseBtn) {
+            sidebarCloseBtn.addEventListener('click', () => {
+                chatSidebar.classList.add('collapsed');
+            });
+        }
+
         // New chat button
         if (newChatBtn) {
             newChatBtn.addEventListener('click', createNewSession);
@@ -817,6 +881,10 @@
                         <span class="progress-step">시작 중...</span>
                     </div>
                     <div class="progress-description">질문을 이해하고 있어요...</div>
+                    <div class="rewritten-query-container" id="rewrittenQueryContainer" style="display: none;">
+                        <div class="rewritten-query-title"><i class="fas fa-magic"></i> AI가 이해한 질문</div>
+                        <div class="rewritten-query-text"></div>
+                    </div>
                     <div class="detected-conditions" id="detectedConditions" style="display: none;">
                         <div class="conditions-title">📋 파악된 조건</div>
                         <div class="conditions-list"></div>
@@ -868,6 +936,40 @@
             `).join('');
         }
 
+        function showRewrittenQuery(rewritten) {
+            if (!progressElement) return;
+            const container = progressElement.querySelector('#rewrittenQueryContainer');
+            const textEl = progressElement.querySelector('.rewritten-query-text');
+            if (!container || !textEl) return;
+
+            container.style.display = 'block';
+            textEl.textContent = rewritten;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function updateStepDescription(description) {
+            if (!progressElement) return;
+            const descEl = progressElement.querySelector('.progress-description');
+            if (descEl) {
+                descEl.textContent = description;
+            }
+            // 히스토리의 마지막 항목도 업데이트
+            if (stepHistory.length > 0) {
+                stepHistory[stepHistory.length - 1].description = description;
+                const historyEl = progressElement.querySelector('.step-history');
+                if (historyEl) {
+                    historyEl.innerHTML = stepHistory.map(s => `
+                        <div class="history-item">
+                            <span class="${s.isCurrent ? 'current' : 'check'}">${s.isCurrent ? '●' : '✓'}</span>
+                            <span>${s.step}</span>
+                            <span style="color:#aaa">- ${s.description}</span>
+                        </div>
+                    `).join('');
+                }
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
         function showConditions(conditions) {
             if (!progressElement) return;
             const conditionsContainer = progressElement.querySelector('#detectedConditions');
@@ -888,6 +990,7 @@
             }
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
+
 
         function updateProgress(step, description, progress) {
             if (!progressElement) return;
@@ -1011,8 +1114,16 @@
                     updateProgress(data.step, data.description, data.progress);
                     break;
 
+                case 'rewritten_query':
+                    showRewrittenQuery(data.rewritten);
+                    break;
+
                 case 'conditions':
                     showConditions(data.conditions);
+                    break;
+
+                case 'update_step':
+                    updateStepDescription(data.description);
                     break;
 
                 case 'result':

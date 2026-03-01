@@ -26,8 +26,13 @@ City {{
 }}
 ATTR {{
     AREA_NM: STRING. 관광지 이름. ex) "가세오름", "THE WE", "갑자기 히어로즈 벽화길", "감성을담다"
-    ADDR : STRING. 관광지 주소. ex) "ADDR: 제주특별자치도 제주시 구좌읍 평대리 579-8"
+    ADDR : STRING. 관광지 주소. ex) "제주특별자치도 제주시 구좌읍 평대리 579-8"
+    latitude: FLOAT. 위도. ex) 33.4567
+    longitude: FLOAT. 경도. ex) 126.5678
 }}
+STORE also has:
+    latitude: FLOAT. 위도
+    longitude: FLOAT. 경도
 Review {{
     text : STRING. ex) "받아서 가성비좋게 잘먹었어요. 직원들 다 친절하신데 그 커플세트 판매하시려고 여러번 추천하시는게 좀 부담스러웠어요"
 }}
@@ -53,9 +58,12 @@ The relationships:
 Instructions:
 - Combine the MATCH, WHERE, and WITH clauses into a full valid Cypher query.
 - Include `RETURN` clause with pk, name, address, and menu.
-- Use LIMIT 500.
+- Use LIMIT 100.
 - Do not include backticks or Markdown blocks.
 - Always include STORE node's pk, `s.pk` as 'pk'.
+- IMPORTANT: For distance calculations, use ONLY latitude/longitude FLOAT properties, NEVER use ADDR (String).
+  Correct: point({{latitude: a.latitude, longitude: a.longitude}})
+  Wrong: point({{latitude: a.ADDR, longitude: a.ADDR}})
 
 Final Cypher:
 """

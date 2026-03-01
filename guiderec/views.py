@@ -2,6 +2,7 @@ import json
 import sys
 import os
 import uuid
+import time
 
 from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
@@ -10,6 +11,7 @@ from django.views.decorators.http import require_http_methods
 from langchain_core.runnables import RunnableConfig
 
 from .models import ChatSession, ChatMessage
+from .event_logger import event_logger
 
 # Add langgraph path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'langgraph'))
@@ -35,7 +37,6 @@ NODE_DESCRIPTIONS = {
     'build_final_cypher_from_parts': ('검색 쿼리 생성', '맛집 검색 쿼리를 만들고 있어요'),
     'get_store_candidates': ('맛집 후보 검색', '조건에 맞는 맛집을 찾고 있어요'),
     'final_selecting_for_recomm': ('맛집 선정', 'AI가 최적의 맛집을 선별하고 있어요'),
-    'similar_menu_store_recomm': ('유사 맛집 검색', '비슷한 메뉴의 다른 맛집도 찾고 있어요'),
     'final_formatting_for_recomm': ('결과 정리', '추천 결과를 정리하고 있어요'),
 }
 
@@ -46,16 +47,16 @@ def get_dynamic_description(node_name, state):
         return None
 
     if node_name == 'get_store_candidates':
-        count = state.get('candidates_count', 0)
-        if count > 0:
+        # candidate_str에서 pk: 개수로 후보 수 추정 (스트리밍에서 더 신뢰할 수 있음)
+        candidate_str = state.get('candidate_str', '') if hasattr(state, 'get') else ''
+        count = candidate_str.count('pk:') if candidate_str else 0
+
+        # fallback으로 candidates_count 확인
+        if not count:
+            count = state.get('candidates_count', 0) if hasattr(state, 'get') else 0
+
+        if count and count > 0:
             return f'후보 맛집 {count}개 찾았어요!'
-        else:
-            # 개수가 없으면 candidate_str에서 추정
-            candidate_str = state.get('candidate_str', '')
-            if candidate_str:
-                count = candidate_str.count('pk:')
-                if count > 0:
-                    return f'후보 맛집 {count}개 찾았어요!'
 
     elif node_name == 'final_selecting_for_recomm':
         recommendations = state.get('selected_recommendations', {})
@@ -205,6 +206,22 @@ def guiderec_chat(request):
                 last_node = None
                 final_answer = None
                 is_casual = False  # 일반 대화인지 여부
+                node_start_time = time.time()  # 노드별 시간 측정
+                request_start_time = time.time()  # 전체 요청 시간 측정
+                node_timings = {}  # 노드별 소요시간 기록
+                candidates_count = 0  # 후보 개수
+                detected_conditions = {}  # 감지된 조건
+                rewritten = None  # 확장된 쿼리
+
+                # S3 이벤트 로깅: 요청 시작
+                event_logger.log(
+                    "guiderec_request_start",
+                    session_id=thread_id,
+                    query=query,
+                    user_id=str(request.user.id) if request.user.is_authenticated else None,
+                    is_authenticated=request.user.is_authenticated,
+                    message_count=len(previous_messages) + 1
+                )
 
                 # LangGraph 스트리밍 실행
                 for chunk in app.stream(graph_state, config=config):
@@ -224,8 +241,8 @@ def guiderec_chat(request):
                                 final_answer = state['final_answer']
                             continue
 
-                        # tool_agent, intent_router는 상태바에 표시하지 않음
-                        if node_name in ('tool_agent', 'intent_router'):
+                        # tool_agent, intent_router, similar_menu_store_recomm는 상태바에 표시하지 않음
+                        if node_name in ('tool_agent', 'intent_router', 'similar_menu_store_recomm'):
                             continue
 
                         if node_name != last_node:
@@ -250,14 +267,72 @@ def guiderec_chat(request):
                             # 진행 상황 이벤트
                             yield f"data: {json.dumps({'type': 'progress', 'step': step_name, 'description': step_desc, 'progress': progress, 'node': node_name}, ensure_ascii=False)}\n\n"
 
-                            print(f"[GuideRec] Node: {node_name} ({progress}%) - {step_desc}")
+                            # 노드별 실행 시간 측정
+                            node_elapsed = time.time() - node_start_time
+                            node_timings[node_name] = round(node_elapsed, 2)
+                            print(f"[GuideRec] Node: {node_name} ({progress}%) - {step_desc} [{node_elapsed:.1f}s]")
+                            node_start_time = time.time()  # 다음 노드 측정 시작
+
+                            # rewrite 완료 후 확장된 쿼리 전송
+                            if node_name == 'rewrite' and state:
+                                rewritten = state.get('rewritten_query', '')
+                                if rewritten and rewritten != query:
+                                    yield f"data: {json.dumps({'type': 'rewritten_query', 'original': query, 'rewritten': rewritten}, ensure_ascii=False)}\n\n"
+                                    print(f"[GuideRec] Rewritten query: {rewritten}")
+                                    # S3 이벤트 로깅: 쿼리 확장
+                                    event_logger.log(
+                                        "guiderec_query_rewritten",
+                                        session_id=thread_id,
+                                        original_query=query,
+                                        rewritten_query=rewritten
+                                    )
 
                             # field_detection 완료 후 감지된 조건 전송
                             if node_name == 'field_detection' and state:
-                                conditions = state.get('field_conditions_summary', {})
-                                if conditions:
-                                    yield f"data: {json.dumps({'type': 'conditions', 'conditions': conditions}, ensure_ascii=False)}\n\n"
-                                    print(f"[GuideRec] Detected conditions: {conditions}")
+                                detected_conditions = state.get('field_conditions_summary', {})
+                                if detected_conditions:
+                                    yield f"data: {json.dumps({'type': 'conditions', 'conditions': detected_conditions}, ensure_ascii=False)}\n\n"
+                                    print(f"[GuideRec] Detected conditions: {detected_conditions}")
+                                    # S3 이벤트 로깅: 조건 추출
+                                    event_logger.log(
+                                        "guiderec_conditions_detected",
+                                        session_id=thread_id,
+                                        conditions=detected_conditions,
+                                        condition_count=len(detected_conditions)
+                                    )
+
+                            # get_store_candidates 완료 후 후보 개수 업데이트
+                            if node_name == 'get_store_candidates' and state:
+                                # 디버그: state의 실제 키 출력
+                                state_keys = list(state.keys()) if hasattr(state, 'keys') else []
+                                print(f"[DEBUG] get_store_candidates state keys: {state_keys}")
+
+                                # candidate_str에서 pk: 개수로 후보 수 추정
+                                candidate_str = state.get('candidate_str', '') if hasattr(state, 'get') else ''
+                                print(f"[DEBUG] candidate_str length: {len(candidate_str) if candidate_str else 0}")
+                                if candidate_str:
+                                    print(f"[DEBUG] candidate_str sample: {candidate_str[:500]}...")
+
+                                count = candidate_str.count('pk:') if candidate_str else 0
+
+                                # candidates_count도 확인
+                                if not count:
+                                    count = state.get('candidates_count', 0) if hasattr(state, 'get') else 0
+                                    print(f"[DEBUG] candidates_count: {count}")
+
+                                if count and count > 0:
+                                    candidates_count = count
+                                    yield f"data: {json.dumps({'type': 'update_step', 'description': f'후보 맛집 {count}개 찾았어요!'}, ensure_ascii=False)}\n\n"
+                                    print(f"[GuideRec] Candidates count: {count}")
+                                    # S3 이벤트 로깅: 후보 검색
+                                    event_logger.log(
+                                        "guiderec_candidates_found",
+                                        session_id=thread_id,
+                                        candidates_count=count
+                                    )
+                                else:
+                                    print(f"[DEBUG] No candidates count found, count={count}")
+
 
                         # 최종 결과 저장
                         if state and 'final_answer' in state and state['final_answer']:
@@ -277,6 +352,23 @@ def guiderec_chat(request):
                     )
                     session.save()  # Update timestamp
 
+                # 전체 요청 시간 로그
+                total_elapsed = time.time() - request_start_time
+                print(f"[GuideRec] Total request time: {total_elapsed:.1f}s")
+
+                # S3 이벤트 로깅: 요청 완료
+                event_logger.log(
+                    "guiderec_request_complete",
+                    session_id=thread_id,
+                    status="success" if final_answer else "error",
+                    is_casual=is_casual,
+                    candidates_count=candidates_count,
+                    total_time_seconds=round(total_elapsed, 2),
+                    node_timings=node_timings,
+                    conditions=detected_conditions,
+                    rewritten_query=rewritten
+                )
+
                 if final_answer:
                     yield f"data: {json.dumps({'type': 'result', 'status': 'success', 'message': final_answer, 'is_casual': is_casual, 'session_id': thread_id}, ensure_ascii=False)}\n\n"
                 else:
@@ -285,6 +377,13 @@ def guiderec_chat(request):
             except Exception as e:
                 import traceback
                 traceback.print_exc()
+                # S3 이벤트 로깅: 에러
+                event_logger.log(
+                    "guiderec_request_error",
+                    session_id=thread_id,
+                    error_message=str(e),
+                    error_type=type(e).__name__
+                )
                 yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
 
         response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')

@@ -9,6 +9,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from langchain_core.runnables import RunnableConfig
+from langfuse.callback import CallbackHandler as LangfuseCallbackHandler
 
 from .models import ChatSession, ChatMessage
 from .event_logger import event_logger
@@ -198,7 +199,12 @@ def guiderec_chat(request):
             """Generator function that yields SSE events"""
             nonlocal session  # Access session from outer scope
             try:
-                config = RunnableConfig(recursion_limit=20, configurable={"thread_id": thread_id})
+                langfuse_handler = LangfuseCallbackHandler(
+                    session_id=thread_id,
+                    user_id=str(request.user.id) if request.user.is_authenticated else None,
+                    metadata={"query": query}
+                )
+                config = RunnableConfig(recursion_limit=20, configurable={"thread_id": thread_id}, callbacks=[langfuse_handler])
                 graph_state = GraphState(query=query, messages=previous_messages)
 
                 current_step = 0

@@ -262,3 +262,4 @@ fredapi==0.5.2
 praw==7.7.1
 googlenewsdecoder==0.1.2
 pandas-datareader==0.10.0
+langfuse>=3.0.0

@@ -199,11 +199,7 @@ def guiderec_chat(request):
             """Generator function that yields SSE events"""
             nonlocal session  # Access session from outer scope
             try:
-                langfuse_handler = LangfuseCallbackHandler(
-                    session_id=thread_id,
-                    user_id=str(request.user.id) if request.user.is_authenticated else None,
-                    metadata={"query": query}
-                )
+                langfuse_handler = LangfuseCallbackHandler()
                 config = RunnableConfig(recursion_limit=20, configurable={"thread_id": thread_id}, callbacks=[langfuse_handler])
                 graph_state = GraphState(query=query, messages=previous_messages)
 

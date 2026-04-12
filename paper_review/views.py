@@ -828,6 +828,58 @@ def view_count(request, pk, post):
     print(f"".ljust(60, "="))
 
 
+@login_required
+@user_passes_test(is_staff_user)
+def add_post(request):
+    CATEGORIES = [
+        'Paper Review',
+        'Agent',
+        'LLM을 활용한 추천시스템',
+        '대회 참가 후기',
+        '추천 모델 & 구현',
+        'RAG',
+        'LLM 모델 & 챗봇',
+        'Machine Learning Algorithm',
+        '이경찬의 논문 쉽게 찾기 토이프로젝트',
+        '남궁민상의 언론매체와 LLM',
+        'Engineering',
+    ]
+
+    if request.method == "POST":
+        title = request.POST.get("title")
+        category = request.POST.get("category", "")
+        subcategory = request.POST.get("subcategory", "")
+        content = request.POST.get("content", "")
+        author = request.POST.get("author", request.user.username)
+        author2 = request.POST.get("author2", "")
+
+        card_image = request.FILES.get("card_image")
+        author_image = request.FILES.get("author_image")
+        author_image2 = request.FILES.get("author_image2")
+
+        selected_card_image = request.POST.get("selected_card_image", "")
+
+        card_image_url = upload_to_s3(card_image) if card_image else selected_card_image or None
+        author_image_url = upload_to_s3(author_image) if author_image else None
+        author_image2_url = upload_to_s3(author_image2) if author_image2 else None
+
+        Post.objects.create(
+            title=title,
+            category=category,
+            subcategory=subcategory,
+            content=content,
+            author=author,
+            author2=author2,
+            card_image=card_image_url,
+            author_image=author_image_url,
+            author_image2=author_image2_url,
+        )
+        return redirect("study_archive_main")
+
+    s3_images = get_s3_images()
+    return render(request, "add_post.html", {"categories": CATEGORIES, "s3_images": s3_images})
+
+
 @csrf_exempt
 def post_preview(request):
     if request.method == "POST":

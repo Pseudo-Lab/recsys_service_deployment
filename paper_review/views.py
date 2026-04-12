@@ -830,6 +830,55 @@ def view_count(request, pk, post):
 
 @login_required
 @user_passes_test(is_staff_user)
+def edit_post(request, pk):
+    CATEGORIES = [
+        'Paper Review',
+        'Agent',
+        'LLM을 활용한 추천시스템',
+        '대회 참가 후기',
+        '추천 모델 & 구현',
+        'RAG',
+        'LLM 모델 & 챗봇',
+        'Machine Learning Algorithm',
+        '이경찬의 논문 쉽게 찾기 토이프로젝트',
+        '남궁민상의 언론매체와 LLM',
+        'Engineering',
+    ]
+
+    post = get_object_or_404(Post, pk=pk)
+    s3_images = get_s3_images()
+
+    if request.method == "POST":
+        post.title = request.POST.get("title")
+        post.category = request.POST.get("category", "")
+        post.subcategory = request.POST.get("subcategory", "")
+        post.content = request.POST.get("content", "")
+        post.author = request.POST.get("author", post.author)
+        post.author2 = request.POST.get("author2", "")
+
+        card_image = request.FILES.get("card_image")
+        author_image = request.FILES.get("author_image")
+        author_image2 = request.FILES.get("author_image2")
+        selected_card_image = request.POST.get("selected_card_image", "")
+
+        if card_image:
+            post.card_image = upload_to_s3(card_image)
+        elif selected_card_image:
+            post.card_image = selected_card_image
+
+        if author_image:
+            post.author_image = upload_to_s3(author_image)
+        if author_image2:
+            post.author_image2 = upload_to_s3(author_image2)
+
+        post.save()
+        return redirect("single_post_page_paper_review", pk=post.pk)
+
+    return render(request, "edit_post.html", {"post": post, "categories": CATEGORIES, "s3_images": s3_images})
+
+
+@login_required
+@user_passes_test(is_staff_user)
 def add_post(request):
     CATEGORIES = [
         'Paper Review',

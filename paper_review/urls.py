@@ -33,4 +33,5 @@ urlpatterns = [
     path("comment/delete/<int:comment_id>/", views.delete_comment, name="delete_comment"),
     path("post_preview/", views.post_preview, name="post_preview"),
     path("post/add/", views.add_post, name="add_post"),
+    path("post/<int:pk>/edit/", views.edit_post, name="edit_post"),
 ]

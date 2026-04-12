@@ -1,0 +1,140 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/monthly_pseudorec_add_edit.css' %}">
+
+<style>
+  form { max-width: 900px; }
+  #content_editor { width: 100%; height: 500px; font-family: monospace; font-size: 14px; }
+  .image-gallery { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 8px; border-radius: 4px; }
+  .image-gallery img { width: 80px; height: 80px; object-fit: cover; cursor: pointer; border: 2px solid transparent; border-radius: 4px; }
+  .image-gallery img:hover { border-color: #007bff; }
+  .image-gallery img.selected { border-color: #007bff; }
+  select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
+</style>
+
+<form method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <label>제목</label>
+  <input type="text" name="title" value="{{ post.title }}" required>
+
+  <label>카테고리</label>
+  <select name="category">
+    {% for cat in categories %}
+    <option value="{{ cat }}" {% if post.category == cat %}selected{% endif %}>{{ cat }}</option>
+    {% endfor %}
+  </select>
+
+  <label>서브카테고리 (선택)</label>
+  <input type="text" name="subcategory" value="{{ post.subcategory }}" placeholder="서브카테고리 (선택)">
+
+  <label>내용 (마크다운)</label>
+  <textarea id="content_editor" name="content">{{ post.content }}</textarea>
+
+  <label>본문 삽입용 기존 이미지 (클릭하면 본문에 삽입)</label>
+  <div class="image-gallery" id="content_image_gallery">
+    {% for image in s3_images %}
+    <img src="{{ image }}" onclick="insertImage('{{ image }}')" title="{{ image }}">
+    {% endfor %}
+  </div>
+
+  <label>카드 이미지 - 새로 업로드</label>
+  <div class="card_image_select">
+    <input type="file" id="upload_card_image" accept="image/*">
+    <button type="button" id="upload_btn">업로드</button>
+    <div id="preview_container">
+      <img id="upload_preview" src="#" alt="미리보기" style="display:none; width:200px; margin-top:10px;">
+    </div>
+  </div>
+
+  <label>카드 이미지 - 기존 이미지에서 선택</label>
+  <div class="image-gallery" id="card_image_gallery">
+    {% for image in s3_images %}
+    <img src="{{ image }}" onclick="selectCardImage('{{ image }}', this)" title="{{ image }}">
+    {% endfor %}
+  </div>
+  <input type="hidden" name="selected_card_image" id="selected_card_image_hidden" value="{% if post.card_image %}{{ post.card_image }}{% endif %}">
+  <img id="selected_card_image_preview" src="{% if post.card_image %}{{ post.card_image }}{% endif %}"
+    alt="현재 카드 이미지" style="max-width:300px; margin-top:10px; {% if not post.card_image %}display:none;{% endif %}">
+
+  <label>작성자</label>
+  <input type="text" name="author" value="{{ post.author }}" required>
+
+  <label>작성자 이미지 (새로 업로드 시에만)</label>
+  <input type="file" name="author_image" accept="image/*">
+
+  <label>작성자2 (선택)</label>
+  <input type="text" name="author2" value="{{ post.author2 }}">
+
+  <label>작성자2 이미지 (새로 업로드 시에만)</label>
+  <input type="file" name="author_image2" accept="image/*">
+
+  <button type="submit">수정 완료</button>
+</form>
+
+<script>
+  document.getElementById("content_editor").addEventListener("paste", function(event) {
+    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    for (let item of items) {
+      if (item.kind === "file" && item.type.startsWith("image/")) {
+        event.preventDefault();
+        uploadAndInsertImage(item.getAsFile());
+      }
+    }
+  });
+
+  function uploadAndInsertImage(file) {
+    const formData = new FormData();
+    formData.append("image", file);
+    fetch("{% url 'upload_image_ajax' %}", {
+      method: "POST",
+      body: formData,
+      headers: { "X-CSRFToken": "{{ csrf_token }}" }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.image_url) insertImage(data.image_url);
+      else alert("이미지 업로드 실패: " + data.error);
+    });
+  }
+
+  function insertImage(imageUrl) {
+    const editor = document.getElementById("content_editor");
+    const pos = editor.selectionStart;
+    editor.value = editor.value.substring(0, pos) + `\n\n![이미지](${imageUrl})\n\n` + editor.value.substring(pos);
+    editor.focus();
+  }
+
+  function selectCardImage(imageUrl, imgElement) {
+    document.getElementById("selected_card_image_hidden").value = imageUrl;
+    const preview = document.getElementById("selected_card_image_preview");
+    preview.src = imageUrl;
+    preview.style.display = "block";
+    document.querySelectorAll("#card_image_gallery img").forEach(img => img.classList.remove("selected"));
+    imgElement.classList.add("selected");
+  }
+
+  document.getElementById("upload_btn").addEventListener("click", function() {
+    const file = document.getElementById("upload_card_image").files[0];
+    if (!file) { alert("파일을 선택하세요"); return; }
+    const formData = new FormData();
+    formData.append("image", file);
+    fetch("{% url 'upload_image_ajax' %}", {
+      method: "POST",
+      body: formData,
+      headers: { "X-CSRFToken": "{{ csrf_token }}" }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.image_url) {
+        document.getElementById("selected_card_image_hidden").value = data.image_url;
+        const preview = document.getElementById("selected_card_image_preview");
+        preview.src = data.image_url;
+        preview.style.display = "block";
+        document.getElementById("upload_preview").src = data.image_url;
+        document.getElementById("upload_preview").style.display = "block";
+      } else {
+        alert("업로드 실패: " + data.error);
+      }
+    });
+  });
+</script>

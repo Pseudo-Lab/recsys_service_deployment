@@ -1,5 +1,5 @@
 from django import template
-from paper_review.models import PostMonthlyPseudorec
+from paper_review.models import Post, PostMonthlyPseudorec
 import re
 
 register = template.Library()
@@ -9,6 +9,12 @@ register = template.Library()
 def instanceof(obj, class_name):
     """템플릿에서 객체가 특정 클래스인지 확인하는 필터"""
     return isinstance(obj, PostMonthlyPseudorec)
+
+
+@register.filter
+def isinstance_post(obj, _):
+    """Post 모델 인스턴스인지 확인"""
+    return isinstance(obj, Post)
 
 
 @register.filter

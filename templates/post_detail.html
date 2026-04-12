@@ -56,6 +56,11 @@
                     </form>
                 </div>
                 {% endif %}
+                {% if post|isinstance_post:post and user.is_staff %}
+                <div class="post-actions">
+                    <a href="{% url 'edit_post' post.pk %}" class="btn btn-primary">✏️ 편집</a>
+                </div>
+                {% endif %}
                 <div class="paper-review-main">
                     <h1>{{ post.title }}</h1>
                     {% if not post.author2 %}

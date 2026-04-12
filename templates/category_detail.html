@@ -468,6 +468,12 @@
                     <span>작성자: {{ current_post.author }}</span>
                     <span>조회수: {{ current_post.view_count }}</span>
                     <span>작성일: {{ current_post.created_at|date:"Y-m-d" }}</span>
+                    {% if request.user.is_staff and current_post_type == 'paper' %}
+                    <a href="{% url 'edit_post' current_post.pk %}" class="btn btn-sm btn-primary" style="margin-left:12px;">✏️ 편집</a>
+                    {% endif %}
+                    {% if request.user.is_staff and current_post_type == 'monthly' %}
+                    <a href="{% url 'edit_monthly_pseudorec_post' current_post.pk %}" class="btn btn-sm btn-primary" style="margin-left:12px;">✏️ 편집</a>
+                    {% endif %}
                 </div>
             </div>
             <div class="markdown-body">

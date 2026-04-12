@@ -874,7 +874,11 @@ def edit_post(request, pk):
         post.save()
         return redirect("single_post_page_paper_review", pk=post.pk)
 
-    return render(request, "edit_post.html", {"post": post, "categories": CATEGORIES, "s3_images": s3_images})
+    authors = sorted(set(
+        list(Post.objects.values_list('author', flat=True)) +
+        list(PostMonthlyPseudorec.objects.values_list('author', flat=True))
+    ))
+    return render(request, "edit_post.html", {"post": post, "categories": CATEGORIES, "s3_images": s3_images, "authors": authors})
 
 
 @login_required
@@ -926,7 +930,11 @@ def add_post(request):
         return redirect("study_archive_main")
 
     s3_images = get_s3_images()
-    return render(request, "add_post.html", {"categories": CATEGORIES, "s3_images": s3_images})
+    authors = sorted(set(
+        list(Post.objects.values_list('author', flat=True)) +
+        list(PostMonthlyPseudorec.objects.values_list('author', flat=True))
+    ))
+    return render(request, "add_post.html", {"categories": CATEGORIES, "s3_images": s3_images, "authors": authors})
 
 
 @csrf_exempt

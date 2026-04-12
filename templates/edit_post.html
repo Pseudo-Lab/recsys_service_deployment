@@ -7,27 +7,14 @@
   <link rel="icon" href="{% static 'img/listeners_logo_color_transparent.png' %}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
   <style>
     body { background: #f5f5f5; }
-    .page-wrapper { max-width: 1400px; margin: 0 auto; padding: 24px; }
+    .page-wrapper { max-width: 1200px; margin: 0 auto; padding: 24px; }
     h2 { margin-bottom: 20px; font-size: 1.4rem; font-weight: 700; }
-
     .meta-row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
     .meta-row input, .meta-row select { flex: 1; min-width: 180px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
     .meta-row input[name="title"] { flex: 3; }
-
-    /* 에디터 영역 */
-    .editor-container { display: flex; gap: 12px; height: 600px; margin-bottom: 16px; }
-    .editor-pane, .preview-pane { flex: 1; display: flex; flex-direction: column; }
-    .pane-label { font-size: 12px; font-weight: 600; color: #666; padding: 6px 10px; background: #e9ecef; border-radius: 6px 6px 0 0; border: 1px solid #ddd; border-bottom: none; }
-    #content_editor { flex: 1; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; border: 1px solid #ddd; border-radius: 0 0 6px 6px; resize: none; outline: none; }
-    #content_editor:focus { border-color: #007bff; }
-    .preview-body { flex: 1; padding: 16px; border: 1px solid #ddd; border-radius: 0 0 6px 6px; overflow-y: auto; background: #fff; font-size: 14px; line-height: 1.8; }
-    .preview-body img { max-width: 100%; border-radius: 4px; margin: 8px 0; }
-    .uploading-indicator { display: none; position: absolute; background: rgba(0,0,0,0.7); color: white; padding: 8px 16px; border-radius: 6px; font-size: 13px; z-index: 100; }
-
-    /* 이미지 섹션 */
     .section-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
     .section-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #333; }
     .image-gallery { display: flex; flex-wrap: wrap; gap: 8px; max-height: 180px; overflow-y: auto; }
@@ -37,28 +24,21 @@
     .card-preview-img { max-width: 240px; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd; }
     .upload-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
     .upload-row input[type=file] { flex: 1; font-size: 13px; }
-    .upload-row button { white-space: nowrap; }
-
-    /* 작성자 */
     .author-row { display: flex; gap: 12px; flex-wrap: wrap; }
     .author-row > div { flex: 1; min-width: 200px; }
     .author-row label { font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px; }
-    .author-row input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; }
-
-    .submit-btn { width: 100%; padding: 14px; font-size: 16px; font-weight: 600; border-radius: 8px; }
-
-    /* 업로드 중 오버레이 */
-    .editor-wrapper { position: relative; flex: 1; display: flex; flex-direction: column; }
+    .author-row input, .author-row select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; }
+    .submit-btn { width: 100%; padding: 14px; font-size: 16px; font-weight: 600; border-radius: 8px; margin-top: 8px; }
+    #editor { margin-bottom: 16px; }
   </style>
 </head>
 <body>
   <header>{% include 'navbar.html' %}</header>
   <div class="page-wrapper">
     <h2>✏️ 글 수정</h2>
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" id="post-form">
       {% csrf_token %}
 
-      <!-- 메타 정보 -->
       <div class="meta-row">
         <input type="text" name="title" value="{{ post.title }}" placeholder="제목" required>
         <select name="category">
@@ -69,30 +49,11 @@
         <input type="text" name="subcategory" value="{{ post.subcategory }}" placeholder="서브카테고리 (선택)">
       </div>
 
-      <!-- 에디터 + 미리보기 -->
-      <div class="editor-container">
-        <div class="editor-pane">
-          <div class="pane-label">✍️ 마크다운 편집 — 이미지 붙여넣기 가능</div>
-          <div class="editor-wrapper">
-            <div class="uploading-indicator" id="uploading_indicator">⏫ 이미지 업로드 중...</div>
-            <textarea id="content_editor" name="content">{{ post.content }}</textarea>
-          </div>
-        </div>
-        <div class="preview-pane">
-          <div class="pane-label">👁 미리보기</div>
-          <div class="preview-body" id="preview_body"></div>
-        </div>
+      <!-- WYSIWYG 에디터 -->
+      <div class="section-card" style="padding: 0; overflow: hidden;">
+        <div id="editor"></div>
       </div>
-
-      <!-- S3 이미지 갤러리 (본문 삽입용) -->
-      <div class="section-card">
-        <h4>📷 본문 이미지 삽입 — 클릭하면 커서 위치에 삽입</h4>
-        <div class="image-gallery" id="content_image_gallery">
-          {% for image in s3_images %}
-          <img src="{{ image }}" onclick="insertImage('{{ image }}')" title="{{ image }}">
-          {% endfor %}
-        </div>
-      </div>
+      <textarea name="content" id="content_hidden" style="display:none;">{{ post.content }}</textarea>
 
       <!-- 카드 이미지 -->
       <div class="section-card">
@@ -108,10 +69,10 @@
         </div>
         <input type="hidden" name="selected_card_image" id="selected_card_image_hidden" value="{% if post.card_image %}{{ post.card_image }}{% endif %}">
         {% if post.card_image %}
-        <p style="font-size:12px; color:#888; margin-top:8px;">현재 카드 이미지:</p>
+        <p style="font-size:12px;color:#888;margin-top:8px;">현재 카드 이미지:</p>
         <img id="selected_card_image_preview" src="{{ post.card_image }}" class="card-preview-img">
         {% else %}
-        <p style="font-size:12px; color:#aaa; margin-top:8px;">카드 이미지 없음 — 위에서 선택하세요</p>
+        <p style="font-size:12px;color:#aaa;margin-top:8px;">카드 이미지 없음 — 위에서 선택하거나 업로드하세요</p>
         <img id="selected_card_image_preview" src="" class="card-preview-img" style="display:none;">
         {% endif %}
       </div>
@@ -121,8 +82,14 @@
         <h4>👤 작성자</h4>
         <div class="author-row">
           <div>
-            <label>작성자 이름</label>
-            <input type="text" name="author" value="{{ post.author }}" required>
+            <label>작성자</label>
+            <select name="author">
+              {% for a in authors %}
+              <option value="{{ a }}" {% if post.author == a %}selected{% endif %}>{{ a }}</option>
+              {% endfor %}
+              <option value="__custom__">직접 입력...</option>
+            </select>
+            <input type="text" id="author_custom" placeholder="이름 직접 입력" style="display:none; margin-top:6px;">
           </div>
           <div>
             <label>작성자 이미지 (새로 업로드)</label>
@@ -130,7 +97,14 @@
           </div>
           <div>
             <label>작성자2 (선택)</label>
-            <input type="text" name="author2" value="{{ post.author2 }}">
+            <select name="author2">
+              <option value="">없음</option>
+              {% for a in authors %}
+              <option value="{{ a }}" {% if post.author2 == a %}selected{% endif %}>{{ a }}</option>
+              {% endfor %}
+              <option value="__custom__">직접 입력...</option>
+            </select>
+            <input type="text" id="author2_custom" placeholder="이름 직접 입력" style="display:none; margin-top:6px;">
           </div>
           <div>
             <label>작성자2 이미지 (새로 업로드)</label>
@@ -143,76 +117,52 @@
     </form>
   </div>
 
+  <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
   <script>
-    const editor = document.getElementById("content_editor");
-    const preview = document.getElementById("preview_body");
-    const uploadingIndicator = document.getElementById("uploading_indicator");
+    const CSRF = "{{ csrf_token }}";
+    const UPLOAD_URL = "{% url 'upload_image_ajax' %}";
 
-    // 실시간 미리보기
-    function updatePreview() {
-      preview.innerHTML = marked.parse(editor.value);
-    }
-    editor.addEventListener("input", updatePreview);
-    updatePreview();
-
-    // 이미지 붙여넣기 → S3 업로드 → 삽입 → 미리보기 즉시 반영
-    editor.addEventListener("paste", function(event) {
-      const items = (event.clipboardData || event.originalEvent.clipboardData).items;
-      for (let item of items) {
-        if (item.kind === "file" && item.type.startsWith("image/")) {
-          event.preventDefault();
-          uploadAndInsertImage(item.getAsFile());
+    // Toast UI Editor 초기화
+    const editor = new toastui.Editor({
+      el: document.querySelector('#editor'),
+      height: '600px',
+      initialEditType: 'wysiwyg',
+      initialValue: document.getElementById('content_hidden').value,
+      previewStyle: 'tab',
+      toolbarItems: [
+        ['heading', 'bold', 'italic', 'strike'],
+        ['hr', 'quote'],
+        ['ul', 'ol', 'task'],
+        ['table', 'image', 'link'],
+        ['code', 'codeblock'],
+      ],
+      hooks: {
+        addImageBlobHook: async (blob, callback) => {
+          const formData = new FormData();
+          formData.append("image", blob);
+          const res = await fetch(UPLOAD_URL, {
+            method: "POST",
+            body: formData,
+            headers: { "X-CSRFToken": CSRF }
+          });
+          const data = await res.json();
+          if (data.image_url) callback(data.image_url, "이미지");
+          else alert("이미지 업로드 실패: " + data.error);
         }
       }
     });
 
-    function uploadAndInsertImage(file) {
-      // 업로드 중 임시 플레이스홀더 삽입 + 인디케이터 표시
-      uploadingIndicator.style.display = "block";
-      const pos = editor.selectionStart;
-      const placeholder = `![업로드중...](...)`;
-      editor.value = editor.value.substring(0, pos) + `\n\n${placeholder}\n\n` + editor.value.substring(pos);
-      updatePreview();
+    // 폼 제출 시 에디터 내용을 hidden textarea에 저장
+    document.getElementById("post-form").addEventListener("submit", function() {
+      document.getElementById("content_hidden").value = editor.getMarkdown();
+    });
 
-      const formData = new FormData();
-      formData.append("image", file);
-      fetch("{% url 'upload_image_ajax' %}", {
-        method: "POST",
-        body: formData,
-        headers: { "X-CSRFToken": "{{ csrf_token }}" }
-      })
-      .then(res => res.json())
-      .then(data => {
-        uploadingIndicator.style.display = "none";
-        if (data.image_url) {
-          editor.value = editor.value.replace(placeholder, `![이미지](${data.image_url})`);
-          updatePreview();
-        } else {
-          editor.value = editor.value.replace(`\n\n${placeholder}\n\n`, "");
-          alert("이미지 업로드 실패: " + data.error);
-          updatePreview();
-        }
-      })
-      .catch(() => {
-        uploadingIndicator.style.display = "none";
-        editor.value = editor.value.replace(`\n\n${placeholder}\n\n`, "");
-        alert("업로드 중 오류 발생");
-        updatePreview();
-      });
-    }
-
-    function insertImage(imageUrl) {
-      const pos = editor.selectionStart;
-      editor.value = editor.value.substring(0, pos) + `\n\n![이미지](${imageUrl})\n\n` + editor.value.substring(pos);
-      editor.focus();
-      updatePreview();
-    }
-
+    // 카드 이미지
     function selectCardImage(imageUrl, imgElement) {
       document.getElementById("selected_card_image_hidden").value = imageUrl;
-      const preview = document.getElementById("selected_card_image_preview");
-      preview.src = imageUrl;
-      preview.style.display = "block";
+      const p = document.getElementById("selected_card_image_preview");
+      p.src = imageUrl;
+      p.style.display = "block";
       document.querySelectorAll("#card_image_gallery img").forEach(img => img.classList.remove("selected"));
       imgElement.classList.add("selected");
     }
@@ -222,10 +172,10 @@
       if (!file) { alert("파일을 선택하세요"); return; }
       const formData = new FormData();
       formData.append("image", file);
-      fetch("{% url 'upload_image_ajax' %}", {
+      fetch(UPLOAD_URL, {
         method: "POST",
         body: formData,
-        headers: { "X-CSRFToken": "{{ csrf_token }}" }
+        headers: { "X-CSRFToken": CSRF }
       })
       .then(res => res.json())
       .then(data => {
@@ -234,11 +184,28 @@
           const p = document.getElementById("selected_card_image_preview");
           p.src = data.image_url;
           p.style.display = "block";
-        } else {
-          alert("업로드 실패: " + data.error);
-        }
+        } else alert("업로드 실패: " + data.error);
       });
     });
+
+    // 작성자 직접 입력 처리
+    function setupAuthorSelect(selectId, customInputId, hiddenName) {
+      const sel = document.querySelector(`select[name="${selectId}"]`);
+      const inp = document.getElementById(customInputId);
+      sel.addEventListener("change", function() {
+        if (this.value === "__custom__") {
+          inp.style.display = "block";
+          inp.name = selectId;
+          this.name = "";
+        } else {
+          inp.style.display = "none";
+          inp.name = "";
+          this.name = selectId;
+        }
+      });
+    }
+    setupAuthorSelect("author", "author_custom");
+    setupAuthorSelect("author2", "author2_custom");
   </script>
 </body>
 </html>

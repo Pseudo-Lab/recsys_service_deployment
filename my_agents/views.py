@@ -23,6 +23,7 @@ def get_posts_by_category():
         '추천 모델 & 구현',
         'RAG',
         'LLM 모델 & 챗봇',
+        'Machine Learning Algorithm',
         '이경찬의 논문 쉽게 찾기 토이프로젝트',
         '남궁민상의 언론매체와 LLM',
         'Engineering'

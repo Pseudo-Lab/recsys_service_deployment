@@ -12,7 +12,7 @@ class Post(models.Model):
         "카드 이미지", upload_to="paper_review/card_imgs", blank=True
     )
     content = MarkdownxField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     author = models.CharField(max_length=50, default="작성자추가")
     author_image = models.ImageField(

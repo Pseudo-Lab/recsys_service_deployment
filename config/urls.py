@@ -35,7 +35,7 @@ urlpatterns = [
     path('markdownx/', include('markdownx.urls')),
     path('about_us/', include('single_pages.urls')),
     path('trading_agent/', include('trading_agent.urls')),  # Trading Agent 앱
-    # path('llmrec/', include('llmrec.urls')),  # TODO: Fix langchain compatibility
+    path('llmrec/', include('llmrec.urls')),
     path('accounts/', include('allauth.urls')),
     # path('sasrec/', include('movie.urls')),
     path('ngcf/', include("movie.urls")),

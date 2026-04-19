@@ -137,6 +137,11 @@
     <div class="study-sidebar-header">
         <div class="study-sidebar-title">Study Archive</div>
         <div class="study-sidebar-subtitle">Life is short, you need RecSys</div>
+        {% if request.user.is_staff %}
+        <a href="{% url 'add_post' %}" style="display:block; margin-top:10px; padding:7px 0; background:linear-gradient(135deg,#667eea,#764ba2); color:white; border-radius:6px; font-size:0.82rem; font-weight:600; text-decoration:none;">
+            + 새 글 작성
+        </a>
+        {% endif %}
     </div>
 
     {% for category, posts in posts_by_category %}

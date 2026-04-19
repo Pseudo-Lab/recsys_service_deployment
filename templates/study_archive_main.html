@@ -579,7 +579,11 @@
 </header>
 
 <div class="main-container">
-    <h1 class="page-title">Study Archive</h1>
+    <h1 class="page-title">Study Archive
+        {% if request.user.is_staff %}
+        <a href="{% url 'add_post' %}" style="margin-left:16px; padding:6px 16px; background:linear-gradient(135deg,#667eea,#764ba2); color:white; border-radius:6px; font-size:0.75rem; font-weight:600; text-decoration:none; vertical-align:middle;">+ 새 글 작성</a>
+        {% endif %}
+    </h1>
 
     <!-- Hero Slider -->
     <div class="hero-slider">

@@ -390,6 +390,12 @@
             Study Archive
         </a>
 
+        {% if request.user.is_staff %}
+        <a href="{% url 'add_post' %}" style="display:block; margin-bottom:12px; padding:7px 0; background:linear-gradient(135deg,#667eea,#764ba2); color:white; border-radius:6px; font-size:0.82rem; font-weight:600; text-decoration:none; text-align:center;">
+            + 새 글 작성
+        </a>
+        {% endif %}
+
         <div class="sidebar-header">
             <div class="category-dropdown">
                 <select class="category-select" onchange="location.href='/archive/category/' + encodeURIComponent(this.value) + '/'">

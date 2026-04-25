@@ -334,6 +334,30 @@ tar -czf media_backup_$(date +%Y%m%d).tar.gz _media/
 
 ## 14. 최근 배포 이력
 
+### 2026-04-25
+- **Study Archive 글 작성/수정 페이지 추가** (`/archive/post/add/`, `/archive/post/<pk>/edit/`)
+  - Toast UI Editor (WYSIWYG) 적용 — 폰트/이미지 실시간 미리보기
+  - 카드 이미지: 파일 선택 즉시 S3 자동 업로드, 기존 S3 이미지 갤러리에서 선택 가능
+  - 작성자 드롭다운 (DB 기반) + 직접 입력 옵션
+  - staff 유저에게만 "새 글 작성" / "✏️ 수정" 버튼 표시 (Study Archive 메인, 카테고리 상세 페이지)
+- **Machine Learning Algorithm 카테고리 추가** (`my_agents/views.py` CATEGORIES 리스트)
+- **Post 모델 이미지 필드 변경** (`paper_review/models.py`)
+  - `card_image`, `author_image`, `author_image2`: `ImageField` → `URLField(max_length=500, blank=True, default="")`
+  - `created_at`: `DateTimeField()` → `DateTimeField(auto_now_add=True)`
+  - Migration `0029` 적용
+- **nginx 업로드 크기 제한 수정** (`nginx/nginx.conf`)
+  - `client_max_body_size 20M;` 추가 (기존: 기본값 1MB → 413 에러 발생)
+  - `pseudorec.com` HTTPS 블록 제거 (SSL 인증서 없어서 nginx 기동 실패)
+- **버그 수정**
+  - `AttributeError: 'str' object has no attribute 'url'`: URLField로 변경 후 `.url` 호출 제거
+    - `my_agents/views.py`: `get_posts_by_category()`, `study_archive_home()` 수정
+  - `IntegrityError: created_at cannot be null`: `auto_now_add=True`로 수정
+  - `DataError: Data too long for column 'card_image'`: URLField max_length=500으로 수정
+- **핫픽스 배포 방법 확인**
+  - 컨테이너 이름: `recsys_service_deployment-web-1` (docs의 `web`과 다름 — docker-compose 사용 시)
+  - SSH 키: `/Users/kyeongchanlee/ListeneRS.pem`
+  - 서버: `ec2-user@13.125.131.249`
+
 ### 2025-10-25
 - 김현우님 게시글 2개 추가 (Google ADK, Finance Trade Agent)
 - Movie Recommendation 페이지의 SASRec, KPRN, NGCF 버튼 비활성화
@@ -347,6 +371,6 @@ tar -czf media_backup_$(date +%Y%m%d).tar.gz _media/
 
 ---
 
-**작성일**: 2025-10-25
+**작성일**: 2025-10-25 (2026-04-25 업데이트)
 **작성자**: Claude Code
-**버전**: 1.0
+**버전**: 1.1

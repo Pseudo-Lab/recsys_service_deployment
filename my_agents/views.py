@@ -34,13 +34,8 @@ def get_posts_by_category():
 
     # Paper Reviews - DB의 category 필드 사용
     for post in paper_reviews:
-        author_image_url = None
-        if post.author_image:
-            author_image_url = post.author_image.url
-
-        card_image_url = None
-        if post.card_image:
-            card_image_url = post.card_image.url
+        author_image_url = post.author_image if post.author_image else None
+        card_image_url = post.card_image if post.card_image else None
 
         category = post.category if post.category else 'Paper Review'
 

@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 {% load static %}
+{% load custom_filters %}
 <html lang="ko">
 <head>
+    <base href="/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ category_name }} - ListeneRS</title>
@@ -294,6 +296,20 @@
             flex-wrap: wrap;
         }
 
+        .post-hero-banner {
+            margin: 28px 0 36px 0;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .post-hero-banner img {
+            width: 100%;
+            max-height: 420px;
+            object-fit: cover;
+            display: block;
+        }
+
         .markdown-body {
             margin-top: 40px;
             line-height: 1.8;
@@ -482,6 +498,11 @@
                     {% endif %}
                 </div>
             </div>
+            {% if current_post.card_image %}
+            <div class="post-hero-banner">
+                <img src="{{ current_post.card_image|image_url }}" alt="{{ current_post.title }}">
+            </div>
+            {% endif %}
             <div class="markdown-body">
                 {{ markdown_content_with_highlight|safe }}
             </div>

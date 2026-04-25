@@ -255,10 +255,7 @@ def study_archive_home(request):
     all_posts = []
 
     for post in paper_reviews:
-        author_image_url = None
-        if post.author_image:
-            # ImageField의 .url 속성 사용
-            author_image_url = post.author_image.url
+        author_image_url = post.author_image if post.author_image else None
 
         all_posts.append({
             'id': post.id,

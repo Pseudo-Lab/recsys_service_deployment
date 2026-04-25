@@ -710,35 +710,59 @@ def edit_monthly_pseudorec_post(request, pk):
     post = PostMonthlyPseudorec.objects.get(id=pk)
     s3_images = get_s3_images()  # 🔹 S3 이미지 리스트 가져오기
 
+    CATEGORIES = [
+        'Paper Review', 'Agent', 'LLM을 활용한 추천시스템', '대회 참가 후기',
+        '추천 모델 & 구현', 'RAG', 'LLM 모델 & 챗봇', 'Machine Learning Algorithm',
+        '이경찬의 논문 쉽게 찾기 토이프로젝트', '남궁민상의 언론매체와 LLM', 'Engineering',
+    ]
+
     if request.method == "POST":
         post.title = request.POST.get("title")
         post.subtitle = request.POST.get("subtitle")
         post.month = request.POST.get("month")
         post.content = request.POST.get("content")
+        post.author = request.POST.get("author", post.author)
+        post.category = request.POST.get("category", "")
+        post.subcategory = request.POST.get("subcategory", "")
         post.tag1 = request.POST.get("tag1", "Recommendation Model")
         post.tag2 = request.POST.get("tag2", "Tech")
+        created_at = request.POST.get("created_at")
+        if created_at:
+            post.created_at = created_at
 
-        # 🔹 기존 이미지 또는 새 이미지 선택
+        # 카드 이미지 (ImageField)
         new_card_image = request.FILES.get("card_image")
-        selected_card_image = request.POST.get(
-            "selected_card_image"
-        )  # 선택한 기존 이미지
-
         if new_card_image:
-            new_card_image_url = upload_to_s3(new_card_image)  # S3에 업로드
-            s3_images.append(
-                new_card_image_url
-            )  # 새로 업로드한 이미지를 기존 리스트에 추가
-            post.card_image = new_card_image_url  # 새 이미지로 변경
-        else:
-            post.card_image = selected_card_image  # 기존 이미지 유지
+            post.card_image = new_card_image
+
+        # 작성자 이미지 (ImageField — 파일 업로드 시에만 변경)
+        author_image = request.FILES.get("author_image")
+        if author_image:
+            post.author_image = author_image
 
         post.save()
         return redirect("single_post_page_monthly_pseudorec", pk=post.id)
 
-    return render(
-        request, "edit_monthly_pseudorec.html", {"post": post, "s3_images": s3_images}
-    )
+    authors = sorted(set(
+        list(Post.objects.values_list('author', flat=True)) +
+        list(PostMonthlyPseudorec.objects.values_list('author', flat=True))
+    ))
+    author_image_map = {}
+    for p in PostMonthlyPseudorec.objects.exclude(author_image='').order_by('-created_at'):
+        if p.author not in author_image_map and p.author_image:
+            author_image_map[p.author] = p.author_image.url
+    for p in Post.objects.exclude(author_image='').order_by('-created_at'):
+        if p.author not in author_image_map and p.author_image:
+            url = p.author_image
+            if url and not url.startswith('http'):
+                url = f'/media/{url}'
+            author_image_map[p.author] = url
+
+    return render(request, "edit_monthly_pseudorec.html", {
+        "post": post, "s3_images": s3_images, "authors": authors,
+        "categories": CATEGORIES,
+        "author_image_map_json": json.dumps(author_image_map, ensure_ascii=False),
+    })
 
 
 @login_required

@@ -58,7 +58,7 @@
         <h4>🖼 카드 이미지 (배너 & 넷플릭스 카드에 표시)</h4>
         <div class="upload-row">
           <input type="file" id="upload_card_image" accept="image/*">
-          <button type="button" class="btn btn-outline-primary btn-sm" id="upload_btn">업로드</button>
+          <span id="upload_status" style="font-size:13px; color:#666;"></span>
         </div>
         <div class="image-gallery" id="card_image_gallery">
           {% for image in s3_images %}
@@ -155,9 +155,11 @@
       imgElement.classList.add("selected");
     }
 
-    document.getElementById("upload_btn").addEventListener("click", function() {
-      const file = document.getElementById("upload_card_image").files[0];
-      if (!file) { alert("파일을 선택하세요"); return; }
+    document.getElementById("upload_card_image").addEventListener("change", function() {
+      const file = this.files[0];
+      if (!file) return;
+      const status = document.getElementById("upload_status");
+      status.textContent = "⏫ 업로드 중...";
       const formData = new FormData();
       formData.append("image", file);
       fetch(UPLOAD_URL, {
@@ -172,8 +174,10 @@
           const p = document.getElementById("selected_card_image_preview");
           p.src = data.image_url;
           p.style.display = "block";
-        } else alert("업로드 실패: " + data.error);
-      });
+          status.textContent = "✅ 업로드 완료";
+        } else { status.textContent = "❌ 업로드 실패: " + data.error; }
+      })
+      .catch(() => { status.textContent = "❌ 업로드 오류"; });
     });
 
     function setupAuthorSelect(selectName, customInputId) {

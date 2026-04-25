@@ -348,15 +348,33 @@ tar -czf media_backup_$(date +%Y%m%d).tar.gz _media/
 - **nginx 업로드 크기 제한 수정** (`nginx/nginx.conf`)
   - `client_max_body_size 20M;` 추가 (기존: 기본값 1MB → 413 에러 발생)
   - `pseudorec.com` HTTPS 블록 제거 (SSL 인증서 없어서 nginx 기동 실패)
+- **게시글 상세 페이지 카드 이미지 배너** (`post_detail.html`, `post_detail.css`)
+  - 제목 + 작성자 정보 아래에 카드 이미지를 배너 형태로 표시
+  - 라운드 코너 + 그림자 스타일 적용
+- **`image_url` 템플릿 필터 추가** (`paper_review/templatetags/custom_filters.py`)
+  - `ImageField`(`.url` 필요)와 `URLField`(문자열 그대로) 모두 안전하게 처리
+  - 상대 경로(`paper_review/card_imgs/...`)는 자동으로 `/media/` 접두사 추가
+  - 적용: `post_detail.html`, `post_list.html`, `post_list_monthly_pseudorec.html`
+- **작성자 선택 시 이미지 자동 매핑** (`add_post.html`, `edit_post.html`)
+  - 작성자 드롭다운 변경 시 DB에서 가장 최근 이미지를 자동 미리보기
+  - 새 파일 업로드 없으면 기존 매핑 이미지 URL 자동 저장
+- **미디어 파일 동기화**
+  - `_media/paper_review/` (author_imgs, card_imgs, images) 141MB를 서버에 업로드
+  - `docker cp`로 web/nginx 공유 volume에 복사
+  - `/media/` 404 오류 해결 완료
 - **버그 수정**
-  - `AttributeError: 'str' object has no attribute 'url'`: URLField로 변경 후 `.url` 호출 제거
-    - `my_agents/views.py`: `get_posts_by_category()`, `study_archive_home()` 수정
+  - `AttributeError: 'str' object has no attribute 'url'`: 전체 템플릿에서 `image_url` 필터로 교체
+    - `my_agents/views.py`: `get_posts_by_category()`, `study_archive_home()`에서 상대 경로 처리
+    - `post_detail.html`, `post_list.html`, `post_list_monthly_pseudorec.html`
   - `IntegrityError: created_at cannot be null`: `auto_now_add=True`로 수정
   - `DataError: Data too long for column 'card_image'`: URLField max_length=500으로 수정
+  - 기존 ImageField 상대 경로 404: `/media/` 접두사 자동 추가 처리
 - **핫픽스 배포 방법 확인**
   - 컨테이너 이름: `recsys_service_deployment-web-1` (docs의 `web`과 다름 — docker-compose 사용 시)
+  - nginx 컨테이너: `recsys_service_deployment-nginx-1`
   - SSH 키: `/Users/kyeongchanlee/ListeneRS.pem`
   - 서버: `ec2-user@13.125.131.249`
+  - media volume은 web/nginx 공유 — `docker cp`로 web에 넣으면 nginx에서도 접근 가능
 
 ### 2025-10-25
 - 김현우님 게시글 2개 추가 (Google ADK, Finance Trade Agent)

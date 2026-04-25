@@ -301,6 +301,7 @@
             border-radius: 14px;
             overflow: hidden;
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            position: relative;
         }
 
         .post-hero-banner img {
@@ -308,6 +309,34 @@
             max-height: 420px;
             object-fit: cover;
             display: block;
+        }
+
+        .banner-download-btn {
+            position: absolute;
+            bottom: 14px;
+            right: 14px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .post-hero-banner:hover .banner-download-btn {
+            opacity: 1;
+        }
+
+        .banner-download-btn:hover {
+            background: rgba(0, 0, 0, 0.75);
         }
 
         .markdown-body {
@@ -501,6 +530,9 @@
             {% if current_post.card_image %}
             <div class="post-hero-banner">
                 <img src="{{ current_post.card_image|image_url }}" alt="{{ current_post.title }}">
+                <button class="banner-download-btn" onclick="downloadImage('{{ current_post.card_image|image_url }}', '{{ current_post.title }}')" title="이미지 다운로드">
+                    <i class="fa-solid fa-download"></i>
+                </button>
             </div>
             {% endif %}
             <div class="markdown-body">
@@ -539,5 +571,21 @@
     </main>
 </div>
 
+<script>
+function downloadImage(url, title) {
+    fetch(url)
+        .then(res => res.blob())
+        .then(blob => {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            const ext = url.split('.').pop().split('?')[0] || 'png';
+            a.download = title.replace(/[^a-zA-Z0-9가-힣\s]/g, '').trim() + '.' + ext;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+        });
+}
+</script>
 </body>
 </html>

@@ -89,6 +89,30 @@ main .center-main-field .paper-review-detail {
     font-style: normal;
 }
 
+/* 카드 이미지 배너 */
+.post-hero-banner {
+    margin: 24px 0 32px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.post-hero-banner img {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    display: block;
+    cursor: default;
+}
+
+/* 작성일 */
+.post-date {
+    font-size: 0.9em;
+    color: #888;
+    margin-top: 4px;
+    margin-bottom: 0;
+}
+
 main .center-main-field .paper-review-main .user {
     display: flex;
     justify-content: space-between;

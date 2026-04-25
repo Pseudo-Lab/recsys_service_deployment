@@ -75,21 +75,22 @@
         <div class="author-row">
           <div>
             <label>작성자</label>
-            <select name="author">
+            <select name="author" id="author_select">
               {% for a in authors %}
               <option value="{{ a }}">{{ a }}</option>
               {% endfor %}
               <option value="__custom__">직접 입력...</option>
             </select>
             <input type="text" id="author_custom" placeholder="이름 직접 입력" style="display:none; margin-top:6px;">
+            <img id="author_preview" src="" style="display:none; width:48px; height:48px; border-radius:50%; object-fit:cover; margin-top:8px; border:2px solid #ddd;">
           </div>
           <div>
-            <label>작성자 이미지 (업로드)</label>
+            <label>작성자 이미지 (업로드하면 기존 이미지 대체)</label>
             <input type="file" name="author_image" accept="image/*">
           </div>
           <div>
             <label>작성자2 (선택)</label>
-            <select name="author2">
+            <select name="author2" id="author2_select">
               <option value="">없음</option>
               {% for a in authors %}
               <option value="{{ a }}">{{ a }}</option>
@@ -97,14 +98,17 @@
               <option value="__custom__">직접 입력...</option>
             </select>
             <input type="text" id="author2_custom" placeholder="이름 직접 입력" style="display:none; margin-top:6px;">
+            <img id="author2_preview" src="" style="display:none; width:48px; height:48px; border-radius:50%; object-fit:cover; margin-top:8px; border:2px solid #ddd;">
           </div>
           <div>
-            <label>작성자2 이미지 (업로드)</label>
+            <label>작성자2 이미지 (업로드하면 기존 이미지 대체)</label>
             <input type="file" name="author_image2" accept="image/*">
           </div>
         </div>
       </div>
 
+      <input type="hidden" name="existing_author_image" id="existing_author_image">
+      <input type="hidden" name="existing_author2_image" id="existing_author2_image">
       <button type="submit" class="btn btn-primary submit-btn">글 등록</button>
     </form>
   </div>
@@ -197,6 +201,33 @@
     }
     setupAuthorSelect("author", "author_custom");
     setupAuthorSelect("author2", "author2_custom");
+
+    // 작성자-이미지 자동 매핑
+    const AUTHOR_IMAGE_MAP = {{ author_image_map_json|safe }};
+
+    function updateAuthorPreview(selectId, previewId, hiddenId) {
+      const sel = document.getElementById(selectId);
+      const preview = document.getElementById(previewId);
+      const hidden = document.getElementById(hiddenId);
+      const author = sel.value;
+      if (AUTHOR_IMAGE_MAP[author]) {
+        preview.src = AUTHOR_IMAGE_MAP[author];
+        preview.style.display = 'block';
+        hidden.value = AUTHOR_IMAGE_MAP[author];
+      } else {
+        preview.style.display = 'none';
+        hidden.value = '';
+      }
+    }
+
+    document.getElementById('author_select').addEventListener('change', function() {
+      updateAuthorPreview('author_select', 'author_preview', 'existing_author_image');
+    });
+    document.getElementById('author2_select').addEventListener('change', function() {
+      updateAuthorPreview('author2_select', 'author2_preview', 'existing_author2_image');
+    });
+    // 초기 로드 시
+    updateAuthorPreview('author_select', 'author_preview', 'existing_author_image');
   </script>
 </body>
 </html>

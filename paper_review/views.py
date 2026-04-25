@@ -1,3 +1,4 @@
+import json
 import os
 
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -866,10 +867,16 @@ def edit_post(request, pk):
         elif selected_card_image:
             post.card_image = selected_card_image
 
+        existing_author_img = request.POST.get("existing_author_image", "")
+        existing_author2_img = request.POST.get("existing_author2_image", "")
         if author_image:
             post.author_image = upload_to_s3(author_image)
+        elif existing_author_img:
+            post.author_image = existing_author_img
         if author_image2:
             post.author_image2 = upload_to_s3(author_image2)
+        elif existing_author2_img:
+            post.author_image2 = existing_author2_img
 
         post.save()
         return redirect("single_post_page_paper_review", pk=post.pk)
@@ -878,7 +885,18 @@ def edit_post(request, pk):
         list(Post.objects.values_list('author', flat=True)) +
         list(PostMonthlyPseudorec.objects.values_list('author', flat=True))
     ))
-    return render(request, "edit_post.html", {"post": post, "categories": CATEGORIES, "s3_images": s3_images, "authors": authors})
+    # 작성자-이미지 매핑 (가장 최근 이미지 사용)
+    author_image_map = {}
+    for p in Post.objects.exclude(author_image='').order_by('-created_at'):
+        if p.author not in author_image_map and p.author_image:
+            url = p.author_image
+            if url and not url.startswith('http'):
+                url = f'/media/{url}'
+            author_image_map[p.author] = url
+    for p in PostMonthlyPseudorec.objects.exclude(author_image='').order_by('-created_at'):
+        if p.author not in author_image_map and p.author_image:
+            author_image_map[p.author] = p.author_image.url
+    return render(request, "edit_post.html", {"post": post, "categories": CATEGORIES, "s3_images": s3_images, "authors": authors, "author_image_map_json": json.dumps(author_image_map, ensure_ascii=False)})
 
 
 @login_required
@@ -913,8 +931,11 @@ def add_post(request):
         selected_card_image = request.POST.get("selected_card_image", "")
 
         card_image_url = upload_to_s3(card_image) if card_image else selected_card_image or None
-        author_image_url = upload_to_s3(author_image) if author_image else None
-        author_image2_url = upload_to_s3(author_image2) if author_image2 else None
+        # 작성자 이미지: 업로드 > 기존 매핑 순으로 사용
+        existing_author_img = request.POST.get("existing_author_image", "")
+        existing_author2_img = request.POST.get("existing_author2_image", "")
+        author_image_url = upload_to_s3(author_image) if author_image else existing_author_img or None
+        author_image2_url = upload_to_s3(author_image2) if author_image2 else existing_author2_img or None
 
         Post.objects.create(
             title=title,
@@ -934,7 +955,18 @@ def add_post(request):
         list(Post.objects.values_list('author', flat=True)) +
         list(PostMonthlyPseudorec.objects.values_list('author', flat=True))
     ))
-    return render(request, "add_post.html", {"categories": CATEGORIES, "s3_images": s3_images, "authors": authors})
+    # 작성자-이미지 매핑 (가장 최근 이미지 사용)
+    author_image_map = {}
+    for p in Post.objects.exclude(author_image='').order_by('-created_at'):
+        if p.author not in author_image_map and p.author_image:
+            url = p.author_image
+            if url and not url.startswith('http'):
+                url = f'/media/{url}'
+            author_image_map[p.author] = url
+    for p in PostMonthlyPseudorec.objects.exclude(author_image='').order_by('-created_at'):
+        if p.author not in author_image_map and p.author_image:
+            author_image_map[p.author] = p.author_image.url
+    return render(request, "add_post.html", {"categories": CATEGORIES, "s3_images": s3_images, "authors": authors, "author_image_map_json": json.dumps(author_image_map, ensure_ascii=False)})
 
 
 @csrf_exempt

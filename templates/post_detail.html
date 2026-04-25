@@ -63,66 +63,47 @@
                 {% endif %}
                 <div class="paper-review-main">
                     <h1>{{ post.title }}</h1>
-                    {% if not post.author2 %}
-                    <!-- 작성자가 한 명일 때 -->
+
+                    <!-- 작성자 정보 -->
                     <div class="user">
                         <div class="user-info-wrapper">
                             {% if post.author_image %}
-                            <img src={{post.author_image.url}} alt="">
-                            {% else %}
-                            <p>No image available</p>
+                            <img src="{{ post.author_image|image_url }}" alt="{{ post.author }}">
                             {% endif %}
                             <div class="user-info">
-                                <h5>{{post.author}}</h5>
-                                <small>{{post.month}}</small>
+                                <h5>{{ post.author }}</h5>
+                                {% if post.month %}<small>{{ post.month }}</small>{% endif %}
                             </div>
+                            {% if post.author2 and post.author2 != "작성자2추가" %}
+                            {% if post.author_image2 %}
+                            <img src="{{ post.author_image2|image_url }}" alt="{{ post.author2 }}"
+                                class="author-image author2-image">
+                            {% endif %}
+                            <div class="user-info author2-info">
+                                <h5 class="author-name author2-name">{{ post.author2 }}</h5>
+                            </div>
+                            {% endif %}
                         </div>
                         <div class="post-view">
                             <p class="comment-count" id="comment-count-btn">
                                 <i class="fa-regular fa-comment"></i>
-                                <span>{{ comments|length }}</span> <!-- 숫자를 span으로 감싸기 -->
+                                <span>{{ comments|length }}</span>
                             </p>
-                            <p><i class="fa-regular fa-eye"></i> {{ post.view_count }}</p>
-                        </div>
-
-                    </div>
-                    {% else %}
-                    <!-- 작성자가 두 명일 때 -->
-                    <div class="user">
-                        <div class="user-info-wrapper">
-                            {% if post.author_image %}
-                            <img src={{post.author_image.url}} alt="">
-                            {% else %}
-                            <p>No image available</p>
-                            {% endif %}
-                            <div class="user-info">
-                                <h5>{{post.author}}</h5>
-                            </div>
-                            {% if post.author_image2 %}
-                            <img src="{{ post.author_image2.url }}" alt="{{ post.author2 }} 사진"
-                                class="author-image author2-image">
-                            {% else %}
-                            {% endif %}
-
-                            {% if post.author2 and post.author2 != "작성자2추가" %}
-                            <div class="user-info author2-info">
-                                <h5 class="author-name author2-name">{{ post.author2 }}</h5>
-                            </div>
-                            {% else %}
-
-                            {% endif %}
-                        </div>
-                        <div class="post-view">
                             <p><i class="fa-regular fa-eye"></i> {{ post.view_count }}</p>
                         </div>
                     </div>
                     <p class="post-date">{{ post.created_at|date:"Y-m-d" }}</p>
+
+                    <!-- 카드 이미지 배너 -->
+                    {% if post.card_image %}
+                    <div class="post-hero-banner">
+                        <img src="{{ post.card_image|image_url }}" alt="{{ post.title }}">
+                    </div>
                     {% endif %}
 
                     <!-- Pygments가 적용된 코드 블록을 출력 -->
                     <p>{{ markdown_content_with_highlight|safe }}</p>
                     <hr />
-                    <!--                    <h3>여기 댓글이 들어올 수 있겠죠?</h3>-->
                 </div>
             </div>
 

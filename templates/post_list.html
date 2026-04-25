@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% load paper_review_filter %}
 {% load static %}
+{% load custom_filters %}
 <html lang="ko">
 
 <head>
@@ -49,7 +50,7 @@
                             <!-- 왼쪽에 새로운 이미지를 추가합니다 -->
                             {% if p.card_image %}
                             <a href="{{ p.get_absolute_url }}">
-                                <img src="{{ p.card_image.url }}" alt="Card Image">
+                                <img src="{{ p.card_image|image_url }}" alt="Card Image">
                             </a>
                             {% else %}
                             <p>No image available</p>
@@ -59,7 +60,7 @@
                             <h2 class="post-title"><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></h2>
                             <div class="user">
                                 {% if p.author_image %}
-                                <img src="{{ p.author_image.url }}" alt="{{ p.author }} 사진" class="author-image">
+                                <img src="{{ p.author_image|image_url }}" alt="{{ p.author }} 사진" class="author-image">
                                 {% else %}
                                 <img src="{% static 'img/member/for_monthly_pseudorec/default_user.png' %}" alt="기본 사용자 사진"
                                     class="author-image">

@@ -21,3 +21,16 @@ def isinstance_post(obj, _):
 def is_absolute_url(value):
     """주어진 값이 절대 URL인지 확인하는 필터"""
     return bool(re.match(r"^https?://", str(value)))
+
+
+@register.filter
+def image_url(value):
+    """ImageField 또는 URLField 값을 안전하게 URL로 변환"""
+    if not value:
+        return ''
+    if hasattr(value, 'url'):
+        return value.url
+    url = str(value)
+    if url.startswith('http'):
+        return url
+    return f'/media/{url}'

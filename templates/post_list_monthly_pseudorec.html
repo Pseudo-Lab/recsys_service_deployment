@@ -67,7 +67,7 @@
                                 </div>
                                 <div class="list-post-meta">
                                     {% if post.author_image %}
-                                    <img src="{{ post.author_image.url }}" alt="{{ post.author }}" class="list-author-image">
+                                    <img src="{{ post.author_image|image_url }}" alt="{{ post.author }}" class="list-author-image">
                                     {% endif %}
                                     <span class="list-post-author">{{ post.author }}</span>
                                     <span class="list-post-views">
@@ -93,7 +93,7 @@
                             <div class="card-header">
                                 {% if post.card_image %}
                                 <a href="{{ post.get_absolute_url }}">
-                                    <img src="{% if post.card_image|is_absolute_url %}{{ post.card_image }}{% else %}{{ post.card_image.url }}{% endif %}"
+                                    <img src="{{ post.card_image|image_url }}"
                                         alt="Card Image">
                                 </a>
                                 {% else %}
@@ -108,7 +108,7 @@
                                 <div class="user">
                                     <div class="user-info-wrapper">
                                         {% if post.author_image %}
-                                        <img src={{post.author_image.url}} alt="user 2">
+                                        <img src="{{ post.author_image|image_url }}" alt="{{ post.author }}">
                                         {% else %}
                                         <p>No image available</p>
                                         {% endif %}

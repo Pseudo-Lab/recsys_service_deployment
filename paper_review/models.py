@@ -8,19 +8,19 @@ from users.models import User
 class Post(models.Model):
     title = models.CharField(max_length=100)
     # content = models.TextField()
-    card_image = models.ImageField(
-        "카드 이미지", upload_to="paper_review/card_imgs", blank=True
+    card_image = models.URLField(
+        "카드 이미지", max_length=500, blank=True, default=""
     )
     content = MarkdownxField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     author = models.CharField(max_length=50, default="작성자추가")
-    author_image = models.ImageField(
-        "작성자 이미지", upload_to="paper_review/author_imgs", blank=True
+    author_image = models.URLField(
+        "작성자 이미지", max_length=500, blank=True, default=""
     )
     author2 = models.CharField(max_length=50, default="작성자2추가")
-    author_image2 = models.ImageField(
-        "작성자2 이미지", upload_to="paper_review/author_imgs", blank=True
+    author_image2 = models.URLField(
+        "작성자2 이미지", max_length=500, blank=True, default=""
     )
     category = models.CharField(max_length=100, blank=True, default="")
     subcategory = models.CharField(max_length=100, blank=True, default="")

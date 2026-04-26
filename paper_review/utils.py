@@ -2,9 +2,21 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 from pygments import highlight
 
+def clean_toast_ui_escapes(content):
+    """Toast UI Editor가 과도하게 escape한 문자를 복원"""
+    import re
+    # 코드 블록 밖에서만 처리
+    parts = re.split(r'(```[\s\S]*?```)', content)
+    for i in range(0, len(parts), 2):  # 코드 블록이 아닌 부분만
+        if i < len(parts):
+            parts[i] = parts[i].replace('\\,', ',')
+            parts[i] = parts[i].replace('\\-', '-')
+    return ''.join(parts)
+
+
 def codeblock(post):
     # Markdown 내용을 읽어와서 파싱
-    markdown_content = post.content
+    markdown_content = clean_toast_ui_escapes(post.content)
     html_content = ''
     in_code_block = False
     code_block = ''

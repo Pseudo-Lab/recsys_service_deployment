@@ -31,6 +31,6 @@ def image_url(value):
     if hasattr(value, 'url'):
         return value.url
     url = str(value)
-    if url.startswith('http'):
+    if url.startswith(('http', '/media/')):
         return url
     return f'/media/{url}'

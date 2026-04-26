@@ -573,18 +573,15 @@
 
 <script>
 function downloadImage(url, title) {
-    fetch(url)
-        .then(res => res.blob())
-        .then(blob => {
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            const ext = url.split('.').pop().split('?')[0] || 'png';
-            a.download = title.replace(/[^a-zA-Z0-9가-힣\s]/g, '').trim() + '.' + ext;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(a.href);
-        });
+    const ext = url.split('.').pop().split('?')[0] || 'png';
+    const filename = title.replace(/[^a-zA-Z0-9가-힣\s]/g, '').trim() + '.' + ext;
+    const proxyUrl = '/archive/download_image/?url=' + encodeURIComponent(url) + '&filename=' + encodeURIComponent(filename);
+    const a = document.createElement('a');
+    a.href = proxyUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
 </script>
 </body>

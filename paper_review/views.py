@@ -1028,3 +1028,34 @@ def post_preview(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+def download_image(request):
+    """이미지 URL을 프록시로 다운로드 (S3 CORS 우회)"""
+    import requests as http_requests
+    from django.http import HttpResponse
+
+    url = request.GET.get('url', '')
+    filename = request.GET.get('filename', 'image.png')
+
+    if not url:
+        return HttpResponse('URL required', status=400)
+
+    # 로컬 미디어 파일
+    if url.startswith('/media/'):
+        file_path = os.path.join(settings.MEDIA_ROOT, url.replace('/media/', ''))
+        if os.path.exists(file_path):
+            with open(file_path, 'rb') as f:
+                response = HttpResponse(f.read(), content_type='application/octet-stream')
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                return response
+        return HttpResponse('File not found', status=404)
+
+    # 외부 URL (S3 등)
+    try:
+        resp = http_requests.get(url, timeout=30)
+        response = HttpResponse(resp.content, content_type=resp.headers.get('Content-Type', 'application/octet-stream'))
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+    except Exception:
+        return HttpResponse('Download failed', status=500)

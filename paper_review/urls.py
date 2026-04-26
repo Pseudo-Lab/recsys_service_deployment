@@ -34,4 +34,5 @@ urlpatterns = [
     path("post_preview/", views.post_preview, name="post_preview"),
     path("post/add/", views.add_post, name="add_post"),
     path("post/<int:pk>/edit/", views.edit_post, name="edit_post"),
+    path("download_image/", views.download_image, name="download_image"),
 ]

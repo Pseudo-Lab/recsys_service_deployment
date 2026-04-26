@@ -6,7 +6,7 @@ from users.models import User
 
 
 class Post(models.Model):
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=300)
     # content = models.TextField()
     card_image = models.URLField(
         "카드 이미지", max_length=500, blank=True, default=""

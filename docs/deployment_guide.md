@@ -163,6 +163,39 @@ ssh -i /Users/kyeongchanlee/ListeneRS.pem ec2-user@13.125.131.249 \
     "sudo docker restart web"
 ```
 
+### 6.3 git pull 건너뛰는 초고속 배포 (서버 working tree에 미커밋 작업 있을 때)
+
+EC2 서버의 working tree에 커밋되지 않은 로컬 변경분이 있으면 `git pull`이
+거부된다 (`Your local changes to the following files would be overwritten by merge`).
+이때는 **git pull을 건너뛰고 로컬 파일을 직접 컨테이너에 주입**하는 게 가장 빠르고
+안전하다. 서버의 미커밋 작업물(예: MathJax 추가, relative_date 필터 등)을 보존한다.
+
+실제 컨테이너 이름: `recsys_service_deployment-web-1` (docker-compose 사용 시).
+
+```bash
+# 1) 로컬에서 변경 파일을 EC2의 /tmp로 직접 scp
+scp -i /Users/kyeongchanlee/ListeneRS.pem \
+    paper_review/utils.py \
+    templates/category_detail.html \
+    ec2-user@13.125.131.249:/tmp/
+
+# 2) EC2에서 /tmp의 파일을 컨테이너 안 해당 경로로 docker cp
+ssh -i /Users/kyeongchanlee/ListeneRS.pem ec2-user@13.125.131.249 "
+  sudo docker cp /tmp/utils.py recsys_service_deployment-web-1:/usr/src/app/paper_review/utils.py && \
+  sudo docker cp /tmp/category_detail.html recsys_service_deployment-web-1:/usr/src/app/templates/category_detail.html && \
+  sudo docker restart recsys_service_deployment-web-1
+"
+```
+
+**언제 쓰면 좋은가:**
+- 서버 working tree에 미커밋 변경이 있고 그걸 살려야 할 때 (가장 안전)
+- 한두 파일만 빠르게 반영하고 싶을 때
+
+**주의:**
+- git push는 별개로 해두기 (소스 정합성). 이 방법은 컨테이너만 즉시 반영하는 거라
+  서버의 git working tree와 컨테이너 안 코드가 디버깅 시 미묘하게 달라질 수 있음.
+- 추후 서버에서 `git pull` 받을 때, 서버의 미커밋 변경분이 그대로 남아 있으니 별도 정리 필요.
+
 ## 7. 배포 검증
 
 ### 7.1 웹사이트 접근 확인

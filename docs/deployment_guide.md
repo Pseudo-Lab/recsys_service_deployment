@@ -14,7 +14,10 @@
 ## 배포 환경
 
 - **서버**: AWS EC2 (13.125.131.249)
-- **도메인**: https://www.pseudorec.com
+- **도메인 (현재 주력)**: https://www.listeners-pseudolab.com
+  - 글 상세 URL 패턴: `/archive/category/<category_name>/<post_type>/<post_id>/`
+  - 예: `https://www.listeners-pseudolab.com/archive/category/Machine%20Learning%20Algorithm/paper/30/`
+- **도메인 (병행 운영)**: https://www.pseudorec.com — 같은 서버에서 같이 서빙
 - **웹 서버**: nginx (리버스 프록시)
 - **애플리케이션 서버**: gunicorn
 - **컨테이너**: Docker

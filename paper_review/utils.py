@@ -11,7 +11,16 @@ def clean_toast_ui_escapes(content):
         if i < len(parts):
             parts[i] = parts[i].replace('\\,', ',')
             parts[i] = parts[i].replace('\\-', '-')
-    return ''.join(parts)
+    content = ''.join(parts)
+
+    # Toast UI WYSIWYG가 HTML <table>을 round-trip할 때 markdown separator
+    # (| --- | --- |)를 첫 행 뒤에 끼워넣어 표를 깨뜨리는 버그 우회.
+    # <table>...</table> 블록 안에서만 orphan separator 행을 제거한다.
+    def _strip_md_separator(m):
+        return re.sub(r'\|[\s\-:|]+\|\s*(?:\r?\n)?', '', m.group(0))
+    content = re.sub(r'<table[\s\S]*?</table>', _strip_md_separator, content)
+
+    return content
 
 
 def codeblock(post):

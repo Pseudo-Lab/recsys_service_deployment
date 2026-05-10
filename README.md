@@ -22,7 +22,20 @@ pip install dgl -f https://data.dgl.ai/wheels/repo.html
 pip install -r requirements.txt
 ```
 
-다음 명령어를 실행하면 Django를 실행시킵니다.
+## 가상환경 (필수)
+이 프로젝트의 Python 패키지는 pyenv-virtualenv `recsys_service_deployment` (Python 3.10.16)에 설치되어 있다.
+프로젝트 루트에 `.python-version`이 없어서 **자동 활성화되지 않으므로** 매번 수동으로 활성화해야 한다.
+
+```shell
+pyenv activate recsys_service_deployment
+# 또는 절대경로로 직접 호출:
+# /Users/kyeongchanlee/.pyenv/versions/recsys_service_deployment/bin/python manage.py runserver
+```
+
+활성화하지 않으면 `ModuleNotFoundError: No module named 'django'`가 발생한다.
+
+## Django 실행
+가상환경 활성화 후:
 ```shell
 # docker-compose -f docker-compose.broker.yml up -d -> 현재 쓰지 않습니다.
 python manage.py runserver
